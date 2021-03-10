@@ -146,9 +146,9 @@ macro_rules!  __declare_cmp_fns{
                     $(#[$attr_eq])*,
                     $(#[$attr_ord])*,
                     concat!(
-                        "A const equivalent of `&[",
+                        "Compares two `&[",
                         stringify!($type),
-                        "]` equality comparison.",
+                        "]` for equality.",
                     ),
                     concat!(
                         "A const equivalent of `<[",
