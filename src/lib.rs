@@ -5,7 +5,7 @@
 #[macro_use]
 mod declare_cmp_fn_macros;
 
-// mod cmp_macros;
+mod cmp_macros;
 
 #[doc(hidden)]
 pub mod __for_cmp_impls;
@@ -25,6 +25,7 @@ pub mod slice;
 #[doc(hidden)]
 pub mod __ {
     pub use core::cmp::Ordering;
+    pub use core::matches;
 
     pub use crate::__for_cmp_impls::U8Ordering;
 }

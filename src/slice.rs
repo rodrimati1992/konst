@@ -16,3 +16,13 @@ __declare_cmp_fns! {
     (,,, bool, slice_eq_bool, slice_cmp_bool,)
     (,,, char, slice_eq_char, slice_cmp_char,)
 }
+
+/// Compares two `&[&str]` for equality.
+pub const fn slice_eq_str(l: &[&str], r: &[&str]) -> bool {
+    crate::slice_eq_by!(l, r, |l, r| crate::str_eq(l, r))
+}
+
+/// Compares two `&[&[u8]]` for equality.
+pub const fn slice_eq_bytes(l: &[&[u8]], r: &[&[u8]]) -> bool {
+    crate::slice_eq_by!(l, r, |l, r| slice_eq_u8(l, r))
+}
