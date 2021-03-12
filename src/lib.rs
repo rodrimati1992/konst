@@ -3,12 +3,14 @@
 #![no_std]
 
 #[macro_use]
-mod declare_cmp_fn_macros;
-
-mod cmp_macros;
+mod macros;
 
 #[doc(hidden)]
 pub mod __for_cmp_impls;
+
+// pub mod other;
+
+pub mod polymorphism;
 
 #[cfg(feature = "str_cmp")]
 __declare_string_cmp_fns! {
@@ -28,4 +30,8 @@ pub mod __ {
     pub use core::matches;
 
     pub use crate::__for_cmp_impls::U8Ordering;
+
+    pub use crate::polymorphism::{
+        CmpWrapper, ConstCmpMarker, IsAConstCmpMarker, IsNotStdKind, IsStdKind,
+    };
 }

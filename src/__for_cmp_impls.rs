@@ -34,3 +34,14 @@ macro_rules! __priv_ret_if_ne {
         }
     }};
 }
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_first_expr {
+    ($expr:expr) => {
+        $expr
+    };
+    ($expr:expr, $($more:expr),*) => {
+        $expr
+    };
+}

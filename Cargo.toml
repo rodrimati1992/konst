@@ -23,6 +23,9 @@ include = [
 
 
 [features]
-default = ["slice_cmp"]
-slice_cmp = ["str_cmp"]
-str_cmp = []
+default = ["slice_cmp", "other_cmp"]
+other_cmp = ["polymorphism"]
+slice_cmp = ["str_cmp", "polymorphism"]
+str_cmp = ["polymorphism"]
+const_generics = []
+polymorphism = []

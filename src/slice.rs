@@ -1,4 +1,6 @@
-__declare_cmp_fns! {
+use core::cmp::Ordering;
+
+__declare_slice_cmp_fns! {
     import_path = "const_cmp",
 
     (,,, u8, slice_eq_u8, slice_cmp_u8,)
@@ -17,12 +19,20 @@ __declare_cmp_fns! {
     (,,, char, slice_eq_char, slice_cmp_char,)
 }
 
-/// Compares two `&[&str]` for equality.
-pub const fn slice_eq_str(l: &[&str], r: &[&str]) -> bool {
-    crate::slice_eq_by!(l, r, |l, r| crate::str_eq(l, r))
+delegate_const_eq! {
+    skip_coerce;
+
+    /// Compares two `&[&str]` for equality.
+    pub const fn slice_eq_str(ref l: &[&str], r: &[&str]) -> bool {
+        crate::const_eq_for!(slice;l, r, |l, r| crate::str_eq(l, r))
+    }
 }
 
-/// Compares two `&[&[u8]]` for equality.
-pub const fn slice_eq_bytes(l: &[&[u8]], r: &[&[u8]]) -> bool {
-    crate::slice_eq_by!(l, r, |l, r| slice_eq_u8(l, r))
+delegate_const_eq! {
+    skip_coerce;
+
+    /// Compares two `&[&[u8]]` for equality.
+    pub const fn slice_eq_bytes(ref l: &[&[u8]], r: &[&[u8]]) -> bool {
+        crate::const_eq_for!(slice;l, r, |l, r| slice_eq_u8(l, r))
+    }
 }
