@@ -1,7 +1,9 @@
 #[macro_export]
 macro_rules! const_eq {
     ($left:expr, $right:expr) => {
-        $crate::coerce_to_cmp!($left).const_eq(&$right)
+        match $crate::coerce_to_cmp!($left, $right) {
+            (left, right) => left.const_eq(right),
+        }
     };
 }
 
@@ -43,6 +45,10 @@ macro_rules! const_eq {
 /// - `, |left_item, right_item| <expression>`:
 /// Compares the items  with `<expression>`, which must evaluate to a `bool`.
 /// [example](#compare_options)
+///
+/// - `, path::to::function`:
+/// Compares the items using the passed function, which must evaluate to a `bool`.
+/// [example](#compare_ranges_incluside)
 ///
 ///
 ///
@@ -239,10 +245,10 @@ macro_rules! const_eq {
 /// const FOO_FOO: bool = const_eq_for!(range_inclusive; FOO, FOO);
 /// assert!( FOO_FOO );
 ///
-/// const FOO_BAR: bool = const_eq_for!(range_inclusive; FOO, BAR);
+/// const FOO_BAR: bool = const_eq_for!(range_inclusive; FOO, BAR, WeekDay::const_eq);
 /// assert!( !FOO_BAR );
 ///
-/// const BAR_BAR: bool = const_eq_for!(range_inclusive; BAR, BAR);
+/// const BAR_BAR: bool = const_eq_for!(range_inclusive; BAR, BAR, WeekDay::const_eq);
 /// assert!( BAR_BAR );
 ///
 /// ```
@@ -355,4 +361,7 @@ macro_rules! __priv_const_eq_for {
         let $r = &$right;
         $eq_expr
     }};
+    ($left:expr, $right:expr, $func:path $(,)*) => {
+        $func(&$left, &$right)
+    };
 }

@@ -1,5 +1,8 @@
 #[macro_use]
-mod cmp_macros;
+mod const_eq_macros;
+
+#[macro_use]
+mod const_ord_macros;
 
 #[macro_use]
 mod declare_cmp_fn_macros;

@@ -24,7 +24,7 @@ macro_rules! __declare_string_cmp_fns {
         use_str_eq = $str_eq_import:expr,
         use_str_cmp = $str_cmp_import:expr,
     ) => {
-        delegate_const_eq! {
+        $crate::__delegate_const_eq! {
             skip_coerce;
             /// A const equivalent of `&str` equality comparison.
             ///
@@ -70,7 +70,7 @@ macro_rules! __declare_string_cmp_fns {
             }
         }
 
-        delegate_const_ord! {
+        __delegate_const_ord! {
             skip_coerce;
             /// A const equivalent of `str::cmp`.
             ///
@@ -182,7 +182,7 @@ macro_rules!  __declare_slice_cmp_fns{
         $eq_fn_name:ident,
         $cmp_fn_name:ident,
     ) => {
-        delegate_const_eq!{
+        $crate::__delegate_const_eq!{
             skip_coerce;
 
             #[doc = $docs_eq]
@@ -208,7 +208,7 @@ macro_rules!  __declare_slice_cmp_fns{
 
 
 
-        delegate_const_ord!{
+        __delegate_const_ord!{
             skip_coerce;
             for['a,]
 

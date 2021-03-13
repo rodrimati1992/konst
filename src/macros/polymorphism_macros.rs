@@ -1,4 +1,6 @@
-macro_rules!  delegate_const_inner_fn{
+#[doc(hidden)]
+#[macro_export]
+macro_rules!  __priv_delegate_const_inner_fn{
     (
         $(skip_coerce $(@$_skip:tt@)?;)?
 
@@ -11,14 +13,16 @@ macro_rules!  delegate_const_inner_fn{
     )=>{
         $(#[$attr])*
         pub const fn $func<$($($fnlt,)*)? $($($implg)*)?>(
-            get_pati_ident!($($idents)*): $l_ty,
+            $crate::__priv_get_pati_ident!($($idents)*): $l_ty,
             $rhs: $r_ty,
         ) -> $ret $block
     }
 }
 
 #[cfg(feature = "polymorphism")]
-macro_rules!  delegate_const_inner_cmpwrapper{
+#[doc(hidden)]
+#[macro_export]
+macro_rules!  __priv_delegate_const_inner_cmpwrapper{
     (
         ($cw_method:ident, $returns:ty)
 
@@ -31,7 +35,7 @@ macro_rules!  delegate_const_inner_cmpwrapper{
             $rhs:ident: $r_ty:ty $(,)*
         ) -> $ret:ty $block:block
     ) => {
-        std_kind_impl!{
+        $crate::__priv_std_kind_impl!{
             $(skip_coerce $(@$_skip@)?;)*
             impl[$($($implg)*)?] $l_ty
         }
@@ -39,31 +43,35 @@ macro_rules!  delegate_const_inner_cmpwrapper{
         impl<$($($implg)*)?> $crate::__::CmpWrapper<$l_ty> {
             #[inline]
             pub const fn $cw_method<$($($fnlt,)*)?>(&self, r: $r_ty) -> $returns {
-                $func(copy_if_nonref!(($($idents)*) self.0), r)
+                $func($crate::__priv_copy_if_nonref!(($($idents)*) self.0), r)
             }
         }
     }
 }
 
-/// `delegate_const_eq` allows:
+/// `__delegate_const_eq` allows:
 /// - defining a free function,
 /// - defining an inherent `cosnt_eq` method on CmpWrapper that delegates to that free function.
 /// - ConstCmpMarker impl for the first parameter type
 /// - Add a coerce inhenrent method for IsAConstCmpMarker
 ///
 #[cfg(not(feature = "polymorphism"))]
-macro_rules!  delegate_const_eq{
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __delegate_const_eq{
     ( $($input:tt)* )=>{
-        delegate_const_inner_fn!{ $($input)* }
+        $crate::__priv_delegate_const_inner_fn!{ $($input)* }
     }
 }
 
 #[cfg(feature = "polymorphism")]
-macro_rules!  delegate_const_eq{
+#[doc(hidden)]
+#[macro_export]
+macro_rules!  __delegate_const_eq{
     ( $($input:tt)* )=>{
-        delegate_const_inner_fn!{ $($input)* }
+        $crate::__priv_delegate_const_inner_fn!{ $($input)* }
 
-        delegate_const_inner_cmpwrapper!{
+        $crate::__priv_delegate_const_inner_cmpwrapper!{
             (const_eq, bool)
 
             $($input)*
@@ -72,18 +80,22 @@ macro_rules!  delegate_const_eq{
 }
 
 #[cfg(not(feature = "polymorphism"))]
-macro_rules! delegate_const_ord{
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __delegate_const_ord{
     ($($input:tt)*)=>{
-        delegate_const_inner_fn!{ $($input)* }
+        $crate::__priv_delegate_const_inner_fn!{ $($input)* }
     }
 }
 
 #[cfg(feature = "polymorphism")]
-macro_rules! delegate_const_ord{
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __delegate_const_ord{
     ( $($input:tt)* )=>{
-        delegate_const_inner_fn!{ $($input)* }
+        $crate::__priv_delegate_const_inner_fn!{ $($input)* }
 
-        delegate_const_inner_cmpwrapper!{
+        $crate::__priv_delegate_const_inner_cmpwrapper!{
             (const_cmp, $crate::__::Ordering)
 
             skip_coerce;
@@ -94,7 +106,9 @@ macro_rules! delegate_const_ord{
 }
 
 #[cfg(feature = "polymorphism")]
-macro_rules! copy_if_nonref {
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_copy_if_nonref {
     ((ref $ident:ident) $expr:expr) => {
         &$expr
     };
@@ -104,7 +118,9 @@ macro_rules! copy_if_nonref {
 }
 
 #[cfg(feature = "polymorphism")]
-macro_rules! get_pati_ident {
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_get_pati_ident {
     (ref $ident:ident) => {
         $ident
     };
@@ -113,7 +129,9 @@ macro_rules! get_pati_ident {
     };
 }
 
-macro_rules! std_kind_impl {
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_std_kind_impl {
     (
         impl[$($impl:tt)*] $self:ty
         $(where[ $($where_:tt)* ])?
@@ -150,6 +168,22 @@ macro_rules! coerce_to_cmp {
                     marker.infer_type(reference);
                 }
                 marker.coerce(marker.unreference(reference))
+            }
+        }
+    }};
+    ($left:expr, $right:expr) => {{
+        match (&$left, &$right) {
+            (left, right) => {
+                let l_marker = $crate::__::IsAConstCmpMarker::NEW;
+                let r_marker = $crate::__::IsAConstCmpMarker::NEW;
+                if false {
+                    l_marker.infer_type(left);
+                    r_marker.infer_type(right);
+                }
+                (
+                    l_marker.coerce(l_marker.unreference(left)),
+                    r_marker.unreference(right),
+                )
             }
         }
     }};
