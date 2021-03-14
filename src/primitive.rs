@@ -59,5 +59,6 @@ __declare_fns_with_docs! {
         params(l, r)
         eq_comparison = l == r,
         cmp_comparison = cmp_int!(l, r),
+        parameter_copyability = copy,
     ),
 }

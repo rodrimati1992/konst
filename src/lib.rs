@@ -12,7 +12,14 @@ pub mod __for_cmp_impls;
 
 pub mod polymorphism;
 
+#[cfg(feature = "primitives")]
 pub mod primitive;
+
+#[cfg(feature = "range")]
+pub mod range;
+
+#[cfg(feature = "nonzero")]
+pub mod nonzero;
 
 #[cfg(feature = "str")]
 __declare_string_cmp_fns! {
@@ -34,6 +41,7 @@ __declare_fns_with_docs! {
         params(l, r)
         eq_comparison = crate::polymorphism::CmpWrapper(l).const_eq(r),
         cmp_comparison = crate::polymorphism::CmpWrapper(l).const_cmp(r),
+        parameter_copyability = copy,
     ),
 }
 
@@ -43,7 +51,7 @@ pub mod slice;
 
 #[doc(hidden)]
 pub mod __ {
-    pub use core::cmp::Ordering;
+    pub use core::cmp::Ordering::{self, Equal, Greater, Less};
     pub use core::matches;
 
     pub use crate::__for_cmp_impls::U8Ordering;

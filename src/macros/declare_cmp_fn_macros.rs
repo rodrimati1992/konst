@@ -326,6 +326,7 @@ macro_rules! __impl_option_cmp_fns {
         params($l:ident, $r:ident)
         eq_comparison = $eq_comparison:expr,
         cmp_comparison = $cmp_comparison:expr,
+        parameter_copyability = $copyab:ident,
 
         ($type:ty, ($eq_fn_name:ident, $cmp_fn_name:ident))
 
@@ -335,7 +336,7 @@ macro_rules! __impl_option_cmp_fns {
             $(for[$($impl)*])?
 
             #[doc = $docs_eq]
-            pub const fn $eq_fn_name(copy left: $type, right: $type) -> bool {
+            pub const fn $eq_fn_name($copyab left: $type, right: $type) -> bool {
                 match (left, right) {
                     (Some($l), Some($r)) => $eq_comparison,
                     (None, None) => true,
@@ -348,7 +349,7 @@ macro_rules! __impl_option_cmp_fns {
             $(for[$($impl)*])?
 
             #[doc = $docs_cmp]
-            pub const fn $cmp_fn_name(copy left: $type, right: $type) -> core::cmp::Ordering {
+            pub const fn $cmp_fn_name($copyab left: $type, right: $type) -> core::cmp::Ordering {
                 use core::cmp::Ordering;
 
                 match (left, right) {

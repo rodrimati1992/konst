@@ -73,7 +73,7 @@ macro_rules! assertc_eq_rets {
 
 macro_rules! assertc_opt_eq_rets {
     (
-        $ty:ty, $function:expr, $opt_function:expr =>
+        $ty:ty, $function:expr $(, $opt_function:expr)? =>
         $(($left:expr, $right:expr, $expected:expr))*
     ) => {
         let cases: Vec<($ty, $ty, _)> = vec![
@@ -86,6 +86,7 @@ macro_rules! assertc_opt_eq_rets {
 
             assertc_eq_rets!{$ty, $function => mleft(), mright(), expected}
 
+            $(
             #[cfg(feature = "option")]
             {
                 let cases = vec![
@@ -99,6 +100,7 @@ macro_rules! assertc_opt_eq_rets {
                     assertc_eq_rets!{Option<$ty>, $opt_function => l, r, e }
                 }
             }
+            )?
 
         }
     };

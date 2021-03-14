@@ -62,9 +62,9 @@ macro_rules! const_cmp_for {
         match (&$left_opt, &$right_opt) {
             (Some(l), Some(r)) =>
                 $crate::__priv_const_cmp_for!(*l, *r, $( $($comparison)* )?),
-            (Some(_), None) => CmpOrdering::Greater,
-            (None, Some(_)) => CmpOrdering::Less,
-            (None, None) => CmpOrdering::Equal,
+            (Some(_), None) => $crate::__::Greater,
+            (None, Some(_)) => $crate::__::Less,
+            (None, None) => $crate::__::Equal,
         }
     };
     (

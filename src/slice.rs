@@ -77,6 +77,7 @@ __declare_fns_with_docs! {
         params(l, r)
         eq_comparison = crate::polymorphism::CmpWrapper(l).const_eq(r),
         cmp_comparison = crate::polymorphism::CmpWrapper(l).const_cmp(r),
+        parameter_copyability = copy,
     ),
 }
 
@@ -92,5 +93,6 @@ __declare_fns_with_docs! {
         params(l, r)
         eq_comparison = crate::polymorphism::CmpWrapper(l).const_eq(r),
         cmp_comparison = crate::polymorphism::CmpWrapper(l).const_cmp(r),
+        parameter_copyability = copy,
     ),
 }

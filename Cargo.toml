@@ -23,12 +23,13 @@ include = [
 
 
 [features]
-default = ["slice", "option", "range", "primitives", "polymorphism"]
+default = ["slice", "nonzero", "option", "range", "primitives", "polymorphism"]
 
 option = ["polymorphism"]
 slice = ["str", "polymorphism"]
 str = ["polymorphism"]
 range = ["polymorphism"]
+nonzero = ["polymorphism"]
 primitives = ["polymorphism"]
 
 const_generics = []
