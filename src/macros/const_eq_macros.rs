@@ -58,7 +58,7 @@ macro_rules! const_eq {
 /// ### Comparing slices of structs
 ///
 /// ```
-/// use const_cmp::{const_eq_for, str_eq};
+/// use const_cmp::{const_eq_for, eq_str};
 ///
 /// #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 /// pub struct Location {
@@ -71,7 +71,7 @@ macro_rules! const_eq {
 ///     impl Location;
 ///     
 ///     pub const fn const_eq(&self, other: &Self) -> bool {
-///         str_eq(self.file, other.file) &&
+///         eq_str(self.file, other.file) &&
 ///         self.column == other.column &&
 ///         self.line == other.line
 ///     }

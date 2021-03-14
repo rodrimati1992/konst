@@ -17,9 +17,9 @@ pub mod primitive;
 #[cfg(feature = "str")]
 __declare_string_cmp_fns! {
     import_path = "const_cmp",
-    equality_fn = str_eq,
-    ordering_fn = str_cmp,
-    ordering_fn_inner = str_cmp_inner,
+    equality_fn = eq_str,
+    ordering_fn = cmp_str,
+    ordering_fn_inner = cmp_str_inner,
 }
 
 #[cfg(all(feature = "str", feature = "option"))]

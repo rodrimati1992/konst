@@ -23,7 +23,7 @@ include = [
 
 
 [features]
-default = ["slice", "option", "range", "polymorphism"]
+default = ["slice", "option", "range", "primitives", "polymorphism"]
 
 option = ["polymorphism"]
 slice = ["str", "polymorphism"]

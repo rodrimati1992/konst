@@ -24,7 +24,7 @@ __delegate_const_eq! {
 
     /// Compares two `&[&str]` for equality.
     pub const fn eq_slice_str(ref l: &[&str], r: &[&str]) -> bool {
-        crate::const_eq_for!(slice; l, r, crate::str_eq)
+        crate::const_eq_for!(slice; l, r, crate::eq_str)
     }
 }
 
@@ -33,7 +33,7 @@ __delegate_const_ord! {
 
     /// Compares two `&[&str]`, returning the order of `left` relative to `right`.
     pub const fn cmp_slice_str(ref left: &[&str], right: &[&str]) -> Ordering {
-        crate::const_cmp_for!(slice; left, right, crate::str_cmp)
+        crate::const_cmp_for!(slice; left, right, crate::cmp_str)
     }
 }
 

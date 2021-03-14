@@ -42,8 +42,14 @@ macro_rules!  __priv_delegate_const_inner_cmpwrapper{
 
         impl<$($($implg)*)?> $crate::__::CmpWrapper<$l_ty> {
             #[inline]
-            pub const fn $cw_method<$($($fnlt,)*)?>(&self, r: $r_ty) -> $returns {
-                $func($crate::__priv_copy_if_nonref!(($($idents)*) self.0), r)
+            pub const fn $cw_method<$($($fnlt,)*)?>(
+                &self,
+                r: $crate::__priv_ref_if_nonref!(($($idents)*) $r_ty),
+            ) -> $returns {
+                $func(
+                    $crate::__priv_copy_if_nonref!(($($idents)*) self.0),
+                    $crate::__priv_deref_if_nonref!(($($idents)*) r)
+                )
             }
         }
     }
@@ -114,6 +120,29 @@ macro_rules! __priv_copy_if_nonref {
     };
     ((copy $ident:ident) $expr:expr) => {
         $expr
+    };
+}
+#[cfg(feature = "polymorphism")]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_deref_if_nonref {
+    ((ref $ident:ident) $expr:expr) => {
+        $expr
+    };
+    ((copy $ident:ident) $expr:expr) => {
+        *$expr
+    };
+}
+
+#[cfg(feature = "polymorphism")]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_ref_if_nonref {
+    ((ref $ident:ident) $ty:ty) => {
+        $ty
+    };
+    ((copy $ident:ident) $ty:ty) => {
+        &$ty
     };
 }
 

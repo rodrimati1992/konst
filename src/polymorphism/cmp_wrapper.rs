@@ -50,5 +50,5 @@ std_kind_impls! {
     i64, u64,
     i128, u128,
     isize, usize,
-    bool,
+    bool, char,
 }

@@ -4,25 +4,25 @@ macro_rules! __declare_string_cmp_fns {
     (
         import_path = $path:expr,
 
-        equality_fn = $str_eq:ident,
-        ordering_fn = $str_cmp:ident,
+        equality_fn = $eq_str:ident,
+        ordering_fn = $cmp_str:ident,
         /// Equivalent to ordering_fn, but returns a U8Ordering
-        ordering_fn_inner = $str_cmp_inner:ident,
+        ordering_fn_inner = $cmp_str_inner:ident,
     ) => {
         $crate::__declare_string_cmp_fns! {
             @inner
-            equality_fn = $str_eq,
-            ordering_fn = $str_cmp,
-            use_str_eq = concat!("use ", $path, "::", stringify!($str_eq), ";"),
-            use_str_cmp = concat!("use ", $path, "::", stringify!($str_cmp), ";"),
+            equality_fn = $eq_str,
+            ordering_fn = $cmp_str,
+            use_eq_str = concat!("use ", $path, "::", stringify!($eq_str), ";"),
+            use_cmp_str = concat!("use ", $path, "::", stringify!($cmp_str), ";"),
         }
     };
     (@inner
 
-        equality_fn = $str_eq:ident,
-        ordering_fn = $str_cmp:ident,
-        use_str_eq = $str_eq_import:expr,
-        use_str_cmp = $str_cmp_import:expr,
+        equality_fn = $eq_str:ident,
+        ordering_fn = $cmp_str:ident,
+        use_eq_str = $eq_str_import:expr,
+        use_cmp_str = $cmp_str_import:expr,
     ) => {
         $crate::__delegate_const_eq! {
             skip_coerce;
@@ -31,26 +31,26 @@ macro_rules! __declare_string_cmp_fns {
             /// # Example
             ///
             /// ```rust
-            #[doc = $str_eq_import]
+            #[doc = $eq_str_import]
             ///
             /// const FOO: &str = "foo";
             /// const BAR: &str = "fooooo";
             /// const BAZ: &str = "bar";
             ///
             ///
-            /// const FOO_EQ_FOO: bool = str_eq(FOO, FOO);
+            /// const FOO_EQ_FOO: bool = eq_str(FOO, FOO);
             /// assert!( FOO_EQ_FOO );
             ///
-            /// const FOO_EQ_BAR: bool = str_eq(FOO, BAR);
+            /// const FOO_EQ_BAR: bool = eq_str(FOO, BAR);
             /// assert!( !FOO_EQ_BAR );
             ///
-            /// const FOO_EQ_BAZ: bool = str_eq(FOO, BAZ);
+            /// const FOO_EQ_BAZ: bool = eq_str(FOO, BAZ);
             /// assert!( !FOO_EQ_BAZ );
             ///
             /// ```
             ///
             #[inline]
-            pub const fn str_eq(ref left: &str, right: &str) -> bool {
+            pub const fn eq_str(ref left: &str, right: &str) -> bool {
                 let left = left.as_bytes();
                 let right = right.as_bytes();
 
@@ -77,7 +77,7 @@ macro_rules! __declare_string_cmp_fns {
             /// # Example
             ///
             /// ```rust
-            #[doc = $str_cmp_import]
+            #[doc = $cmp_str_import]
             ///
             /// use std::cmp::Ordering;
             ///
@@ -86,25 +86,25 @@ macro_rules! __declare_string_cmp_fns {
             /// const BAZ: &str = "bar";
             ///
             ///
-            /// const FOO_CMP_FOO: Ordering = str_cmp(FOO, FOO);
+            /// const FOO_CMP_FOO: Ordering = cmp_str(FOO, FOO);
             /// assert_eq!(FOO_CMP_FOO, Ordering::Equal);
             ///
-            /// const FOO_CMP_BAR: Ordering = str_cmp(FOO, BAR);
+            /// const FOO_CMP_BAR: Ordering = cmp_str(FOO, BAR);
             /// assert_eq!(FOO_CMP_BAR, Ordering::Less);
             ///
-            /// const FOO_CMP_BAZ: Ordering = str_cmp(FOO, BAZ);
+            /// const FOO_CMP_BAZ: Ordering = cmp_str(FOO, BAZ);
             /// assert_eq!(FOO_CMP_BAZ, Ordering::Greater);
             ///
             /// ```
             ///
             #[inline]
-            pub const fn str_cmp(ref left: &str, right: &str) -> $crate::__::Ordering {
-                str_cmp_inner(left.as_bytes(), right.as_bytes()).to_ordering()
+            pub const fn cmp_str(ref left: &str, right: &str) -> $crate::__::Ordering {
+                cmp_str_inner(left.as_bytes(), right.as_bytes()).to_ordering()
             }
         }
 
         #[inline]
-        const fn str_cmp_inner(left: &[u8], right: &[u8]) -> $crate::__::U8Ordering {
+        const fn cmp_str_inner(left: &[u8], right: &[u8]) -> $crate::__::U8Ordering {
             use $crate::__::U8Ordering;
 
             let left_len = left.len();

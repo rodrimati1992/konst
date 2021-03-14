@@ -51,6 +51,7 @@ __declare_fns_with_docs! {
     (Option<usize>, (eq_option_usize, cmp_option_usize))
     (Option<isize>, (eq_option_isize, cmp_option_isize))
     (Option<bool>, (eq_option_bool, cmp_option_bool))
+    (Option<char>, (eq_option_char, cmp_option_char))
 
     docs(default)
 
