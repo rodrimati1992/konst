@@ -1,16 +1,16 @@
 use const_cmp::{
     const_cmp, const_eq,
-    slice::{slice_cmp_bytes, slice_cmp_u8, slice_eq_bytes, slice_eq_u8},
+    slice::{cmp_slice_bytes, cmp_slice_u8, eq_slice_bytes, eq_slice_u8},
     str_cmp, str_eq,
 };
 
 #[test]
-#[cfg(feature = "slice_cmp")]
-fn slice_eq_test() {
+#[cfg(feature = "slice")]
+fn eq_slice_test() {
     macro_rules! assert_s_cmp {
         ($left:expr, $right:expr, $expected:expr) => {
             let left: &[u8] = $left;
-            assert_eq!(slice_eq_u8(left, $right), $expected);
+            assert_eq!(eq_slice_u8(left, $right), $expected);
             assert_eq!(const_eq!(left, $right), $expected);
         };
     }
@@ -28,13 +28,13 @@ fn slice_eq_test() {
 }
 
 #[test]
-#[cfg(feature = "slice_cmp")]
+#[cfg(feature = "slice")]
 fn slice_of_bytes_eq_test() {
     macro_rules! assert_s_cmp {
         ($left:expr, $right:expr, $expected:expr) => {
             let left: &[&[u8]] = $left;
             let right: &[&[u8]] = $right;
-            assert_eq!(slice_eq_bytes(left, right), $expected);
+            assert_eq!(eq_slice_bytes(left, right), $expected);
             assert_eq!(const_eq!(left, right), $expected);
         };
     }
@@ -59,7 +59,7 @@ fn slice_of_bytes_eq_test() {
 }
 
 #[test]
-#[cfg(feature = "str_cmp")]
+#[cfg(feature = "str")]
 fn str_eq_test() {
     macro_rules! assert_s_cmp {
         ($left:expr, $right:expr, $expected:expr) => {
@@ -97,13 +97,13 @@ macro_rules! assert_slices_ord {
 }
 
 #[test]
-#[cfg(feature = "slice_cmp")]
-fn slice_cmp_test() {
+#[cfg(feature = "slice")]
+fn cmp_slice_test() {
     use core::cmp::Ordering::{Equal, Greater, Less};
 
     macro_rules! assert_s_cmp {
         ($($anything:tt)*) => {
-            assert_slices_ord!{ &[u8], slice_cmp_u8 => $($anything)* }
+            assert_slices_ord!{ &[u8], cmp_slice_u8 => $($anything)* }
         }
     }
 
@@ -118,13 +118,13 @@ fn slice_cmp_test() {
 }
 
 #[test]
-#[cfg(feature = "slice_cmp")]
+#[cfg(feature = "slice")]
 fn slice_of_bytes_cmp_test() {
     use core::cmp::Ordering::{Equal, Greater, Less};
 
     macro_rules! assert_s_cmp {
         ($($anything:tt)*) => {
-            assert_slices_ord!{ &[&[u8]], slice_cmp_bytes => $($anything)* }
+            assert_slices_ord!{ &[&[u8]], cmp_slice_bytes => $($anything)* }
         }
     }
 
@@ -149,7 +149,7 @@ fn slice_of_bytes_cmp_test() {
 }
 
 #[test]
-#[cfg(feature = "str_cmp")]
+#[cfg(feature = "str")]
 fn str_cmp_test() {
     use core::cmp::Ordering::{Equal, Greater, Less};
 

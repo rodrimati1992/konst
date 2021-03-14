@@ -160,9 +160,9 @@ macro_rules!  __declare_slice_cmp_fns{
                         "]` for equality.",
                     ),
                     concat!(
-                        "A const equivalent of `<[",
+                        "Compares two `&[",
                         stringify!($type),
-                        "]>::cmp`.",
+                        "]`, returning the order of `left` relative to `right`.",
                     ),
                     $type,
                     $eq_fn_name,
@@ -238,4 +238,126 @@ macro_rules!  __declare_slice_cmp_fns{
         }
 
     };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules!  __declare_fns_with_docs{
+    (
+        $(($($args:tt)*))*
+
+        docs $docs:tt
+
+        macro = $macro:ident ! $macro_prefix:tt,
+    )=>{
+        $(
+            $crate::__declare_fns_with_docs!{
+                @inner
+                ($($args)*)
+
+                docs $docs
+
+                macro = $macro ! $macro_prefix,
+            }
+        )*
+    };
+    (@inner
+        (
+            $type:ty,
+            ($($func_name:ident),* $(,)?)
+            $($rem:tt)*
+        )
+
+        docs(
+            $(($before:expr, $after:expr))*
+        )
+
+        macro = $macro:ident ! ($($prefix:tt)*),
+    ) => {
+
+        $macro!{
+            $($prefix)*
+            ($type, ($($func_name),*) $($rem)* )
+
+            docs(
+                $(concat!($before, stringify!($type), $after)),*
+            )
+        }
+
+
+    };
+    (@inner
+        (
+            $type:ty,
+            ($($func_name:ident),* $(,)?)
+            $($rem:tt)*
+        )
+
+        docs(default)
+
+        macro = $macro:ident ! ($($prefix:tt)*),
+    ) => {
+
+        $macro!{
+            $($prefix)*
+            ($type, ($($func_name),*) $($rem)* )
+
+            docs(
+                concat!(
+                    "Compares two `",
+                    stringify!($type),
+                    "` for equality.",
+                ),
+                concat!(
+                    "Compares two `",
+                    stringify!($type),
+                    "`, returning the ordering of `left` relative to `right`."
+                ),
+            )
+        }
+
+
+    };
+}
+
+macro_rules! __impl_option_cmp_fns {
+    (
+        $(for[$($impl:tt)*])?
+        params($l:ident, $r:ident)
+        eq_comparison = $eq_comparison:expr,
+        cmp_comparison = $cmp_comparison:expr,
+
+        ($type:ty, ($eq_fn_name:ident, $cmp_fn_name:ident))
+
+        docs( $docs_eq:expr, $docs_cmp:expr, )
+    ) => (
+        __delegate_const_eq!{
+            $(for[$($impl)*])?
+
+            #[doc = $docs_eq]
+            pub const fn $eq_fn_name(copy left: $type, right: $type) -> bool {
+                match (left, right) {
+                    (Some($l), Some($r)) => $eq_comparison,
+                    (None, None) => true,
+                    _ => false,
+                }
+            }
+        }
+
+        __delegate_const_ord!{
+            $(for[$($impl)*])?
+
+            #[doc = $docs_cmp]
+            pub const fn $cmp_fn_name(copy left: $type, right: $type) -> core::cmp::Ordering {
+                use core::cmp::Ordering;
+
+                match (left, right) {
+                    (Some($l), Some($r)) => $cmp_comparison,
+                    (Some(_), None) => Ordering::Greater,
+                    (None, Some(_)) => Ordering::Less,
+                    (None, None) => Ordering::Equal,
+                }
+            }
+        }
+    )
 }

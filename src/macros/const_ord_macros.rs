@@ -174,3 +174,15 @@ macro_rules! try_equal {
         }
     };
 }
+
+macro_rules! cmp_int {
+    ($l:expr, $r:expr) => {{
+        if $l == $r {
+            Ordering::Equal
+        } else if $l < $r {
+            Ordering::Less
+        } else {
+            Ordering::Greater
+        }
+    }};
+}

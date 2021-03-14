@@ -117,7 +117,7 @@ macro_rules! const_eq {
 ///
 /// use Direction::*;
 ///
-/// const fn slice_eq_direction(left: &[Direction], right: &[Direction]) -> bool {
+/// const fn eq_slice_direction(left: &[Direction], right: &[Direction]) -> bool {
 ///     const_cmp::const_eq_for!(slice; left, right, |&x| x as u8)
 /// }
 ///
@@ -126,13 +126,13 @@ macro_rules! const_eq {
 /// const CLOCKWISE: &[Direction] = &[Up, Right, Down, Left];
 ///
 ///
-/// const CMP_CHEAT: bool = slice_eq_direction(CHEAT_CODE, CHEAT_CODE);
+/// const CMP_CHEAT: bool = eq_slice_direction(CHEAT_CODE, CHEAT_CODE);
 /// assert!( CMP_CHEAT );
 ///
-/// const CMP_CHEAT_CLOCK: bool = slice_eq_direction(CHEAT_CODE, CLOCKWISE);
+/// const CMP_CHEAT_CLOCK: bool = eq_slice_direction(CHEAT_CODE, CLOCKWISE);
 /// assert!( !CMP_CHEAT_CLOCK );
 ///
-/// const CMP_CLOCK_CLOCK: bool = slice_eq_direction(CLOCKWISE, CLOCKWISE);
+/// const CMP_CLOCK_CLOCK: bool = eq_slice_direction(CLOCKWISE, CLOCKWISE);
 /// assert!( CMP_CLOCK_CLOCK );
 ///
 /// ```

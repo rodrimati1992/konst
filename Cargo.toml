@@ -23,9 +23,13 @@ include = [
 
 
 [features]
-default = ["slice_cmp", "other_cmp"]
-other_cmp = ["polymorphism"]
-slice_cmp = ["str_cmp", "polymorphism"]
-str_cmp = ["polymorphism"]
+default = ["slice", "option", "range", "polymorphism"]
+
+option = ["polymorphism"]
+slice = ["str", "polymorphism"]
+str = ["polymorphism"]
+range = ["polymorphism"]
+primitives = ["polymorphism"]
+
 const_generics = []
 polymorphism = []
