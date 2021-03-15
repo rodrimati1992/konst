@@ -21,6 +21,9 @@ pub mod range;
 #[cfg(feature = "nonzero")]
 pub mod nonzero;
 
+#[cfg(feature = "other")]
+pub mod other;
+
 #[cfg(feature = "str")]
 __declare_string_cmp_fns! {
     import_path = "const_cmp",

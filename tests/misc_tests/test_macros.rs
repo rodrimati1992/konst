@@ -183,7 +183,7 @@ macro_rules! assertc_cmp {
 
 macro_rules! assertc_opt_cmp {
     (
-        $ty:ty, $function:expr, $opt_function:expr =>
+        $ty:ty, $function:expr $(, $opt_function:expr)? =>
         $(($left:expr, $right:expr, $expected:expr))*
     ) => {
         let cases: Vec<($ty, $ty, _)> = vec![
@@ -196,6 +196,7 @@ macro_rules! assertc_opt_cmp {
 
             assertc_cmp!{$ty, $function => mleft(), mright(), expected}
 
+            $(
             #[cfg(feature = "option")]
             {
                 let cases = vec![
@@ -209,6 +210,7 @@ macro_rules! assertc_opt_cmp {
                     assertc_cmp!{Option<$ty>, $opt_function => l, r, e }
                 }
             }
+            )?
         }
     };
 }
