@@ -12,3 +12,6 @@ mod polymorphism_macros;
 
 #[macro_use]
 mod impl_cmp;
+
+#[macro_use]
+mod unwrapping;

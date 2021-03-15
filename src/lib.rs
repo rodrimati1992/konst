@@ -1,4 +1,73 @@
-//! For comparing strings and slices at compile-time.
+//! For comparing values at compile-time.
+//!
+//! # Features
+//!
+//! This crate provides:
+//!
+//! - Many functions for comparing standard library types.
+//!
+//! - Macros to make it easier to do those comparisons, powered by the [`polymorphism`] module.
+//!
+//!
+//!
+//! # Examples
+//!
+//! ### Parsing an enum
+//!
+//! This example demonstrates how you can parse a simple enum from an environment variable,
+//! at compile-time.
+//!
+//! ```rust
+//! use const_cmp::eq_str;
+//! use const_cmp::{unwrap_opt_or, unwrap_res};
+//!
+//! #[derive(Debug, PartialEq)]
+//! enum Direction {
+//!     Forward,
+//!     Backward,
+//!     Left,
+//!     Right,
+//! }
+//!
+//! impl Direction {
+//!     const fn try_parse(input: &str) -> Result<Self, ParseDirectionError> {
+//!         // As of Rust 1.51.0, string patterns don't work in const contexts
+//!         match () {
+//!             _ if eq_str(input, "forward") => Ok(Direction::Forward),
+//!             _ if eq_str(input, "backward") => Ok(Direction::Backward),
+//!             _ if eq_str(input, "left") => Ok(Direction::Left),
+//!             _ if eq_str(input, "right") => Ok(Direction::Right),
+//!             _ => Err(ParseDirectionError),
+//!         }
+//!     }
+//! }
+//!
+//! const CHOICE: &str = unwrap_opt_or!(option_env!("chosen-direction"), "forward");
+//!
+//! const DIRECTION: Direction = unwrap_res!(Direction::try_parse(CHOICE));
+//!
+//! match DIRECTION {
+//!     Direction::Forward => assert_eq!(CHOICE, "forward"),
+//!     Direction::Backward => assert_eq!(CHOICE, "backward"),
+//!     Direction::Left => assert_eq!(CHOICE, "left"),
+//!     Direction::Right => assert_eq!(CHOICE, "right"),
+//! }
+//!
+//! # #[derive(Debug, PartialEq)]
+//! # pub struct ParseDirectionError;
+//! #
+//! # use std::fmt::{self, Display};
+//! #
+//! # impl Display for Direction {
+//! #   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//! #       f.write_str("Failed to parse a Direction")
+//! #   }
+//! # }
+//! #
+//!
+//! ```
+//!
+//!
 
 #![no_std]
 
@@ -54,8 +123,12 @@ pub mod slice;
 
 #[doc(hidden)]
 pub mod __ {
-    pub use core::cmp::Ordering::{self, Equal, Greater, Less};
-    pub use core::matches;
+    pub use core::{
+        cmp::Ordering::{self, Equal, Greater, Less},
+        matches,
+        option::Option::{self, None, Some},
+        result::Result::{self, Err, Ok},
+    };
 
     pub use crate::__for_cmp_impls::U8Ordering;
 
