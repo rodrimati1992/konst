@@ -8,7 +8,7 @@
 //!
 //! - Macros to make it easier to do those comparisons, powered by the [`polymorphism`] module.
 //!
-//!
+//! - Compile-time parsing through the [`Parser`] type.
 //!
 //! # Examples
 //!
@@ -93,6 +93,12 @@ pub mod nonzero;
 #[cfg(feature = "other")]
 pub mod other;
 
+#[cfg(feature = "parsing")]
+pub mod parsing;
+
+#[cfg(feature = "parsing")]
+pub use crate::parsing::Parser;
+
 #[cfg(feature = "str")]
 __declare_string_cmp_fns! {
     import_path = "konst",
@@ -129,6 +135,13 @@ pub mod __ {
         option::Option::{self, None, Some},
         result::Result::{self, Err, Ok},
     };
+
+    pub mod v {
+        pub use core::{
+            option::Option::Some,
+            result::Result::{Err, Ok},
+        };
+    }
 
     pub use crate::__for_cmp_impls::U8Ordering;
 

@@ -10,6 +10,10 @@ mod declare_cmp_fn_macros;
 #[macro_use]
 mod polymorphism_macros;
 
+#[cfg(feature = "parsing")]
+#[macro_use]
+mod parsing_macros;
+
 #[macro_use]
 mod impl_cmp;
 

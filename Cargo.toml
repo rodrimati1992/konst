@@ -21,7 +21,11 @@ include = [
 
 
 [features]
-default = ["slice", "nonzero", "option", "range", "primitives", "other", "polymorphism"]
+default = [
+    "slice", "nonzero", "option", "range", "primitives", "other",
+    "polymorphism",
+    "parsing",
+]
 
 option = ["polymorphism"]
 slice = ["str", "polymorphism"]
@@ -30,6 +34,7 @@ range = ["polymorphism"]
 nonzero = ["polymorphism"]
 primitives = ["polymorphism"]
 other = ["polymorphism"]
+parsing = []
 
 const_generics = []
 polymorphism = []
