@@ -1,4 +1,4 @@
-use const_cmp::{
+use konst::{
     nonzero::{
         cmp_nonzeroisize, cmp_nonzerou32, cmp_option_nonzeroisize, cmp_option_nonzerou32,
         eq_nonzeroisize, eq_nonzerou32, eq_option_nonzeroisize, eq_option_nonzerou32,

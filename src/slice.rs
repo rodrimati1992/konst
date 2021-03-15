@@ -1,7 +1,7 @@
 use core::cmp::Ordering;
 
 __declare_slice_cmp_fns! {
-    import_path = "const_cmp",
+    import_path = "konst",
 
     (,,, u8, eq_slice_u8, cmp_slice_u8,)
     (,,, u16, eq_slice_u16, cmp_slice_u16,)
@@ -33,7 +33,7 @@ __delegate_const_ord! {
 
     /// Compares two `&[&str]`, returning the order of `left` relative to `right`.
     pub const fn cmp_slice_str(ref left: &[&str], right: &[&str]) -> Ordering {
-        crate::const_cmp_for!(slice; left, right, crate::cmp_str)
+        crate::konst_for!(slice; left, right, crate::cmp_str)
     }
 }
 
@@ -51,7 +51,7 @@ __delegate_const_ord! {
 
     /// Compares two `&[&[u8]]`, returning the order of `left` relative to `right`.
     pub const fn cmp_slice_bytes(ref left: &[&[u8]], right: &[&[u8]]) -> Ordering {
-        crate::const_cmp_for!(slice; left, right, cmp_slice_u8)
+        crate::konst_for!(slice; left, right, cmp_slice_u8)
     }
 }
 
@@ -76,7 +76,7 @@ __declare_fns_with_docs! {
         for['a,]
         params(l, r)
         eq_comparison = crate::polymorphism::CmpWrapper(l).const_eq(r),
-        cmp_comparison = crate::polymorphism::CmpWrapper(l).const_cmp(r),
+        cmp_comparison = crate::polymorphism::CmpWrapper(l).konst(r),
         parameter_copyability = copy,
     ),
 }
@@ -92,7 +92,7 @@ __declare_fns_with_docs! {
         for['a, 'b,]
         params(l, r)
         eq_comparison = crate::polymorphism::CmpWrapper(l).const_eq(r),
-        cmp_comparison = crate::polymorphism::CmpWrapper(l).const_cmp(r),
+        cmp_comparison = crate::polymorphism::CmpWrapper(l).konst(r),
         parameter_copyability = copy,
     ),
 }

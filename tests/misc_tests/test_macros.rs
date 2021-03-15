@@ -1,6 +1,6 @@
 macro_rules! assertc_eq_rets {
     ($ty:ty, $function:expr => $left:expr, $right:expr, $expected:expr) => {{
-        use const_cmp::const_eq;
+        use konst::const_eq;
 
         let left: $ty = $left;
         let right: $ty = $right;
@@ -108,13 +108,13 @@ macro_rules! assertc_opt_eq_rets {
 
 macro_rules! assertc_cmp {
     ($ty:ty, $function:expr => $left:expr, $right:expr, $expected:expr) => {{
-        use const_cmp::const_cmp;
+        use konst::konst;
 
         let left: $ty = $left;
         let right: $ty = $right;
 
         assert_eq!(
-            const_cmp!(left, right),
+            konst!(left, right),
             $expected,
             "{{A}}\n{:?}\n{:?}",
             left,
@@ -135,13 +135,7 @@ macro_rules! assertc_cmp {
             right
         );
 
-        assert_eq!(
-            const_cmp!(left, left),
-            Equal,
-            "{{D}}\n{:?}\n{:?}",
-            left,
-            right
-        );
+        assert_eq!(konst!(left, left), Equal, "{{D}}\n{:?}\n{:?}", left, right);
         assert_eq!(
             $function(left, left),
             Equal,
@@ -158,7 +152,7 @@ macro_rules! assertc_cmp {
         );
 
         assert_eq!(
-            const_cmp!(right, left),
+            konst!(right, left),
             $expected.reverse(),
             "{{G}}\n{:?}\n{:?}",
             left,

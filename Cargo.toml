@@ -1,15 +1,15 @@
 [package]
-name = "const_cmp"
+name = "konst"
 version = "0.0.0"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 edition = "2018"
 license = "Zlib"
-description = "For comparing types at compile-time"
-documentation = "https://docs.rs/const_cmp/"
+description = "Compile-time comparison, parsing, and other const functionality"
+documentation = "https://docs.rs/konst/"
 readme="./README.md"
 keywords = ["no-std"]
 categories = ["no-std"]
-repository = "https://github.com/rodrimati1992/const_cmp/"
+repository = "https://github.com/rodrimati1992/konst/"
 include = [
     "Cargo.toml", 
     "src/**/*.rs", 

@@ -1,10 +1,10 @@
-use const_cmp::{
-    cmp_str, const_cmp, const_eq, eq_str,
+use konst::{
+    cmp_str, const_eq, eq_str, konst,
     slice::{cmp_slice_bytes, cmp_slice_u8, eq_slice_bytes, eq_slice_u8},
 };
 
 #[cfg(feature = "option")]
-use const_cmp::{
+use konst::{
     cmp_option_str, eq_option_str,
     slice::{
         cmp_option_slice_bytes, cmp_option_slice_u8, eq_option_slice_bytes, eq_option_slice_u8,

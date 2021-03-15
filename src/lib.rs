@@ -1,4 +1,4 @@
-//! For comparing values at compile-time.
+//! Compile-time comparison, parsing, and other const functionality.
 //!
 //! # Features
 //!
@@ -18,8 +18,8 @@
 //! at compile-time.
 //!
 //! ```rust
-//! use const_cmp::eq_str;
-//! use const_cmp::{unwrap_opt_or, unwrap_res};
+//! use konst::eq_str;
+//! use konst::{unwrap_opt_or, unwrap_res};
 //!
 //! #[derive(Debug, PartialEq)]
 //! enum Direction {
@@ -95,7 +95,7 @@ pub mod other;
 
 #[cfg(feature = "str")]
 __declare_string_cmp_fns! {
-    import_path = "const_cmp",
+    import_path = "konst",
     equality_fn = eq_str,
     ordering_fn = cmp_str,
     ordering_fn_inner = cmp_str_inner,
@@ -112,7 +112,7 @@ __declare_fns_with_docs! {
 
         params(l, r)
         eq_comparison = crate::polymorphism::CmpWrapper(l).const_eq(r),
-        cmp_comparison = crate::polymorphism::CmpWrapper(l).const_cmp(r),
+        cmp_comparison = crate::polymorphism::CmpWrapper(l).konst(r),
         parameter_copyability = copy,
     ),
 }

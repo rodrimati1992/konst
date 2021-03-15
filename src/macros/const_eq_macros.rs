@@ -58,7 +58,7 @@ macro_rules! const_eq {
 /// ### Comparing slices of structs
 ///
 /// ```
-/// use const_cmp::{const_eq_for, eq_str};
+/// use konst::{const_eq_for, eq_str};
 ///
 /// #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 /// pub struct Location {
@@ -67,7 +67,7 @@ macro_rules! const_eq {
 ///     pub line: u32,
 /// }
 ///
-/// const_cmp::impl_cmp! {
+/// konst::impl_cmp! {
 ///     impl Location;
 ///     
 ///     pub const fn const_eq(&self, other: &Self) -> bool {
@@ -118,7 +118,7 @@ macro_rules! const_eq {
 /// use Direction::*;
 ///
 /// const fn eq_slice_direction(left: &[Direction], right: &[Direction]) -> bool {
-///     const_cmp::const_eq_for!(slice; left, right, |&x| x as u8)
+///     konst::const_eq_for!(slice; left, right, |&x| x as u8)
 /// }
 ///
 /// const CHEAT_CODE: &[Direction] = &[Up, Up, Down, Down, Left, Right, Left, Right];
@@ -141,7 +141,7 @@ macro_rules! const_eq {
 /// ### Comparing `Option`s
 ///
 /// ```rust
-/// use const_cmp::const_eq_for;
+/// use konst::const_eq_for;
 ///
 /// const SOME: Option<(u32, u32)> = Some((3, 5));
 /// const NONE: Option<(u32, u32)> = None;
@@ -166,7 +166,7 @@ macro_rules! const_eq {
 /// ### Comparing `Range`s
 ///
 /// ```rust
-/// use const_cmp::{const_eq_for, impl_cmp};
+/// use konst::{const_eq_for, impl_cmp};
 ///
 /// use std::ops::Range;
 ///
@@ -188,7 +188,7 @@ macro_rules! const_eq {
 ///
 /// use Month::*;
 ///
-/// const_cmp::impl_cmp! {
+/// konst::impl_cmp! {
 ///     impl Month;
 ///     
 ///     pub const fn const_eq(&self, other: &Self) -> bool {
@@ -214,7 +214,7 @@ macro_rules! const_eq {
 /// ### Comparing `RangeInclusive`s
 ///
 /// ```rust
-/// use const_cmp::{const_eq_for, impl_cmp};
+/// use konst::{const_eq_for, impl_cmp};
 ///
 /// use std::ops::RangeInclusive;
 ///
@@ -231,7 +231,7 @@ macro_rules! const_eq {
 ///
 /// use WeekDay::*;
 ///
-/// const_cmp::impl_cmp! {
+/// konst::impl_cmp! {
 ///     impl WeekDay;
 ///     
 ///     pub const fn const_eq(&self, other: &Self) -> bool {
