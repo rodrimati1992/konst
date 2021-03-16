@@ -156,6 +156,26 @@ impl<'a> Parser<'a> {
 
     /// Equivalent to [`strip_prefix`], but takes a single byte.
     ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{Parser, unwrap_opt};
+    ///
+    /// let mut parser = Parser::from_str("abcde");
+    ///
+    /// assert!(parser.strip_prefix_u8(1).is_none());
+    ///
+    /// parser = unwrap_opt!(parser.strip_prefix_u8(b'a'));
+    /// assert_eq!(parser.bytes(), "bcde".as_bytes());
+    ///
+    /// parser = unwrap_opt!(parser.strip_prefix_u8(b'b'));
+    /// assert_eq!(parser.bytes(), "cde".as_bytes());
+    ///
+    /// parser = unwrap_opt!(parser.strip_prefix_u8(b'c'));
+    /// assert_eq!(parser.bytes(), "de".as_bytes());
+    ///
+    /// ```
+    ///
     /// [`strip_prefix`]: #method.strip_prefix
     pub const fn strip_prefix_u8(mut self, matched: u8) -> Option<Self> {
         match self.bytes {
@@ -215,5 +235,204 @@ impl<'a> Parser<'a> {
         }
 
         Some(self)
+    }
+
+    /// Equivalent to [`strip_suffix`], but takes a single byte.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{Parser, unwrap_opt};
+    ///
+    /// let mut parser = Parser::from_str("edcba");
+    ///
+    /// assert!(parser.strip_suffix_u8(1).is_none());
+    ///
+    /// parser = unwrap_opt!(parser.strip_suffix_u8(b'a'));
+    /// assert_eq!(parser.bytes(), "edcb".as_bytes());
+    ///
+    /// parser = unwrap_opt!(parser.strip_suffix_u8(b'b'));
+    /// assert_eq!(parser.bytes(), "edc".as_bytes());
+    ///
+    /// parser = unwrap_opt!(parser.strip_suffix_u8(b'c'));
+    /// assert_eq!(parser.bytes(), "ed".as_bytes());
+    ///
+    /// ```
+    ///
+    /// [`strip_suffix`]: #method.strip_suffix
+    pub const fn strip_suffix_u8(mut self, matched: u8) -> Option<Self> {
+        match self.bytes {
+            [rem @ .., byte] if *byte == matched => {
+                self.bytes = rem;
+                Some(self)
+            }
+            _ => None,
+        }
+    }
+
+    /// Skips the parser after the first instance of `needle`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{Parser, unwrap_opt};
+    ///
+    /// let mut parser = Parser::from_str("foo--bar,baz--qux");
+    ///
+    /// parser = unwrap_opt!(parser.find_skip("--"));
+    /// assert_eq!(parser.bytes(), "bar,baz--qux".as_bytes());
+    ///
+    /// parser = unwrap_opt!(parser.find_skip("bar,"));
+    /// assert_eq!(parser.bytes(), "baz--qux".as_bytes());
+    ///
+    /// parser = unwrap_opt!(parser.find_skip("--"));
+    /// assert_eq!(parser.bytes(), "qux".as_bytes());
+    ///
+    /// assert!(parser.find_skip("--").is_none());
+    ///
+    /// ```
+    pub const fn find_skip(self, needle: &str) -> Option<Self> {
+        self.find_skip_b(needle.as_bytes())
+    }
+
+    /// Equivalent to [`find_skip`], but takes a byte slice.
+    ///
+    /// [`find_skip`]: #method.find_skip
+    pub const fn find_skip_b(mut self, needle: &[u8]) -> Option<Self> {
+        if needle.is_empty() {
+            return Some(self);
+        }
+
+        let mut matching = needle;
+        while let ([b, rem @ ..], [mb, m_rem @ ..]) = (self.bytes, matching) {
+            self.bytes = rem;
+            matching = m_rem;
+
+            if *b != *mb {
+                matching = match needle {
+                    // For when the string is "lawlawn" and we are skipping "lawn"
+                    [mb2, m_rem2 @ ..] if *b == *mb2 => m_rem2,
+                    _ => needle,
+                };
+            }
+        }
+
+        if matching.is_empty() {
+            Some(self)
+        } else {
+            None
+        }
+    }
+
+    /// Equivalent to [`find_skip`], but takes a single byte.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{Parser, unwrap_opt};
+    ///
+    /// let mut parser = Parser::from_str("foo-bar,baz");
+    ///
+    /// parser = unwrap_opt!(parser.find_skip_u8(b'-'));
+    /// assert_eq!(parser.bytes(), "bar,baz".as_bytes());
+    ///
+    /// parser = unwrap_opt!(parser.find_skip_u8(b','));
+    /// assert_eq!(parser.bytes(), "baz".as_bytes());
+    ///
+    /// ```
+    ///
+    /// [`find_skip`]: #method.find_skip
+    pub const fn find_skip_u8(mut self, needle: u8) -> Option<Self> {
+        while let [byte, rem @ ..] = self.bytes {
+            self.bytes = rem;
+
+            if *byte == needle {
+                return Some(self);
+            }
+        }
+        None
+    }
+
+    /// Truncates the parsed bytes to before the last instance of `needle`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{Parser, unwrap_opt};
+    ///
+    /// let mut parser = Parser::from_str("foo--bar,baz--qux");
+    ///
+    /// parser = unwrap_opt!(parser.rfind_skip("--"));
+    /// assert_eq!(parser.bytes(), "foo--bar,baz".as_bytes());
+    ///
+    /// parser = unwrap_opt!(parser.rfind_skip(",baz"));
+    /// assert_eq!(parser.bytes(), "foo--bar".as_bytes());
+    ///
+    /// parser = unwrap_opt!(parser.rfind_skip("--"));
+    /// assert_eq!(parser.bytes(), "foo".as_bytes());
+    ///
+    /// assert!(parser.rfind_skip("--").is_none());
+    ///
+    /// ```
+    pub const fn rfind_skip(self, needle: &str) -> Option<Self> {
+        self.rfind_skip_b(needle.as_bytes())
+    }
+
+    /// Equivalent to [`find_skip`], but takes a byte slice.
+    ///
+    /// [`find_skip`]: #method.find_skip
+    pub const fn rfind_skip_b(mut self, needle: &[u8]) -> Option<Self> {
+        if needle.is_empty() {
+            return Some(self);
+        }
+
+        let mut matching = needle;
+        while let ([rem @ .., b], [m_rem @ .., mb]) = (self.bytes, matching) {
+            self.bytes = rem;
+            matching = m_rem;
+
+            if *b != *mb {
+                matching = match needle {
+                    // For when the string is "lawnawn" and we are skipping "lawn"
+                    [m_rem2 @ .., mb2] if *b == *mb2 => m_rem2,
+                    _ => needle,
+                };
+            }
+        }
+
+        if matching.is_empty() {
+            Some(self)
+        } else {
+            None
+        }
+    }
+
+    /// Equivalent to [`find_skip`], but takes a single byte.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{Parser, unwrap_opt};
+    ///
+    /// let mut parser = Parser::from_str("foo,bar-baz");
+    ///
+    /// parser = unwrap_opt!(parser.rfind_skip_u8(b'-'));
+    /// assert_eq!(parser.bytes(), "foo,bar".as_bytes());
+    ///
+    /// parser = unwrap_opt!(parser.rfind_skip_u8(b','));
+    /// assert_eq!(parser.bytes(), "foo".as_bytes());
+    ///
+    /// ```
+    ///
+    /// [`find_skip`]: #method.find_skip
+    pub const fn rfind_skip_u8(mut self, needle: u8) -> Option<Self> {
+        while let [rem @ .., byte] = self.bytes {
+            self.bytes = rem;
+
+            if *byte == needle {
+                return Some(self);
+            }
+        }
+        None
     }
 }
