@@ -53,10 +53,10 @@ impl<'a> Parser<'a> {
     ///
     /// const fn parse_flags(mut parser: Parser<'_>) -> (Parser<'_>, Flags) {
     ///     let mut flags = Flags{foo: false, bar: false};
-    ///     assign_if!{Some(parser) = parser.starts_with("foo;") => {
+    ///     assign_if!{Some(parser) = parser.strip_prefix("foo;") => {
     ///         flags.foo = true;
     ///     }}
-    ///     assign_if!{Some(parser) = parser.starts_with("bar;") => {
+    ///     assign_if!{Some(parser) = parser.strip_prefix("bar;") => {
     ///         flags.bar = true;
     ///     }}
     ///     (parser, flags)
@@ -76,14 +76,14 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     #[inline]
-    pub const fn starts_with(self, matched: &str) -> Option<Self> {
-        self.starts_with_b(matched.as_bytes())
+    pub const fn strip_prefix(self, matched: &str) -> Option<Self> {
+        self.strip_prefix_b(matched.as_bytes())
     }
 
-    /// Equivalent to [`starts_with`], but takes a byte slice.
+    /// Equivalent to [`strip_prefix`], but takes a byte slice.
     ///
-    /// [`starts_with`]: #method.starts_with
-    pub const fn starts_with_b(mut self, mut matched: &[u8]) -> Option<Self> {
+    /// [`strip_prefix`]: #method.strip_prefix
+    pub const fn strip_prefix_b(mut self, mut matched: &[u8]) -> Option<Self> {
         if self.bytes.len() < matched.len() {
             return None;
         }
@@ -103,14 +103,14 @@ impl<'a> Parser<'a> {
     /// Checks that the parsed bytes end with `matched`,
     /// returning the remainder of the bytes.
     #[inline]
-    pub const fn ends_with(self, matched: &str) -> Option<Self> {
-        self.starts_with_b(matched.as_bytes())
+    pub const fn strip_suffix(self, matched: &str) -> Option<Self> {
+        self.strip_prefix_b(matched.as_bytes())
     }
 
-    /// Equivalent to [`ends_with`], but takes a byte slice.
+    /// Equivalent to [`strip_suffix`], but takes a byte slice.
     ///
-    /// [`ends_with`]: #method.ends_with
-    pub const fn ends_with_b(mut self, mut matched: &[u8]) -> Option<Self> {
+    /// [`strip_suffix`]: #method.strip_suffix
+    pub const fn strip_suffix_b(mut self, mut matched: &[u8]) -> Option<Self> {
         if self.bytes.len() < matched.len() {
             return None;
         }

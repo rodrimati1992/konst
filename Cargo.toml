@@ -25,6 +25,7 @@ default = [
     "slice", "nonzero", "option", "range", "primitives", "other",
     "polymorphism",
     "parsing",
+    #"constant_time_slice",
 ]
 
 option = ["polymorphism"]
@@ -35,6 +36,7 @@ nonzero = ["polymorphism"]
 primitives = ["polymorphism"]
 other = ["polymorphism"]
 parsing = []
+constant_time_slice = []
 
 const_generics = []
 polymorphism = []

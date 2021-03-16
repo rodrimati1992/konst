@@ -4,6 +4,9 @@ mod misc_tests {
 
     mod slice_tests;
 
+    #[cfg(feature = "slice")]
+    mod slice_const_method_tests;
+
     #[cfg(feature = "other")]
     mod other_types_tests;
 

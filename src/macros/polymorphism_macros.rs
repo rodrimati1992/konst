@@ -102,7 +102,7 @@ macro_rules! __delegate_const_ord{
         $crate::__priv_delegate_const_inner_fn!{ $($input)* }
 
         $crate::__priv_delegate_const_inner_cmpwrapper!{
-            (konst, $crate::__::Ordering)
+            (const_cmp, $crate::__::Ordering)
 
             skip_coerce;
 

@@ -1,8 +1,8 @@
 #[macro_export]
-macro_rules! konst {
+macro_rules! const_cmp {
     ($left:expr, $right:expr) => {
         match $crate::coerce_to_cmp!($left, $right) {
-            (left, right) => left.konst(right),
+            (left, right) => left.const_cmp(right),
         }
     };
 }
@@ -19,7 +19,7 @@ macro_rules! konst {
 /// [`cmp::Ordering`]: https://doc.rust-lang.org/core/cmp/enum.Ordering.html
 ///
 #[macro_export]
-macro_rules! konst_for {
+macro_rules! const_cmp_for {
     (
         slice;
         $left_slice:expr,
@@ -34,7 +34,7 @@ macro_rules! konst_for {
                         left_slice = l_rem;
                         right_slice = r_rem;
 
-                        let ord = $crate::__priv_konst_for!{
+                        let ord = $crate::__priv_const_cmp_for!{
                             *l,
                             *r,
                             $($($comparison)*)?
@@ -61,7 +61,7 @@ macro_rules! konst_for {
     ) => {
         match (&$left_opt, &$right_opt) {
             (Some(l), Some(r)) =>
-                $crate::__priv_konst_for!(*l, *r, $( $($comparison)* )?),
+                $crate::__priv_const_cmp_for!(*l, *r, $( $($comparison)* )?),
             (Some(_), None) => $crate::__::Greater,
             (None, Some(_)) => $crate::__::Less,
             (None, None) => $crate::__::Equal,
@@ -77,14 +77,14 @@ macro_rules! konst_for {
             (left_range, right_range) => {
                 use $crate::__::Ordering as CmpOrdering;
 
-                let start = $crate::__priv_konst_for!(
+                let start = $crate::__priv_const_cmp_for!(
                     left_range.start,
                     right_range.start,
                     $( $($comparison)* )?
                 );
 
                 if let CmpOrdering::Equal = starts {
-                    $crate::__priv_konst_for!(
+                    $crate::__priv_const_cmp_for!(
                         left_range.end,
                         right_range.end,
                         $( $($comparison)* )?
@@ -105,14 +105,14 @@ macro_rules! konst_for {
             (left_range, right_range) => {
                 use $crate::__::Ordering as CmpOrdering;
 
-                let start = $crate::__priv_konst_for!(
+                let start = $crate::__priv_const_cmp_for!(
                     left_range.start(),
                     right_range.start(),
                     $( $($comparison)* )?
                 );
 
                 if let CmpOrdering::Equal = start {
-                    $crate::__priv_konst_for!(
+                    $crate::__priv_const_cmp_for!(
                         left_range.end(),
                         right_range.end(),
                         $( $($comparison)* )?
@@ -127,16 +127,16 @@ macro_rules! konst_for {
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __priv_konst_for {
+macro_rules! __priv_const_cmp_for {
     ($left:expr, $right:expr, ) => {
-        $crate::coerce_to_cmp!(&$left).konst(&$right)
+        $crate::coerce_to_cmp!(&$left).const_cmp(&$right)
     };
     ($left:expr, $right:expr, |$l: pat| $key_expr:expr $(,)*) => {
         $crate::coerce_to_cmp!({
             let $l = &$left;
             $key_expr
         })
-        .konst(&{
+        .const_cmp(&{
             let $l = &$right;
             $key_expr
         })

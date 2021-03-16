@@ -69,6 +69,10 @@
 //!
 //!
 
+#![cfg_attr(
+    feature = "constant_time_slice",
+    feature(const_slice_from_raw_parts, const_fn_union,)
+)]
 #![no_std]
 
 #[macro_use]
@@ -96,6 +100,8 @@ pub mod other;
 #[cfg(feature = "parsing")]
 pub mod parsing;
 
+mod utils;
+
 #[cfg(feature = "parsing")]
 pub use crate::parsing::Parser;
 
@@ -118,7 +124,7 @@ __declare_fns_with_docs! {
 
         params(l, r)
         eq_comparison = crate::polymorphism::CmpWrapper(l).const_eq(r),
-        cmp_comparison = crate::polymorphism::CmpWrapper(l).konst(r),
+        cmp_comparison = crate::polymorphism::CmpWrapper(l).const_cmp(r),
         parameter_copyability = copy,
     ),
 }
