@@ -1,9 +1,9 @@
 use konst::{
-    nonzero::{
+    nonzero::cmp::{
         cmp_nonzeroisize, cmp_nonzerou32, cmp_option_nonzeroisize, cmp_option_nonzerou32,
         eq_nonzeroisize, eq_nonzerou32, eq_option_nonzeroisize, eq_option_nonzerou32,
     },
-    range::{eq_range_char, eq_range_u8, eq_rangeinc_char, eq_rangeinc_u8},
+    range::cmp::{eq_range_char, eq_range_u8, eq_rangeinc_char, eq_rangeinc_u8},
 };
 
 #[test]

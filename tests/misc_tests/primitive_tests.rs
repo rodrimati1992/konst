@@ -1,4 +1,4 @@
-use konst::primitive::{
+use konst::primitive::cmp::{
     cmp_bool, cmp_char, cmp_option_bool, cmp_option_char, cmp_option_u8, cmp_u8, eq_option_bool,
     eq_option_char, eq_option_u8,
 };

@@ -1,4 +1,4 @@
-//! Compile-time comparison, parsing, and other const functionality.
+//! Compile-time comparison, parsing, and const equivalents of std methods.
 //!
 //! # Features
 //!
@@ -129,7 +129,6 @@ __declare_fns_with_docs! {
     ),
 }
 
-/// Functions for comparing slices
 #[cfg(feature = "slice")]
 pub mod slice;
 
