@@ -53,7 +53,7 @@ macro_rules! slice_up_to_impl_inner{
 ///
 /// If the "constant_time_slice" feature is disabled,
 /// thich takes linear time to remove the leading elements,
-/// proportional to `slice.len() - len`.
+/// proportional to `start`.
 ///
 /// If the "constant_time_slice" feature is enabled, it takes constant time to run,
 /// but uses a few nightly features.

@@ -1,3 +1,7 @@
+mod primitive_parsing;
+
+pub use primitive_parsing::ParseIntError;
+
 /// For parsing and byte string splitting in const contexts.
 #[derive(Copy, Clone)]
 pub struct Parser<'a> {
@@ -37,10 +41,60 @@ impl<'a> Parser<'a> {
         self.bytes.is_empty()
     }
 
+    /// Gets the next unparsed byte.
+    #[inline]
+    pub const fn next_byte(mut self) -> Option<(u8, Self)> {
+        if let [byte, rem @ ..] = self.bytes {
+            self.bytes = rem;
+            Some((*byte, self))
+        } else {
+            None
+        }
+    }
+
+    /// For skipping the first `bytes` bytes.
+    ///
+    /// # Performance
+    ///
+    /// If the "constant_time_slice" feature is disabled,
+    /// thich takes linear time to remove the leading elements,
+    /// proportional to `bytes`.
+    ///
+    /// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+    /// but uses a few nightly features.
+    ///
+    pub const fn skip(mut self, bytes: usize) -> Self {
+        self.bytes = crate::slice::slice_from(self.bytes, bytes);
+        self
+    }
+
     /// Checks that the parsed bytes start with `matched`,
     /// returning the remainder of the bytes.
     ///
-    /// # Example
+    /// # Examples
+    ///
+    /// ### Basic
+    ///
+    /// ```
+    /// use konst::{Parser, assign_if};
+    ///
+    /// let mut parser = Parser::from_str("foo;bar;baz;");
+    ///
+    /// assert!(parser.strip_prefix("aaa").is_none());
+    ///
+    /// assign_if!{Some(parser) = parser.strip_prefix("foo;")};
+    /// assert_eq!(parser.bytes(), "bar;baz;".as_bytes());
+    ///
+    /// assign_if!{Some(parser) = parser.strip_prefix("bar;")};
+    /// assert_eq!(parser.bytes(), "baz;".as_bytes());
+    ///
+    /// assign_if!{Some(parser) = parser.strip_prefix("baz;")};
+    /// assert_eq!(parser.bytes(), "".as_bytes());
+    ///
+    ///
+    /// ```
+    ///
+    /// ### Use case
     ///
     /// ```rust
     /// use konst::{Parser, assign_if};
@@ -100,11 +154,47 @@ impl<'a> Parser<'a> {
         Some(self)
     }
 
+    /// Equivalent to [`strip_prefix`], but takes a single byte.
+    ///
+    /// [`strip_prefix`]: #method.strip_prefix
+    pub const fn strip_prefix_u8(mut self, matched: u8) -> Option<Self> {
+        match self.bytes {
+            [byte, rem @ ..] if *byte == matched => {
+                self.bytes = rem;
+                Some(self)
+            }
+            _ => None,
+        }
+    }
+
     /// Checks that the parsed bytes end with `matched`,
     /// returning the remainder of the bytes.
+    ///
+    /// # Examples
+    ///
+    /// ### Basic
+    ///
+    /// ```
+    /// use konst::{Parser, assign_if};
+    ///
+    /// let mut parser = Parser::from_str("foo;bar;baz;");
+    ///
+    /// assert!(parser.strip_suffix("aaa").is_none());
+    ///
+    /// assign_if!{Some(parser) = parser.strip_suffix("baz;")};
+    /// assert_eq!(parser.bytes(), "foo;bar;".as_bytes());
+    ///
+    /// assign_if!{Some(parser) = parser.strip_suffix("bar;")};
+    /// assert_eq!(parser.bytes(), "foo;".as_bytes());
+    ///
+    /// assign_if!{Some(parser) = parser.strip_suffix("foo;")};
+    /// assert_eq!(parser.bytes(), "".as_bytes());
+    ///
+    /// ```
+    ///
     #[inline]
     pub const fn strip_suffix(self, matched: &str) -> Option<Self> {
-        self.strip_prefix_b(matched.as_bytes())
+        self.strip_suffix_b(matched.as_bytes())
     }
 
     /// Equivalent to [`strip_suffix`], but takes a byte slice.
