@@ -3,7 +3,7 @@ use super::Parser;
 use core::fmt::{self, Display};
 
 impl<'a> Parser<'a> {
-    /// Tries to parse a `u128` until a non-digit.
+    /// Parses a `u128` until a non-digit is reached.
     ///
     /// # Example
     ///
@@ -17,9 +17,9 @@ impl<'a> Parser<'a> {
     ///     assert!(parser.bytes().is_empty());
     /// }
     /// {
-    ///     let parser = Parser::from_str("12345;6789");
+    ///     let parser = Parser::from_str("1365;6789");
     ///     let (num, parser) = unwrap_res!(parser.parse_u128());
-    ///     assert_eq!(num, 12345);
+    ///     assert_eq!(num, 1365);
     ///     assert_eq!(parser.bytes(), b";6789");
     /// }
     ///
@@ -28,7 +28,7 @@ impl<'a> Parser<'a> {
     pub const fn parse_u128(mut self) -> Result<(u128, Self), ParseIntError> {
         parse_integer! {unsigned, (u128, u128), self}
     }
-    /// Tries to parse a `i128` until a non-digit.
+    /// Parses a `i128` until a non-digit is reached.
     ///
     /// # Example
     ///
@@ -53,19 +53,19 @@ impl<'a> Parser<'a> {
     pub const fn parse_i128(mut self) -> Result<(i128, Self), ParseIntError> {
         parse_integer! {signed, (i128, u128), self}
     }
-    /// Tries to parse a `u64` until a non-digit.
+    /// Parses a `u64` until a non-digit is reached.
     pub const fn parse_u64(mut self) -> Result<(u64, Self), ParseIntError> {
         parse_integer! {unsigned, (u64, u64), self}
     }
-    /// Tries to parse a `i64` until a non-digit.
+    /// Parses a `i64` until a non-digit is reached.
     pub const fn parse_i64(mut self) -> Result<(i64, Self), ParseIntError> {
         parse_integer! {signed, (i64, u64), self}
     }
-    /// Tries to parse a `usize` until a non-digit.
+    /// Parses a `usize` until a non-digit is reached.
     pub const fn parse_usize(mut self) -> Result<(usize, Self), ParseIntError> {
         parse_integer! {unsigned, (usize, usize), self}
     }
-    /// Tries to parse a `isize` until a non-digit.
+    /// Parses a `isize` until a non-digit is reached.
     pub const fn parse_isize(mut self) -> Result<(isize, Self), ParseIntError> {
         parse_integer! {signed, (isize, usize), self}
     }
@@ -73,6 +73,8 @@ impl<'a> Parser<'a> {
 
 macro_rules! parse_integer {
     ($signedness:ident, ($type:ty, $uns:ty), $parser:ident) => {{
+        let mut num: $uns;
+
         parse_integer! {@parse_signed $signedness, ($type, $uns), $parser, num, sign}
 
         while let [byte @ b'0'..=b'9', rem @ ..] = $parser.bytes {
@@ -93,25 +95,22 @@ macro_rules! parse_integer {
         Ok((num, $parser))
     }};
     (@parse_signed signed, ($type:ty, $uns:ty), $parser:ident, $num:ident, $isneg:ident) => {
-        let $isneg;
-        let mut $num: $uns = match $parser.bytes {
-            [b'-', rem @ ..] => {
-                if let [byte @ b'0'..=b'9', rem @ ..] = rem {
-                    $parser.bytes = rem;
-                    $isneg = true;
-                    (*byte - b'0') as $uns
-                } else {
-                    return Err(ParseIntError(()));
-                }
-            }
-            _ => {
-                $isneg = false;
-                0
-            }
+        let $isneg = if let [b'-', rem @ ..] = $parser.bytes {
+            $parser.bytes = rem;
+            true
+        } else {
+            false
         };
+
+        parse_integer!(@parse_signed unsigned, ($type, $uns), $parser, $num, $isneg)
     };
     (@parse_signed unsigned, ($type:ty, $uns:ty), $parser:ident, $num:ident, $isneg:ident) => {
-        let mut $num: $type = 0;
+        $num = if let [byte @ b'0'..=b'9', rem @ ..] = $parser.bytes {
+            $parser.bytes = rem;
+            (*byte - b'0') as $uns
+        } else {
+            return Err(ParseIntError(()));
+        };
     };
     (@apply_sign signed, ($type:ty, $uns:ty), $num:ident, $isneg:ident) => {
         const MAX_POS: $uns = <$type>::MAX as $uns;

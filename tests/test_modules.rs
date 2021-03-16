@@ -10,6 +10,9 @@ mod misc_tests {
     #[cfg(feature = "other")]
     mod other_types_tests;
 
+    #[cfg(feature = "parsing")]
+    mod parser;
+
     #[cfg(any(feature = "range", feature = "nonzero"))]
     mod range_and_nonzero_tests;
 
