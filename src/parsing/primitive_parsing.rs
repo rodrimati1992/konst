@@ -142,3 +142,42 @@ impl Display for ParseIntError {
         f.write_str("could not parse an integer")
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+impl<'a> Parser<'a> {
+    /// Parses a `bool`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{Parser, unwrap_opt};
+    ///
+    /// {
+    ///     let parser = Parser::from_str("falsemorestring");
+    ///     let (boolean, parser) = unwrap_opt!(parser.parse_bool());
+    ///     assert_eq!(boolean, false);
+    ///     assert_eq!(parser.bytes(), "morestring".as_bytes());
+    /// }
+    /// {
+    ///     let parser = Parser::from_str("truefoo");
+    ///     let (boolean, parser) = unwrap_opt!(parser.parse_bool());
+    ///     assert_eq!(boolean, true);
+    ///     assert_eq!(parser.bytes(), "foo".as_bytes());
+    /// }
+    ///
+    /// ```
+    pub const fn parse_bool(mut self) -> Option<(bool, Self)> {
+        match self.bytes {
+            [b't', b'r', b'u', b'e', rem @ ..] => {
+                self.bytes = rem;
+                Some((true, self))
+            }
+            [b'f', b'a', b'l', b's', b'e', rem @ ..] => {
+                self.bytes = rem;
+                Some((false, self))
+            }
+            _ => None,
+        }
+    }
+}
