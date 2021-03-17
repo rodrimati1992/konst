@@ -270,6 +270,222 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /////////////////////////////////////////
+    //           *trim* methods            //
+    /////////////////////////////////////////
+
+    /// Repeatedly removes all instances of `needle` from the start of the parsed bytes.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::Parser;
+    ///
+    /// {
+    ///     let mut parser = Parser::from_str("HelloHelloHello world!");
+    ///     parser = parser.trim_start_matches("Hello");
+    ///     assert_eq!(parser.bytes(), " world!".as_bytes());
+    /// }
+    /// {
+    ///     let mut parser = Parser::from_str("        Hi!");
+    ///     parser = parser.trim_start_matches("    ");
+    ///     assert_eq!(parser.bytes(), "Hi!".as_bytes());
+    /// }
+    /// {
+    ///     let mut parser = Parser::from_str("------Bye!");
+    ///     parser = parser.trim_start_matches("----");
+    ///     assert_eq!(parser.bytes(), "--Bye!".as_bytes());
+    /// }
+    ///
+    /// ```
+    ///
+    pub const fn trim_start_matches(self, needle: &str) -> Self {
+        self.trim_start_matches_b(needle.as_bytes())
+    }
+
+    /// Equivalent to [`trim_start_matches`], but takes a byte slice.
+    ///
+    /// [`trim_start_matches`]: #method.trim_start_matches
+    pub const fn trim_start_matches_b(mut self, needle: &[u8]) -> Self {
+        if needle.is_empty() {
+            return self;
+        }
+
+        let mut matched = needle;
+
+        loop {
+            let at_start = self;
+
+            match (self.bytes, matched) {
+                ([b, rem @ ..], [bm, remm @ ..]) if *b == *bm => {
+                    self.bytes = rem;
+                    matched = remm;
+                }
+                _ => break,
+            }
+
+            'inner: loop {
+                match (self.bytes, matched) {
+                    ([], [_, ..]) => return at_start,
+                    ([b, rem @ ..], [bm, remm @ ..]) => {
+                        if *b == *bm {
+                            self.bytes = rem;
+                            matched = remm;
+                        } else {
+                            return at_start;
+                        }
+                    }
+                    _ => break 'inner,
+                }
+            }
+
+            matched = needle;
+        }
+
+        self
+    }
+
+    /// Equivalent to [`trim_start_matches`], but takes a single byte.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::Parser;
+    ///
+    /// let mut parser = Parser::from_str("    ----world");
+    ///
+    /// parser = parser.trim_start_matches_u8(b' ');
+    /// assert_eq!(parser.bytes(), "----world".as_bytes());
+    ///
+    /// parser = parser.trim_start_matches_u8(b'-');
+    /// assert_eq!(parser.bytes(), "world".as_bytes());
+    ///
+    /// parser = parser.trim_start_matches_u8(b'-');
+    /// assert_eq!(parser.bytes(), "world".as_bytes());
+    ///
+    /// ```
+    ///
+    /// [`trim_start_matches`]: #method.trim_start_matches
+    pub const fn trim_start_matches_u8(mut self, needle: u8) -> Self {
+        while let [b, rem @ ..] = self.bytes {
+            if *b == needle {
+                self.bytes = rem;
+            } else {
+                break;
+            }
+        }
+
+        self
+    }
+
+    /// Repeatedly removes all instances of `needle` from the start of the parsed bytes.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::Parser;
+    ///
+    /// {
+    ///     let mut parser = Parser::from_str("Hello world!world!world!");
+    ///     parser = parser.trim_end_matches("world!");
+    ///     assert_eq!(parser.bytes(), "Hello ".as_bytes());
+    /// }
+    /// {
+    ///     let mut parser = Parser::from_str("Hi!        ");
+    ///     parser = parser.trim_end_matches("    ");
+    ///     assert_eq!(parser.bytes(), "Hi!".as_bytes());
+    /// }
+    /// {
+    ///     let mut parser = Parser::from_str("Bye!------");
+    ///     parser = parser.trim_end_matches("----");
+    ///     assert_eq!(parser.bytes(), "Bye!--".as_bytes());
+    /// }
+    ///
+    /// ```
+    ///
+    pub const fn trim_end_matches(self, needle: &str) -> Self {
+        self.trim_end_matches_b(needle.as_bytes())
+    }
+
+    /// Equivalent to [`trim_end_matches`], but takes a byte slice.
+    ///
+    /// [`trim_end_matches`]: #method.trim_end_matches
+    pub const fn trim_end_matches_b(mut self, needle: &[u8]) -> Self {
+        if needle.is_empty() {
+            return self;
+        }
+
+        let mut matched = needle;
+
+        loop {
+            let at_start = self;
+
+            match (self.bytes, matched) {
+                ([rem @ .., b], [remm @ .., bm]) if *b == *bm => {
+                    self.bytes = rem;
+                    matched = remm;
+                }
+                _ => break,
+            }
+
+            'inner: loop {
+                match (self.bytes, matched) {
+                    ([], [.., _]) => return at_start,
+                    ([rem @ .., b], [remm @ .., bm]) => {
+                        if *b == *bm {
+                            self.bytes = rem;
+                            matched = remm;
+                        } else {
+                            return at_start;
+                        }
+                    }
+                    _ => break 'inner,
+                }
+            }
+
+            matched = needle;
+        }
+
+        self
+    }
+
+    /// Equivalent to [`trim_end_matches`], but takes a single byte.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::Parser;
+    ///
+    /// let mut parser = Parser::from_str("world----    ");
+    ///
+    /// parser = parser.trim_end_matches_u8(b' ');
+    /// assert_eq!(parser.bytes(), "world----".as_bytes());
+    ///
+    /// parser = parser.trim_end_matches_u8(b'-');
+    /// assert_eq!(parser.bytes(), "world".as_bytes());
+    ///
+    /// parser = parser.trim_end_matches_u8(b'-');
+    /// assert_eq!(parser.bytes(), "world".as_bytes());
+    ///
+    /// ```
+    ///
+    /// [`trim_end_matches`]: #method.trim_end_matches
+    pub const fn trim_end_matches_u8(mut self, needle: u8) -> Self {
+        while let [rem @ .., b] = self.bytes {
+            if *b == needle {
+                self.bytes = rem;
+            } else {
+                break;
+            }
+        }
+
+        self
+    }
+
+    //////////////////////////////////////////////
+    //           *find_skip* methods            //
+    //////////////////////////////////////////////
+
     /// Skips the parser after the first instance of `needle`.
     ///
     /// # Example
