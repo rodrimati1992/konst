@@ -13,11 +13,13 @@ repository = "https://github.com/rodrimati1992/konst/"
 include = [
     "Cargo.toml", 
     "src/**/*.rs", 
-    "./README.md",
-    "./LICENSE-ZLIB.md", 
+    "../README.md",
+    "../LICENSE-ZLIB.md", 
 ]
 
-[dependencies]
+[dependencies.konst_proc_macros]
+version = "=0.1.0"
+path = "../konst_proc_macros"
 
 
 [features]

@@ -1,0 +1,5 @@
+[workspace]
+members=[
+    "konst",
+    "konst_proc_macros",
+]
