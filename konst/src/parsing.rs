@@ -274,6 +274,60 @@ impl<'a> Parser<'a> {
     //           *trim* methods            //
     /////////////////////////////////////////
 
+    /// Removes whitespace from the start of the parsed bytes.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{Parser, unwrap_opt};
+    ///
+    /// let mut parser = Parser::from_str("    foo\n\t bar");
+    ///
+    /// parser = parser.trim_start();
+    /// assert_eq!(parser.bytes(), "foo\n\t bar".as_bytes());
+    ///
+    /// parser = unwrap_opt!(parser.strip_prefix("foo")).trim_start();
+    /// assert_eq!(parser.bytes(), "bar".as_bytes());
+    ///
+    /// ```
+    pub const fn trim_start(mut self) -> Self {
+        while let [b, rem @ ..] = self.bytes {
+            if matches!(b, b'\t' | b'\n' | b'\r' | b' ') {
+                self.bytes = rem;
+            } else {
+                break;
+            }
+        }
+        self
+    }
+
+    /// Removes whitespace from the end of the parsed bytes.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{Parser, unwrap_opt};
+    ///
+    /// let mut parser = Parser::from_str("foo,\n    bar,\n    ");
+    ///
+    /// parser = parser.trim_end();
+    /// assert_eq!(parser.bytes(), "foo,\n    bar,".as_bytes());
+    ///
+    /// parser = unwrap_opt!(parser.strip_suffix("bar,")).trim_end();
+    /// assert_eq!(parser.bytes(), "foo,".as_bytes());
+    ///
+    /// ```
+    pub const fn trim_end(mut self) -> Self {
+        while let [rem @ .., b] = self.bytes {
+            if matches!(b, b'\t' | b'\n' | b'\r' | b' ') {
+                self.bytes = rem;
+            } else {
+                break;
+            }
+        }
+        self
+    }
+
     /// Repeatedly removes all instances of `needle` from the start of the parsed bytes.
     ///
     /// # Example

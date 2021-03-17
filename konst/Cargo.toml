@@ -35,7 +35,7 @@ range = ["polymorphism"]
 nonzero = ["polymorphism"]
 primitives = ["polymorphism"]
 other = ["polymorphism"]
-parsing = []
+parsing = ["slice"]
 constant_time_slice = []
 
 const_generics = []
