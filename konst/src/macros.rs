@@ -12,6 +12,10 @@ mod polymorphism_macros;
 
 #[cfg(feature = "parsing")]
 #[macro_use]
+mod parse_any;
+
+#[cfg(feature = "parsing")]
+#[macro_use]
 mod parsing_macros;
 
 #[macro_use]

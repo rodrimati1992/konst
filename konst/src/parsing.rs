@@ -29,6 +29,12 @@ impl<'a> Parser<'a> {
         self.bytes
     }
 
+    /// TODO
+    pub const fn move_to_remainder(mut self, to: &'a [u8]) -> Self {
+        self.bytes = to;
+        self
+    }
+
     /// Returns amount of unparsed bytes.
     #[inline(always)]
     pub const fn len(self) -> usize {

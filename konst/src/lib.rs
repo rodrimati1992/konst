@@ -105,6 +105,9 @@ mod utils;
 #[cfg(feature = "parsing")]
 pub use crate::parsing::Parser;
 
+#[cfg(feature = "parsing")]
+pub use konst_proc_macros::{__priv_bstr_end, __priv_bstr_start};
+
 #[cfg(feature = "str")]
 __declare_string_cmp_fns! {
     import_path = "konst",

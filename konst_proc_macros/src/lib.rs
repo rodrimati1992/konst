@@ -49,13 +49,13 @@ fn bstr_pattern(input_tokens: TokenStream, str_at: StrAt) -> TokenStream {
                 }
                 let tt = crate::utils::bracket(Span::call_site(), |out| match str_at {
                     StrAt::Start => {
-                        output_patt(&rem_ident, patt, out);
+                        output_patt(patt, out);
                         output_remainder_pat(&rem_ident, out);
                     }
                     StrAt::End => {
                         output_remainder_pat(&rem_ident, out);
                         out.extend(punct_token(',', span));
-                        output_patt(&rem_ident, patt, out);
+                        output_patt(patt, out);
                     }
                 });
 
@@ -68,7 +68,7 @@ fn bstr_pattern(input_tokens: TokenStream, str_at: StrAt) -> TokenStream {
     }
 }
 
-fn output_patt(rem_ident: &Ident, patt: &Pattern, out: &mut TokenStream) {
+fn output_patt(patt: &Pattern, out: &mut TokenStream) {
     use crate::utils::punct_token;
 
     match patt {
