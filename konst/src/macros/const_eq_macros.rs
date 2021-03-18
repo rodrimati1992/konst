@@ -1,3 +1,62 @@
+/// Compares two values for equality.
+///
+/// The arguments must implement the [`ConstCmpMarker`] trait.
+/// Non-standard library types must define a `const_eq` method taking a reference.
+///
+/// # Limitations
+///
+/// The arguments must be concrete types, and have a fully inferred type.
+/// eg: if you pass an integer literal it must have a suffix to indicate its type.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{const_eq, impl_cmp};
+///
+/// use std::ops::Range;
+///
+/// struct Fields<'a> {
+///     foo: u32,
+///     bar: Option<bool>,
+///     baz: Range<usize>,
+///     qux: &'a str,
+/// }
+///
+/// impl_cmp!{
+///     impl['a] Fields<'a>;
+///     pub const fn const_eq(&self, other: &Self) -> bool {
+///         self.foo == other.foo &&
+///         const_eq!(self.bar, other.bar) &&
+///         const_eq!(self.baz, other.baz) &&
+///         const_eq!(self.qux, other.qux)
+///     }
+/// }
+///
+/// const CMPS: [bool; 4] = {
+///     let foo = Fields {
+///         foo: 10,
+///         bar: None,
+///         baz: 10..20,
+///         qux: "hello",
+///     };
+///     
+///     let bar = Fields {
+///         foo: 99,
+///         bar: Some(true),
+///         baz: 0..5,
+///         qux: "world",
+///     };
+///     
+///     [const_eq!(foo, foo), const_eq!(foo, bar), const_eq!(bar, foo), const_eq!(bar, bar)]
+/// };
+///
+/// assert_eq!(CMPS, [true, false, false, true]);
+///
+///
+///
+/// ```
+///
+/// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
 #[macro_export]
 macro_rules! const_eq {
     ($left:expr, $right:expr) => {
@@ -7,8 +66,10 @@ macro_rules! const_eq {
     };
 }
 
-/// Compares two generic standard library types for equality.
+/// Compares two standard library types for equality,
+/// that can't be compared with [`const_eq`].
 ///
+/// <span id = "types-section"></span>
 /// # Types
 ///
 /// This macro supports multiple types with different prefixes:
@@ -22,6 +83,13 @@ macro_rules! const_eq {
 /// - `range_inclusive`: for comparing `RangeInclusive<T>`.
 /// [example](#compare_ranges_incluside)
 ///
+/// <span id = "limitations-section"></span>
+/// # Limitations
+///
+/// The arguments must be concrete types, and have a fully inferred type.
+/// eg: if you pass an integer literal it must have a suffix to indicate its type.
+///
+/// <span id = "arguments-section"></span>
 /// # Arguments
 ///
 /// The arguments take this form
@@ -52,7 +120,7 @@ macro_rules! const_eq {
 ///
 ///
 ///
-/// # Exmaples
+/// # Examples
 ///
 /// <span id = "compare_slices_structs"></span>
 /// ### Comparing slices of structs
@@ -253,6 +321,8 @@ macro_rules! const_eq {
 ///
 /// ```
 ///
+/// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
+/// [`const_eq`]: macro.const_eq.html
 #[macro_export]
 macro_rules! const_eq_for {
     (

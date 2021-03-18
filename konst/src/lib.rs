@@ -6,9 +6,10 @@
 //!
 //! - Many functions for comparing standard library types.
 //!
-//! - Macros to make it easier to do those comparisons, powered by the [`polymorphism`] module.
+//! - The [`const_eq`]/[`const_eq_for`]/[`const_cmp`]/[`const_cmp_for`] macros
+//! for comparisons, powered by the [`polymorphism`] module.
 //!
-//! - Compile-time parsing through the [`Parser`] type.
+//! - Compile-time parsing through the [`Parser`] type, and [`parse_any`] macro.
 //!
 //! # Examples
 //!
@@ -67,6 +68,22 @@
 //!
 //! ```
 //!
+//! # No-std support
+//!
+//! `konst` is `#![no_std]`, it can be used anywhere Rust can be used.
+//!
+//! # Minimum Supported Rust Version
+//!
+//! `konst` requires Rust 1.46.0, because it uses looping an branching in const contexts.
+//!
+//! Features that require newer versions of Rust, or the nightly compiler,
+//! need to be explicitly enabled with cargo features.
+//!
+//!
+//!
+//! [`polymorphism`]: ./polymorphism/index.html
+//! [`Parser`]: ./parsing/struct.Parser.html
+//! [`parse_any`]: macro.parse_any.html
 //!
 
 #![cfg_attr(

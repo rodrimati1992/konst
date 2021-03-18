@@ -1,3 +1,62 @@
+/// Compares two values for ordering.
+///
+/// The arguments must implement the [`ConstCmpMarker`] trait.
+/// Non-standard library types must define a `const_cmp` method taking a reference.
+///
+/// # Limitations
+///
+/// The arguments must be concrete types, and have a fully inferred type.
+/// eg: if you pass an integer literal it must have a suffix to indicate its type.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{const_cmp, impl_cmp, try_equal};
+///
+/// use std::cmp::Ordering;
+///
+/// struct Fields<'a> {
+///     foo: u32,
+///     bar: Option<bool>,
+///     baz: Ordering,
+///     qux: &'a str,
+/// }
+///
+/// impl_cmp!{
+///     impl['a] Fields<'a>;
+///     pub const fn const_cmp(&self, other: &Self) -> Ordering {
+///         try_equal!(const_cmp!(self.foo, other.foo));
+///         try_equal!(const_cmp!(self.bar, other.bar));
+///         try_equal!(const_cmp!(self.baz, other.baz));
+///         try_equal!(const_cmp!(self.qux, other.qux))
+///     }
+/// }
+///
+/// const CMPS: [Ordering; 4] = {
+///     let foo = Fields {
+///         foo: 10,
+///         bar: None,
+///         baz: Ordering::Less,
+///         qux: "hello",
+///     };
+///     
+///     let bar = Fields {
+///         foo: 99,
+///         bar: Some(true),
+///         baz: Ordering::Greater,
+///         qux: "world",
+///     };
+///     
+///     [const_cmp!(foo, foo), const_cmp!(foo, bar), const_cmp!(bar, foo), const_cmp!(bar, bar)]
+/// };
+///
+/// assert_eq!(CMPS, [Ordering::Equal, Ordering::Less, Ordering::Greater, Ordering::Equal]);
+///
+///
+///
+/// ```
+///
+/// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
 #[macro_export]
 macro_rules! const_cmp {
     ($left:expr, $right:expr) => {
@@ -7,15 +66,99 @@ macro_rules! const_cmp {
     };
 }
 
-/// Compares two slices for ordering, evaluating to a [`cmp::Ordering`]
+/// Compares two standard library types for ordering,
+/// that can't be compared with [`const_cmp`].
+///
+/// This macro takes the same
+/// [types](macro.const_eq_for.html#types-section) (except for range types),
+/// has the same  [limitations](macro.const_eq_for.html#limitations-section),
+/// and takes [arguments of the same form](macro.const_eq_for.html#arguments-section)
+/// as the [`const_eq_for`] macro
 ///
 /// # Examples
 ///
+/// ### Slices
+///
+/// ```rust
+/// use konst::{const_cmp, const_cmp_for, try_equal};
+///
+/// use std::cmp::Ordering;
+///
+/// const fn cmp_slice_pair(left: &[(u32, u32)], right: &[(u32, u32)]) -> Ordering {
+///     const_cmp_for!(slice; left, right, |l, r|{
+///         try_equal!(const_cmp!(l.0, r.0));
+///         try_equal!(const_cmp!(l.1, r.1))
+///     })
+/// }
+///
+/// const CMPS: [Ordering; 4] = {
+///     let foo = &[(0, 1), (1, 2), (3, 4), (5, 6)];
+///     let bar = &[(0, 1), (3, 4), (5, 6), (7, 8)];
+///
+///     [
+///         cmp_slice_pair(foo, foo),
+///         cmp_slice_pair(foo, bar),
+///         cmp_slice_pair(bar, foo),
+///         cmp_slice_pair(bar, bar),
+///     ]
+/// };
+///
+/// assert_eq!(CMPS, [Ordering::Equal, Ordering::Less, Ordering::Greater, Ordering::Equal])
+///
+/// ```
 ///
 ///
+/// ### Options
 ///
+/// ```rust
+/// use konst::{const_cmp, const_cmp_for, try_equal};
 ///
+/// use std::cmp::Ordering;
 ///
+/// #[derive(Copy, Clone)]
+/// enum Shape {
+///     Square,
+///     Circle,
+///     Line,
+/// }
+///
+/// const fn cmp_opt_pair(left: Option<Shape>, right: Option<Shape>) -> Ordering {
+///     const_cmp_for!(option; left, right, |x| *x as u8 )
+/// }
+///
+/// const CMPS: [Ordering; 9] = {
+///     let foo = Some(Shape::Square);
+///     let bar = Some(Shape::Circle);
+///     let baz = Some(Shape::Line);
+///
+///     [
+///         cmp_opt_pair(foo, foo),
+///         cmp_opt_pair(foo, bar),
+///         cmp_opt_pair(foo, baz),
+///
+///         cmp_opt_pair(bar, foo),
+///         cmp_opt_pair(bar, bar),
+///         cmp_opt_pair(bar, baz),
+///
+///         cmp_opt_pair(baz, foo),
+///         cmp_opt_pair(baz, bar),
+///         cmp_opt_pair(baz, baz),
+///     ]
+/// };
+///
+/// assert_eq!(
+///     CMPS,
+///     [
+///         Ordering::Equal, Ordering::Less, Ordering::Less,
+///         Ordering::Greater, Ordering::Equal, Ordering::Less,
+///         Ordering::Greater, Ordering::Greater, Ordering::Equal,
+///     ]
+/// );
+///
+/// ```
+///
+/// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
+/// [`const_cmp`]: macro.const_cmp.html
 /// [`cmp::Ordering`]: https://doc.rust-lang.org/core/cmp/enum.Ordering.html
 ///
 #[macro_export]
@@ -67,62 +210,6 @@ macro_rules! const_cmp_for {
             (None, None) => $crate::__::Equal,
         }
     };
-    (
-        range;
-        $left_range:expr,
-        $right_range:expr
-        $(, $($comparison:tt)* )?
-    ) => {
-        match (&$left_range, &$right_range) {
-            (left_range, right_range) => {
-                use $crate::__::Ordering as CmpOrdering;
-
-                let start = $crate::__priv_const_cmp_for!(
-                    left_range.start,
-                    right_range.start,
-                    $( $($comparison)* )?
-                );
-
-                if let CmpOrdering::Equal = starts {
-                    $crate::__priv_const_cmp_for!(
-                        left_range.end,
-                        right_range.end,
-                        $( $($comparison)* )?
-                    )
-                } else {
-                    start
-                }
-            }
-        }
-    };
-    (
-        range_inclusive;
-        $left_range:expr,
-        $right_range:expr
-        $(, $($comparison:tt)* )?
-    ) => {
-        match (&$left_range, &$right_range) {
-            (left_range, right_range) => {
-                use $crate::__::Ordering as CmpOrdering;
-
-                let start = $crate::__priv_const_cmp_for!(
-                    left_range.start(),
-                    right_range.start(),
-                    $( $($comparison)* )?
-                );
-
-                if let CmpOrdering::Equal = start {
-                    $crate::__priv_const_cmp_for!(
-                        left_range.end(),
-                        right_range.end(),
-                        $( $($comparison)* )?
-                    )
-                } else {
-                    start
-                }
-            }
-        }
-    };
 }
 
 #[doc(hidden)]
@@ -153,6 +240,49 @@ macro_rules! __priv_const_cmp_for {
 
 /// Evaluates to `$ord` if it is `Ordering::Equal`,
 /// otherwise returns it from the enclosing function.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{const_cmp, impl_cmp, try_equal};
+///
+/// use std::cmp::Ordering;
+///
+/// struct Fields<'a> {
+///     first: &'a [u8; 4],
+///     second: bool,
+///     third: Option<&'static str>,
+/// }
+///
+/// impl_cmp!{
+///     impl['a] Fields<'a>;
+///     pub const fn const_cmp(&self, other: &Self) -> Ordering {
+///         try_equal!(const_cmp!(self.first, other.first));
+///         try_equal!(const_cmp!(self.second, other.second));
+///         try_equal!(const_cmp!(self.third, other.third))
+///     }
+/// }
+///
+/// const CMPS: [Ordering; 4] = {
+///     let foo = Fields {
+///         first: &[3, 5, 8, 13],
+///         second: false,
+///         third: None,
+///     };
+///     
+///     let bar = Fields {
+///         first: &[5, 8, 13, 14],
+///         second: true,
+///         third: Some("what!?"),
+///     };
+///     
+///     [const_cmp!(foo, foo), const_cmp!(foo, bar), const_cmp!(bar, foo), const_cmp!(bar, bar)]
+/// };
+///
+/// assert_eq!(CMPS, [Ordering::Equal, Ordering::Less, Ordering::Greater, Ordering::Equal]);
+///
+/// ```
+///
 #[macro_export]
 macro_rules! try_equal {
     (break $ord:expr) => {
