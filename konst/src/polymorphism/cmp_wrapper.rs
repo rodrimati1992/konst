@@ -1,5 +1,41 @@
 use crate::polymorphism::{ConstCmpMarker, IsAConstCmpMarker, IsNotStdKind, IsStdKind};
 
+/// A wrapper type for std types, which defines `const_eq` and `const_cmp` methods for them.
+///
+/// This is what [`coerce_to_cmp`] and the comparison macros convert standard library types into.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{
+///     polymorphism::CmpWrapper,
+///     coerce_to_cmp,
+/// };
+///
+/// use std::cmp::Ordering;
+///
+/// {
+///     // The `CmpWrapper<u32>` type annotation is just for the reader
+///     let foo: CmpWrapper<u32> = coerce_to_cmp!(10u32);
+///     assert!( foo.const_eq(&10));
+///     assert!(!foo.const_eq(&20));
+///     
+///     assert_eq!(foo.const_cmp(&5), Ordering::Greater);
+///     assert_eq!(foo.const_cmp(&10), Ordering::Equal);
+///     assert_eq!(foo.const_cmp(&15), Ordering::Less);
+/// }
+/// {
+///     let bar = CmpWrapper(Ordering::Equal);
+///     assert!( bar.const_eq(&Ordering::Equal));
+///     assert!(!bar.const_eq(&Ordering::Less));
+///     
+///     assert_eq!(bar.const_cmp(&Ordering::Less), Ordering::Greater);
+///     assert_eq!(bar.const_cmp(&Ordering::Equal), Ordering::Equal);
+///     assert_eq!(bar.const_cmp(&Ordering::Greater), Ordering::Less);
+/// }
+///
+/// ```
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct CmpWrapper<T>(pub T);
 
 impl<'a, T> CmpWrapper<&'a [T]> {
@@ -34,6 +70,7 @@ macro_rules! std_kind_impls {
             }
 
             impl CmpWrapper<$ty> {
+                /// Compares `self` and `other` for equality.
                 #[inline(always)]
                 pub const fn const_eq(self, other: &$ty) -> bool {
                     self.0 == *other

@@ -10,6 +10,153 @@ use core::marker::PhantomData;
 
 /// Marker trait for types that implement the const comparison methods.
 ///
+/// # Implementors
+///
+/// Types that implement this trait are also expected to implement at least one of
+/// these inherent methods:
+///
+/// ```ignore
+/// // use std::cmp::Ordering;
+///
+/// const fn const_eq(&self, other: &Self) -> bool
+///
+/// const fn const_cmp(&self, other: &Self) -> Ordering
+///
+/// ```
+///
+/// # Coercions
+///
+/// The [`Kind`](#associatedtype.Kind) and [`This`](#associatedtype.This) associated types
+/// are used in the [`IsAConstCmpMarker`] marker type
+/// to automatically wrap types in [`CmpWrapper`] if they're from the standard library,
+/// otherwise leaving them unwrapped.
+///
+///
+/// # Example
+///
+/// ### Manual Implementation
+///
+/// ```
+/// use konst::{
+///     polymorphism::{ConstCmpMarker, IsNotStdKind},
+///     const_cmp, const_eq, try_equal,
+/// };
+///
+/// use std::cmp::Ordering;
+///
+///
+/// struct MyType {
+///     x: &'static str,
+///     y: &'static [u16],
+/// }
+///
+/// impl ConstCmpMarker for MyType {
+///     // These are the only associated types you're expected to use in
+///     // impls for custom types.
+///     type Kind = IsNotStdKind;
+///     type This = Self;
+/// }
+///
+/// impl MyType {
+///     pub const fn const_eq(&self, other: &Self) -> bool {
+///         const_eq!(self.x, other.x) &&
+///         const_eq!(self.y, other.y)
+///     }
+///
+///     pub const fn const_cmp(&self, other: &Self) -> Ordering {
+///         try_equal!(const_cmp!(self.x, other.x));
+///         try_equal!(const_cmp!(self.y, other.y))
+///     }
+/// }
+///
+/// const CMPS: [(Ordering, bool); 4] = {
+///     let foo = MyType{x: "hello", y: &[3, 5, 8, 13]};
+///     let bar = MyType{x: "world", y: &[3, 5, 8, 13]};
+///
+///     [
+///         (const_cmp!(foo, foo), const_eq!(foo, foo)),
+///         (const_cmp!(foo, bar), const_eq!(foo, bar)),
+///         (const_cmp!(bar, foo), const_eq!(bar, foo)),
+///         (const_cmp!(bar, bar), const_eq!(bar, bar)),
+///     ]
+/// };
+///
+/// assert_eq!(
+///     CMPS,
+///     [
+///         (Ordering::Equal, true),
+///         (Ordering::Less, false),
+///         (Ordering::Greater, false),
+///         (Ordering::Equal, true),
+///     ]
+/// );
+///
+///
+///
+/// ```
+///
+///
+/// ### `ìmpl_cmp`-based Implementation
+///
+/// You can use [`impl_cmp`] to implement this trait,
+/// as well as define the same methods for
+/// multiple implementations with different type arguments.
+///
+/// ```
+/// use konst::{const_cmp, const_eq, impl_cmp, try_equal};
+///
+/// use std::cmp::Ordering;
+///
+///
+/// struct MyType<'a, T> {
+///     x: &'a str,
+///     y: &'a [T],
+/// }
+///
+/// impl_cmp!{
+///     // The comparison functions are only implemented for these types.
+///     impl['a] MyType<'a, bool>;
+///     impl['a] MyType<'a, u16>;
+///     impl['a] MyType<'a, &'static str>;
+///
+///     pub const fn const_eq(&self, other: &Self) -> bool {
+///         const_eq!(self.x, other.x) &&
+///         const_eq!(self.y, other.y)
+///     }
+///
+///     pub const fn const_cmp(&self, other: &Self) -> Ordering {
+///         try_equal!(const_cmp!(self.x, other.x));
+///         try_equal!(const_cmp!(self.y, other.y))
+///     }
+/// }
+///
+/// const CMPS: [(Ordering, bool); 4] = {
+///     let foo = MyType{x: "hello", y: &[3u16, 5, 8, 13]};
+///     let bar = MyType{x: "world", y: &[3, 5, 8, 13]};
+///
+///     [
+///         (const_cmp!(foo, foo), const_eq!(foo, foo)),
+///         (const_cmp!(foo, bar), const_eq!(foo, bar)),
+///         (const_cmp!(bar, foo), const_eq!(bar, foo)),
+///         (const_cmp!(bar, bar), const_eq!(bar, bar)),
+///     ]
+/// };
+///
+/// assert_eq!(
+///     CMPS,
+///     [
+///         (Ordering::Equal, true),
+///         (Ordering::Less, false),
+///         (Ordering::Greater, false),
+///         (Ordering::Equal, true),
+///     ]
+/// );
+///
+/// ```
+///
+/// [`IsAConstCmpMarker`]: struct.IsAConstCmpMarker.html
+/// [`CmpWrapper`]: struct.CmpWrapper.html
+/// [`impl_cmp`]: ../macro.impl_cmp.html
 pub trait ConstCmpMarker {
     /// What kind of type this is, this can be one of:
     ///
@@ -37,7 +184,7 @@ pub trait ConstCmpMarker {
 ///
 pub struct IsArrayKind<T>(PhantomData<T>);
 
-/// Marker type for the remaining standard library types,,
+/// Marker type for the remaining standard library types,
 /// used as the [`Kind`] associated type  in [`ConstCmpMarker`].
 ///
 /// [`Kind`]: ./trait.ConstCmpMarker.html#associatedtype.Kind
@@ -58,6 +205,8 @@ pub struct IsNotStdKind;
 /// Hack used to automatically wrap standard library types inside [`CmpWrapper`],
 /// while leaving user defined types unwrapped.
 ///
+/// This can be constructed with he [`NEW` associated constant](#associatedconstant.NEW)
+///
 /// # Type parameters
 ///
 /// `K` is `<R as ConstCmpMarker>::Kind`
@@ -69,22 +218,14 @@ pub struct IsNotStdKind;
 /// `T` is `<R as ConstCmpMarker>::This`,
 /// the `R` type after removing all layers of references.
 ///
-/// # Coerce Method
-///
-/// The `coerce` method is what does the conversion from a `&T` depending on
-/// the `K` type parameter:
-///
-/// - [`IsArrayKind`]: the reference is coerced to a slice, and wrapped in a [`CmpWrapper`].
-///
-/// - [`IsStdKind`]: the referenced value is copied, and wrapped in a [`CmpWrapper`].
-///
-/// - [`IsNotStdKind`]: the reference is simply returned as a `&T`.
+/// `R`: Is the type that implements [`ConstCmpMarker`]
 ///
 /// [`IsArrayKind`]: ./struct.IsArrayKind.html
 /// [`IsStdKind`]: ./struct.IsStdKind.html
 /// [`IsNotStdKind`]: ./struct.IsNotStdKind.html
 ///
-/// [`CmpWrapper`]: ../struct.CmpWrapper.html
+/// [`CmpWrapper`]: struct.CmpWrapper.html
+/// [`ConstCmpMarker`]: trait.ConstCmpMarker.html
 ///
 #[allow(clippy::type_complexity)]
 pub struct IsAConstCmpMarker<K, T: ?Sized, R: ?Sized>(
@@ -133,7 +274,10 @@ impl<K, T: ?Sized, R: ?Sized> IsAConstCmpMarker<K, T, R> {
 /////////////////////////////////////////////////////////////////////////////
 
 impl<U, T: ?Sized, R: ?Sized> IsAConstCmpMarker<IsArrayKind<U>, T, R> {
-    /// Coerces an array to a slice, then wraps the slice in a `CmpWrapper`
+    /// Coerces an array to a slice, then wraps the slice in a [`CmpWrapper`]
+    ///
+    ///
+    /// [`CmpWrapper`]: struct.CmpWrapper.html
     #[inline(always)]
     pub const fn coerce(self, slice: &[U]) -> CmpWrapper<&[U]> {
         CmpWrapper(slice)
