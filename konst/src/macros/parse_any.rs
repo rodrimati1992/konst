@@ -37,7 +37,7 @@
 /// ### Parsing enum
 ///
 /// ```rust
-/// use konst::{Parser, parse_any, unwrap_opt};
+/// use konst::{parsing::{Parser, ParseError, ParseDirection}, parse_any, unwrap_ctx};
 ///
 /// #[derive(Debug, PartialEq)]
 /// enum Color {
@@ -47,22 +47,24 @@
 /// }
 ///
 /// impl Color {
-///     pub const fn try_parse(mut parser: Parser<'_>) -> Option<(Color, Parser<'_>)> {
+///     pub const fn try_parse(
+///         mut parser: Parser<'_>
+/// ) -> Result<(Color, Parser<'_>), ParseError<'_>> {
 ///         parse_any!{parser, strip_prefix;
-///             "Red"|"red" => Some((Color::Red, parser)),
-///             "Blue"|"blue" => Some((Color::Blue, parser)),
-///             "Green"|"green" => Some((Color::Green, parser)),
-///             _ => None
+///             "Red"|"red" => Ok((Color::Red, parser)),
+///             "Blue"|"blue" => Ok((Color::Blue, parser)),
+///             "Green"|"green" => Ok((Color::Green, parser)),
+///             _ => Err(parser.into_error(ParseDirection::FromStart))
 ///         }
 ///     }
 /// }
 ///
 /// const COLORS: [Color; 4] = {
 ///     let parser = Parser::from_str("BlueRedGreenGreen");
-///     let (c0, parser) = unwrap_opt!(Color::try_parse(parser));
-///     let (c1, parser) = unwrap_opt!(Color::try_parse(parser));
-///     let (c2, parser) = unwrap_opt!(Color::try_parse(parser));
-///     let (c3, _     ) = unwrap_opt!(Color::try_parse(parser));
+///     let (c0, parser) = unwrap_ctx!(Color::try_parse(parser));
+///     let (c1, parser) = unwrap_ctx!(Color::try_parse(parser));
+///     let (c2, parser) = unwrap_ctx!(Color::try_parse(parser));
+///     let (c3, _     ) = unwrap_ctx!(Color::try_parse(parser));
 ///     
 ///     [c0, c1, c2, c3]
 /// };
@@ -77,14 +79,14 @@
 macro_rules! parse_any {
     ($place:expr, strip_prefix; $($branches:tt)* ) => {
         $crate::__priv_pa_normalize_branches!{
-            ($place, __priv_pa_strip_prefix, outside_konst)
+            ($place, FromStart, __priv_pa_strip_prefix, outside_konst)
             ()
             $($branches)*
         }
     };
     ($place:expr, strip_suffix; $($branches:tt)* ) => {
         $crate::__priv_pa_normalize_branches!{
-            ($place, __priv_pa_strip_suffix, outside_konst)
+            ($place, FromEnd, __priv_pa_strip_suffix, outside_konst)
             ()
             $($branches)*
         }
@@ -93,9 +95,9 @@ macro_rules! parse_any {
 
 #[allow(unused_macros)]
 macro_rules! parse_any_priv {
-    ($place:expr, $method_macro:ident; $($branches:tt)* ) => {
+    ($place:expr, $parse_direction:ident,$method_macro:ident; $($branches:tt)* ) => {
         $crate::__priv_pa_normalize_branches!{
-            ($place, $method_macro, inside_konst)
+            ($place, $parse_direction, $method_macro, inside_konst)
             ()
             $($branches)*
         }
@@ -141,7 +143,7 @@ macro_rules! __priv_pa_normalize_branches {
     };
 
     (
-        ($place:expr, $method_macro:ident, $call_place:tt)
+        ($place:expr, $parse_direction:ident, $method_macro:ident, $call_place:tt)
         (
             $($branches:tt)*
         )
@@ -150,7 +152,7 @@ macro_rules! __priv_pa_normalize_branches {
         $(,)?
     ) => {
         $crate::$method_macro!{
-            ($place, $call_place)
+            ($place, $parse_direction, $call_place)
 
             $($branches)*
         }
@@ -202,22 +204,39 @@ macro_rules! __priv_pa_strip_suffix {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_pa_bytes_accessor {
-    (get, ($place:expr, inside_konst)) => {
+    (get, ($place:expr, $parse_direction:ident, inside_konst)) => {
         $place.bytes
     };
-    (get, ($place:expr, outside_konst)) => {
+    (get, ($place:expr, $parse_direction:ident, outside_konst)) => {
         $place.bytes()
     };
-    (set, ($place:expr, inside_konst), $rem:expr) => {
+    (set, ($place:expr, FromStart, inside_konst), $rem:expr) => {
         #[allow(unused_assignments)]
         {
+            let before = $place.bytes.len();
             $place.bytes = $rem;
+            $place.start_offset += (before - $place.bytes.len()) as u32;
         }
     };
-    (set, ($place:expr, outside_konst), $rem:expr) => {
+    (set, ($place:expr, FromEnd, inside_konst), $rem:expr) => {
         #[allow(unused_assignments)]
         {
-            $place = $place.move_to_remainder($rem);
+            let before = $place.bytes.len();
+            $place.bytes = $rem;
+            $place.end_offset -= (before - $place.bytes.len()) as u32;
+        }
+    };
+
+    (set, ($place:expr, FromStart, outside_konst), $rem:expr) => {
+        #[allow(unused_assignments)]
+        {
+            $place = $place.advance_to_remainder_from_start($rem);
+        }
+    };
+    (set, ($place:expr, FromEnd, outside_konst), $rem:expr) => {
+        #[allow(unused_assignments)]
+        {
+            $place = $place.advance_to_remainder_from_end($rem);
         }
     };
 }

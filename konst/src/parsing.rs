@@ -1,10 +1,16 @@
+mod parse_errors;
 mod primitive_parsing;
 
-pub use primitive_parsing::ParseIntError;
+pub use self::{
+    parse_errors::{ParseDirection, ParseError},
+    primitive_parsing::ParseIntError,
+};
 
 /// For parsing and byte string splitting in const contexts.
-#[derive(Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Parser<'a> {
+    start_offset: u32,
+    end_offset: u32,
     bytes: &'a [u8],
 }
 
@@ -12,13 +18,19 @@ impl<'a> Parser<'a> {
     /// Constructs a Parser from a byte string.
     #[inline]
     pub const fn from_bytes(bytes: &'a [u8]) -> Self {
-        Self { bytes }
+        Self {
+            start_offset: 0,
+            end_offset: bytes.len() as u32,
+            bytes,
+        }
     }
 
     /// Constructs a Parser from a string.
     #[inline]
     pub const fn from_str(string: &'a str) -> Self {
         Self {
+            start_offset: 0,
+            end_offset: string.len() as u32,
             bytes: string.as_bytes(),
         }
     }
@@ -29,10 +41,38 @@ impl<'a> Parser<'a> {
         self.bytes
     }
 
+    /// Gets the byte offset of this parser in the str/byte slice that this
+    /// was constructed from.
+    #[inline(always)]
+    pub const fn start_offset(self) -> usize {
+        self.start_offset as _
+    }
+
+    /// Gets the byte offset of this parser in the str/byte slice that this
+    /// was constructed from.
+    #[inline(always)]
+    pub const fn end_offset(self) -> usize {
+        self.end_offset as _
+    }
+
+    /// Constructs a [`ParseError`] for this point in parsing.
+    ///
+    /// [`ParseError`]: struct.ParseError.html
+    pub const fn into_error(self, direction: ParseDirection) -> ParseError<'a> {
+        ParseError::new(self, direction)
+    }
+
     /// TODO
-    pub const fn move_to_remainder(mut self, to: &'a [u8]) -> Self {
-        self.bytes = to;
-        self
+    pub const fn advance_to_remainder_from_start(mut self, to: &'a [u8]) -> Self {
+        parsing! {self, FromStart;
+            self.bytes = to;
+        }
+    }
+    /// TODO
+    pub const fn advance_to_remainder_from_end(mut self, to: &'a [u8]) -> Self {
+        parsing! {self, FromEnd;
+            self.bytes = to;
+        }
     }
 
     /// Returns amount of unparsed bytes.
@@ -49,12 +89,14 @@ impl<'a> Parser<'a> {
 
     /// Gets the next unparsed byte.
     #[inline]
-    pub const fn next_byte(mut self) -> Option<(u8, Self)> {
-        if let [byte, rem @ ..] = self.bytes {
-            self.bytes = rem;
-            Some((*byte, self))
-        } else {
-            None
+    pub const fn next_byte(mut self) -> Result<(u8, Self), ParseError<'a>> {
+        try_parsing! {self, FromStart, ret;
+            if let [byte, rem @ ..] = self.bytes {
+                self.bytes = rem;
+                *byte
+            } else {
+                throw!()
+            }
         }
     }
 
@@ -70,8 +112,9 @@ impl<'a> Parser<'a> {
     /// but uses a few nightly features.
     ///
     pub const fn skip(mut self, bytes: usize) -> Self {
-        self.bytes = crate::slice::slice_from(self.bytes, bytes);
-        self
+        parsing! {self, FromStart;
+            self.bytes = crate::slice::slice_from(self.bytes, bytes);
+        }
     }
 
     /// Checks that the parsed bytes start with `matched`,
@@ -86,15 +129,15 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::from_str("foo;bar;baz;");
     ///
-    /// assert!(parser.strip_prefix("aaa").is_none());
+    /// assert!(parser.strip_prefix("aaa").is_err());
     ///
-    /// assign_if!{Some(parser) = parser.strip_prefix("foo;")};
+    /// assign_if!{Ok(parser) = parser.strip_prefix("foo;")};
     /// assert_eq!(parser.bytes(), "bar;baz;".as_bytes());
     ///
-    /// assign_if!{Some(parser) = parser.strip_prefix("bar;")};
+    /// assign_if!{Ok(parser) = parser.strip_prefix("bar;")};
     /// assert_eq!(parser.bytes(), "baz;".as_bytes());
     ///
-    /// assign_if!{Some(parser) = parser.strip_prefix("baz;")};
+    /// assign_if!{Ok(parser) = parser.strip_prefix("baz;")};
     /// assert_eq!(parser.bytes(), "".as_bytes());
     ///
     ///
@@ -113,10 +156,10 @@ impl<'a> Parser<'a> {
     ///
     /// const fn parse_flags(mut parser: Parser<'_>) -> (Parser<'_>, Flags) {
     ///     let mut flags = Flags{foo: false, bar: false};
-    ///     assign_if!{Some(parser) = parser.strip_prefix("foo;") => {
+    ///     assign_if!{Ok(parser) = parser.strip_prefix("foo;") => {
     ///         flags.foo = true;
     ///     }}
-    ///     assign_if!{Some(parser) = parser.strip_prefix("bar;") => {
+    ///     assign_if!{Ok(parser) = parser.strip_prefix("bar;") => {
     ///         flags.bar = true;
     ///     }}
     ///     (parser, flags)
@@ -136,28 +179,28 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     #[inline]
-    pub const fn strip_prefix(self, matched: &str) -> Option<Self> {
+    pub const fn strip_prefix(self, matched: &str) -> Result<Self, ParseError<'a>> {
         self.strip_prefix_b(matched.as_bytes())
     }
 
     /// Equivalent to [`strip_prefix`], but takes a byte slice.
     ///
     /// [`strip_prefix`]: #method.strip_prefix
-    pub const fn strip_prefix_b(mut self, mut matched: &[u8]) -> Option<Self> {
-        if self.bytes.len() < matched.len() {
-            return None;
-        }
+    pub const fn strip_prefix_b(mut self, mut matched: &[u8]) -> Result<Self, ParseError<'a>> {
+        try_parsing! {self, FromStart;
+            if self.bytes.len() < matched.len() {
+                throw!()
+            }
 
-        while let ([lb, rem_slice @ ..], [rb, rem_matched @ ..]) = (self.bytes, matched) {
-            self.bytes = rem_slice;
-            matched = rem_matched;
+            while let ([lb, rem_slice @ ..], [rb, rem_matched @ ..]) = (self.bytes, matched) {
+                self.bytes = rem_slice;
+                matched = rem_matched;
 
-            if *lb != *rb {
-                return None;
+                if *lb != *rb {
+                    throw!()
+                }
             }
         }
-
-        Some(self)
     }
 
     /// Equivalent to [`strip_prefix`], but takes a single byte.
@@ -165,31 +208,32 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_opt};
+    /// use konst::{Parser, unwrap_ctx};
     ///
     /// let mut parser = Parser::from_str("abcde");
     ///
-    /// assert!(parser.strip_prefix_u8(1).is_none());
+    /// assert!(parser.strip_prefix_u8(1).is_err());
     ///
-    /// parser = unwrap_opt!(parser.strip_prefix_u8(b'a'));
+    /// parser = unwrap_ctx!(parser.strip_prefix_u8(b'a'));
     /// assert_eq!(parser.bytes(), "bcde".as_bytes());
     ///
-    /// parser = unwrap_opt!(parser.strip_prefix_u8(b'b'));
+    /// parser = unwrap_ctx!(parser.strip_prefix_u8(b'b'));
     /// assert_eq!(parser.bytes(), "cde".as_bytes());
     ///
-    /// parser = unwrap_opt!(parser.strip_prefix_u8(b'c'));
+    /// parser = unwrap_ctx!(parser.strip_prefix_u8(b'c'));
     /// assert_eq!(parser.bytes(), "de".as_bytes());
     ///
     /// ```
     ///
     /// [`strip_prefix`]: #method.strip_prefix
-    pub const fn strip_prefix_u8(mut self, matched: u8) -> Option<Self> {
-        match self.bytes {
-            [byte, rem @ ..] if *byte == matched => {
-                self.bytes = rem;
-                Some(self)
+    pub const fn strip_prefix_u8(mut self, matched: u8) -> Result<Self, ParseError<'a>> {
+        try_parsing! {self, FromStart;
+            match self.bytes {
+                [byte, rem @ ..] if *byte == matched => {
+                    self.bytes = rem;
+                }
+                _ => throw!(),
             }
-            _ => None,
         }
     }
 
@@ -205,42 +249,42 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::from_str("foo;bar;baz;");
     ///
-    /// assert!(parser.strip_suffix("aaa").is_none());
+    /// assert!(parser.strip_suffix("aaa").is_err());
     ///
-    /// assign_if!{Some(parser) = parser.strip_suffix("baz;")};
+    /// assign_if!{Ok(parser) = parser.strip_suffix("baz;")};
     /// assert_eq!(parser.bytes(), "foo;bar;".as_bytes());
     ///
-    /// assign_if!{Some(parser) = parser.strip_suffix("bar;")};
+    /// assign_if!{Ok(parser) = parser.strip_suffix("bar;")};
     /// assert_eq!(parser.bytes(), "foo;".as_bytes());
     ///
-    /// assign_if!{Some(parser) = parser.strip_suffix("foo;")};
+    /// assign_if!{Ok(parser) = parser.strip_suffix("foo;")};
     /// assert_eq!(parser.bytes(), "".as_bytes());
     ///
     /// ```
     ///
     #[inline]
-    pub const fn strip_suffix(self, matched: &str) -> Option<Self> {
+    pub const fn strip_suffix(self, matched: &str) -> Result<Self, ParseError<'a>> {
         self.strip_suffix_b(matched.as_bytes())
     }
 
     /// Equivalent to [`strip_suffix`], but takes a byte slice.
     ///
     /// [`strip_suffix`]: #method.strip_suffix
-    pub const fn strip_suffix_b(mut self, mut matched: &[u8]) -> Option<Self> {
-        if self.bytes.len() < matched.len() {
-            return None;
-        }
+    pub const fn strip_suffix_b(mut self, mut matched: &[u8]) -> Result<Self, ParseError<'a>> {
+        try_parsing! {self, FromEnd;
+            if self.bytes.len() < matched.len() {
+                throw!()
+            }
 
-        while let ([rem_slice @ .., lb], [rem_matched @ .., rb]) = (self.bytes, matched) {
-            self.bytes = rem_slice;
-            matched = rem_matched;
+            while let ([rem_slice @ .., lb], [rem_matched @ .., rb]) = (self.bytes, matched) {
+                self.bytes = rem_slice;
+                matched = rem_matched;
 
-            if *lb != *rb {
-                return None;
+                if *lb != *rb {
+                    throw!()
+                }
             }
         }
-
-        Some(self)
     }
 
     /// Equivalent to [`strip_suffix`], but takes a single byte.
@@ -248,31 +292,32 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_opt};
+    /// use konst::{Parser, unwrap_ctx};
     ///
     /// let mut parser = Parser::from_str("edcba");
     ///
-    /// assert!(parser.strip_suffix_u8(1).is_none());
+    /// assert!(parser.strip_suffix_u8(1).is_err());
     ///
-    /// parser = unwrap_opt!(parser.strip_suffix_u8(b'a'));
+    /// parser = unwrap_ctx!(parser.strip_suffix_u8(b'a'));
     /// assert_eq!(parser.bytes(), "edcb".as_bytes());
     ///
-    /// parser = unwrap_opt!(parser.strip_suffix_u8(b'b'));
+    /// parser = unwrap_ctx!(parser.strip_suffix_u8(b'b'));
     /// assert_eq!(parser.bytes(), "edc".as_bytes());
     ///
-    /// parser = unwrap_opt!(parser.strip_suffix_u8(b'c'));
+    /// parser = unwrap_ctx!(parser.strip_suffix_u8(b'c'));
     /// assert_eq!(parser.bytes(), "ed".as_bytes());
     ///
     /// ```
     ///
     /// [`strip_suffix`]: #method.strip_suffix
-    pub const fn strip_suffix_u8(mut self, matched: u8) -> Option<Self> {
-        match self.bytes {
-            [rem @ .., byte] if *byte == matched => {
-                self.bytes = rem;
-                Some(self)
+    pub const fn strip_suffix_u8(mut self, matched: u8) -> Result<Self, ParseError<'a>> {
+        try_parsing! {self,  FromEnd;
+            match self.bytes {
+                [rem @ .., byte] if *byte == matched => {
+                    self.bytes = rem;
+                }
+                _ => throw!(),
             }
-            _ => None,
         }
     }
 
@@ -285,26 +330,27 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_opt};
+    /// use konst::{Parser, unwrap_ctx};
     ///
     /// let mut parser = Parser::from_str("    foo\n\t bar");
     ///
     /// parser = parser.trim_start();
     /// assert_eq!(parser.bytes(), "foo\n\t bar".as_bytes());
     ///
-    /// parser = unwrap_opt!(parser.strip_prefix("foo")).trim_start();
+    /// parser = unwrap_ctx!(parser.strip_prefix("foo")).trim_start();
     /// assert_eq!(parser.bytes(), "bar".as_bytes());
     ///
     /// ```
     pub const fn trim_start(mut self) -> Self {
-        while let [b, rem @ ..] = self.bytes {
-            if matches!(b, b'\t' | b'\n' | b'\r' | b' ') {
-                self.bytes = rem;
-            } else {
-                break;
+        parsing! {self, FromStart;
+            while let [b, rem @ ..] = self.bytes {
+                if matches!(b, b'\t' | b'\n' | b'\r' | b' ') {
+                    self.bytes = rem;
+                } else {
+                    break;
+                }
             }
         }
-        self
     }
 
     /// Removes whitespace from the end of the parsed bytes.
@@ -312,26 +358,27 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_opt};
+    /// use konst::{Parser, unwrap_ctx};
     ///
     /// let mut parser = Parser::from_str("foo,\n    bar,\n    ");
     ///
     /// parser = parser.trim_end();
     /// assert_eq!(parser.bytes(), "foo,\n    bar,".as_bytes());
     ///
-    /// parser = unwrap_opt!(parser.strip_suffix("bar,")).trim_end();
+    /// parser = unwrap_ctx!(parser.strip_suffix("bar,")).trim_end();
     /// assert_eq!(parser.bytes(), "foo,".as_bytes());
     ///
     /// ```
     pub const fn trim_end(mut self) -> Self {
-        while let [rem @ .., b] = self.bytes {
-            if matches!(b, b'\t' | b'\n' | b'\r' | b' ') {
-                self.bytes = rem;
-            } else {
-                break;
+        parsing! {self, FromEnd;
+            while let [rem @ .., b] = self.bytes {
+                if matches!(b, b'\t' | b'\n' | b'\r' | b' ') {
+                    self.bytes = rem;
+                } else {
+                    break;
+                }
             }
         }
-        self
     }
 
     /// Repeatedly removes all instances of `needle` from the start of the parsed bytes.
@@ -367,42 +414,42 @@ impl<'a> Parser<'a> {
     ///
     /// [`trim_start_matches`]: #method.trim_start_matches
     pub const fn trim_start_matches_b(mut self, needle: &[u8]) -> Self {
-        if needle.is_empty() {
-            return self;
-        }
-
-        let mut matched = needle;
-
-        loop {
-            let at_start = self;
-
-            match (self.bytes, matched) {
-                ([b, rem @ ..], [bm, remm @ ..]) if *b == *bm => {
-                    self.bytes = rem;
-                    matched = remm;
-                }
-                _ => break,
+        parsing! {self, FromStart;
+            if needle.is_empty() {
+                ret_!();
             }
 
-            'inner: loop {
+            let mut matched = needle;
+
+            loop {
+                let at_start = self;
+
                 match (self.bytes, matched) {
-                    ([], [_, ..]) => return at_start,
-                    ([b, rem @ ..], [bm, remm @ ..]) => {
-                        if *b == *bm {
-                            self.bytes = rem;
-                            matched = remm;
-                        } else {
-                            return at_start;
-                        }
+                    ([b, rem @ ..], [bm, remm @ ..]) if *b == *bm => {
+                        self.bytes = rem;
+                        matched = remm;
                     }
-                    _ => break 'inner,
+                    _ => break,
                 }
+
+                'inner: loop {
+                    match (self.bytes, matched) {
+                        ([], [_, ..]) => ret_!(self = at_start),
+                        ([b, rem @ ..], [bm, remm @ ..]) => {
+                            if *b == *bm {
+                                self.bytes = rem;
+                                matched = remm;
+                            } else {
+                                ret_!(self = at_start);
+                            }
+                        }
+                        _ => break 'inner,
+                    }
+                }
+
+                matched = needle;
             }
-
-            matched = needle;
         }
-
-        self
     }
 
     /// Equivalent to [`trim_start_matches`], but takes a single byte.
@@ -427,15 +474,15 @@ impl<'a> Parser<'a> {
     ///
     /// [`trim_start_matches`]: #method.trim_start_matches
     pub const fn trim_start_matches_u8(mut self, needle: u8) -> Self {
-        while let [b, rem @ ..] = self.bytes {
-            if *b == needle {
-                self.bytes = rem;
-            } else {
-                break;
+        parsing! {self, FromStart;
+            while let [b, rem @ ..] = self.bytes {
+                if *b == needle {
+                    self.bytes = rem;
+                } else {
+                    break;
+                }
             }
         }
-
-        self
     }
 
     /// Repeatedly removes all instances of `needle` from the start of the parsed bytes.
@@ -471,42 +518,42 @@ impl<'a> Parser<'a> {
     ///
     /// [`trim_end_matches`]: #method.trim_end_matches
     pub const fn trim_end_matches_b(mut self, needle: &[u8]) -> Self {
-        if needle.is_empty() {
-            return self;
-        }
-
-        let mut matched = needle;
-
-        loop {
-            let at_start = self;
-
-            match (self.bytes, matched) {
-                ([rem @ .., b], [remm @ .., bm]) if *b == *bm => {
-                    self.bytes = rem;
-                    matched = remm;
-                }
-                _ => break,
+        parsing! {self, FromEnd;
+            if needle.is_empty() {
+                ret_!();
             }
 
-            'inner: loop {
+            let mut matched = needle;
+
+            loop {
+                let at_start = self;
+
                 match (self.bytes, matched) {
-                    ([], [.., _]) => return at_start,
-                    ([rem @ .., b], [remm @ .., bm]) => {
-                        if *b == *bm {
-                            self.bytes = rem;
-                            matched = remm;
-                        } else {
-                            return at_start;
-                        }
+                    ([rem @ .., b], [remm @ .., bm]) if *b == *bm => {
+                        self.bytes = rem;
+                        matched = remm;
                     }
-                    _ => break 'inner,
+                    _ => break,
                 }
+
+                'inner: loop {
+                    match (self.bytes, matched) {
+                        ([], [.., _]) => ret_!(self = at_start),
+                        ([rem @ .., b], [remm @ .., bm]) => {
+                            if *b == *bm {
+                                self.bytes = rem;
+                                matched = remm;
+                            } else {
+                                ret_!(self = at_start);
+                            }
+                        }
+                        _ => break 'inner,
+                    }
+                }
+
+                matched = needle;
             }
-
-            matched = needle;
         }
-
-        self
     }
 
     /// Equivalent to [`trim_end_matches`], but takes a single byte.
@@ -531,15 +578,15 @@ impl<'a> Parser<'a> {
     ///
     /// [`trim_end_matches`]: #method.trim_end_matches
     pub const fn trim_end_matches_u8(mut self, needle: u8) -> Self {
-        while let [rem @ .., b] = self.bytes {
-            if *b == needle {
-                self.bytes = rem;
-            } else {
-                break;
+        parsing! {self, FromEnd;
+            while let [rem @ .., b] = self.bytes {
+                if *b == needle {
+                    self.bytes = rem;
+                } else {
+                    break;
+                }
             }
         }
-
-        self
     }
 
     //////////////////////////////////////////////
@@ -551,52 +598,52 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_opt};
+    /// use konst::{Parser, unwrap_ctx};
     ///
     /// let mut parser = Parser::from_str("foo--bar,baz--qux");
     ///
-    /// parser = unwrap_opt!(parser.find_skip("--"));
+    /// parser = unwrap_ctx!(parser.find_skip("--"));
     /// assert_eq!(parser.bytes(), "bar,baz--qux".as_bytes());
     ///
-    /// parser = unwrap_opt!(parser.find_skip("bar,"));
+    /// parser = unwrap_ctx!(parser.find_skip("bar,"));
     /// assert_eq!(parser.bytes(), "baz--qux".as_bytes());
     ///
-    /// parser = unwrap_opt!(parser.find_skip("--"));
+    /// parser = unwrap_ctx!(parser.find_skip("--"));
     /// assert_eq!(parser.bytes(), "qux".as_bytes());
     ///
-    /// assert!(parser.find_skip("--").is_none());
+    /// assert!(parser.find_skip("--").is_err());
     ///
     /// ```
-    pub const fn find_skip(self, needle: &str) -> Option<Self> {
+    pub const fn find_skip(self, needle: &str) -> Result<Self, ParseError<'a>> {
         self.find_skip_b(needle.as_bytes())
     }
 
     /// Equivalent to [`find_skip`], but takes a byte slice.
     ///
     /// [`find_skip`]: #method.find_skip
-    pub const fn find_skip_b(mut self, needle: &[u8]) -> Option<Self> {
-        if needle.is_empty() {
-            return Some(self);
-        }
-
-        let mut matching = needle;
-        while let ([b, rem @ ..], [mb, m_rem @ ..]) = (self.bytes, matching) {
-            self.bytes = rem;
-            matching = m_rem;
-
-            if *b != *mb {
-                matching = match needle {
-                    // For when the string is "lawlawn" and we are skipping "lawn"
-                    [mb2, m_rem2 @ ..] if *b == *mb2 => m_rem2,
-                    _ => needle,
-                };
+    pub const fn find_skip_b(mut self, needle: &[u8]) -> Result<Self, ParseError<'a>> {
+        try_parsing! {self, FromStart;
+            if needle.is_empty() {
+                ret_!();
             }
-        }
 
-        if matching.is_empty() {
-            Some(self)
-        } else {
-            None
+            let mut matching = needle;
+            while let ([b, rem @ ..], [mb, m_rem @ ..]) = (self.bytes, matching) {
+                self.bytes = rem;
+                matching = m_rem;
+
+                if *b != *mb {
+                    matching = match needle {
+                        // For when the string is "lawlawn" and we are skipping "lawn"
+                        [mb2, m_rem2 @ ..] if *b == *mb2 => m_rem2,
+                        _ => needle,
+                    };
+                }
+            }
+
+            if !matching.is_empty() {
+                throw!()
+            }
         }
     }
 
@@ -605,28 +652,30 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_opt};
+    /// use konst::{Parser, unwrap_ctx};
     ///
     /// let mut parser = Parser::from_str("foo-bar,baz");
     ///
-    /// parser = unwrap_opt!(parser.find_skip_u8(b'-'));
+    /// parser = unwrap_ctx!(parser.find_skip_u8(b'-'));
     /// assert_eq!(parser.bytes(), "bar,baz".as_bytes());
     ///
-    /// parser = unwrap_opt!(parser.find_skip_u8(b','));
+    /// parser = unwrap_ctx!(parser.find_skip_u8(b','));
     /// assert_eq!(parser.bytes(), "baz".as_bytes());
     ///
     /// ```
     ///
     /// [`find_skip`]: #method.find_skip
-    pub const fn find_skip_u8(mut self, needle: u8) -> Option<Self> {
-        while let [byte, rem @ ..] = self.bytes {
-            self.bytes = rem;
+    pub const fn find_skip_u8(mut self, needle: u8) -> Result<Self, ParseError<'a>> {
+        try_parsing! {self, FromStart;
+            while let [byte, rem @ ..] = self.bytes {
+                self.bytes = rem;
 
-            if *byte == needle {
-                return Some(self);
+                if *byte == needle {
+                    ret_!();
+                }
             }
+            throw!()
         }
-        None
     }
 
     /// Truncates the parsed bytes to before the last instance of `needle`.
@@ -634,52 +683,52 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_opt};
+    /// use konst::{Parser, unwrap_ctx};
     ///
     /// let mut parser = Parser::from_str("foo--bar,baz--qux");
     ///
-    /// parser = unwrap_opt!(parser.rfind_skip("--"));
+    /// parser = unwrap_ctx!(parser.rfind_skip("--"));
     /// assert_eq!(parser.bytes(), "foo--bar,baz".as_bytes());
     ///
-    /// parser = unwrap_opt!(parser.rfind_skip(",baz"));
+    /// parser = unwrap_ctx!(parser.rfind_skip(",baz"));
     /// assert_eq!(parser.bytes(), "foo--bar".as_bytes());
     ///
-    /// parser = unwrap_opt!(parser.rfind_skip("--"));
+    /// parser = unwrap_ctx!(parser.rfind_skip("--"));
     /// assert_eq!(parser.bytes(), "foo".as_bytes());
     ///
-    /// assert!(parser.rfind_skip("--").is_none());
+    /// assert!(parser.rfind_skip("--").is_err());
     ///
     /// ```
-    pub const fn rfind_skip(self, needle: &str) -> Option<Self> {
+    pub const fn rfind_skip(self, needle: &str) -> Result<Self, ParseError<'a>> {
         self.rfind_skip_b(needle.as_bytes())
     }
 
     /// Equivalent to [`find_skip`], but takes a byte slice.
     ///
     /// [`find_skip`]: #method.find_skip
-    pub const fn rfind_skip_b(mut self, needle: &[u8]) -> Option<Self> {
-        if needle.is_empty() {
-            return Some(self);
-        }
-
-        let mut matching = needle;
-        while let ([rem @ .., b], [m_rem @ .., mb]) = (self.bytes, matching) {
-            self.bytes = rem;
-            matching = m_rem;
-
-            if *b != *mb {
-                matching = match needle {
-                    // For when the string is "lawnawn" and we are skipping "lawn"
-                    [m_rem2 @ .., mb2] if *b == *mb2 => m_rem2,
-                    _ => needle,
-                };
+    pub const fn rfind_skip_b(mut self, needle: &[u8]) -> Result<Self, ParseError<'a>> {
+        try_parsing! {self, FromEnd;
+            if needle.is_empty() {
+                ret_!();
             }
-        }
 
-        if matching.is_empty() {
-            Some(self)
-        } else {
-            None
+            let mut matching = needle;
+            while let ([rem @ .., b], [m_rem @ .., mb]) = (self.bytes, matching) {
+                self.bytes = rem;
+                matching = m_rem;
+
+                if *b != *mb {
+                    matching = match needle {
+                        // For when the string is "lawnawn" and we are skipping "lawn"
+                        [m_rem2 @ .., mb2] if *b == *mb2 => m_rem2,
+                        _ => needle,
+                    };
+                }
+            }
+
+            if !matching.is_empty() {
+                throw!()
+            }
         }
     }
 
@@ -688,27 +737,29 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_opt};
+    /// use konst::{Parser, unwrap_ctx};
     ///
     /// let mut parser = Parser::from_str("foo,bar-baz");
     ///
-    /// parser = unwrap_opt!(parser.rfind_skip_u8(b'-'));
+    /// parser = unwrap_ctx!(parser.rfind_skip_u8(b'-'));
     /// assert_eq!(parser.bytes(), "foo,bar".as_bytes());
     ///
-    /// parser = unwrap_opt!(parser.rfind_skip_u8(b','));
+    /// parser = unwrap_ctx!(parser.rfind_skip_u8(b','));
     /// assert_eq!(parser.bytes(), "foo".as_bytes());
     ///
     /// ```
     ///
     /// [`find_skip`]: #method.find_skip
-    pub const fn rfind_skip_u8(mut self, needle: u8) -> Option<Self> {
-        while let [rem @ .., byte] = self.bytes {
-            self.bytes = rem;
+    pub const fn rfind_skip_u8(mut self, needle: u8) -> Result<Self, ParseError<'a>> {
+        try_parsing! {self, FromEnd;
+            while let [rem @ .., byte] = self.bytes {
+                self.bytes = rem;
 
-            if *byte == needle {
-                return Some(self);
+                if *byte == needle {
+                    ret_!();
+                }
             }
+            throw!()
         }
-        None
     }
 }

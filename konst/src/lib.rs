@@ -20,7 +20,7 @@
 //!
 //! ```rust
 //! use konst::eq_str;
-//! use konst::{unwrap_opt_or, unwrap_res};
+//! use konst::{unwrap_opt_or, unwrap_ctx};
 //!
 //! #[derive(Debug, PartialEq)]
 //! enum Direction {
@@ -45,7 +45,7 @@
 //!
 //! const CHOICE: &str = unwrap_opt_or!(option_env!("chosen-direction"), "forward");
 //!
-//! const DIRECTION: Direction = unwrap_res!(Direction::try_parse(CHOICE));
+//! const DIRECTION: Direction = unwrap_ctx!(Direction::try_parse(CHOICE));
 //!
 //! match DIRECTION {
 //!     Direction::Forward => assert_eq!(CHOICE, "forward"),
@@ -59,11 +59,18 @@
 //! #
 //! # use std::fmt::{self, Display};
 //! #
-//! # impl Display for Direction {
+//! # impl Display for ParseDirectionError {
 //! #   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 //! #       f.write_str("Failed to parse a Direction")
 //! #   }
 //! # }
+//! #
+//! # impl ParseDirectionError {
+//! #    const fn panic(&self) -> ! {
+//! #        [/*failed to parse a Direction*/][0]
+//! #    }
+//! # }
+//! #
 //! #
 //!
 //! ```

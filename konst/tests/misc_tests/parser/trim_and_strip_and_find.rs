@@ -95,7 +95,7 @@ fn strip_prefix_suffix_test() {
             let parser = Parser::from_str(string);
             let returned = returned.map(|x| x.as_bytes());
             assert_eq!(
-                parser.strip_prefix(needle).map(|x| x.bytes()),
+                parser.strip_prefix(needle).map(|x| x.bytes()).ok(),
                 returned,
                 "normal"
             );
@@ -108,7 +108,7 @@ fn strip_prefix_suffix_test() {
             let rev_returned = rev_returned.as_ref().map(|x| x.as_bytes());
 
             let trimmed = parser.strip_suffix(rev_needle).map(|x| x.bytes());
-            assert_eq!(trimmed, rev_returned, "rev");
+            assert_eq!(trimmed.ok(), rev_returned, "rev");
         }
     }
 
@@ -135,7 +135,7 @@ fn strip_prefix_suffix_u8_test() {
             let parser = Parser::from_str(string);
             let returned = returned.map(|x| x.as_bytes());
             assert_eq!(
-                parser.strip_prefix_u8(needle).map(|x| x.bytes()),
+                parser.strip_prefix_u8(needle).map(|x| x.bytes()).ok(),
                 returned,
                 "normal"
             );
@@ -147,7 +147,7 @@ fn strip_prefix_suffix_u8_test() {
             let rev_returned = rev_returned.as_ref().map(|x| x.as_bytes());
 
             assert_eq!(
-                parser.strip_suffix_u8(needle).map(|x| x.bytes()),
+                parser.strip_suffix_u8(needle).map(|x| x.bytes()).ok(),
                 rev_returned,
                 "rev"
             );
@@ -172,7 +172,7 @@ fn find_skip_test() {
             let parser = Parser::from_str(string);
             let returned = returned.map(|x| x.as_bytes());
             assert_eq!(
-                parser.find_skip(needle).map(|x| x.bytes()),
+                parser.find_skip(needle).map(|x| x.bytes()).ok(),
                 returned,
                 "normal"
             );
@@ -185,7 +185,7 @@ fn find_skip_test() {
             let rev_returned = rev_returned.as_ref().map(|x| x.as_bytes());
 
             let trimmed = parser.rfind_skip(rev_needle).map(|x| x.bytes());
-            assert_eq!(trimmed, rev_returned, "rev");
+            assert_eq!(trimmed.ok(), rev_returned, "rev");
         }
     }
 
@@ -216,7 +216,7 @@ fn find_skip_u8_test() {
             let parser = Parser::from_str(string);
             let returned = returned.map(|x| x.as_bytes());
             assert_eq!(
-                parser.find_skip_u8(needle).map(|x| x.bytes()),
+                parser.find_skip_u8(needle).map(|x| x.bytes()).ok(),
                 returned,
                 "normal"
             );
@@ -228,7 +228,7 @@ fn find_skip_u8_test() {
             let rev_returned = rev_returned.as_ref().map(|x| x.as_bytes());
 
             assert_eq!(
-                parser.rfind_skip_u8(needle).map(|x| x.bytes()),
+                parser.rfind_skip_u8(needle).map(|x| x.bytes()).ok(),
                 rev_returned,
                 "rev"
             );

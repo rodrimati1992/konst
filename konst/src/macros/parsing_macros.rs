@@ -65,3 +65,98 @@ macro_rules! __priv_next_ai_access {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+macro_rules! partial{
+    (
+        $new_macro:ident = $macro:ident ! ($($prefix:tt)*)
+    ) => {
+        $crate::__priv_partial!(
+            ($)
+            $new_macro = $macro ! ($($prefix)*)
+        )
+    };
+}
+
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __priv_partial {
+    (
+        ($_:tt)
+        $new_macro:ident = $macro:ident ! ($($prefix:tt)*)
+    ) => {
+        macro_rules! $new_macro {
+            ($_($_ args:tt)*) => {
+                $macro!($($prefix)* $_($_ args)* )
+            }
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+#[doc(hidden)]
+macro_rules! try_parsing {
+    ( $parser:ident, $parse_direction:ident $(,$ret:ident)*; $($code:tt)* ) => ({
+        #![allow(unused_parens, unused_labels, unused_macros)]
+
+        let copy = $parser;
+
+        let ($($ret),*) = 'ret: loop {
+            partial!{throw = throw_out!(copy, $parse_direction,)}
+            partial!{ret_ = return_!('ret,)}
+
+            #[allow(unreachable_code)]
+            break {
+                $($code)*
+            };
+        };
+
+        update_offset!($parser, copy, $parse_direction);
+        Ok(($($ret,)* $parser))
+    })
+}
+
+#[doc(hidden)]
+macro_rules! parsing {
+    ( $parser:ident, $parse_direction:ident $(,$ret:ident)*; $($code:tt)* ) => ({
+        #![allow(unused_parens, unused_labels, unused_macros)]
+
+        let copy = $parser;
+
+        let ($($ret),*) = 'ret: loop {
+            partial!{ret_ = return_!('ret,)}
+
+            break {
+                $($code)*
+            };
+        };
+
+        update_offset!($parser, copy, $parse_direction);
+        ($($ret,)* $parser)
+    })
+}
+
+macro_rules! throw_out {
+    ($copy:ident, $parse_direction:ident,) => {
+        return Err(ParseError::new($copy, ParseDirection::$parse_direction));
+    };
+    ($copy:ident, $parse_direction:ident, map_err = $func:ident) => {
+        return Err($func(ParseError::new(
+            $copy,
+            ParseDirection::$parse_direction,
+        )));
+    };
+}
+macro_rules! return_ {
+    ($ret:lifetime, $($val:expr)?) => {{
+        break $ret $($val)?
+    }};
+}
+macro_rules! update_offset {
+    ($parser:ident, $copy:ident, FromStart) => {
+        $parser.start_offset += ($copy.bytes.len() - $parser.bytes.len()) as u32;
+    };
+    ($parser:ident, $copy:ident, FromEnd) => {
+        $parser.end_offset -= ($copy.bytes.len() - $parser.bytes.len()) as u32;
+    };
+}
