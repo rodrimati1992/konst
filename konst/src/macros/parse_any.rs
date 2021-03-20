@@ -37,7 +37,10 @@
 /// ### Parsing enum
 ///
 /// ```rust
-/// use konst::{parsing::{Parser, ParseError, ParseDirection}, parse_any, unwrap_ctx};
+/// use konst::{
+///     parsing::{ErrorKind, Parser, ParseDirection, ParseValueResult},
+///     parse_any, unwrap_ctx,
+/// };
 ///
 /// #[derive(Debug, PartialEq)]
 /// enum Color {
@@ -47,14 +50,12 @@
 /// }
 ///
 /// impl Color {
-///     pub const fn try_parse(
-///         mut parser: Parser<'_>
-/// ) -> Result<(Color, Parser<'_>), ParseError<'_>> {
+///     pub const fn try_parse(mut parser: Parser<'_>) -> ParseValueResult<'_, Color> {
 ///         parse_any!{parser, strip_prefix;
 ///             "Red"|"red" => Ok((Color::Red, parser)),
 ///             "Blue"|"blue" => Ok((Color::Blue, parser)),
 ///             "Green"|"green" => Ok((Color::Green, parser)),
-///             _ => Err(parser.into_error(ParseDirection::FromStart))
+///             _ => Err(parser.into_other_error(ParseDirection::FromStart))
 ///         }
 ///     }
 /// }

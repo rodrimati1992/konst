@@ -1,12 +1,14 @@
+mod non_parsing_methods;
 mod parse_errors;
 mod primitive_parsing;
 
-pub use self::{
-    parse_errors::{ParseDirection, ParseError},
-    primitive_parsing::ParseIntError,
+/////////////////////////////////////////////////////////////////////////////////
+
+pub use self::parse_errors::{
+    ErrorKind, ParseDirection, ParseError, ParseValueResult, ParserResult,
 };
 
-/// For parsing and byte string splitting in const contexts.
+/// For parsing and traversing over byte strings in const contexts.
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Parser<'a> {
     start_offset: u32,
@@ -15,87 +17,15 @@ pub struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
-    /// Constructs a Parser from a byte string.
-    #[inline]
-    pub const fn from_bytes(bytes: &'a [u8]) -> Self {
-        Self {
-            start_offset: 0,
-            end_offset: bytes.len() as u32,
-            bytes,
-        }
-    }
-
-    /// Constructs a Parser from a string.
-    #[inline]
-    pub const fn from_str(string: &'a str) -> Self {
-        Self {
-            start_offset: 0,
-            end_offset: string.len() as u32,
-            bytes: string.as_bytes(),
-        }
-    }
-
-    /// Returns the remaining, unparsed bytes.
-    #[inline(always)]
-    pub const fn bytes(self) -> &'a [u8] {
-        self.bytes
-    }
-
-    /// Gets the byte offset of this parser in the str/byte slice that this
-    /// was constructed from.
-    #[inline(always)]
-    pub const fn start_offset(self) -> usize {
-        self.start_offset as _
-    }
-
-    /// Gets the byte offset of this parser in the str/byte slice that this
-    /// was constructed from.
-    #[inline(always)]
-    pub const fn end_offset(self) -> usize {
-        self.end_offset as _
-    }
-
-    /// Constructs a [`ParseError`] for this point in parsing.
-    ///
-    /// [`ParseError`]: struct.ParseError.html
-    pub const fn into_error(self, direction: ParseDirection) -> ParseError<'a> {
-        ParseError::new(self, direction)
-    }
-
-    /// TODO
-    pub const fn advance_to_remainder_from_start(mut self, to: &'a [u8]) -> Self {
-        parsing! {self, FromStart;
-            self.bytes = to;
-        }
-    }
-    /// TODO
-    pub const fn advance_to_remainder_from_end(mut self, to: &'a [u8]) -> Self {
-        parsing! {self, FromEnd;
-            self.bytes = to;
-        }
-    }
-
-    /// Returns amount of unparsed bytes.
-    #[inline(always)]
-    pub const fn len(self) -> usize {
-        self.bytes.len()
-    }
-
-    /// Returns whether there's any bytes left to parse.
-    #[inline(always)]
-    pub const fn is_empty(self) -> bool {
-        self.bytes.is_empty()
-    }
-
     /// Gets the next unparsed byte.
     #[inline]
-    pub const fn next_byte(mut self) -> Result<(u8, Self), ParseError<'a>> {
+    pub const fn next_byte(mut self) -> ParseValueResult<'a, u8> {
         try_parsing! {self, FromStart, ret;
             if let [byte, rem @ ..] = self.bytes {
                 self.bytes = rem;
                 *byte
             } else {
-                throw!()
+                throw!(ErrorKind::SkipByte)
             }
         }
     }
@@ -125,19 +55,19 @@ impl<'a> Parser<'a> {
     /// ### Basic
     ///
     /// ```
-    /// use konst::{Parser, assign_if};
+    /// use konst::{Parser, rebind_if_ok};
     ///
     /// let mut parser = Parser::from_str("foo;bar;baz;");
     ///
     /// assert!(parser.strip_prefix("aaa").is_err());
     ///
-    /// assign_if!{Ok(parser) = parser.strip_prefix("foo;")};
+    /// rebind_if_ok!{parser = parser.strip_prefix("foo;")}
     /// assert_eq!(parser.bytes(), "bar;baz;".as_bytes());
     ///
-    /// assign_if!{Ok(parser) = parser.strip_prefix("bar;")};
+    /// rebind_if_ok!{parser = parser.strip_prefix("bar;")}
     /// assert_eq!(parser.bytes(), "baz;".as_bytes());
     ///
-    /// assign_if!{Ok(parser) = parser.strip_prefix("baz;")};
+    /// rebind_if_ok!{parser = parser.strip_prefix("baz;")}
     /// assert_eq!(parser.bytes(), "".as_bytes());
     ///
     ///
@@ -146,7 +76,7 @@ impl<'a> Parser<'a> {
     /// ### Use case
     ///
     /// ```rust
-    /// use konst::{Parser, assign_if};
+    /// use konst::{Parser, rebind_if_ok};
     ///
     /// #[derive(Debug, PartialEq)]
     /// struct Flags {
@@ -154,22 +84,22 @@ impl<'a> Parser<'a> {
     ///     bar: bool,
     /// }
     ///
-    /// const fn parse_flags(mut parser: Parser<'_>) -> (Parser<'_>, Flags) {
+    /// const fn parse_flags(mut parser: Parser<'_>) -> (Flags, Parser<'_>) {
     ///     let mut flags = Flags{foo: false, bar: false};
-    ///     assign_if!{Ok(parser) = parser.strip_prefix("foo;") => {
+    ///     rebind_if_ok!{parser = parser.strip_prefix("foo;") =>
     ///         flags.foo = true;
-    ///     }}
-    ///     assign_if!{Ok(parser) = parser.strip_prefix("bar;") => {
+    ///     }
+    ///     rebind_if_ok!{parser = parser.strip_prefix("bar;") =>
     ///         flags.bar = true;
-    ///     }}
-    ///     (parser, flags)
+    ///     }
+    ///     (flags, parser)
     /// }
     ///
     /// const VALUES: &[Flags] = &[
-    ///     parse_flags(Parser::from_str("")).1,
-    ///     parse_flags(Parser::from_str("foo;")).1,
-    ///     parse_flags(Parser::from_str("bar;")).1,
-    ///     parse_flags(Parser::from_str("foo;bar;")).1,
+    ///     parse_flags(Parser::from_str("")).0,
+    ///     parse_flags(Parser::from_str("foo;")).0,
+    ///     parse_flags(Parser::from_str("bar;")).0,
+    ///     parse_flags(Parser::from_str("foo;bar;")).0,
     /// ];
     ///
     /// assert_eq!(VALUES[0], Flags{foo: false, bar: false});
@@ -189,7 +119,7 @@ impl<'a> Parser<'a> {
     pub const fn strip_prefix_b(mut self, mut matched: &[u8]) -> Result<Self, ParseError<'a>> {
         try_parsing! {self, FromStart;
             if self.bytes.len() < matched.len() {
-                throw!()
+                throw!(ErrorKind::Strip)
             }
 
             while let ([lb, rem_slice @ ..], [rb, rem_matched @ ..]) = (self.bytes, matched) {
@@ -197,7 +127,7 @@ impl<'a> Parser<'a> {
                 matched = rem_matched;
 
                 if *lb != *rb {
-                    throw!()
+                    throw!(ErrorKind::Strip)
                 }
             }
         }
@@ -208,19 +138,19 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, rebind_if_ok};
     ///
     /// let mut parser = Parser::from_str("abcde");
     ///
     /// assert!(parser.strip_prefix_u8(1).is_err());
     ///
-    /// parser = unwrap_ctx!(parser.strip_prefix_u8(b'a'));
+    /// rebind_if_ok!{parser = parser.strip_prefix_u8(b'a')}
     /// assert_eq!(parser.bytes(), "bcde".as_bytes());
     ///
-    /// parser = unwrap_ctx!(parser.strip_prefix_u8(b'b'));
+    /// rebind_if_ok!{parser = parser.strip_prefix_u8(b'b')}
     /// assert_eq!(parser.bytes(), "cde".as_bytes());
     ///
-    /// parser = unwrap_ctx!(parser.strip_prefix_u8(b'c'));
+    /// rebind_if_ok!{parser = parser.strip_prefix_u8(b'c')}
     /// assert_eq!(parser.bytes(), "de".as_bytes());
     ///
     /// ```
@@ -232,7 +162,7 @@ impl<'a> Parser<'a> {
                 [byte, rem @ ..] if *byte == matched => {
                     self.bytes = rem;
                 }
-                _ => throw!(),
+                _ => throw!(ErrorKind::Strip),
             }
         }
     }
@@ -245,19 +175,19 @@ impl<'a> Parser<'a> {
     /// ### Basic
     ///
     /// ```
-    /// use konst::{Parser, assign_if};
+    /// use konst::{Parser, rebind_if_ok};
     ///
     /// let mut parser = Parser::from_str("foo;bar;baz;");
     ///
     /// assert!(parser.strip_suffix("aaa").is_err());
     ///
-    /// assign_if!{Ok(parser) = parser.strip_suffix("baz;")};
+    /// rebind_if_ok!{parser = parser.strip_suffix("baz;")}
     /// assert_eq!(parser.bytes(), "foo;bar;".as_bytes());
     ///
-    /// assign_if!{Ok(parser) = parser.strip_suffix("bar;")};
+    /// rebind_if_ok!{parser = parser.strip_suffix("bar;")}
     /// assert_eq!(parser.bytes(), "foo;".as_bytes());
     ///
-    /// assign_if!{Ok(parser) = parser.strip_suffix("foo;")};
+    /// rebind_if_ok!{parser = parser.strip_suffix("foo;")}
     /// assert_eq!(parser.bytes(), "".as_bytes());
     ///
     /// ```
@@ -273,7 +203,7 @@ impl<'a> Parser<'a> {
     pub const fn strip_suffix_b(mut self, mut matched: &[u8]) -> Result<Self, ParseError<'a>> {
         try_parsing! {self, FromEnd;
             if self.bytes.len() < matched.len() {
-                throw!()
+                throw!(ErrorKind::Strip)
             }
 
             while let ([rem_slice @ .., lb], [rem_matched @ .., rb]) = (self.bytes, matched) {
@@ -281,7 +211,7 @@ impl<'a> Parser<'a> {
                 matched = rem_matched;
 
                 if *lb != *rb {
-                    throw!()
+                    throw!(ErrorKind::Strip)
                 }
             }
         }
@@ -292,19 +222,19 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, rebind_if_ok};
     ///
     /// let mut parser = Parser::from_str("edcba");
     ///
     /// assert!(parser.strip_suffix_u8(1).is_err());
     ///
-    /// parser = unwrap_ctx!(parser.strip_suffix_u8(b'a'));
+    /// rebind_if_ok!{parser = parser.strip_suffix_u8(b'a')}
     /// assert_eq!(parser.bytes(), "edcb".as_bytes());
     ///
-    /// parser = unwrap_ctx!(parser.strip_suffix_u8(b'b'));
+    /// rebind_if_ok!{parser = parser.strip_suffix_u8(b'b')}
     /// assert_eq!(parser.bytes(), "edc".as_bytes());
     ///
-    /// parser = unwrap_ctx!(parser.strip_suffix_u8(b'c'));
+    /// rebind_if_ok!{parser = parser.strip_suffix_u8(b'c')}
     /// assert_eq!(parser.bytes(), "ed".as_bytes());
     ///
     /// ```
@@ -316,7 +246,7 @@ impl<'a> Parser<'a> {
                 [rem @ .., byte] if *byte == matched => {
                     self.bytes = rem;
                 }
-                _ => throw!(),
+                _ => throw!(ErrorKind::Strip),
             }
         }
     }
@@ -642,7 +572,7 @@ impl<'a> Parser<'a> {
             }
 
             if !matching.is_empty() {
-                throw!()
+                throw!(ErrorKind::Find)
             }
         }
     }
@@ -674,7 +604,7 @@ impl<'a> Parser<'a> {
                     ret_!();
                 }
             }
-            throw!()
+            throw!(ErrorKind::Find)
         }
     }
 
@@ -727,7 +657,7 @@ impl<'a> Parser<'a> {
             }
 
             if !matching.is_empty() {
-                throw!()
+                throw!(ErrorKind::Find)
             }
         }
     }
@@ -759,7 +689,7 @@ impl<'a> Parser<'a> {
                     ret_!();
                 }
             }
-            throw!()
+            throw!(ErrorKind::Find)
         }
     }
 }

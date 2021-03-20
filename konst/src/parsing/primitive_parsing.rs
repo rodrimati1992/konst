@@ -1,6 +1,4 @@
-use super::{ParseDirection, ParseError, Parser};
-
-use core::fmt::{self, Display};
+use super::{ErrorKind, ParseDirection, ParseValueResult, Parser};
 
 impl<'a> Parser<'a> {
     /// Parses a `u128` until a non-digit is reached.
@@ -25,7 +23,7 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     ///
-    pub const fn parse_u128(mut self) -> Result<(u128, Self), ParseIntError<'a>> {
+    pub const fn parse_u128(mut self) -> ParseValueResult<'a, u128> {
         try_parsing! {self, FromStart, ret;
             parse_integer! {unsigned, (u128, u128), self}
         }
@@ -52,31 +50,31 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     ///
-    pub const fn parse_i128(mut self) -> Result<(i128, Self), ParseIntError<'a>> {
+    pub const fn parse_i128(mut self) -> ParseValueResult<'a, i128> {
         try_parsing! {self, FromStart, ret;
             parse_integer! {signed, (i128, u128), self}
         }
     }
     /// Parses a `u64` until a non-digit is reached.
-    pub const fn parse_u64(mut self) -> Result<(u64, Self), ParseIntError<'a>> {
+    pub const fn parse_u64(mut self) -> ParseValueResult<'a, u64> {
         try_parsing! {self, FromStart, ret;
             parse_integer! {unsigned, (u64, u64), self}
         }
     }
     /// Parses a `i64` until a non-digit is reached.
-    pub const fn parse_i64(mut self) -> Result<(i64, Self), ParseIntError<'a>> {
+    pub const fn parse_i64(mut self) -> ParseValueResult<'a, i64> {
         try_parsing! {self, FromStart, ret;
             parse_integer! {signed, (i64, u64), self}
         }
     }
     /// Parses a `usize` until a non-digit is reached.
-    pub const fn parse_usize(mut self) -> Result<(usize, Self), ParseIntError<'a>> {
+    pub const fn parse_usize(mut self) -> ParseValueResult<'a, usize> {
         try_parsing! {self, FromStart, ret;
             parse_integer! {unsigned, (usize, usize), self}
         }
     }
     /// Parses a `isize` until a non-digit is reached.
-    pub const fn parse_isize(mut self) -> Result<(isize, Self), ParseIntError<'a>> {
+    pub const fn parse_isize(mut self) -> ParseValueResult<'a, isize> {
         try_parsing! {self, FromStart, ret;
             parse_integer! {signed, (isize, usize), self}
         }
@@ -96,7 +94,7 @@ macro_rules! parse_integer {
             let (next_add, overflowed_add) = next_mul.overflowing_add((*byte - b'0') as $uns);
 
             if overflowed_mul | overflowed_add {
-                throw!(map_err = ParseIntError)
+                throw!(ErrorKind::ParseInteger)
             }
 
             num = next_add;
@@ -121,7 +119,7 @@ macro_rules! parse_integer {
             $parser.bytes = rem;
             (*byte - b'0') as $uns
         } else {
-            throw!(map_err = ParseIntError)
+            throw!(ErrorKind::ParseInteger)
         };
     };
     (@apply_sign signed, ($type:ty, $uns:ty), $num:ident, $isneg:ident) => {
@@ -132,41 +130,19 @@ macro_rules! parse_integer {
             if $num <= MAX_NEG {
                 ($num as $type).wrapping_neg()
             } else {
-                throw!(map_err = ParseIntError)
+                throw!(ErrorKind::ParseInteger)
             }
         } else {
             if $num <= MAX_POS {
                 $num as $type
             } else {
-                throw!(map_err = ParseIntError)
+                throw!(ErrorKind::ParseInteger)
             }
         };
     };
     (@apply_sign unsigned, ($type:ty, $uns:ty), $num:ident, $isneg:ident) => {};
 }
 use parse_integer;
-
-////////////////////////////////////////////////////////////////////////////////
-
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub struct ParseIntError<'a>(ParseError<'a>);
-
-impl<'a> ParseIntError<'a> {
-    /// For erroring with an error message,
-    /// this is called by the [`unwrap_ctx`] macro.
-    ///
-    /// [`unwrap_ctx`]: ../macro.unwrap_ctx.html
-    #[track_caller]
-    pub const fn panic(&self) -> ! {
-        [/*error parsing integer, at offset bytes*/][self.0.offset()]
-    }
-}
-
-impl<'a> Display for ParseIntError<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("could not parse an integer")
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -192,7 +168,7 @@ impl<'a> Parser<'a> {
     /// }
     ///
     /// ```
-    pub const fn parse_bool(mut self) -> Result<(bool, Self), ParseError<'a>> {
+    pub const fn parse_bool(mut self) -> ParseValueResult<'a, bool> {
         try_parsing! {self, FromStart, ret;
             match self.bytes {
                 [b't', b'r', b'u', b'e', rem @ ..] => {
@@ -203,7 +179,7 @@ impl<'a> Parser<'a> {
                     self.bytes = rem;
                     false
                 }
-                _ => throw!(),
+                _ => throw!(ErrorKind::ParseBool),
             }
         }
     }

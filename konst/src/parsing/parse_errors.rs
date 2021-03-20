@@ -10,6 +10,7 @@ pub struct ParseError<'a> {
     start_offset: u32,
     end_offset: u32,
     direction: ParseDirection,
+    kind: ErrorKind,
     // Just in case that it goes back to storing the parser
     _lifetime: PhantomData<&'a [u8]>,
 }
@@ -17,11 +18,23 @@ pub struct ParseError<'a> {
 impl<'a> ParseError<'a> {
     /// Constructs a `ParseError`.
     #[inline(always)]
-    pub const fn new(parser: Parser<'a>, direction: ParseDirection) -> Self {
+    pub const fn new(parser: Parser<'a>, direction: ParseDirection, kind: ErrorKind) -> Self {
         Self {
             start_offset: parser.start_offset,
             end_offset: parser.end_offset,
             direction,
+            kind,
+            _lifetime: PhantomData,
+        }
+    }
+
+    /// A const fn equivalent of a clone method.
+    pub const fn copy(&self) -> Self {
+        Self {
+            start_offset: self.start_offset,
+            end_offset: self.end_offset,
+            direction: self.direction,
+            kind: self.kind,
             _lifetime: PhantomData,
         }
     }
@@ -42,15 +55,51 @@ impl<'a> ParseError<'a> {
         self.direction
     }
 
+    /// The kind of parsing error that this is.
+    pub const fn kind(&self) -> ErrorKind {
+        self.kind
+    }
+
     /// For erroring with an error message,
     /// this is called by the [`unwrap_ctx`] macro.
     ///
     /// [`unwrap_ctx`]: ../macro.unwrap_ctx.html
     #[track_caller]
     pub const fn panic(&self) -> ! {
-        match self.direction {
-            ParseDirection::FromStart => [/*parse error from start offset*/][self.offset()],
-            ParseDirection::FromEnd => [/*parse error from end offset*/][self.offset()],
+        match self.kind {
+            ErrorKind::ParseInteger => match self.direction {
+                ParseDirection::FromStart => {
+                    [/*integer parsing errored from start offset*/][self.offset()]
+                }
+                ParseDirection::FromEnd => {
+                    [/*integer parsing errored from end offset*/][self.offset()]
+                }
+            },
+            ErrorKind::ParseBool => match self.direction {
+                ParseDirection::FromStart => {
+                    [/*bool parsing errored from start offset*/][self.offset()]
+                }
+                ParseDirection::FromEnd => {
+                    [/*bool parsing errored from end offset*/][self.offset()]
+                }
+            },
+            ErrorKind::Find => match self.direction {
+                ParseDirection::FromStart => {
+                    [/*Error finding pattern from start offset*/][self.offset()]
+                }
+                ParseDirection::FromEnd => {
+                    [/*Error finding pattern from end offset*/][self.offset()]
+                }
+            },
+            ErrorKind::Strip => match self.direction {
+                ParseDirection::FromStart => [/*Error stripping from start offset*/][self.offset()],
+                ParseDirection::FromEnd => [/*Error stripping from end offset*/][self.offset()],
+            },
+            ErrorKind::SkipByte => [/*Error skipping byte at offset*/][self.offset()],
+            ErrorKind::Other => match self.direction {
+                ParseDirection::FromStart => [/*parse error from start offset*/][self.offset()],
+                ParseDirection::FromEnd => [/*parse error from end offset*/][self.offset()],
+            },
         }
     }
 }
@@ -58,13 +107,24 @@ impl<'a> ParseError<'a> {
 impl<'a> Display for ParseError<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self.direction {
-            ParseDirection::FromStart => "parsing the bytes from the start failed at the ",
-            ParseDirection::FromEnd => "parsing the bytes from the end failed at the ",
+            ParseDirection::FromStart => "error from the start at the ",
+            ParseDirection::FromEnd => "error from the end at the ",
         })?;
         Display::fmt(&self.offset(), f)?;
-        f.write_str(" byte offset (in the str/byte slice that the Parser was constructed from)")
+        f.write_str(" byte offset")?;
+
+        f.write_str(match self.kind {
+            ErrorKind::ParseInteger => " while parsing an integer",
+            ErrorKind::ParseBool => " while parsing a bool",
+            ErrorKind::Find => " while trying to find and skip a pattern",
+            ErrorKind::Strip => " while trying to strip a pattern",
+            ErrorKind::SkipByte => " while trying to skip a byte",
+            ErrorKind::Other => " (a parsing error)",
+        })
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 /// The direction that a parser was parsing from when an error happened.
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -72,3 +132,31 @@ pub enum ParseDirection {
     FromStart = 0,
     FromEnd = 1,
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// What kind of parsing error this is.
+#[non_exhaustive]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+pub enum ErrorKind {
+    /// Returned from the integer parsing method
+    ParseInteger,
+    /// Returned from the `parse_bool` method
+    ParseBool,
+    /// Returned from `*find*` methods
+    Find,
+    /// Returned from `strip_*` methods
+    Strip,
+    /// Returned from `skip_byte`
+    SkipByte,
+    /// For user-defined types
+    Other,
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Result alias for functions that mutate the parser fallibly.
+pub type ParserResult<'a, E = ParseError<'a>> = Result<Parser<'a>, E>;
+
+/// Result alias for functions that parse values.
+pub type ParseValueResult<'a, T, E = ParseError<'a>> = Result<(T, Parser<'a>), E>;
