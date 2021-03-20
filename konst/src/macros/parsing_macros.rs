@@ -7,21 +7,73 @@
 /// ```rust
 /// # use konst::rebind_if_ok;
 /// #
-/// let mut bar = 0;
-/// let mut number = 10;
+/// # let mut bar = 0;
+/// # let mut number = 10;
 /// let res: Result<_, ()> = Ok((10, 20));
 /// rebind_if_ok!{(let foo, bar) = res =>
 ///     number += foo;
 /// }
-/// assert_eq!(bar, 20);
+/// # assert_eq!(bar, 20);
 /// ```
 /// `foo` in this invocation of `rebind_if_ok` is a macro-local variable initialized with `10`,
 /// while `bar` is a pre-existing variable that is assigned `20`.
 ///
 /// This pattern only works when destructuring tuples.
 ///
+/// # Example
+///
+/// ```rust
+/// use konst::{
+///     parsing::{Parser, ParseValueResult},
+///     rebind_if_ok,
+/// };
+///
+/// #[derive(Debug, PartialEq)]
+/// struct Struct {
+///     foo: bool,
+///     bar: bool,
+///     baz: Option<u64>,
+/// }
+///
+/// const fn parse_pair(mut parser: Parser<'_>) -> (Struct, Parser<'_>) {
+///     let mut flags = Struct {
+///         foo: false,
+///         bar: false,
+///         baz: None,
+///     };
+///
+///     // `parser` is reassigned if the `strip_prefix` method returns an `Ok` variant.
+///     // (this also happens in every other invocation of `rebind_if_ok` in this example)
+///     rebind_if_ok!{parser = parser.strip_prefix("foo,") =>
+///         flags.foo = true;
+///     }
+///     rebind_if_ok!{parser = parser.strip_prefix("bar,") =>
+///         flags.bar = true;
+///     }
+///     // `num` is only visible inside this macro invocation
+///     rebind_if_ok!{(let num, parser) = parser.parse_u64() =>
+///         flags.baz = Some(num);
+///     }
+///     (flags, parser)
+/// }
+///
+/// const XX: [Struct; 2] = {
+///     [
+///         parse_pair(Parser::from_str("foo,1000")).0,
+///         parse_pair(Parser::from_str("bar,")).0,
+///     ]
+/// };
+///
+/// assert_eq!(
+///     XX,
+///     [
+///         Struct{foo: true, bar: false, baz: Some(1000)},
+///         Struct{foo: false, bar: true, baz: None},
+///     ]
+/// );
 ///
 ///
+/// ```
 #[macro_export]
 macro_rules! rebind_if_ok {
     (
@@ -122,9 +174,15 @@ macro_rules! __priv_next_ai_access {
 /// };
 ///
 /// const fn parse_int_pair(mut parser: Parser<'_>) -> ParseValueResult<'_, (u64, u64)> {
+///
+///     // `parser` is reassigned if the `parse_u64` method returns an `Ok`.
+///     // (this also happens in every other invocation of `try_rebind` in this example)
 ///     try_rebind!{(let aa, parser) = parser.parse_u64()}
+///
 ///     try_rebind!{parser = parser.strip_prefix_u8(b',')}
+///
 ///     try_rebind!{(let bb, parser) = parser.parse_u64()}
+///
 ///     Ok(((aa, bb), parser))
 /// }
 ///
@@ -155,11 +213,11 @@ macro_rules! try_rebind {
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __priv_try_map_err {
-    ($error:ident, $(map_err = )? |$pat:pat| $map_err:expr ) => {{
+    ($error:ident, map_err = |$pat:pat| $map_err:expr ) => {{
         let $pat = $error;
         $map_err
     }};
-    ($error:ident, $(map_err = )? $map_err:path ) => {{
+    ($error:ident, map_err = $map_err:path ) => {{
         let $pat = $error;
         $map_err($error)
     }};
@@ -200,6 +258,7 @@ macro_rules! try_parsing {
     ( $parser:ident, $parse_direction:ident $(,$ret:ident)*; $($code:tt)* ) => ({
         #![allow(unused_parens, unused_labels, unused_macros)]
 
+        $parser.parse_direction = ParseDirection::$parse_direction;
         let copy = $parser;
 
         let ($($ret),*) = 'ret: loop {
@@ -221,7 +280,8 @@ macro_rules! parsing {
     ( $parser:ident, $parse_direction:ident $(,$ret:ident)*; $($code:tt)* ) => ({
         #![allow(unused_parens, unused_labels, unused_macros)]
 
-        let copy = $parser;
+        $parser.parse_direction = ParseDirection::$parse_direction;
+        enable_if_start!{$parse_direction, let copy = $parser; }
 
         let ($($ret),*) = 'ret: loop {
             partial!{ret_ = return_!('ret,)}
@@ -238,18 +298,10 @@ macro_rules! parsing {
 
 macro_rules! throw_out {
     ($copy:ident, $parse_direction:ident, $kind:expr) => {
-        return Err(crate::parsing::ParseError::new(
-            $copy,
-            ParseDirection::$parse_direction,
-            $kind,
-        ));
+        return Err(crate::parsing::ParseError::new($copy, $kind));
     };
     ($copy:ident, $parse_direction:ident, $kind:expr, map_err = $func:ident) => {
-        return Err($func(crate::parsing::ParseError::new(
-            $copy,
-            ParseDirection::$parse_direction,
-            $kind,
-        )));
+        return Err($func(crate::parsing::ParseError::new($copy, $kind)));
     };
 }
 macro_rules! return_ {
@@ -261,7 +313,11 @@ macro_rules! update_offset {
     ($parser:ident, $copy:ident, FromStart) => {
         $parser.start_offset += ($copy.bytes.len() - $parser.bytes.len()) as u32;
     };
-    ($parser:ident, $copy:ident, FromEnd) => {
-        $parser.end_offset -= ($copy.bytes.len() - $parser.bytes.len()) as u32;
+    ($parser:ident, $copy:ident, FromEnd) => {};
+}
+macro_rules! enable_if_start{
+    (FromEnd, $($tokens:tt)*) => { };
+    (FromStart, $($tokens:tt)*) => {
+        $($tokens)*
     };
 }

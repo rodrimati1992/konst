@@ -7,8 +7,8 @@ impl<'a> Parser<'a> {
     #[inline]
     pub const fn from_bytes(bytes: &'a [u8]) -> Self {
         Self {
+            parse_direction: ParseDirection::FromStart,
             start_offset: 0,
-            end_offset: bytes.len() as u32,
             bytes,
         }
     }
@@ -17,8 +17,8 @@ impl<'a> Parser<'a> {
     #[inline]
     pub const fn from_str(string: &'a str) -> Self {
         Self {
+            parse_direction: ParseDirection::FromStart,
             start_offset: 0,
-            end_offset: string.len() as u32,
             bytes: string.as_bytes(),
         }
     }
@@ -40,14 +40,14 @@ impl<'a> Parser<'a> {
     /// was constructed from.
     #[inline(always)]
     pub const fn end_offset(self) -> usize {
-        self.end_offset as _
+        self.start_offset as usize + self.bytes.len()
     }
 
     /// Constructs a [`ParseError`] for this point in parsing.
     ///
     /// [`ParseError`]: struct.ParseError.html
-    pub const fn into_error(self, direction: ParseDirection, kind: ErrorKind) -> ParseError<'a> {
-        ParseError::new(self, direction, kind)
+    pub const fn into_error(self, kind: ErrorKind) -> ParseError<'a> {
+        ParseError::new(self, kind)
     }
 
     /// Constructs a [`ParseError`] for this point in parsing,
@@ -55,8 +55,8 @@ impl<'a> Parser<'a> {
     ///
     /// [`ParseError`]: struct.ParseError.html
     /// [`ErrorKind::Other`]: ./enum.ErrorKind.html#variant.Other
-    pub const fn into_other_error(self, direction: ParseDirection) -> ParseError<'a> {
-        ParseError::new(self, direction, ErrorKind::Other)
+    pub const fn into_other_error(self) -> ParseError<'a> {
+        ParseError::new(self, ErrorKind::Other)
     }
 
     /// TODO

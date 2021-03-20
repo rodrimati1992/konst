@@ -1,6 +1,7 @@
 /// Calls a `Parser` method with many alternative string literals.
 ///
-/// If any of the literals match, the parser is mutated, otherwise it's left unmodified.
+/// If any of the literals match, the parser is mutated accordingly,
+/// otherwise it keeps the unparsed bytes to parse them again.
 ///
 /// # Syntax
 ///
@@ -38,7 +39,7 @@
 ///
 /// ```rust
 /// use konst::{
-///     parsing::{ErrorKind, Parser, ParseDirection, ParseValueResult},
+///     parsing::{Parser, ParseValueResult},
 ///     parse_any, unwrap_ctx,
 /// };
 ///
@@ -55,7 +56,7 @@
 ///             "Red"|"red" => Ok((Color::Red, parser)),
 ///             "Blue"|"blue" => Ok((Color::Blue, parser)),
 ///             "Green"|"green" => Ok((Color::Green, parser)),
-///             _ => Err(parser.into_other_error(ParseDirection::FromStart))
+///             _ => Err(parser.into_other_error())
 ///         }
 ///     }
 /// }
@@ -205,9 +206,10 @@ macro_rules! __priv_pa_strip_suffix {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_pa_bytes_accessor {
-    (get, ($place:expr, $parse_direction:ident, inside_konst)) => {
+    (get, ($place:expr, $parse_direction:ident, inside_konst)) => {{
+        $place.parse_direction = $crate::parsing::ParseDirection::$parse_direction;
         $place.bytes
-    };
+    }};
     (get, ($place:expr, $parse_direction:ident, outside_konst)) => {
         $place.bytes()
     };
@@ -222,9 +224,7 @@ macro_rules! __priv_pa_bytes_accessor {
     (set, ($place:expr, FromEnd, inside_konst), $rem:expr) => {
         #[allow(unused_assignments)]
         {
-            let before = $place.bytes.len();
             $place.bytes = $rem;
-            $place.end_offset -= (before - $place.bytes.len()) as u32;
         }
     };
 

@@ -11,8 +11,8 @@ pub use self::parse_errors::{
 /// For parsing and traversing over byte strings in const contexts.
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Parser<'a> {
+    parse_direction: ParseDirection,
     start_offset: u32,
-    end_offset: u32,
     bytes: &'a [u8],
 }
 

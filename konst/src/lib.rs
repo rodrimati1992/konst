@@ -75,6 +75,108 @@
 //!
 //! ```
 //!
+//! ### Parsing a struct
+//!
+//! This example demonstrates how you can use [`Parser`] to parse a struct at compile-time.
+//!
+//! ```rust
+//! use konst::{
+//!     parsing::{Parser, ParseValueResult},
+//!     for_range, parse_any, try_rebind, unwrap_ctx,
+//! };
+//!
+//! const PARSED: Struct = {
+//!     # let input = "\
+//!     #     1000,
+//!     #     circle,
+//!     #     red, blue, green, blue,
+//!     # ";
+//!     # /*
+//!     let input = env!("Struct");
+//!     # */
+//!     
+//!     unwrap_ctx!(parse_struct(Parser::from_str(input))).0
+//! };
+//!
+//! fn main(){
+//!     assert_eq!(
+//!         PARSED,
+//!         Struct{
+//!             amount: 1000,
+//!             repeating: Shape::Circle,
+//!             colors: [Color::Red, Color::Blue, Color::Green, Color::Blue],
+//!         }
+//!     );
+//! }
+//!
+//! #[derive(Debug, Clone, PartialEq, Eq)]
+//! pub struct Struct {
+//!     pub amount: usize,
+//!     pub repeating: Shape,
+//!     pub colors: [Color; 4],
+//! }
+//!
+//! #[derive(Debug, Clone, PartialEq, Eq)]
+//! pub enum Shape {
+//!     Circle,
+//!     Square,
+//!     Line,
+//! }
+//!
+//! #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+//! pub enum Color {
+//!     Red,
+//!     Blue,
+//!     Green,
+//! }
+//!
+//! pub const fn parse_struct(mut parser: Parser<'_>) -> ParseValueResult<'_, Struct> {
+//!     try_rebind!{(let amount, parser) = parser.trim_start().parse_usize()}
+//!     try_rebind!{parser = parser.strip_prefix(",")}
+//!
+//!     try_rebind!{(let repeating, parser) = parse_shape(parser.trim_start())}
+//!     try_rebind!{parser = parser.strip_prefix(",")}
+//!
+//!     try_rebind!{(let colors, parser) = parse_colors(parser.trim_start())}
+//!
+//!     Ok((Struct{amount, repeating, colors}, parser))
+//! }
+//!
+//! pub const fn parse_shape(mut parser: Parser<'_>) -> ParseValueResult<'_, Shape> {
+//!     let shape = parse_any!{parser, strip_prefix;
+//!         "circle" => Shape::Circle,
+//!         "square" => Shape::Square,
+//!         "line" => Shape::Line,
+//!         _ => return Err(parser.into_other_error())
+//!     };
+//!     Ok((shape, parser))
+//! }
+//!
+//! pub const fn parse_colors(mut parser: Parser<'_>) -> ParseValueResult<'_, [Color; 4]> {
+//!     let mut colors = [Color::Red; 4];
+//!
+//!     for_range!{i in 0..4 =>
+//!         try_rebind!{(colors[i], parser) = parse_color(parser.trim_start())}
+//!         try_rebind!{parser = parser.strip_prefix(",")}
+//!     }
+//!
+//!     Ok((colors, parser))
+//! }
+//!
+//! pub const fn parse_color(mut parser: Parser<'_>) -> ParseValueResult<'_, Color> {
+//!     let color = parse_any!{parser, strip_prefix;
+//!         "red" => Color::Red,
+//!         "blue" => Color::Blue,
+//!         "green" => Color::Green,
+//!         _ => return Err(parser.into_other_error())
+//!     };
+//!     Ok((color, parser))
+//! }
+//!
+//!
+//!
+//! ```
+//!
 //! # No-std support
 //!
 //! `konst` is `#![no_std]`, it can be used anywhere Rust can be used.
@@ -164,6 +266,7 @@ pub mod __ {
     pub use core::{
         cmp::Ordering::{self, Equal, Greater, Less},
         matches,
+        ops::Range,
         option::Option::{self, None, Some},
         result::Result::{self, Err, Ok},
     };

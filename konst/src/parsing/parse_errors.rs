@@ -18,11 +18,11 @@ pub struct ParseError<'a> {
 impl<'a> ParseError<'a> {
     /// Constructs a `ParseError`.
     #[inline(always)]
-    pub const fn new(parser: Parser<'a>, direction: ParseDirection, kind: ErrorKind) -> Self {
+    pub const fn new(parser: Parser<'a>, kind: ErrorKind) -> Self {
         Self {
             start_offset: parser.start_offset,
-            end_offset: parser.end_offset,
-            direction,
+            end_offset: parser.start_offset + parser.bytes.len() as u32,
+            direction: parser.parse_direction,
             kind,
             _lifetime: PhantomData,
         }
