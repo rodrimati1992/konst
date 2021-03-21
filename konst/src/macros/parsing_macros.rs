@@ -1,5 +1,7 @@
-/// Assigns the value in a `Ok` variant into pre-existing variables,
-/// doing nothing it it was an `Err` variant.
+/// Like an `if let Ok`,
+/// but also reassigns variables with the value in the `Ok` variant.
+///
+/// Note: the `Ok` variant can only be destructured into a single variable or a tuple.
 ///
 /// # Let pattern
 ///
@@ -35,7 +37,7 @@
 ///     baz: Option<u64>,
 /// }
 ///
-/// const fn parse_pair(mut parser: Parser<'_>) -> (Struct, Parser<'_>) {
+/// const fn parse_struct(mut parser: Parser<'_>) -> (Struct, Parser<'_>) {
 ///     let mut flags = Struct {
 ///         foo: false,
 ///         bar: false,
@@ -59,8 +61,8 @@
 ///
 /// const XX: [Struct; 2] = {
 ///     [
-///         parse_pair(Parser::from_str("foo,1000")).0,
-///         parse_pair(Parser::from_str("bar,")).0,
+///         parse_struct(Parser::from_str("foo,1000")).0,
+///         parse_struct(Parser::from_str("bar,")).0,
 ///     ]
 /// };
 ///
@@ -134,7 +136,10 @@ macro_rules! __priv_next_ai_access {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/// Returns on Err, otherwise assigns the value in a `Ok` variant into pre-existing variables.
+/// Like the `?` operator,
+/// but also reassigns variables with the value in the `Ok` variant.
+///
+/// Note: the `Ok` variant can only be destructured into a single variable or a tuple.
 ///
 /// # Mapping errors
 ///

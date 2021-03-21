@@ -5,6 +5,11 @@ use core::{
     marker::PhantomData,
 };
 
+/// Error returned by all fallible parsing methods.
+///
+/// This error type knows [`where`](#method.offset) the error happened,
+/// in what [`direction`](#method.error_direction) the bytes were being parsed,
+/// and the [`kind`](#method.kind) of error that happened.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ParseError<'a> {
     start_offset: u32,
@@ -139,9 +144,9 @@ pub enum ParseDirection {
 #[non_exhaustive]
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum ErrorKind {
-    /// Returned from the integer parsing method
+    /// Returned from integer parsing methods
     ParseInteger,
-    /// Returned from the `parse_bool` method
+    /// Returned from `parse_bool`
     ParseBool,
     /// Returned from `*find*` methods
     Find,

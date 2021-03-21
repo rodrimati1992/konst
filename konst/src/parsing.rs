@@ -1,3 +1,9 @@
+//! Parsing using `const fn` methods.
+//!
+//!
+//!
+//!
+
 mod non_parsing_methods;
 mod parse_errors;
 mod primitive_parsing;
@@ -9,6 +15,116 @@ pub use self::parse_errors::{
 };
 
 /// For parsing and traversing over byte strings in const contexts.
+///
+/// # Mutation
+///
+/// Because `konst` only requires Rust 1.46.0,
+/// in order to mutate a parser you must reassign the parser returned by its methods.
+/// <br>eg: `parser = parser.trim_start();`
+///
+/// To help make this more ergonomic for `Result`-returning methods, you can use these macros:
+///
+/// - [`try_rebind`]:
+/// Like the `?` operator,
+/// but also reassigns variables with the value in the `Ok` variant.
+///
+/// - [`rebind_if_ok`]:
+/// Like an `if let Ok`,
+/// but also reassigns variables with the value in the `Ok` variant.
+///
+/// - [`parse_any`]:
+/// Parses any of the string literal patterns using a supported `Parser` method.
+///
+/// [`try_rebind`]: ../macro.try_rebind.html
+/// [`rebind_if_ok`]: ../macro.rebind_if_ok.html
+/// [`parse_any`]: ../macro.parse_any.html
+///
+/// # Examples
+///
+/// ### Parsing a variable-length array
+///
+/// Parses a variable-length array, requires the length to appear before the array.
+///
+/// ```
+/// use konst::{
+///     parsing::{Parser, ParseValueResult},
+///     for_range, parse_any, try_rebind, unwrap_ctx,
+/// };
+///
+/// // We need to parse the length into a separate const to use it as the length of the array.
+/// const LEN_AND_PARSER: (usize, Parser<'_>) = {
+///     let input = "\
+///         6;
+///         up, 0, 90, down, left, right,
+///     ";
+///     
+///     let parser = Parser::from_str(input);
+///     let (len, parser) = unwrap_ctx!(parser.parse_usize());
+///     (len, unwrap_ctx!(parser.strip_prefix_u8(b';')))
+/// };
+///
+/// const LEN: usize = LEN_AND_PARSER.0;
+///
+/// const ANGLES: [Angle; LEN] = unwrap_ctx!(Angle::parse_array(LEN_AND_PARSER.1)).0;
+///
+/// fn main() {
+///     assert_eq!(
+///         ANGLES,
+///         [Angle::UP, Angle::UP, Angle::RIGHT, Angle::DOWN, Angle::LEFT, Angle::RIGHT]
+///     );
+/// }
+///
+///
+///
+/// #[derive(Debug, PartialEq, Eq, Copy, Clone)]
+/// struct Angle(u16);
+///
+/// impl Angle {
+///     pub const UP: Self = Self(0);
+///     pub const RIGHT: Self = Self(90);
+///     pub const DOWN: Self = Self(180);
+///     pub const LEFT: Self = Self(270);
+///
+///     pub const fn new(n: u64) -> Angle {
+///         Angle((n % 360) as u16)
+///     }
+///
+///     // This could take a `const LEN: usize` const parameter in Rust 1.51.0,
+///     // so that the returned array can be any length.
+///     const fn parse_array(mut parser: Parser<'_>) -> ParseValueResult<'_, [Angle; LEN]> {
+///         let mut ret = [Angle::UP; LEN];
+///         
+///         for_range!{i in 0..LEN =>
+///             try_rebind!{(ret[i], parser) = Angle::parse(parser.trim_start())}
+///             
+///             parser = parser.trim_start();
+///             if !parser.is_empty() {
+///                 try_rebind!{parser = parser.strip_prefix_u8(b',')}
+///             }
+///         }
+///         Ok((ret, parser))
+///     }
+///
+///     pub const fn parse(mut parser: Parser<'_>) -> ParseValueResult<'_, Angle> {
+///         // Prefer using the `rebind_if_ok` macro if you don't `return` inside the `if let`,
+///         // because the `parser` inside this `if let` is a different variable than outside.
+///         if let Ok((angle, parser)) = parser.parse_u64() {
+///             return Ok((Self::new(angle), parser))
+///         }
+///         
+///         let angle = parse_any!{parser, strip_prefix;
+///             "up" => Self::UP,
+///             "right" => Self::RIGHT,
+///             "down" => Self::DOWN,
+///             "left" => Self::LEFT,
+///             _ => return Err(parser.into_other_error())
+///         };
+///         Ok((angle, parser))
+///     }
+/// }
+///
+///
+/// ```
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Parser<'a> {
     parse_direction: ParseDirection,
