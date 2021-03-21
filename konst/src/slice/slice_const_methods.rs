@@ -87,7 +87,7 @@ pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
     #[cfg(feature = "constant_time_slice")]
     {
         unsafe {
-            let raw_slice = core::slice::from_raw_parts(slice.as_ptr().offset(start), rem);
+            let raw_slice = core::ptr::slice_from_raw_parts(slice.as_ptr().offset(start as _), rem);
             Dereference { ptr: raw_slice }.reff
         }
     }
@@ -147,7 +147,7 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
     {
         // Doing this to get a slice up to length at compile-time
         unsafe {
-            let raw_slice = core::slice::from_raw_parts(slice.as_ptr(), len);
+            let raw_slice = core::ptr::slice_from_raw_parts(slice.as_ptr(), len);
             Dereference { ptr: raw_slice }.reff
         }
     }

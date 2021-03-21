@@ -322,6 +322,7 @@ macro_rules!  __declare_fns_with_docs{
 
 macro_rules! __impl_option_cmp_fns {
     (
+        $(#[$attr:meta])*
         $(for[$($impl:tt)*])?
         params($l:ident, $r:ident)
         eq_comparison = $eq_comparison:expr,
@@ -336,6 +337,7 @@ macro_rules! __impl_option_cmp_fns {
             $(for[$($impl)*])?
 
             #[doc = $docs_eq]
+            $(#[$attr])*
             pub const fn $eq_fn_name($copyab left: $type, right: $type) -> bool {
                 match (left, right) {
                     (Some($l), Some($r)) => $eq_comparison,
@@ -349,6 +351,7 @@ macro_rules! __impl_option_cmp_fns {
             $(for[$($impl)*])?
 
             #[doc = $docs_cmp]
+            $(#[$attr])*
             pub const fn $cmp_fn_name($copyab left: $type, right: $type) -> core::cmp::Ordering {
                 use core::cmp::Ordering;
 

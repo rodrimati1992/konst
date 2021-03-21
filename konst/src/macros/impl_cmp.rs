@@ -127,6 +127,8 @@
 ///
 /// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
 ///
+#[cfg(feature = "cmp")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
 macro_rules! impl_cmp {
     (

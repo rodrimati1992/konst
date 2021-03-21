@@ -55,7 +55,6 @@ __delegate_const_ord! {
     }
 }
 
-#[cfg(feature = "option")]
 __declare_fns_with_docs! {
     (Option<&'a [u8]>, (eq_option_slice_u8, cmp_option_slice_u8))
     (Option<&'a [u16]>, (eq_option_slice_u16, cmp_option_slice_u16))
@@ -81,7 +80,6 @@ __declare_fns_with_docs! {
     ),
 }
 
-#[cfg(feature = "option")]
 __declare_fns_with_docs! {
     (Option<&'a [&'b str]>, (eq_option_slice_str, cmp_option_slice_str))
     (Option<&'a [&'b [u8]]>, (eq_option_slice_bytes, cmp_option_slice_bytes))

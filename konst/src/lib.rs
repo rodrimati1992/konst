@@ -177,6 +177,27 @@
 //!
 //! ```
 //!
+//! # Cargo features
+//!
+//! These are the features of these crates:
+//!
+//! - `"cmp"`(enabled by default):
+//! Enables all comparison functions and macros,
+//! the string equality and ordering comparison functions don't require this feature.
+//!
+//! - `"parser"`(enabled by default):
+//! Enables the [`parsing`] module, for parsing from `&str` and `&[u8]`.
+//!
+//! - `"constant_time_slice"`(disabled by default):<br>
+//! Improves the performance of slice functions that split slices,
+//! from taking linear time to taking constant time,
+//! this requires using some nightly Rust features.
+//! <br>Note that only functions which mention this feature in their documentation are affected.
+//!
+//! - `"const_generics"` (disabled by default):
+//! Changes impls for arrays to use const generics instead of only supporting small arrays.
+//! This feature requires Rust 1.51.0.
+//!
 //! # No-std support
 //!
 //! `konst` is `#![no_std]`, it can be used anywhere Rust can be used.
@@ -190,15 +211,21 @@
 //!
 //!
 //!
+//! [`const_eq`]: ./macro.const_eq.html
+//! [`const_eq_for`]: ./macro.const_eq_for.html
+//! [`const_cmp`]: ./macro.const_cmp.html
+//! [`const_cmp_for`]: ./macro.const_cmp_for.html
 //! [`polymorphism`]: ./polymorphism/index.html
+//! [`parsing`]: ./parsing/index.html
 //! [`Parser`]: ./parsing/struct.Parser.html
 //! [`parse_any`]: macro.parse_any.html
 //!
 
 #![cfg_attr(
     feature = "constant_time_slice",
-    feature(const_slice_from_raw_parts, const_fn_union,)
+    feature(const_slice_from_raw_parts, const_fn_union, const_ptr_offset)
 )]
+#![cfg_attr(feature = "docsrs", feature(doc_cfg))]
 #![no_std]
 
 #[macro_use]
@@ -209,57 +236,41 @@ pub mod __for_cmp_impls;
 
 // pub mod other;
 
+#[cfg(feature = "cmp")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub mod polymorphism;
 
-#[cfg(feature = "primitives")]
 pub mod primitive;
 
-#[cfg(feature = "range")]
 pub mod range;
 
-#[cfg(feature = "nonzero")]
 pub mod nonzero;
 
-#[cfg(feature = "other")]
 pub mod other;
 
 #[cfg(feature = "parsing")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
 pub mod parsing;
 
 mod utils;
 
 #[cfg(feature = "parsing")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
 pub use crate::parsing::Parser;
 
 #[cfg(feature = "parsing")]
+#[doc(hidden)]
 pub use konst_proc_macros::{__priv_bstr_end, __priv_bstr_start};
 
-#[cfg(feature = "str")]
-__declare_string_cmp_fns! {
-    import_path = "konst",
-    equality_fn = eq_str,
-    ordering_fn = cmp_str,
-    ordering_fn_inner = cmp_str_inner,
-}
-
-#[cfg(all(feature = "str", feature = "option"))]
-__declare_fns_with_docs! {
-    (Option<&'a str>, (eq_option_str, cmp_option_str))
-
-    docs(default)
-
-    macro = __impl_option_cmp_fns!(
-        for['a,]
-
-        params(l, r)
-        eq_comparison = crate::polymorphism::CmpWrapper(l).const_eq(r),
-        cmp_comparison = crate::polymorphism::CmpWrapper(l).const_cmp(r),
-        parameter_copyability = copy,
-    ),
-}
-
-#[cfg(feature = "slice")]
 pub mod slice;
+
+pub mod string;
+
+pub use crate::string::{cmp_str, eq_str};
+
+#[cfg(feature = "cmp")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
+pub use crate::string::{cmp_option_str, eq_option_str};
 
 #[doc(hidden)]
 pub mod __ {
@@ -280,6 +291,8 @@ pub mod __ {
 
     pub use crate::__for_cmp_impls::U8Ordering;
 
+    #[cfg(feature = "cmp")]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
     pub use crate::polymorphism::{
         CmpWrapper, ConstCmpMarker, IsAConstCmpMarker, IsNotStdKind, IsStdKind,
     };

@@ -57,6 +57,8 @@
 /// ```
 ///
 /// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
+#[cfg(feature = "cmp")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
 macro_rules! const_eq {
     ($left:expr, $right:expr) => {
@@ -323,6 +325,8 @@ macro_rules! const_eq {
 ///
 /// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
 /// [`const_eq`]: macro.const_eq.html
+#[cfg(feature = "cmp")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
 macro_rules! const_eq_for {
     (

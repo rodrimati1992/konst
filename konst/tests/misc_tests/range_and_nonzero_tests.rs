@@ -7,7 +7,7 @@ use konst::{
 };
 
 #[test]
-#[cfg(feature = "range")]
+#[cfg(feature = "cmp")]
 fn eq_range_test() {
     use std::ops::Range;
 
@@ -31,7 +31,7 @@ fn eq_range_test() {
 }
 
 #[test]
-#[cfg(feature = "range")]
+#[cfg(feature = "cmp")]
 fn eq_rangeinc_test() {
     use std::ops::RangeInclusive;
 
@@ -55,7 +55,7 @@ fn eq_rangeinc_test() {
 }
 
 #[test]
-#[cfg(feature = "nonzero")]
+#[cfg(feature = "cmp")]
 fn option_nonzerou32_test() {
     use core::{
         cmp::Ordering::{Equal, Greater, Less},
@@ -84,7 +84,7 @@ fn option_nonzerou32_test() {
 }
 
 #[test]
-#[cfg(feature = "nonzero")]
+#[cfg(feature = "cmp")]
 fn option_nonzeroisize_test() {
     use core::{
         cmp::Ordering::{Equal, Greater, Less},

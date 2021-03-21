@@ -19,7 +19,7 @@ macro_rules!  __priv_delegate_const_inner_fn{
     }
 }
 
-#[cfg(feature = "polymorphism")]
+#[cfg(feature = "cmp")]
 #[doc(hidden)]
 #[macro_export]
 macro_rules!  __priv_delegate_const_inner_cmpwrapper{
@@ -62,7 +62,7 @@ macro_rules!  __priv_delegate_const_inner_cmpwrapper{
 /// - ConstCmpMarker impl for the first parameter type
 /// - Add a coerce inhenrent method for IsAConstCmpMarker
 ///
-#[cfg(not(feature = "polymorphism"))]
+#[cfg(not(feature = "cmp"))]
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __delegate_const_eq{
@@ -71,7 +71,7 @@ macro_rules! __delegate_const_eq{
     }
 }
 
-#[cfg(feature = "polymorphism")]
+#[cfg(feature = "cmp")]
 #[doc(hidden)]
 #[macro_export]
 macro_rules!  __delegate_const_eq{
@@ -90,7 +90,7 @@ macro_rules!  __delegate_const_eq{
     };
 }
 
-#[cfg(not(feature = "polymorphism"))]
+#[cfg(not(feature = "cmp"))]
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __delegate_const_ord{
@@ -99,7 +99,7 @@ macro_rules! __delegate_const_ord{
     }
 }
 
-#[cfg(feature = "polymorphism")]
+#[cfg(feature = "cmp")]
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __delegate_const_ord{
@@ -120,7 +120,7 @@ macro_rules! __delegate_const_ord{
     };
 }
 
-#[cfg(feature = "polymorphism")]
+#[cfg(feature = "cmp")]
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_copy_if_nonref {
@@ -131,7 +131,7 @@ macro_rules! __priv_copy_if_nonref {
         $expr
     };
 }
-#[cfg(feature = "polymorphism")]
+#[cfg(feature = "cmp")]
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_deref_if_nonref {
@@ -143,7 +143,7 @@ macro_rules! __priv_deref_if_nonref {
     };
 }
 
-#[cfg(feature = "polymorphism")]
+#[cfg(feature = "cmp")]
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_ref_if_nonref {
@@ -155,7 +155,6 @@ macro_rules! __priv_ref_if_nonref {
     };
 }
 
-#[cfg(feature = "polymorphism")]
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_get_pati_ident {
@@ -248,6 +247,8 @@ macro_rules! __priv_std_kind_impl {
 /// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
 /// [`CmpWrapper`]: ./polymorphism/struct.CmpWrapper.html
 ///
+#[cfg(feature = "cmp")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
 macro_rules! coerce_to_cmp {
     ($reference:expr) => {{

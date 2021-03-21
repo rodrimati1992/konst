@@ -1,8 +1,10 @@
 //! Parsing using `const fn` methods.
 //!
+//! You can use the [`Parser`] type to parse from string slices, and byte slices,
+//! more information in its documentation.
 //!
 //!
-//!
+//! [`Parser`]: ./struct.Parser.html
 
 mod non_parsing_methods;
 mod parse_errors;
@@ -125,6 +127,7 @@ pub use self::parse_errors::{
 ///
 ///
 /// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Parser<'a> {
     parse_direction: ParseDirection,

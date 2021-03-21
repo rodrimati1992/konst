@@ -87,7 +87,6 @@ macro_rules! assertc_opt_eq_rets {
             assertc_eq_rets!{$ty, $function => mleft(), mright(), expected}
 
             $(
-            #[cfg(feature = "option")]
             {
                 let cases = vec![
                     (Some(mleft()), Some(mright()), expected),
@@ -197,7 +196,6 @@ macro_rules! assertc_opt_cmp {
             assertc_cmp!{$ty, $function => mleft(), mright(), expected}
 
             $(
-            #[cfg(feature = "option")]
             {
                 let cases = vec![
                     (Some(mleft()), Some(mright()), expected),

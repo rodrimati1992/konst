@@ -3,7 +3,7 @@ use konst::{
     slice::cmp::{cmp_slice_bytes, cmp_slice_u8, eq_slice_bytes, eq_slice_u8},
 };
 
-#[cfg(feature = "option")]
+#[cfg(feature = "cmp")]
 use konst::{
     cmp_option_str, eq_option_str,
     slice::cmp::{
@@ -12,7 +12,7 @@ use konst::{
 };
 
 #[test]
-#[cfg(feature = "slice")]
+#[cfg(feature = "cmp")]
 fn eq_slice_test() {
     assertc_opt_eq_rets! {
         &[u8], eq_slice_u8, eq_option_slice_u8 =>
@@ -31,7 +31,7 @@ fn eq_slice_test() {
 }
 
 #[test]
-#[cfg(feature = "slice")]
+#[cfg(feature = "cmp")]
 fn slice_of_bytes_eq_test() {
     assertc_opt_eq_rets! {
         &[&[u8]], eq_slice_bytes, eq_option_slice_bytes =>
@@ -56,7 +56,7 @@ fn slice_of_bytes_eq_test() {
 }
 
 #[test]
-#[cfg(feature = "str")]
+#[cfg(feature = "cmp")]
 fn eq_str_test() {
     assertc_opt_eq_rets! {
         &str, eq_str, eq_option_str =>
@@ -75,7 +75,7 @@ fn eq_str_test() {
 }
 
 #[test]
-#[cfg(feature = "slice")]
+#[cfg(feature = "cmp")]
 fn cmp_slice_test() {
     use core::cmp::Ordering::{Equal, Greater, Less};
 
@@ -93,7 +93,7 @@ fn cmp_slice_test() {
 }
 
 #[test]
-#[cfg(feature = "slice")]
+#[cfg(feature = "cmp")]
 fn slice_of_bytes_cmp_test() {
     use core::cmp::Ordering::{Equal, Greater, Less};
 
@@ -122,7 +122,7 @@ fn slice_of_bytes_cmp_test() {
 }
 
 #[test]
-#[cfg(feature = "str")]
+#[cfg(feature = "cmp")]
 fn cmp_str_test() {
     use core::cmp::Ordering::{Equal, Greater, Less};
 

@@ -57,6 +57,8 @@
 /// ```
 ///
 /// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
+#[cfg(feature = "cmp")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
 macro_rules! const_cmp {
     ($left:expr, $right:expr) => {
@@ -161,6 +163,8 @@ macro_rules! const_cmp {
 /// [`const_cmp`]: macro.const_cmp.html
 /// [`cmp::Ordering`]: https://doc.rust-lang.org/core/cmp/enum.Ordering.html
 ///
+#[cfg(feature = "cmp")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
 macro_rules! const_cmp_for {
     (
@@ -283,6 +287,8 @@ macro_rules! __priv_const_cmp_for {
 ///
 /// ```
 ///
+#[cfg(feature = "cmp")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
 macro_rules! try_equal {
     (break $ord:expr) => {
@@ -305,6 +311,7 @@ macro_rules! try_equal {
     };
 }
 
+#[cfg(feature = "cmp")]
 macro_rules! cmp_int {
     ($l:expr, $r:expr) => {{
         if $l == $r {

@@ -20,25 +20,21 @@ include = [
 [dependencies.konst_proc_macros]
 version = "=0.1.0"
 path = "../konst_proc_macros"
+optional = true
 
 
 [features]
-default = [
-    "slice", "nonzero", "option", "range", "primitives", "other",
-    "polymorphism",
-    "parsing",
-    #"constant_time_slice",
-]
+default = ["cmp", "parsing"]
 
-option = ["polymorphism"]
-slice = ["str", "polymorphism"]
-str = ["polymorphism"]
-range = ["polymorphism"]
-nonzero = ["polymorphism"]
-primitives = ["polymorphism"]
-other = ["polymorphism"]
-parsing = ["slice"]
+cmp = []
+parsing = ["konst_proc_macros"]
 constant_time_slice = []
-
 const_generics = []
-polymorphism = []
+
+docsrs = []
+
+
+
+[package.metadata.docs.rs]
+features = ["docsrs", "cmp", "parsing"]
+
