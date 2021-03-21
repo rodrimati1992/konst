@@ -231,3 +231,101 @@ pub const fn slice_range<T>(slice: &[T], start: usize, end: usize) -> &[T] {
 pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
     (slice_up_to(slice, at), slice_from(slice, at))
 }
+
+/// Checks whether `left` starts with `right`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::bytes_start_with;
+///
+/// assert!( bytes_start_with(b"foo,bar,baz", b"foo,"));
+///
+/// assert!(!bytes_start_with(b"foo,bar,baz", b"bar"));
+/// assert!(!bytes_start_with(b"foo,bar,baz", b"baz"));
+///
+/// ```
+///
+#[inline]
+pub const fn bytes_start_with(left: &[u8], right: &[u8]) -> bool {
+    matches!(bytes_strip_prefix(left, right), Some(_))
+}
+
+/// Returns a string slice with the prefix removed.
+///
+/// The const equivalent of the [`strip_prefix`] method
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::bytes_strip_prefix;
+///
+/// assert_eq!(bytes_strip_prefix(b"foo,bar,baz", b"foo,"), Some("bar,baz".as_bytes()));
+///
+/// assert_eq!(bytes_strip_prefix(b"foo,bar,baz", b"bar"), None);
+/// assert_eq!(bytes_strip_prefix(b"foo,bar,baz", b"baz"), None);
+///
+/// ```
+///
+/// [`strip_prefix`]:
+/// https://doc.rust-lang.org/std/primitive.slice.html#method.strip_prefix
+///
+#[inline]
+pub const fn bytes_strip_prefix<'a>(mut left: &'a [u8], mut prefix: &[u8]) -> Option<&'a [u8]> {
+    impl_bytes_function! {
+        strip_prefix;
+        left = left;
+        right = prefix;
+        on_error = return None;
+    }
+    Some(left)
+}
+
+/// Checks whether `left` starts with `right`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::bytes_end_with;
+///
+/// assert!( bytes_end_with(b"foo,bar,baz", b",baz"));
+///
+/// assert!(!bytes_end_with(b"foo,bar,baz", b"bar"));
+/// assert!(!bytes_end_with(b"foo,bar,baz", b"foo"));
+///
+/// ```
+///
+#[inline]
+pub const fn bytes_end_with(left: &[u8], right: &[u8]) -> bool {
+    matches!(bytes_strip_suffix(left, right), Some(_))
+}
+
+/// Returns a string slice with the suffix removed.
+///
+/// The const equivalent of the [`strip_suffix`] method
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::bytes_strip_suffix;
+///
+/// assert_eq!(bytes_strip_suffix(b"foo,bar,baz", b",baz"), Some("foo,bar".as_bytes()));
+///
+/// assert_eq!(bytes_strip_suffix(b"foo,bar,baz", b"bar"), None);
+/// assert_eq!(bytes_strip_suffix(b"foo,bar,baz", b"foo"), None);
+///
+/// ```
+///
+/// [`strip_suffix`]:
+/// https://doc.rust-lang.org/std/primitive.slice.html#method.strip_suffix
+///
+#[inline]
+pub const fn bytes_strip_suffix<'a>(mut left: &'a [u8], mut suffix: &[u8]) -> Option<&'a [u8]> {
+    impl_bytes_function! {
+        strip_suffix;
+        left = left;
+        right = suffix;
+        on_error = return None;
+    }
+    Some(left)
+}

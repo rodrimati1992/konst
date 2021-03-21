@@ -67,8 +67,6 @@
 /// This demonstrates how you can implement equality and ordering comparison for an enum.
 ///
 /// ```rust
-/// #![feature(const_mut_refs)]
-///
 /// use konst::{const_cmp, const_eq, impl_cmp, try_equal};
 ///
 /// use std::cmp::Ordering;

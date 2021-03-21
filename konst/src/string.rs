@@ -22,3 +22,41 @@ __declare_fns_with_docs! {
         parameter_copyability = copy,
     ),
 }
+
+/// Checks whether `left` starts with `right`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string::str_starts_with;
+///
+/// assert!( str_starts_with("foo,bar,baz", "foo,"));
+///
+/// assert!(!str_starts_with("foo,bar,baz", "bar"));
+/// assert!(!str_starts_with("foo,bar,baz", "baz"));
+///
+/// ```
+///
+#[inline(always)]
+pub const fn str_starts_with(left: &str, right: &str) -> bool {
+    crate::slice::bytes_start_with(left.as_bytes(), right.as_bytes())
+}
+
+/// Checks whether `left` starts with `right`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string::str_ends_with;
+///
+/// assert!( str_ends_with("foo,bar,baz", ",baz"));
+///
+/// assert!(!str_ends_with("foo,bar,baz", "bar"));
+/// assert!(!str_ends_with("foo,bar,baz", "foo"));
+///
+/// ```
+///
+#[inline(always)]
+pub const fn str_ends_with(left: &str, right: &str) -> bool {
+    crate::slice::bytes_end_with(left.as_bytes(), right.as_bytes())
+}

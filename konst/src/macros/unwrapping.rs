@@ -15,7 +15,8 @@
 ///
 /// # Example
 ///
-/// ```rust
+#[cfg_attr(feature = "parsing", doc = "```rust")]
+#[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
 /// use konst::{Parser, unwrap_ctx};
 ///
 /// let mut parser = Parser::from_str("hello world");

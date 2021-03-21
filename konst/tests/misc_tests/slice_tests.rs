@@ -1,5 +1,8 @@
+use konst::{cmp_str, eq_str};
+
+#[cfg(feature = "cmp")]
 use konst::{
-    cmp_str, const_cmp, const_eq, eq_str,
+    const_cmp, const_eq,
     slice::cmp::{cmp_slice_bytes, cmp_slice_u8, eq_slice_bytes, eq_slice_u8},
 };
 

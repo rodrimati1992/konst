@@ -237,17 +237,11 @@ impl<'a> Parser<'a> {
     /// [`strip_prefix`]: #method.strip_prefix
     pub const fn strip_prefix_b(mut self, mut matched: &[u8]) -> Result<Self, ParseError<'a>> {
         try_parsing! {self, FromStart;
-            if self.bytes.len() < matched.len() {
-                throw!(ErrorKind::Strip)
-            }
-
-            while let ([lb, rem_slice @ ..], [rb, rem_matched @ ..]) = (self.bytes, matched) {
-                self.bytes = rem_slice;
-                matched = rem_matched;
-
-                if *lb != *rb {
-                    throw!(ErrorKind::Strip)
-                }
+            impl_bytes_function!{
+                strip_prefix;
+                left = self.bytes;
+                right = matched;
+                on_error = throw!(ErrorKind::Strip);
             }
         }
     }
@@ -321,17 +315,11 @@ impl<'a> Parser<'a> {
     /// [`strip_suffix`]: #method.strip_suffix
     pub const fn strip_suffix_b(mut self, mut matched: &[u8]) -> Result<Self, ParseError<'a>> {
         try_parsing! {self, FromEnd;
-            if self.bytes.len() < matched.len() {
-                throw!(ErrorKind::Strip)
-            }
-
-            while let ([rem_slice @ .., lb], [rem_matched @ .., rb]) = (self.bytes, matched) {
-                self.bytes = rem_slice;
-                matched = rem_matched;
-
-                if *lb != *rb {
-                    throw!(ErrorKind::Strip)
-                }
+            impl_bytes_function!{
+                strip_suffix;
+                left = self.bytes;
+                right = matched;
+                on_error = throw!(ErrorKind::Strip);
             }
         }
     }

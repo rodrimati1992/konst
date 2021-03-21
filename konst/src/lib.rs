@@ -80,7 +80,8 @@
 //!
 //! This example demonstrates how you can use [`Parser`] to parse a struct at compile-time.
 //!
-//! ```rust
+#![cfg_attr(feature = "parsing", doc = "```rust")]
+#![cfg_attr(not(feature = "parsing"), doc = "```ignore")]
 //! use konst::{
 //!     parsing::{Parser, ParseValueResult},
 //!     for_range, parse_any, try_rebind, unwrap_ctx,

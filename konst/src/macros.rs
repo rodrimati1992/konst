@@ -11,6 +11,9 @@ mod control_flow;
 mod declare_cmp_fn_macros;
 
 #[macro_use]
+mod bytes_fn_macros;
+
+#[macro_use]
 mod polymorphism_macros;
 
 #[cfg(feature = "parsing")]
