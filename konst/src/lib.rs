@@ -47,13 +47,14 @@
 //!
 //! const DIRECTION: Direction = unwrap_ctx!(Direction::try_parse(CHOICE));
 //!
-//! match DIRECTION {
-//!     Direction::Forward => assert_eq!(CHOICE, "forward"),
-//!     Direction::Backward => assert_eq!(CHOICE, "backward"),
-//!     Direction::Left => assert_eq!(CHOICE, "left"),
-//!     Direction::Right => assert_eq!(CHOICE, "right"),
+//! fn main() {
+//!     match DIRECTION {
+//!         Direction::Forward => assert_eq!(CHOICE, "forward"),
+//!         Direction::Backward => assert_eq!(CHOICE, "backward"),
+//!         Direction::Left => assert_eq!(CHOICE, "left"),
+//!         Direction::Right => assert_eq!(CHOICE, "right"),
+//!     }
 //! }
-//!
 //! # #[derive(Debug, PartialEq)]
 //! # pub struct ParseDirectionError;
 //! #
@@ -86,14 +87,12 @@
 //! };
 //!
 //! const PARSED: Struct = {
-//!     # let input = "\
-//!     #     1000,
-//!     #     circle,
-//!     #     red, blue, green, blue,
-//!     # ";
-//!     # /*
-//!     let input = env!("Struct");
-//!     # */
+//!     // You can also parse strings from environment variables, or from an `include_str!(....)`
+//!     let input = "\
+//!         1000,
+//!         circle,
+//!         red, blue, green, blue,
+//!     ";
 //!     
 //!     unwrap_ctx!(parse_struct(Parser::from_str(input))).0
 //! };

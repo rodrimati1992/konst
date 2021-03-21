@@ -1,0 +1,69 @@
+name: Rust
+
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      max-parallel: 2
+      matrix:
+        rust: [stable, beta, nightly, 1.46.0]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: ci-all-versions
+      run: |
+        rustup override set ${{ matrix.rust }}
+        cargo update
+          
+        cd "${{github.workspace}}/konst_proc_macros/"
+        cargo build
+        
+        cd "${{github.workspace}}/konst/"
+        cargo test --no-default-features --features "cmp"
+        cargo test --no-default-features --features "parsing"
+        cargo test --no-default-features --features "cmp parsing"
+
+    - uses: actions/checkout@v2
+    - name: ci-nighly
+      if: ${{ matrix.rust == 'nightly' && runner.os == 'Linux' }}
+      run: |
+        rustup override set ${{ matrix.rust }}
+
+        cargo update -Z minimal-versions
+        
+        cd "${{github.workspace}}/konst_proc_macros/"
+        cargo build
+
+        cd "${{github.workspace}}/konst/"
+        
+        cargo test --no-default-features --features "cmp"
+        cargo test --no-default-features --features "parsing"
+        cargo test --no-default-features --features "cmp parsing"
+        cargo test --no-default-features --features "cmp parsing constant_time_slice"
+        cargo test --no-default-features --features "cmp parsing constant_time_slice const_generics"
+
+        MIRI_NIGHTLY=nightly-$(curl -s https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/miri)
+        echo "Installing latest nightly with Miri"
+        echo "$MIRI_NIGHTLY"
+        rustup set profile minimal
+        rustup default "$MIRI_NIGHTLY"
+        rustup override set "$MIRI_NIGHTLY"
+        rustup component add miri
+        cargo miri setup
+
+        cargo clean 
+
+        cargo miri test --no-default-features \
+            --features "cmp parsing"
+
+        cargo miri test --no-default-features \
+            --features "cmp parsing constant_time_slice"
+
+        cargo miri test --no-default-features \
+            --features "cmp parsing constant_time_slice const_generics"
