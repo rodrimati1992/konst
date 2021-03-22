@@ -1,4 +1,4 @@
-[![Rust](https://github.com/rodrimati1992/konst_crates/workflows/Rust/badge.svg)](https://github.com/rodrimati1992/konst_crates/actions)
+[![Rust](https://github.com/rodrimati1992/konst/workflows/Rust/badge.svg)](https://github.com/rodrimati1992/konst/actions)
 [![crates-io](https://img.shields.io/crates/v/konst.svg)](https://crates.io/crates/konst)
 [![api-docs](https://docs.rs/konst/badge.svg)](https://docs.rs/konst/*)
 
