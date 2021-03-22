@@ -278,7 +278,7 @@ pub use crate::string::{cmp_option_str, eq_option_str};
 pub mod __ {
     pub use core::{
         cmp::Ordering::{self, Equal, Greater, Less},
-        matches,
+        compile_error, matches,
         ops::Range,
         option::Option::{self, None, Some},
         result::Result::{self, Err, Ok},

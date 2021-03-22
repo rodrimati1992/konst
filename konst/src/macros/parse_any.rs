@@ -16,6 +16,10 @@
 /// use the match-like syntax, running the branch of the first pattern that matches.
 /// [example](#parsing-enum-example)
 ///
+/// - [`trim_start_matches`] and [`trim_end_matches`]:
+/// use the pattern-only syntax, trimming the string while any pattern matches.
+/// [example](#trimming-example)
+///
 /// Where `<branches>` can be either of these, depending on the `<method_name>`:
 ///
 /// - A match-like syntax:
@@ -30,6 +34,8 @@
 ///
 /// [`strip_prefix`]: parsing/struct.Parser.html#method.strip_prefix
 /// [`strip_suffix`]: parsing/struct.Parser.html#method.strip_suffix
+/// [`trim_start_matches`]: parsing/struct.Parser.html#method.trim_start_matches
+/// [`trim_end_matches`]: parsing/struct.Parser.html#method.trim_end_matches
 ///
 ///
 /// # Example
@@ -76,6 +82,34 @@
 ///
 /// ```
 ///
+/// <span id = "trimming-example"></span>
+/// ### Trimming
+///
+/// ```rust
+/// use konst::{
+///     parsing::{Parser, ParseValueResult},
+///     parse_any, unwrap_ctx,
+/// };
+///
+/// {
+///     let mut parser = Parser::from_str("foobarhellofoobar");
+///     parse_any!{parser, trim_start_matches; "foo" | "bar" }
+///     assert_eq!(parser.bytes(), "hellofoobar".as_bytes());
+/// }
+/// {
+///     let mut parser = Parser::from_str("foobarhellofoobar");
+///     parse_any!{parser, trim_end_matches; "foo" | "bar" }
+///     assert_eq!(parser.bytes(), "foobarhello".as_bytes());
+/// }
+/// {
+///     let mut parser = Parser::from_str("foobar");
+///     // Empty string literals make trimming finish when the previous patterns didn't match,
+///     // so the "bar" pattern doesn't do anything here
+///     parse_any!{parser, trim_start_matches; "foo" | _ | "bar" }
+///     assert_eq!(parser.bytes(), "bar".as_bytes());
+/// }
+/// ```
+///
 /// [`Parser`]: parsing/struct.Parser.html
 #[macro_export]
 macro_rules! parse_any {
@@ -93,6 +127,29 @@ macro_rules! parse_any {
             $($branches)*
         }
     };
+    ($place:expr, trim_start_matches; $($branches:tt)* ) => {
+        $crate::__priv_pa_normalize_branches!{
+            ($place, FromStart, __priv_pa_trim_start_matches, outside_konst)
+            ()
+            $($branches)*
+        }
+    };
+    ($place:expr, trim_end_matches; $($branches:tt)* ) => {
+        $crate::__priv_pa_normalize_branches!{
+            ($place, FromEnd, __priv_pa_trim_end_matches, outside_konst)
+            ()
+            $($branches)*
+        }
+    };
+    ($place:expr, $unknown_method:ident; $($branches:tt)* ) => {
+        $crate::__::compile_error!{"\
+            Expected the second argument (the name of the Parser method) to be one of: \n\
+                - strip_prefix \n\
+                - strip_suffix \n\
+                - trim_start_matches \n\
+                - trim_end_matches \n\
+        "}
+    };
 }
 
 #[allow(unused_macros)]
@@ -109,6 +166,21 @@ macro_rules! parse_any_priv {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_pa_normalize_branches {
+    // Parsing just pattens
+    (
+        ($place:expr, $parse_direction:ident, $method_macro:ident, $call_place:tt)
+        ()
+
+        $($pattern:pat)|*
+    ) => {
+        $crate::$method_macro!{
+            ($place, $parse_direction, $call_place)
+
+            $($pattern)|*
+        }
+    };
+
+    // Parsing match like syntax
     (
         $fixed_params:tt
         ( $($prev_branch:tt)* )
@@ -161,6 +233,8 @@ macro_rules! __priv_pa_normalize_branches {
     };
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_pa_strip_prefix {
@@ -202,6 +276,49 @@ macro_rules! __priv_pa_strip_suffix {
         }
     };
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_pa_trim_start_matches {
+    ( $($args:tt)* ) => {
+        $crate::__priv_pa_trim_matches_inner!{__priv_bstr_start $($args)*}
+    }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_pa_trim_end_matches {
+    ( $($args:tt)* ) => {
+        $crate::__priv_pa_trim_matches_inner!{__priv_bstr_end $($args)*}
+    }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules!  __priv_pa_trim_matches_inner{
+    (
+        $pat_proc_macro:ident
+
+        $accessor_args:tt
+        $($pattern:pat)|*
+    ) => {
+        let mut bytes = $crate::__priv_pa_bytes_accessor!(get, $accessor_args);
+
+        while let $( $crate::$pat_proc_macro!(rem, $pattern) )|* = bytes {
+            if rem.len() == bytes.len() {
+                break
+            } else {
+                bytes = rem;
+            }
+        }
+
+        $crate::__priv_pa_bytes_accessor!(set, $accessor_args, bytes);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////
 
 #[doc(hidden)]
 #[macro_export]
