@@ -1,4 +1,4 @@
-use konst::parsing::Parser;
+use konst::parsing::{ParseDirection, Parser};
 
 fn reverse(s: &str) -> String {
     s.chars().rev().collect()
@@ -10,23 +10,40 @@ fn trim_start_end_matches_test() {
     fn assertion(string: &str, needle: &str, returned: &str) {
         {
             let parser = Parser::from_str(string);
-            assert_eq!(
-                parser.trim_start_matches(needle).bytes(),
-                returned.as_bytes(),
-                "normal"
-            );
+            let trimmed = parser.trim_start_matches(needle);
+            assert_eq!(trimmed.bytes(), returned.as_bytes(), "normal");
+            {
+                let start_offset = string.len() - string.trim_start_matches(needle).len();
+                assert_eq!(trimmed.start_offset(), start_offset, "{}", line!());
+                assert_eq!(trimmed.end_offset(), string.len(), "{}", line!());
+                assert_eq!(
+                    trimmed.parse_direction(),
+                    ParseDirection::FromStart,
+                    "{}",
+                    line!()
+                );
+            }
         }
         {
             let rev_string = &*reverse(string);
             let parser = Parser::from_str(&rev_string);
             let rev_needle = &*reverse(needle);
             let rev_returned = &*reverse(returned);
+            let trimmed = parser.trim_end_matches(rev_needle);
 
-            assert_eq!(
-                parser.trim_end_matches(rev_needle).bytes(),
-                rev_returned.as_bytes(),
-                "rev"
-            );
+            assert_eq!(trimmed.bytes(), rev_returned.as_bytes(), "rev");
+
+            {
+                let end_offset = rev_string.trim_end_matches(rev_needle).len();
+                assert_eq!(trimmed.start_offset(), 0, "{}", line!());
+                assert_eq!(trimmed.end_offset(), end_offset, "{}", line!());
+                assert_eq!(
+                    trimmed.parse_direction(),
+                    ParseDirection::FromEnd,
+                    "{}",
+                    line!()
+                );
+            }
         }
     }
 
@@ -94,11 +111,14 @@ fn strip_prefix_suffix_test() {
         {
             let parser = Parser::from_str(string);
             let returned = returned.map(|x| x.as_bytes());
-            assert_eq!(
-                parser.strip_prefix(needle).map(|x| x.bytes()).ok(),
-                returned,
-                "normal"
-            );
+            let stripped = parser.strip_prefix(needle).ok();
+            assert_eq!(stripped.map(|x| x.bytes()), returned, "normal");
+
+            if let Some(stripped) = stripped {
+                assert_eq!(stripped.start_offset(), needle.len());
+                assert_eq!(stripped.end_offset(), string.len());
+                assert_eq!(stripped.parse_direction(), ParseDirection::FromStart);
+            }
         }
         {
             let rev_string = &*reverse(string);
@@ -107,8 +127,14 @@ fn strip_prefix_suffix_test() {
             let rev_returned = returned.map(|x| reverse(x));
             let rev_returned = rev_returned.as_ref().map(|x| x.as_bytes());
 
-            let trimmed = parser.strip_suffix(rev_needle).map(|x| x.bytes());
-            assert_eq!(trimmed.ok(), rev_returned, "rev");
+            let stripped = parser.strip_suffix(rev_needle).ok();
+            assert_eq!(stripped.map(|x| x.bytes()), rev_returned, "rev");
+
+            if let (Some(stripped), Some(returned)) = (stripped, rev_returned) {
+                assert_eq!(stripped.start_offset(), 0);
+                assert_eq!(stripped.end_offset(), returned.len());
+                assert_eq!(stripped.parse_direction(), ParseDirection::FromEnd);
+            }
         }
     }
 

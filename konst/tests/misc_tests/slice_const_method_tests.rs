@@ -1,5 +1,6 @@
 use konst::slice::{bytes_find, bytes_rfind, slice_from, slice_up_to, split_at};
 
+#[cfg(any(not(miri), feature = "constant_time_slice"))]
 #[test]
 fn slice_up_to_from_test() {
     let list = (0..=258).collect::<Vec<u32>>();
@@ -30,6 +31,8 @@ fn slice_up_to_from_test() {
     }
 }
 
+// This doesn't use unsafe
+#[cfg(not(miri))]
 #[test]
 fn find_test() {
     #[track_caller]

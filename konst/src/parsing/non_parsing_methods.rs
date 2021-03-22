@@ -36,11 +36,16 @@ impl<'a> Parser<'a> {
         self.start_offset as _
     }
 
-    /// Gets the byte offset of this parser in the str/byte slice that this
+    /// Gets the end byte offset of this parser in the str/byte slice that this
     /// was constructed from.
     #[inline(always)]
     pub const fn end_offset(self) -> usize {
         self.start_offset as usize + self.bytes.len()
+    }
+
+    /// The end the parser was last mutated from.
+    pub fn parse_direction(&self) -> ParseDirection {
+        self.parse_direction
     }
 
     /// Constructs a [`ParseError`] for this point in parsing.
@@ -59,26 +64,27 @@ impl<'a> Parser<'a> {
         ParseError::new(self, ErrorKind::Other)
     }
 
-    /// TODO
+    /// Updates the unparsed bytes to `to`, assuming that `self.bytes().ends_with(to)` is true.
     pub const fn advance_to_remainder_from_start(mut self, to: &'a [u8]) -> Self {
         parsing! {self, FromStart;
             self.bytes = to;
         }
     }
-    /// TODO
+
+    /// Updates the unparsed bytes to `to`, assuming that `self.bytes().starts_with(to)` is true.
     pub const fn advance_to_remainder_from_end(mut self, to: &'a [u8]) -> Self {
         parsing! {self, FromEnd;
             self.bytes = to;
         }
     }
 
-    /// Returns amount of unparsed bytes.
+    /// The amount of unparsed bytes.
     #[inline(always)]
     pub const fn len(self) -> usize {
         self.bytes.len()
     }
 
-    /// Returns whether there's any bytes left to parse.
+    /// Whether there are any bytes left to parse.
     #[inline(always)]
     pub const fn is_empty(self) -> bool {
         self.bytes.is_empty()

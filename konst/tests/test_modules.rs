@@ -9,6 +9,8 @@ mod misc_tests {
     #[cfg(feature = "cmp")]
     mod other_types_tests;
 
+    // Parser doesn't use unsafe code
+    #[cfg(not(miri))]
     #[cfg(feature = "parsing")]
     mod parser;
 
