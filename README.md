@@ -8,12 +8,13 @@ Compile-time comparison, parsing, and const equivalents of std methods.
 
 This crate provides:
 
-- Many functions for comparing standard library types.
-
-- The [`const_eq`]/[`const_eq_for`]/[`const_cmp`]/[`const_cmp_for`] macros
-for comparisons, powered by the [`polymorphism`] module.
-
 - Compile-time parsing through the [`Parser`] type, and [`parse_any`] macro.
+
+- Functions for comparing many standard library types,
+with the [`const_eq`]/[`const_eq_for`]/[`const_cmp`]/[`const_cmp_for`] macros
+for more conveniently calling them, powered by the [`polymorphism`] module.
+
+- Const fn equivalents of other standard library functions and methods.
 
 # Examples
 
