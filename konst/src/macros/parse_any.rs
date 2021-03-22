@@ -12,6 +12,10 @@
 ///
 /// Where `<method_name>` is the name of one of the [`Parser`] methods usable in this macro:
 ///
+/// - [`find_skip`] and [`rfind_skip`]:
+/// use the match-like syntax, running the branch of the first pattern that matches.
+/// [example](#find-example)
+///
 /// - [`strip_prefix`] and [`strip_suffix`]:
 /// use the match-like syntax, running the branch of the first pattern that matches.
 /// [example](#parsing-enum-example)
@@ -23,7 +27,8 @@
 /// Where `<branches>` can be either of these, depending on the `<method_name>`:
 ///
 /// - A match-like syntax:
-/// A comma separated sequence of `<patterns> => <expression>` branches.
+/// A comma separated sequence of `<patterns> => <expression>` branches,
+/// the last branch must be `_ => <expression>`.
 ///
 /// - Just the patterns: `<patterns>`.
 ///
@@ -32,6 +37,8 @@
 /// Note that passing a macro that expands to a literal doesn't work here,
 /// `concat` and `stringify` are special cased to work.
 ///
+/// [`find_skip`]: parsing/struct.Parser.html#method.find_skip
+/// [`rfind_skip`]: parsing/struct.Parser.html#method.rfind_skip
 /// [`strip_prefix`]: parsing/struct.Parser.html#method.strip_prefix
 /// [`strip_suffix`]: parsing/struct.Parser.html#method.strip_suffix
 /// [`trim_start_matches`]: parsing/struct.Parser.html#method.trim_start_matches
@@ -62,7 +69,7 @@
 ///             "Red"|"red" => Ok((Color::Red, parser)),
 ///             "Blue"|"blue" => Ok((Color::Blue, parser)),
 ///             "Green"|"green" => Ok((Color::Green, parser)),
-///             _ => Err(parser.into_other_error())
+///             _ => Err(parser.into_other_error()),
 ///         }
 ///     }
 /// }
@@ -78,6 +85,78 @@
 /// };
 ///
 /// assert_eq!(COLORS, [Color::Blue, Color::Red, Color::Green, Color::Green])
+///
+///
+/// ```
+///
+/// <span id = "find-example"></span>
+/// ### `find_skip`
+///
+/// ```rust
+/// use konst::{
+///     parsing::{Parser, ParseValueResult},
+///     parse_any, unwrap_ctx,
+/// };
+///
+/// {
+///     let mut parser = Parser::from_str("baz_foo_bar_foo");
+///
+///     fn find(parser: &mut Parser<'_>) -> u32 {
+///         let before = parser.bytes();
+///         parse_any!{*parser, find_skip;
+///             "foo" => 0,
+///             "bar" => 1,
+///             "baz" => 2,
+///             _ => {
+///                 assert_eq!(before, parser.bytes());
+///                 3
+///             }
+///         }
+///     }
+///
+///     assert_eq!(find(&mut parser), 2);
+///     assert_eq!(parser.bytes(), "_foo_bar_foo".as_bytes());
+///     
+///     assert_eq!(find(&mut parser), 0);
+///     assert_eq!(parser.bytes(), "_bar_foo".as_bytes());
+///     
+///     assert_eq!(find(&mut parser), 1);
+///     assert_eq!(parser.bytes(), "_foo".as_bytes());
+///     
+///     assert_eq!(find(&mut parser), 0);
+///     assert_eq!(parser.bytes(), "".as_bytes());
+///     
+///     assert_eq!(find(&mut parser), 3);
+///     assert_eq!(parser.bytes(), "".as_bytes());
+/// }
+/// {
+///     let mut parser = Parser::from_str("foo_bar_foo_baz");
+///
+///     fn rfind(parser: &mut Parser<'_>) -> u32 {
+///         parse_any!{*parser, rfind_skip;
+///             "foo" => 0,
+///             "bar" => 1,
+///             "baz" => 2,
+///             _ => 3,
+///         }
+///     }
+///
+///     assert_eq!(rfind(&mut parser), 2);
+///     assert_eq!(parser.bytes(), "foo_bar_foo_".as_bytes());
+///     
+///     assert_eq!(rfind(&mut parser), 0);
+///     assert_eq!(parser.bytes(), "foo_bar_".as_bytes());
+///     
+///     assert_eq!(rfind(&mut parser), 1);
+///     assert_eq!(parser.bytes(), "foo_".as_bytes());
+///     
+///     assert_eq!(rfind(&mut parser), 0);
+///     assert_eq!(parser.bytes(), "".as_bytes());
+///     
+///     assert_eq!(rfind(&mut parser), 3);
+///     assert_eq!(parser.bytes(), "".as_bytes());
+/// }
+///
 ///
 ///
 /// ```
@@ -105,7 +184,7 @@
 ///     let mut parser = Parser::from_str("foobar");
 ///     // Empty string literals make trimming finish when the previous patterns didn't match,
 ///     // so the "bar" pattern doesn't do anything here
-///     parse_any!{parser, trim_start_matches; "foo" | _ | "bar" }
+///     parse_any!{parser, trim_start_matches; "foo" | "" | "bar" }
 ///     assert_eq!(parser.bytes(), "bar".as_bytes());
 /// }
 /// ```
@@ -113,6 +192,20 @@
 /// [`Parser`]: parsing/struct.Parser.html
 #[macro_export]
 macro_rules! parse_any {
+    ($place:expr, find_skip; $($branches:tt)* ) => {
+        $crate::__priv_pa_normalize_branches!{
+            ($place, FromStart, __priv_pa_find_skip, outside_konst)
+            ()
+            $($branches)*
+        }
+    };
+    ($place:expr, rfind_skip; $($branches:tt)* ) => {
+        $crate::__priv_pa_normalize_branches!{
+            ($place, FromEnd, __priv_pa_rfind_skip, outside_konst)
+            ()
+            $($branches)*
+        }
+    };
     ($place:expr, strip_prefix; $($branches:tt)* ) => {
         $crate::__priv_pa_normalize_branches!{
             ($place, FromStart, __priv_pa_strip_prefix, outside_konst)
@@ -144,6 +237,8 @@ macro_rules! parse_any {
     ($place:expr, $unknown_method:ident; $($branches:tt)* ) => {
         $crate::__::compile_error!{"\
             Expected the second argument (the name of the Parser method) to be one of: \n\
+                - find_skip \n\
+                - rfind_skip \n\
                 - strip_prefix \n\
                 - strip_suffix \n\
                 - trim_start_matches \n\
@@ -182,29 +277,31 @@ macro_rules! __priv_pa_normalize_branches {
 
     // Parsing match like syntax
     (
-        $fixed_params:tt
-        ( $($prev_branch:tt)* )
+        ($place:expr, $parse_direction:ident, $method_macro:ident, $call_place:tt)
+        ( $($branches:tt)* )
 
-        $($pattern:pat)|* => $expr:expr
-        $(, $($rem:tt)* )?
-    ) => {
-        $crate::__priv_pa_normalize_branches!{
-            $fixed_params
-            (
-                $($prev_branch)*
+        _ => $expr:expr
+        // Nothing left to parse
+        $(, $($rem:tt)*)?
+    ) => {{
+        $crate::__priv_no_tokens_after_last_branch!{$($($rem)*)?}
 
-                ($($pattern)|*) => ($expr)
-            )
-            $($($rem)*)?
+        $crate::$method_macro!{
+            ($place, $parse_direction, $call_place)
+
+            $($branches)*
+            default => ($expr)
         }
-    };
+    }};
     (
         $fixed_params:tt
         ( $($prev_branch:tt)* )
 
-        $($pattern:pat)|* => $expr:block
+        $($pattern:pat)|* => $expr:expr,
         $($rem:tt)*
-    ) => {
+    ) => {{
+        $crate::__priv_tokens_after_middle_branch!{$($rem)*}
+
         $crate::__priv_pa_normalize_branches!{
             $fixed_params
             (
@@ -214,23 +311,89 @@ macro_rules! __priv_pa_normalize_branches {
             )
             $($rem)*
         }
-    };
-
+    }};
     (
-        ($place:expr, $parse_direction:ident, $method_macro:ident, $call_place:tt)
-        (
-            $($branches:tt)*
-        )
+        $fixed_params:tt
+        ( $($prev_branch:tt)* )
 
-        // Nothing left to parse
-        $(,)?
-    ) => {
-        $crate::$method_macro!{
-            ($place, $parse_direction, $call_place)
+        $($pattern:pat)|* => $expr:block
+        $($rem:tt)*
+    ) => {{
+        $crate::__priv_tokens_after_middle_branch!{$($rem)*}
 
-            $($branches)*
+        $crate::__priv_pa_normalize_branches!{
+            $fixed_params
+            (
+                $($prev_branch)*
+
+                ($($pattern)|*) => ($expr)
+            )
+            $($rem)*
         }
-    };
+    }};
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_pa_find_skip {
+    ( $($args:tt)* ) => {{
+        $crate::__priv_pa_find_skip_either!{
+            brem, [_, brem @ ..], __priv_bstr_start,
+
+            $($args)*
+        }
+    }};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_pa_rfind_skip {
+    ( $($args:tt)* ) => {{
+        $crate::__priv_pa_find_skip_either!{
+            brem, [brem @ .., _], __priv_bstr_end,
+
+            $($args)*
+        }
+    }};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_pa_find_skip_either {
+    (
+        $brem:ident,
+        $split_first_pat:pat,
+        $pat_proc_macro:ident,
+
+        $accessor_args:tt
+
+        $(
+            ($($pattern:pat)|*)=>($e:expr)
+        )*
+        default => ($default:expr)
+    ) => {{
+        let mut bytes = $crate::__priv_pa_bytes_accessor!(get, $accessor_args);
+
+        loop {
+            match bytes {
+                $(
+                    $( $crate::$pat_proc_macro!(rem, $pattern))|* => {
+                        $crate::__priv_pa_bytes_accessor!(set, $accessor_args, rem);
+                        break $e
+                    }
+                )*
+                _ => {
+                    if let $split_first_pat = bytes {
+                        bytes = $brem;
+                    } else {
+                        break $default;
+                    }
+                }
+            }
+        }
+    }}
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -244,6 +407,7 @@ macro_rules! __priv_pa_strip_prefix {
         $(
             ($($pattern:pat)|*)=>($e:expr)
         )*
+        default => $default:expr
     ) => {
         match $crate::__priv_pa_bytes_accessor!(get, $accessor_args) {
             $(
@@ -252,6 +416,7 @@ macro_rules! __priv_pa_strip_prefix {
                     $e
                 }
             )*
+            _ => $default,
         }
     };
 }
@@ -265,6 +430,7 @@ macro_rules! __priv_pa_strip_suffix {
         $(
             ($($pattern:pat)|*)=>($e:expr)
         )*
+        default => ($default:expr)
     ) => {
         match $crate::__priv_pa_bytes_accessor!(get, $accessor_args) {
             $(
@@ -273,6 +439,7 @@ macro_rules! __priv_pa_strip_suffix {
                     $e
                 }
             )*
+            _ => $default,
         }
     };
 }
@@ -357,4 +524,24 @@ macro_rules! __priv_pa_bytes_accessor {
             $place = $place.advance_to_remainder_from_end($rem);
         }
     };
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_no_tokens_after_last_branch {
+    () => {};
+    ($($tokens:tt)+) => {
+        compile_error! {"expected no branches after the first `_ => <expression>` branch"}
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __priv_tokens_after_middle_branch {
+    () => {
+        compile_error! {"expected more branches, ending with a `_ => <expression>` branch"}
+    };
+    ($($tokens:tt)+) => {};
 }

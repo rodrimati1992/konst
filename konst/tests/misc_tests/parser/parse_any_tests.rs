@@ -15,6 +15,7 @@ macro_rules! match_any_test {
     ) => ({
         #![allow(unused_braces)]
 
+        #[allow(unused_mut)]
         {
             let mut $parser = Parser::from_str($string);
             let val = parse_any!{$parser, $method;
@@ -25,6 +26,7 @@ macro_rules! match_any_test {
             assert_eq!(val, $expected_val);
             assert_eq!($parser.bytes(), $expected.as_bytes());
         }
+        #[allow(unused_mut)]
         {
             let $string = &*reverse($string);
             let $expected = &*reverse($expected);
@@ -48,9 +50,11 @@ fn strip_prefix_suffix_test() {
         let expected = s;
         match_any_test! {
             s, expected, (), parser, strip_prefix <-> strip_suffix;
+
             ("") <-> ("") => {
                 assert_eq!(parser.bytes(), s.as_bytes());
             }
+            (_) <-> (_) => { unreachable!() }
         }
         match_any_test! {
             s, expected, (), parser, strip_prefix <-> strip_suffix;
@@ -100,11 +104,6 @@ fn trim_start_end_matches_test() {
         match_any_test! {
             s, expected, (), parser, trim_start_matches <-> trim_end_matches;
             ("") <-> ("")
-        }
-        match_any_test! {
-            s, expected, (), parser, trim_start_matches <-> trim_end_matches;
-
-            (_) <-> (_)
         }
     }
 
