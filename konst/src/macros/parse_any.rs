@@ -303,7 +303,7 @@ macro_rules!  __priv_pa_trim_matches_inner{
 
         $accessor_args:tt
         $($pattern:pat)|*
-    ) => {
+    ) => {{
         let mut bytes = $crate::__priv_pa_bytes_accessor!(get, $accessor_args);
 
         while let $( $crate::$pat_proc_macro!(rem, $pattern) )|* = bytes {
@@ -315,7 +315,7 @@ macro_rules!  __priv_pa_trim_matches_inner{
         }
 
         $crate::__priv_pa_bytes_accessor!(set, $accessor_args, bytes);
-    }
+    }}
 }
 
 //////////////////////////////////////////////////////////////////////////////////

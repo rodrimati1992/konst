@@ -10,7 +10,7 @@ macro_rules! match_any_test {
         $parser:ident, $method:ident <-> $method_rev:ident;
 
         $(
-            ($($normal_pat:tt)*) <-> ($($rev_pat:tt)*) => $code:block
+            ($($normal_pat:tt)*) <-> ($($rev_pat:tt)*) $(=> $code:block)?
         )*
     ) => ({
         #![allow(unused_braces)]
@@ -19,7 +19,7 @@ macro_rules! match_any_test {
             let mut $parser = Parser::from_str($string);
             let val = parse_any!{$parser, $method;
                 $(
-                    $($normal_pat)* => $code
+                    $($normal_pat)* $( => $code )?
                 )*
             };
             assert_eq!(val, $expected_val);
@@ -32,7 +32,7 @@ macro_rules! match_any_test {
             let mut $parser = Parser::from_str($string);
             let val = parse_any!{$parser, $method_rev;
                 $(
-                    $($rev_pat)* => $code
+                    $($rev_pat)* $( => $code )?
                 )*
             };
             assert_eq!(val, $expected_val);
@@ -90,4 +90,63 @@ fn strip_prefix_suffix_test() {
     hello_pat("worl", "worl", 8);
     hello_pat("elloheloworld", "elloheloworld", 8);
     hello_pat("", "", 8);
+}
+
+#[test]
+fn trim_start_end_matches_test() {
+    #[track_caller]
+    fn empty<'p>(s: &str) {
+        let expected = s;
+        match_any_test! {
+            s, expected, (), parser, trim_start_matches <-> trim_end_matches;
+            ("") <-> ("")
+        }
+        match_any_test! {
+            s, expected, (), parser, trim_start_matches <-> trim_end_matches;
+
+            (_) <-> (_)
+        }
+    }
+
+    empty("hello");
+    empty("world");
+    empty("x");
+    empty("");
+
+    #[track_caller]
+    fn unreachable_pat(s: &str, expected: &str) {
+        match_any_test! {
+            s, expected, (), parser, trim_start_matches <-> trim_end_matches;
+            ("hello" | "" | "world") <-> ("olleh" | "" | "dlrow")
+        }
+    }
+
+    unreachable_pat("", "");
+    unreachable_pat("worldhello", "worldhello");
+    unreachable_pat("world", "world");
+    unreachable_pat("helloworld", "world");
+    unreachable_pat("hellohelloworld", "world");
+
+    #[track_caller]
+    fn multiple_pats(s: &str, expected: &str) {
+        match_any_test! {
+            s, expected, (), parser, trim_start_matches <-> trim_end_matches;
+            ("foo" | "bar" | "baz") <-> ("oof" | "rab" | "zab")
+        }
+    }
+
+    multiple_pats("foo", "");
+    multiple_pats("bar", "");
+    multiple_pats("baz", "");
+    multiple_pats("_foo", "_foo");
+    multiple_pats("_bar", "_bar");
+    multiple_pats("_baz", "_baz");
+    multiple_pats("barfoo", "");
+    multiple_pats("bazfoobar", "");
+    multiple_pats("_bazfoobar", "_bazfoobar");
+    multiple_pats("baz_foobar", "_foobar");
+    multiple_pats("bazfo_obar", "fo_obar");
+    multiple_pats("bazfoo_bar", "_bar");
+    multiple_pats("bazfoob_ar", "b_ar");
+    multiple_pats("bazfoobar_", "_");
 }
