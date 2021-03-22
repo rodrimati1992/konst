@@ -60,10 +60,4 @@ jobs:
         cargo clean 
 
         cargo miri test --no-default-features \
-            --features "cmp parsing"
-
-        cargo miri test --no-default-features \
-            --features "cmp parsing constant_time_slice"
-
-        cargo miri test --no-default-features \
             --features "cmp parsing constant_time_slice const_generics"
