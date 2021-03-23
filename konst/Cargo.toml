@@ -1,6 +1,6 @@
 [package]
 name = "konst"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 edition = "2018"
 license = "Zlib"
@@ -18,7 +18,7 @@ include = [
 ]
 
 [dependencies.konst_proc_macros]
-version = "=0.1.0"
+version = "=0.2.0"
 path = "../konst_proc_macros"
 optional = true
 

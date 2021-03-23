@@ -1,5 +1,6 @@
 #![allow(clippy::or_fun_call)]
 #![allow(clippy::useless_conversion)]
+#![allow(irrefutable_let_patterns)]
 
 extern crate proc_macro;
 
@@ -80,7 +81,6 @@ fn output_patt(patt: &Pattern, out: &mut TokenStream) {
                 out.extend(punct_token(',', *span));
             }
         }
-        Pattern::Underscore => {}
     }
 }
 
@@ -101,7 +101,6 @@ struct Inputs {
 
 enum Pattern {
     String { string: String, span: Span },
-    Underscore,
 }
 
 enum StrAt {
@@ -110,10 +109,9 @@ enum StrAt {
 }
 
 impl Pattern {
-    fn span(&self, rem_ident: &Ident) -> Span {
+    fn span(&self, _rem_ident: &Ident) -> Span {
         match self {
             Pattern::String { span, .. } => *span,
-            Pattern::Underscore => rem_ident.span(),
         }
     }
 }

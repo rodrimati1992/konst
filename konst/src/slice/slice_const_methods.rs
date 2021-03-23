@@ -45,9 +45,9 @@ macro_rules! slice_up_to_impl_inner{
     }
 }
 
-/// A const equivalent of `&slice[..len]`.
+/// A const equivalent of `&slice[start..]`.
 ///
-/// If `slice.len() < len`, this simply returns an empty slice.
+/// If `slice.len() < start`, this simply returns an empty slice.
 ///
 /// # Performance
 ///

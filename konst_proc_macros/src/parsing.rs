@@ -70,8 +70,6 @@ fn parse_lstr(iter: &mut TSIterator) -> Result<Option<Pattern>, Error> {
                 let string = ts.to_string();
 
                 Ok(Some(Pattern::String { string, span }))
-            } else if string == "_" {
-                Ok(Some(Pattern::Underscore))
             } else {
                 Err(Error::new(
                     ident.span(),
