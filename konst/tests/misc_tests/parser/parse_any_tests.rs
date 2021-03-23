@@ -149,3 +149,90 @@ fn trim_start_end_matches_test() {
     multiple_pats("bazfoob_ar", "b_ar");
     multiple_pats("bazfoobar_", "_");
 }
+
+#[test]
+fn find_skip_test() {
+    #[track_caller]
+    fn empty<'p>(s: &str) {
+        let expected = s;
+        match_any_test! {
+            s, expected, (), parser, find_skip <-> rfind_skip;
+
+            ("") <-> ("") => {
+                assert_eq!(parser.bytes(), s.as_bytes());
+            }
+            (_) <-> (_) => { unreachable!() }
+        }
+        match_any_test! {
+            s, expected, (), parser, find_skip <-> rfind_skip;
+
+            (_) <-> (_) => {
+                assert_eq!(parser.bytes(), s.as_bytes());
+            }
+        }
+    }
+
+    empty("");
+    empty("a");
+    empty("ab");
+    empty("abc");
+
+    #[track_caller]
+    fn lo_pat(s: &str, expected: &str, expected_value: u32) {
+        match_any_test! {
+            s, expected, expected_value, parser, find_skip <-> rfind_skip;
+            ("lo") <-> ("ol") => {
+                3
+            }
+            (_) <-> (_) => {
+                8
+            }
+        }
+    }
+
+    lo_pat("hhehelhellhelloworld", "world", 3);
+    lo_pat("hello", "", 3);
+    lo_pat("helloot", "ot", 3);
+    lo_pat("looo", "oo", 3);
+    lo_pat("lloee", "ee", 3);
+    lo_pat("hel", "hel", 8);
+    lo_pat("worlds", "worlds", 8);
+
+    #[track_caller]
+    fn hello_pat(s: &str, expected: &str, expected_value: u32) {
+        match_any_test! {
+            s, expected, expected_value, parser, find_skip <-> rfind_skip;
+            ("hello") <-> ("olleh") => {
+                3
+            }
+            (_) <-> (_) => {
+                8
+            }
+        }
+    }
+
+    hello_pat("hhehelhellhelloworld", "world", 3);
+    hello_pat("hehelhellhelloworld", "world", 3);
+    hello_pat("helhellhelloworld", "world", 3);
+    hello_pat("hellhelloworld", "world", 3);
+    hello_pat("helloworld", "world", 3);
+    hello_pat("wow", "wow", 8);
+    hello_pat("hell", "hell", 8);
+
+    #[track_caller]
+    fn wooa_pat(s: &str, expected: &str, expected_value: u32) {
+        match_any_test! {
+            s, expected, expected_value, parser, find_skip <-> rfind_skip;
+            ("wooa") <-> ("aoow") => {
+                3
+            }
+            (_) <-> (_) => {
+                8
+            }
+        }
+    }
+
+    wooa_pat("woowooa-that-", "-that-", 3);
+    wooa_pat("wooa-that-", "-that-", 3);
+    wooa_pat("woo-that-", "woo-that-", 8);
+}

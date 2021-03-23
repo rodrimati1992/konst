@@ -169,6 +169,10 @@ impl<'a> Parser<'a> {
     /// Checks that the parsed bytes start with `matched`,
     /// returning the remainder of the bytes.
     ///
+    /// For calling `strip_prefix` with multiple alternative `matched` string literals,
+    /// you can use the [`parse_any`] macro,
+    /// [example](../macro.parse_any.html#parsing-enum-example)
+    ///
     /// # Examples
     ///
     /// ### Basic
@@ -282,6 +286,9 @@ impl<'a> Parser<'a> {
 
     /// Checks that the parsed bytes end with `matched`,
     /// returning the remainder of the bytes.
+    ///
+    /// For calling `strip_suffix` with multiple alternative `matched` string literals,
+    /// you can use the [`parse_any`] macro.
     ///
     /// # Examples
     ///
@@ -420,6 +427,9 @@ impl<'a> Parser<'a> {
 
     /// Repeatedly removes all instances of `needle` from the start of the parsed bytes.
     ///
+    /// For trimming with multiple `needle`s, you can use the [`parse_any`] macro,
+    /// [example](../macro.parse_any.html#trimming-example)
+    ///
     /// # Example
     ///
     /// ```rust
@@ -523,6 +533,9 @@ impl<'a> Parser<'a> {
     }
 
     /// Repeatedly removes all instances of `needle` from the start of the parsed bytes.
+    ///
+    /// For trimming with multiple `needle`s, you can use the [`parse_any`] macro,
+    /// [example](../macro.parse_any.html#trimming-example)
     ///
     /// # Example
     ///
@@ -632,6 +645,10 @@ impl<'a> Parser<'a> {
 
     /// Skips the parser after the first instance of `needle`.
     ///
+    /// For calling `find_skip` with multiple alternative `ǹeedle` string literals,
+    /// you can use the [`parse_any`] macro,
+    /// [example](../macro.parse_any.html#find-example)
+    ///
     /// # Example
     ///
     /// ```rust
@@ -716,6 +733,10 @@ impl<'a> Parser<'a> {
     }
 
     /// Truncates the parsed bytes to before the last instance of `needle`.
+    ///
+    /// For calling `find_skip` with multiple alternative `ǹeedle` string literals,
+    /// you can use the [`parse_any`] macro,
+    /// [example](../macro.parse_any.html#find-example)
     ///
     /// # Example
     ///
