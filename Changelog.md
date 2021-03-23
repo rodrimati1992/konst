@@ -1,10 +1,29 @@
 This is the changelog, summarising changes in each version(some minor changes may be ommited).
 
+# 0.2
+
+### 0.2.0
+
+Breaking change: tightened the syntax of the `parse_any` macro, now it requires the last branch in the match-like syntax to be `_ => <expression>`, forbidding `_` patterns in other branches.
+
+Added support for these  `Parser` methods in `parse_any`: 
+- `find_skip` - `rfind_skip` - `trim_start_matches` - `trim_end_matches` 
+
+Moved these functions from `slice::cmp` to `slice`, and reexported back in `slice::cmp`:
+- `cmp_slice_u8`: renamed to `cmp_bytes`
+- `eq_slice_u8`: renamed to `eq_bytes`
+- `cmp_option_slice_u8`: renamed to `cmp_option_bytes`
+- `eq_option_slice_u8`: renamed to `eq_option_bytes`
+The above `*_bytes` functions do not require any cargo features to use.
+
+Added comparison functions for `&[usize]`, `&[isize]`, `Option<&[usize]>`, `Option<&[isize]>` 
+
+
 # 0.1
 
 ### 0.1.0
 
-Defined the `konst_proc_macros` craet 0.1.0, for internal use by `konst`.
+Defined the `konst_proc_macros` crate 0.1.0, for internal use by `konst`.
 
 Defined equality and ordering comparison functions for:
 
