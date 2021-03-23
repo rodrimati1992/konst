@@ -18,40 +18,42 @@ __declare_slice_cmp_fns! {
         ///
         ,
         /// ```rust
-        /// use slice::slice::eq_bytes;
+        /// use konst::slice::eq_bytes;
         ///
         /// const FOO: &[u8] = b"foo";
         /// const BAR: &[u8] = b"fooooo";
         /// const BAZ: &[u8] = b"bar";
         ///
         ///
-        /// const FOO_EQ_FOO: bool = eq_str(FOO, FOO);
+        /// const FOO_EQ_FOO: bool = eq_bytes(FOO, FOO);
         /// assert!( FOO_EQ_FOO );
         ///
-        /// const FOO_EQ_BAR: bool = eq_str(FOO, BAR);
+        /// const FOO_EQ_BAR: bool = eq_bytes(FOO, BAR);
         /// assert!( !FOO_EQ_BAR );
         ///
-        /// const FOO_EQ_BAZ: bool = eq_str(FOO, BAZ);
+        /// const FOO_EQ_BAZ: bool = eq_bytes(FOO, BAZ);
         /// assert!( !FOO_EQ_BAZ );
         ///
         /// ```
         ///
         ,
         /// ```rust
-        /// use slice::slice::cmp_bytes;
+        /// use konst::slice::cmp_bytes;
+        ///
+        /// use std::cmp::Ordering;
         ///
         /// const FOO: &[u8] = b"foo";
         /// const BAR: &[u8] = b"fooooo";
         /// const BAZ: &[u8] = b"bar";
         ///
         ///
-        /// const FOO_CMP_FOO: Ordering = cmp_str(FOO, FOO);
+        /// const FOO_CMP_FOO: Ordering = cmp_bytes(FOO, FOO);
         /// assert_eq!(FOO_CMP_FOO, Ordering::Equal);
         ///
-        /// const FOO_CMP_BAR: Ordering = cmp_str(FOO, BAR);
+        /// const FOO_CMP_BAR: Ordering = cmp_bytes(FOO, BAR);
         /// assert_eq!(FOO_CMP_BAR, Ordering::Less);
         ///
-        /// const FOO_CMP_BAZ: Ordering = cmp_str(FOO, BAZ);
+        /// const FOO_CMP_BAZ: Ordering = cmp_bytes(FOO, BAZ);
         /// assert_eq!(FOO_CMP_BAZ, Ordering::Greater);
         ///
         /// ```
