@@ -24,9 +24,7 @@ impl<'a> Parser<'a> {
     /// ```
     ///
     pub const fn parse_u128(mut self) -> ParseValueResult<'a, u128> {
-        try_parsing! {self, FromStart, ret;
-            parse_integer! {unsigned, (u128, u128), self}
-        }
+        parse_integer! {unsigned, (u128, u128), self}
     }
     /// Parses a `i128` until a non-digit is reached.
     ///
@@ -51,59 +49,75 @@ impl<'a> Parser<'a> {
     /// ```
     ///
     pub const fn parse_i128(mut self) -> ParseValueResult<'a, i128> {
-        try_parsing! {self, FromStart, ret;
-            parse_integer! {signed, (i128, u128), self}
-        }
+        parse_integer! {signed, (i128, u128), self}
     }
     /// Parses a `u64` until a non-digit is reached.
     pub const fn parse_u64(mut self) -> ParseValueResult<'a, u64> {
-        try_parsing! {self, FromStart, ret;
-            parse_integer! {unsigned, (u64, u64), self}
-        }
+        parse_integer! {unsigned, (u64, u64), self}
     }
     /// Parses a `i64` until a non-digit is reached.
     pub const fn parse_i64(mut self) -> ParseValueResult<'a, i64> {
-        try_parsing! {self, FromStart, ret;
-            parse_integer! {signed, (i64, u64), self}
-        }
+        parse_integer! {signed, (i64, u64), self}
+    }
+    /// Parses a `u32` until a non-digit is reached.
+    pub const fn parse_u32(mut self) -> ParseValueResult<'a, u32> {
+        parse_integer! {unsigned, (u32, u32), self}
+    }
+    /// Parses a `i32` until a non-digit is reached.
+    pub const fn parse_i32(mut self) -> ParseValueResult<'a, i32> {
+        parse_integer! {signed, (i32, u32), self}
+    }
+    /// Parses a `u16` until a non-digit is reached.
+    pub const fn parse_u16(mut self) -> ParseValueResult<'a, u16> {
+        parse_integer! {unsigned, (u16, u16), self}
+    }
+    /// Parses a `i16` until a non-digit is reached.
+    pub const fn parse_i16(mut self) -> ParseValueResult<'a, i16> {
+        parse_integer! {signed, (i16, u16), self}
+    }
+    /// Parses a `u8` until a non-digit is reached.
+    pub const fn parse_u8(mut self) -> ParseValueResult<'a, u8> {
+        parse_integer! {unsigned, (u8, u8), self}
+    }
+    /// Parses a `i8` until a non-digit is reached.
+    pub const fn parse_i8(mut self) -> ParseValueResult<'a, i8> {
+        parse_integer! {signed, (i8, u8), self}
     }
     /// Parses a `usize` until a non-digit is reached.
     pub const fn parse_usize(mut self) -> ParseValueResult<'a, usize> {
-        try_parsing! {self, FromStart, ret;
-            parse_integer! {unsigned, (usize, usize), self}
-        }
+        parse_integer! {unsigned, (usize, usize), self}
     }
     /// Parses a `isize` until a non-digit is reached.
     pub const fn parse_isize(mut self) -> ParseValueResult<'a, isize> {
-        try_parsing! {self, FromStart, ret;
-            parse_integer! {signed, (isize, usize), self}
-        }
+        parse_integer! {signed, (isize, usize), self}
     }
 }
 
 macro_rules! parse_integer {
-    ($signedness:ident, ($type:ty, $uns:ty), $parser:ident) => {{
-        let mut num: $uns;
+    ($signedness:ident, ($type:ty, $uns:ty), $parser:ident) => (try_parsing! {
+        $parser, FromStart, ret;{
+            let mut num: $uns;
 
-        parse_integer! {@parse_signed $signedness, ($type, $uns), $parser, num, sign}
+            parse_integer! {@parse_signed $signedness, ($type, $uns), $parser, num, sign}
 
-        while let [byte @ b'0'..=b'9', rem @ ..] = $parser.bytes {
-            $parser.bytes = rem;
+            while let [byte @ b'0'..=b'9', rem @ ..] = $parser.bytes {
+                $parser.bytes = rem;
 
-            let (next_mul, overflowed_mul) = num.overflowing_mul(10);
-            let (next_add, overflowed_add) = next_mul.overflowing_add((*byte - b'0') as $uns);
+                let (next_mul, overflowed_mul) = num.overflowing_mul(10);
+                let (next_add, overflowed_add) = next_mul.overflowing_add((*byte - b'0') as $uns);
 
-            if overflowed_mul | overflowed_add {
-                throw!(ErrorKind::ParseInteger)
+                if overflowed_mul | overflowed_add {
+                    throw!(ErrorKind::ParseInteger)
+                }
+
+                num = next_add;
             }
 
-            num = next_add;
+            parse_integer! {@apply_sign $signedness, ($type, $uns), num, sign}
+
+            num
         }
-
-        parse_integer! {@apply_sign $signedness, ($type, $uns), num, sign}
-
-        num
-    }};
+    });
     (@parse_signed signed, ($type:ty, $uns:ty), $parser:ident, $num:ident, $isneg:ident) => {
         let $isneg = if let [b'-', rem @ ..] = $parser.bytes {
             $parser.bytes = rem;

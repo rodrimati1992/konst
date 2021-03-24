@@ -97,6 +97,30 @@ fn parser_u64_i64_test() {
 }
 
 #[test]
+fn parser_u32_i32_test() {
+    check_int_parsing! {
+        (i32, parse_i32)
+        (u32, parse_u32)
+    }
+}
+
+#[test]
+fn parser_u16_i16_test() {
+    check_int_parsing! {
+        (i16, parse_i16)
+        (u16, parse_u16)
+    }
+}
+
+#[test]
+fn parser_u8_i8_test() {
+    check_int_parsing! {
+        (i8, parse_i8)
+        (u8, parse_u8)
+    }
+}
+
+#[test]
 fn parser_usize_isize_test() {
     check_int_parsing! {
         (isize, parse_isize)
