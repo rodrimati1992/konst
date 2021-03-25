@@ -127,3 +127,96 @@ fn parser_usize_isize_test() {
         (usize, parse_usize)
     }
 }
+
+#[test]
+fn ensure_correct_delegation() {
+    use konst::primitive;
+
+    {
+        let arr = [
+            ("0", Some(0u8)),
+            ("12", Some(12)),
+            ("123", Some(123)),
+            ("1234", None),
+        ];
+
+        for (input, output) in arr.iter().copied() {
+            assert_eq!(primitive::parse_u8(input), output);
+            assert_eq!(primitive::parse_u8_b(input.as_bytes()), output);
+        }
+    }
+    {
+        let arr = &[
+            ("-129", None),
+            ("-128", Some(-128i8)),
+            ("-13", Some(-13)),
+            ("-1", Some(-1)),
+            ("0", Some(0)),
+            ("4", Some(4)),
+            ("48", Some(48)),
+            ("127", Some(127)),
+            ("128", None),
+        ];
+
+        for (input, output) in arr.iter().copied() {
+            assert_eq!(primitive::parse_i8(input), output);
+            assert_eq!(primitive::parse_i8_b(input.as_bytes()), output);
+        }
+    }
+
+    macro_rules! check_unsigned_parser {
+        (
+            $type:ty, $str_fn:ident, $byte_fn:ident
+        ) => {{
+            let arr: &[(&str, Option<$type>)] = &[
+                ("0", Some(0)),
+                ("12", Some(12)),
+                ("123", Some(123)),
+                ("400000000000000000000000000099000000000", None),
+                ("A", None),
+            ];
+
+            for (input, output) in arr.iter().copied() {
+                assert_eq!(primitive::$str_fn(input), output);
+                assert_eq!(primitive::$byte_fn(input.as_bytes()), output);
+            }
+        }};
+    }
+
+    check_unsigned_parser! {u16, parse_u16, parse_u16_b}
+    check_unsigned_parser! {u32, parse_u32, parse_u32_b}
+    check_unsigned_parser! {u64, parse_u64, parse_u64_b}
+    check_unsigned_parser! {u128, parse_u128, parse_u128_b}
+    check_unsigned_parser! {usize, parse_usize, parse_usize_b}
+
+    macro_rules! check_unsigned_parser {
+        (
+            $type:ty, $str_fn:ident, $byte_fn:ident
+        ) => {{
+            let arr: &[(&str, Option<$type>)] = &[
+                ("A", None),
+                ("-200000000000000000000000000099000000000", None),
+                ("-128", Some(-128)),
+                ("-13", Some(-13)),
+                ("-1", Some(-1)),
+                ("0", Some(0)),
+                ("4", Some(4)),
+                ("48", Some(48)),
+                ("127", Some(127)),
+                ("200000000000000000000000000099000000000", None),
+                ("-", None),
+            ];
+
+            for (input, output) in arr.iter().copied() {
+                assert_eq!(primitive::$str_fn(input), output);
+                assert_eq!(primitive::$byte_fn(input.as_bytes()), output);
+            }
+        }};
+    }
+
+    check_unsigned_parser! {i16, parse_i16, parse_i16_b}
+    check_unsigned_parser! {i32, parse_i32, parse_i32_b}
+    check_unsigned_parser! {i64, parse_i64, parse_i64_b}
+    check_unsigned_parser! {i128, parse_i128, parse_i128_b}
+    check_unsigned_parser! {isize, parse_isize, parse_isize_b}
+}

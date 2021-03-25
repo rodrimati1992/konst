@@ -250,14 +250,14 @@ pub mod nonzero;
 
 pub mod other;
 
-#[cfg(feature = "parsing")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
+#[cfg(feature = "parsing_no_proc")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 pub mod parsing;
 
 mod utils;
 
-#[cfg(feature = "parsing")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
+#[cfg(feature = "parsing_no_proc")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 pub use crate::parsing::Parser;
 
 #[cfg(feature = "parsing")]

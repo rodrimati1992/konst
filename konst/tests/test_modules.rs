@@ -11,7 +11,7 @@ mod misc_tests {
 
     // Parser doesn't use unsafe code
     #[cfg(not(miri))]
-    #[cfg(feature = "parsing")]
+    #[cfg(feature = "parsing_no_proc")]
     mod parser;
 
     #[cfg(feature = "cmp")]

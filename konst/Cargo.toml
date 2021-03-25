@@ -27,7 +27,8 @@ optional = true
 default = ["cmp", "parsing"]
 
 cmp = []
-parsing = ["konst_proc_macros"]
+parsing = ["parsing_no_proc", "konst_proc_macros"]
+parsing_no_proc = []
 constant_time_slice = []
 const_generics = []
 

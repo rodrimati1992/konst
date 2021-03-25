@@ -16,11 +16,11 @@ mod bytes_fn_macros;
 #[macro_use]
 mod polymorphism_macros;
 
-#[cfg(feature = "parsing")]
+#[cfg(feature = "parsing_no_proc")]
 #[macro_use]
 mod parse_any;
 
-#[cfg(feature = "parsing")]
+#[cfg(feature = "parsing_no_proc")]
 #[macro_use]
 mod parsing_macros;
 

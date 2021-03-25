@@ -127,7 +127,7 @@ pub use self::parse_errors::{
 ///
 ///
 /// ```
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Parser<'a> {
     parse_direction: ParseDirection,
