@@ -3,8 +3,15 @@
 //! You can use the [`Parser`] type to parse from string slices, and byte slices,
 //! more information in its documentation.
 //!
+//! If you're looking for functions to parse some type from an entire string
+//! (instead of only part of it),
+//! then you want to look in the module for that type, eg: [`primitive::parse_bool`].
+//!
+//! If you do want to parse a type fron only part of a string, then you can use
+//! [`Parser`]'s `parser_*` methods.
 //!
 //! [`Parser`]: ./struct.Parser.html
+//! [`primitive::parse_bool`]: ../primitive/fn.parse_bool.html
 
 mod non_parsing_methods;
 mod parse_errors;
@@ -17,6 +24,12 @@ pub use self::parse_errors::{
 };
 
 /// For parsing and traversing over byte strings in const contexts.
+///
+/// If you're looking for functions to parse some type from an entire string
+/// (instead of only part of it),
+/// then you want to look in the module for that type, eg: [`primitive::parse_bool`].
+///
+/// [`primitive::parse_bool`]: ../primitive/fn.parse_bool.html
 ///
 /// # Mutation
 ///
@@ -47,7 +60,11 @@ pub use self::parse_errors::{
 ///
 /// Parses a variable-length array, requires the length to appear before the array.
 ///
-/// ```
+/// This example requires the "parsing" feature (enabled by default)
+/// because it uses the  [`parse_any`] macro.
+///
+#[cfg_attr(feature = "parsing", doc = "```rust")]
+#[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
 /// use konst::{
 ///     parsing::{Parser, ParseValueResult},
 ///     for_range, parse_any, try_rebind, unwrap_ctx,

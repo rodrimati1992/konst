@@ -12,10 +12,18 @@ macro_rules! define_parse_methods {
         $(
             define_parse_methods_inner!{
                 concat!(
-                    "Parses `", stringify!($parsing), "` from a `&str`.\n\n",
-                    "This returns `None` if the string is not a decimal encoding of a `",
+                    "Parses a `", stringify!($parsing), "` from a `&str`.\n\n",
+                    "This returns `None` if the string would not successfully `.parse()` into a `",
                     stringify!($parsing),
                     "`.\n\n",
+                    "To parse a `",
+                    stringify!($parsing),
+                    "` from only part of a string, you can use [`Parser::parse_",
+                    stringify!($parsing),
+                    "`](../parsing/struct.Parser.html#method.parse_",
+                    stringify!($parsing),
+                    ")",
+                    ".\n\n",
                 ),
                 concat!(
                     "Like [`", stringify!($fn_name), "`](./fn.", stringify!($fn_name),".html)",

@@ -16,7 +16,7 @@ mod bytes_fn_macros;
 #[macro_use]
 mod polymorphism_macros;
 
-#[cfg(feature = "parsing_no_proc")]
+#[cfg(feature = "parsing")]
 #[macro_use]
 mod parse_any;
 

@@ -63,6 +63,58 @@ fn main() {
 
 ```
 
+
+### Parsing integers
+
+You can parse integers using the `parse_*` functions in [`primitive`],
+returning a `None` if the string as a whole isn't a valid integer.
+
+```rust
+use konst::primitive::parse_i128;
+
+const N_100: Option<i128> = parse_i128("100");
+assert_eq!(N_100, Some(100));
+
+const N_N3: Option<i128> = parse_i128("-3");
+assert_eq!(N_N3, Some(-3));
+
+const NONE: Option<i128> = parse_i128("-");
+assert_eq!(NONE, None);
+
+const PAIR: Option<i128> = parse_i128("1,2");
+assert_eq!(PAIR, None);
+
+
+
+```
+
+For parsing an integer inside a larger string,
+you can use [`Parser::parse_u128`] method and the other `parse_*` methods
+
+```rust
+use konst::{Parser, unwrap_ctx};
+
+const PAIR: (i64, u128) = {;
+    let parser = Parser::from_str("1365;6789");
+
+    // Parsing "1365"
+    let (l, parser) = unwrap_ctx!(parser.parse_i64());
+
+    // Skipping the ";"
+    let parser = unwrap_ctx!(parser.strip_prefix(";"));
+
+    // Parsing "6789"
+    let (r, parser) = unwrap_ctx!(parser.parse_u128());
+    
+    (l, r)
+};
+assert_eq!(PAIR.0, 1365);
+assert_eq!(PAIR.1, 6789);
+
+```
+
+
+
 ### Parsing a struct
 
 This example demonstrates how you can use [`Parser`] to parse a struct at compile-time.
@@ -171,8 +223,17 @@ These are the features of these crates:
 Enables all comparison functions and macros,
 the string equality and ordering comparison functions don't require this feature.
 
-- `"parser"`(enabled by default):
+
+- `"parsing"`(enabled by default):
+Enables the `"parsing_no_proc"` feature, compiles the `konst_proc_macros` dependency, 
+and enables the [`parse_any`] macro. 
+You can use this feature instead of `"parsing_no_proc"` if the slightly longer
+compile times aren't a problem.
+
+- `"parsing_no_proc"`(enabled by default):
 Enables the [`parsing`] module, for parsing from `&str` and `&[u8]`.
+
+
 
 - `"constant_time_slice"`(disabled by default):<br>
 Improves the performance of slice functions that split slices,
@@ -201,6 +262,7 @@ need to be explicitly enabled with cargo features.
 [`const_cmp_for`]: https://docs.rs/konst/*/konst/macro.const_cmp_for.html
 [`polymorphism`]: https://docs.rs/konst/*/konst/polymorphism/index.html
 [`parsing`]: https://docs.rs/konst/*/konst/parsing/index.html
+[`primitive`]: https://docs.rs/konst/*/konst/primitive/index.html
+[`parse_any`]: macro.parse_any.html
 [`Parser`]: https://docs.rs/konst/*/konst/parsing/struct.Parser.html
-[`parse_any`]: https://docs.rs/konst/*/konst/macro.parse_any.html
-
+[`Parser::parse_u128`]: https://docs.rs/konst/*/konst/parsing/struct.Parser.html#method.parse_u128

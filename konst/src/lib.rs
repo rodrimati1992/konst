@@ -78,6 +78,57 @@
 //!
 //! ```
 //!
+//! ### Parsing integers
+//!
+//! You can parse integers using the `parse_*` functions in [`primitive`],
+//! returning a `None` if the string as a whole isn't a valid integer.
+//!
+#![cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
+#![cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
+//! use konst::primitive::parse_i128;
+//!
+//! const N_100: Option<i128> = parse_i128("100");
+//! assert_eq!(N_100, Some(100));
+//!
+//! const N_N3: Option<i128> = parse_i128("-3");
+//! assert_eq!(N_N3, Some(-3));
+//!
+//! const NONE: Option<i128> = parse_i128("-");
+//! assert_eq!(NONE, None);
+//!
+//! const PAIR: Option<i128> = parse_i128("1,2");
+//! assert_eq!(PAIR, None);
+//!
+//!
+//!
+//! ```
+//!
+//! For parsing an integer inside a larger string,
+//! you can use [`Parser::parse_u128`] method and the other `parse_*` methods
+//!
+#![cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
+#![cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
+//! use konst::{Parser, unwrap_ctx};
+//!
+//! const PAIR: (i64, u128) = {;
+//!     let parser = Parser::from_str("1365;6789");
+//!
+//!     // Parsing "1365"
+//!     let (l, parser) = unwrap_ctx!(parser.parse_i64());
+//!
+//!     // Skipping the ";"
+//!     let parser = unwrap_ctx!(parser.strip_prefix(";"));
+//!
+//!     // Parsing "6789"
+//!     let (r, parser) = unwrap_ctx!(parser.parse_u128());
+//!     
+//!     (l, r)
+//! };
+//! assert_eq!(PAIR.0, 1365);
+//! assert_eq!(PAIR.1, 6789);
+//!
+//! ```
+//!
 //! ### Parsing a struct
 //!
 //! This example demonstrates how you can use [`Parser`] to parse a struct at compile-time.
@@ -187,7 +238,13 @@
 //! Enables all comparison functions and macros,
 //! the string equality and ordering comparison functions don't require this feature.
 //!
-//! - `"parser"`(enabled by default):
+//! - `"parsing"`(enabled by default):
+//! Enables the `"parsing_no_proc"` feature, compiles the `konst_proc_macros` dependency,
+//! and enables the [`parse_any`] macro.
+//! You can use this feature instead of `"parsing_no_proc"` if the slightly longer
+//! compile times aren't a problem.
+//!
+//! - `"parsing_no_proc"`(enabled by default):
 //! Enables the [`parsing`] module, for parsing from `&str` and `&[u8]`.
 //!
 //! - `"constant_time_slice"`(disabled by default):<br>
@@ -219,8 +276,10 @@
 //! [`const_cmp_for`]: ./macro.const_cmp_for.html
 //! [`polymorphism`]: ./polymorphism/index.html
 //! [`parsing`]: ./parsing/index.html
-//! [`Parser`]: ./parsing/struct.Parser.html
+//! [`primitive`]: ./primitive/index.html
 //! [`parse_any`]: macro.parse_any.html
+//! [`Parser`]: ./parsing/struct.Parser.html
+//! [`Parser::parse_u128`]: ./parsing/struct.Parser.html#method.parse_u128
 //!
 
 #![cfg_attr(
