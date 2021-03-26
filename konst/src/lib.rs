@@ -303,6 +303,10 @@ pub mod polymorphism;
 
 pub mod primitive;
 
+pub mod option;
+
+pub mod result;
+
 pub mod range;
 
 pub mod nonzero;
@@ -328,6 +332,9 @@ pub mod slice;
 pub mod string;
 
 pub use crate::string::{cmp_str, eq_str};
+
+#[doc(no_inline)]
+pub use crate::result::unwrap_ctx;
 
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]

@@ -22,6 +22,9 @@ version = "=0.2.0"
 path = "../konst_proc_macros"
 optional = true
 
+[dependencies.konst_macro_rules]
+version = "=0.2.0"
+path = "../konst_macro_rules"
 
 [features]
 default = ["cmp", "parsing"]
