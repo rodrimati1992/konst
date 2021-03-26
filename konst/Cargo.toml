@@ -7,8 +7,8 @@ license = "Zlib"
 description = "Compile-time comparison, parsing, and other const functionality"
 documentation = "https://docs.rs/konst/"
 readme="../README.md"
-keywords = ["no-std"]
-categories = ["no-std"]
+keywords = ["no-std", "const_fn", "parsing"]
+categories = ["no-std", "parsing"]
 repository = "https://github.com/rodrimati1992/konst/"
 include = [
     "Cargo.toml", 
