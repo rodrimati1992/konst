@@ -17,6 +17,8 @@
 ///
 /// # Example
 ///
+/// ### Basic
+///
 #[cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
 #[cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
 /// use konst::{Parser, unwrap_ctx};
@@ -26,6 +28,65 @@
 /// parser = unwrap_ctx!(parser.strip_prefix("hello "));
 ///
 /// assert_eq!(parser.bytes(), "world".as_bytes());
+///
+/// ```
+///
+/// ### Defining error type
+///
+/// ```rust
+/// use konst::unwrap_ctx;
+///
+/// const UNWRAPPED: u32 = {
+///     let res: Result<u32, FooError> = Ok(100);
+///     unwrap_ctx!(res)
+/// };
+///
+/// assert_eq!(UNWRAPPED, 100);
+///
+///
+/// use std::fmt::{self, Display};
+///
+/// #[derive(Debug, Clone, PartialEq)]
+/// pub struct FooError(usize);
+///
+/// impl FooError {
+///     pub const fn panic(&self) -> ! {
+///         let offset = self.0;
+///         [/*Foo errored at offset*/][offset]
+///     }
+/// }
+///
+/// impl Display for FooError {
+///     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+///         fmt::Debug::fmt(self, f)
+///     }
+/// }
+///
+/// impl std::error::Error for FooError {}
+///
+/// ```
+///
+/// If `res` was an error instead, this is the error message you would see:
+///
+/// ```text
+/// error: any use of this value will cause an error
+///   --> src/result.rs:55:9
+///    |
+/// 6  | / const UNWRAPPED: u32 = {
+/// 7  | |     let res: Result<u32, FooError> = Err(FooError(100));
+/// 8  | |     // let res: Result<u32, FooError> = Ok(100);
+/// 9  | |     unwrap_ctx!(res)
+/// 10 | | };
+///    | |__-
+/// ...
+/// 23 |           [/*Foo errored at offset*/][offset]
+///    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+///    |           |
+///    |           index out of bounds: the length is 0 but the index is 100
+///    |           inside `FooError::panic` at src/result.rs:23:9
+///    |           inside `UNWRAPPED` at src/result_macros_.rs:6:35
+///    |
+///    = note: `#[deny(const_err)]` on by default
 ///
 /// ```
 ///
