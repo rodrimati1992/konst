@@ -182,11 +182,18 @@ macro_rules! try_ {
 ///     let mut sum = 0_u8;
 ///     while let [first, rem @ ..] = nums {
 ///         nums = rem;
+/// #       sum = try_opt!(checked_add(sum, *first));
+/// # /*
 ///         sum = try_opt!(sum.checked_add(*first));
+/// # */
 ///     }
 ///     Some(sum)
 /// }
 ///
+/// # const fn checked_add(l: u8, r: u8) -> Option<u8> {
+/// #   let (res, overflowed) = l.overflowing_add(r);
+/// #   if overflowed { None } else { Some(res) }
+/// # }
 /// ```
 ///
 #[macro_export]

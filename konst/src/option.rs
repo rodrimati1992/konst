@@ -143,7 +143,11 @@ pub use konst_macro_rules::opt_map as map;
 /// assert_eq!(ARR, &[Some(9), None, None, Some(13), None, None]);
 ///
 /// const fn checked_sub(x: u32) -> Option<u32> {
+/// # /*
 ///     x.checked_sub(10)
+/// # */
+/// #   let (ret, overflowed) = x.overflowing_sub(10);
+/// #   if overflowed { None } else { Some(ret) }
 /// }
 ///
 /// ```
