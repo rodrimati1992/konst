@@ -1,3 +1,5 @@
+//! `const` equivalents of `Option` methods.
+
 /// A const equivalent of `Option::unwrap_or`
 ///
 /// # Example

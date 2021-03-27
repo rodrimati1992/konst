@@ -1,3 +1,5 @@
+//! `const` equivalents of `Result` methods.
+
 /// For unwrapping `Result`s in const contexts with some error message.
 ///
 /// The error type must have a method with this signature:
@@ -53,7 +55,7 @@ pub use konst_macro_rules::unwrap_ctx;
 #[doc(inline)]
 pub use konst_macro_rules::res_unwrap_or as unwrap_or;
 
-/// A const equivalent of `Result::unwrap_or`
+/// A const equivalent of `Result::unwrap_or_else`
 ///
 /// # Example
 ///

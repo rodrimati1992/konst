@@ -222,7 +222,7 @@ macro_rules! try_ {
     }};
 }
 
-/// `?` like macro for `Option`s.
+/// `?`-like macro for `Option`s.
 ///
 /// # Example
 ///
