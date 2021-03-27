@@ -15,7 +15,7 @@ macro_rules! define_parse_methods {
             define_parse_methods_inner!{
                 concat!(
                     "Parses a `", stringify!($parsing), "` from a `&str`.\n\n",
-                    "This returns `None` if the string would not successfully `.parse()` into a `",
+                    "This returns an `Err` if the string would not successfully `.parse()` into a `",
                     stringify!($parsing),
                     "`.\n\n",
                     "To parse a `",

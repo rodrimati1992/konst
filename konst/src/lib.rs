@@ -81,7 +81,7 @@
 //! ### Parsing integers
 //!
 //! You can parse integers using the `parse_*` functions in [`primitive`],
-//! returning a `None` if the string as a whole isn't a valid integer.
+//! returning an `Err(ParseIntError{...})` if the string as a whole isn't a valid integer.
 //!
 #![cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
 #![cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
