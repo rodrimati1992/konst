@@ -1,37 +1,8 @@
-/// For unwrapping `Result`s in const contexts,
-/// with a default value when it's an error.
-///
-/// # Example
-///
-/// ### `unwrap_or`
-///
-/// ```rust
-/// use konst::unwrap_res_or;
-///
-/// let ok: Result<i32, i32> = Ok(3);
-/// let err: Result<i32, i32> = Err(5);
-///
-/// assert_eq!(unwrap_res_or!(ok, 100), 3);
-/// assert_eq!(unwrap_res_or!(err, 13), 13);
-///
-/// ```
-///
-/// ### `unwrap_or_else`
-///
-/// ```rust
-/// use konst::unwrap_res_or;
-///
-/// let ok: Result<i32, i32> = Ok(3);
-/// let err: Result<i32, i32> = Err(5);
-///
-/// assert_eq!(unwrap_res_or!(ok, |_| loop{}), 3);
-/// assert_eq!(unwrap_res_or!(err, |e| expensive_function(e)), 10);
-///
-/// # const fn expensive_function(n: i32) -> i32 {
-/// #   n * 2
-/// # }
-/// ```
-///
+/// For unwrapping `Result`s in const contexts, with a default value when it's an error.
+#[deprecated(
+    since = "0.2.1",
+    note = "Use `konst::result::unwrap_or`, or `konst::result::unwrap_or_else` instead"
+)]
 #[macro_export]
 macro_rules! unwrap_res_or {
     ($e:expr, |$($pati:pat)?| $v:expr) => {
@@ -50,38 +21,10 @@ macro_rules! unwrap_res_or {
 }
 
 /// For unwrapping `Option`s in const contexts, with a default value when it's a `None`.
-///
-/// # Example
-///
-/// ### `unwrap_or`
-///
-/// ```rust
-/// use konst::unwrap_opt_or;
-///
-/// let some: Option<i32> = Some(3);
-/// let none: Option<i32> = None;
-///
-/// assert_eq!(unwrap_opt_or!(some, 100), 3);
-/// assert_eq!(unwrap_opt_or!(none, 13), 13);
-///
-/// ```
-///
-/// ### `unwrap_or_else`
-///
-/// ```rust
-/// use konst::unwrap_opt_or;
-///
-/// let some: Option<i32> = Some(3);
-/// let none: Option<i32> = None;
-///
-/// assert_eq!(unwrap_opt_or!(some, |_| loop{}), 3);
-/// assert_eq!(unwrap_opt_or!(none, || expensive_function()), 34);
-///
-/// # const fn expensive_function() -> i32 {
-/// #   34
-/// # }
-/// ```
-///
+#[deprecated(
+    since = "0.2.1",
+    note = "Use `konst::option::unwrap_or`, or `konst::option::unwrap_or_else` instead"
+)]
 #[macro_export]
 macro_rules! unwrap_opt_or {
     ($e:expr, || $v:expr) => {
