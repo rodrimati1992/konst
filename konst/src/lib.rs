@@ -255,7 +255,7 @@
 //!
 //! - `"parsing_no_proc"`(enabled by default):
 //! Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
-//! and the `primitive::parse_*` functions.
+//! the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
 //!
 //! - `"constant_time_slice"`(disabled by default):<br>
 //! Improves the performance of slice functions that split slices,

@@ -24,6 +24,8 @@ Added "parsing_no_proc" cargo feature, to enable all parser items except for tho
 
 Fixed `eq_bytes` and `cmp_bytes` doc examples
 
+Fixed the lack of indicators that the `rebind_if_ok` and `try_rebind` macros require the `"parsing_no_proc"` feature.
+
 ### 0.2.0
 
 Breaking change: tightened the syntax of the `parse_any` macro, now it requires the last branch in the match-like syntax to be `_ => <expression>`, forbidding `_` patterns in other branches.
