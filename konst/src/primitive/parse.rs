@@ -53,11 +53,15 @@ macro_rules! define_parse_methods_inner{
         #[doc = $s_docs]
         $(#[$attr])*
         #[inline]
+        #[cfg(feature = "parsing_no_proc")]
+        #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
         pub const fn $fn_name(s: &str) -> Result<$parsing, $err> {
             $fn_name_bytes(s.as_bytes())
         }
 
         #[doc = $b_docs]
+        #[cfg(feature = "parsing_no_proc")]
+        #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
         pub const fn $fn_name_bytes(bytes: &[u8]) -> Result<$parsing, $err> {
             match Parser::from_bytes(bytes).$fn_name() {
                 Ok((num, parser)) if parser.is_empty() => Ok(num),
@@ -220,9 +224,13 @@ define_parse_methods! {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// An alias for `Result<T, konst::primitive::ParseIntError>`
+#[cfg(feature = "parsing_no_proc")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 pub type ParseIntResult<T> = Result<T, ParseIntError>;
 
 /// An alias for `Result<bool, konst::primitive::ParseBoolError>`
+#[cfg(feature = "parsing_no_proc")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 pub type ParseBoolResult = Result<bool, ParseBoolError>;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -230,6 +238,8 @@ pub type ParseBoolResult = Result<bool, ParseBoolError>;
 use core::fmt::{self, Display};
 
 /// The error returned by integer methods.
+#[cfg(feature = "parsing_no_proc")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct ParseIntError {
     _priv: (),
@@ -255,6 +265,8 @@ impl ParseIntError {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// The error returned by integer methods.
+#[cfg(feature = "parsing_no_proc")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct ParseBoolError {
     _priv: (),

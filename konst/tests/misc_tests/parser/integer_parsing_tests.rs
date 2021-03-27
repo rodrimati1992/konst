@@ -141,8 +141,8 @@ fn ensure_correct_delegation() {
         ];
 
         for (input, output) in arr.iter().copied() {
-            assert_eq!(primitive::parse_u8(input), output);
-            assert_eq!(primitive::parse_u8_b(input.as_bytes()), output);
+            assert_eq!(primitive::parse_u8(input).ok(), output);
+            assert_eq!(primitive::parse_u8_b(input.as_bytes()).ok(), output);
         }
     }
     {
@@ -159,8 +159,8 @@ fn ensure_correct_delegation() {
         ];
 
         for (input, output) in arr.iter().copied() {
-            assert_eq!(primitive::parse_i8(input), output);
-            assert_eq!(primitive::parse_i8_b(input.as_bytes()), output);
+            assert_eq!(primitive::parse_i8(input).ok(), output);
+            assert_eq!(primitive::parse_i8_b(input.as_bytes()).ok(), output);
         }
     }
 
@@ -177,8 +177,8 @@ fn ensure_correct_delegation() {
             ];
 
             for (input, output) in arr.iter().copied() {
-                assert_eq!(primitive::$str_fn(input), output);
-                assert_eq!(primitive::$byte_fn(input.as_bytes()), output);
+                assert_eq!(primitive::$str_fn(input).ok(), output);
+                assert_eq!(primitive::$byte_fn(input.as_bytes()).ok(), output);
             }
         }};
     }
@@ -208,8 +208,8 @@ fn ensure_correct_delegation() {
             ];
 
             for (input, output) in arr.iter().copied() {
-                assert_eq!(primitive::$str_fn(input), output);
-                assert_eq!(primitive::$byte_fn(input.as_bytes()), output);
+                assert_eq!(primitive::$str_fn(input).ok(), output);
+                assert_eq!(primitive::$byte_fn(input.as_bytes()).ok(), output);
             }
         }};
     }

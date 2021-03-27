@@ -231,7 +231,8 @@ You can use this feature instead of `"parsing_no_proc"` if the slightly longer
 compile times aren't a problem.
 
 - `"parsing_no_proc"`(enabled by default):
-Enables the [`parsing`] module, for parsing from `&str` and `&[u8]`.
+Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
+and the `primitive::parse_*` functions.
 
 
 

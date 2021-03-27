@@ -85,19 +85,28 @@
 //!
 #![cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
 #![cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
-//! use konst::primitive::parse_i128;
+//! use konst::{
+//!     primitive::{ParseIntResult, parse_i128},
+//!     result::unwrap_ctx,
+//! };
 //!
-//! const N_100: Option<i128> = parse_i128("100");
-//! assert_eq!(N_100, Some(100));
+//! const N_100: ParseIntResult<i128> = parse_i128("100");
+//! assert_eq!(N_100, Ok(100));
 //!
-//! const N_N3: Option<i128> = parse_i128("-3");
-//! assert_eq!(N_N3, Some(-3));
+//! const N_N3: ParseIntResult<i128> = parse_i128("-3");
+//! assert_eq!(N_N3, Ok(-3));
 //!
-//! const NONE: Option<i128> = parse_i128("-");
-//! assert_eq!(NONE, None);
 //!
-//! const PAIR: Option<i128> = parse_i128("1,2");
-//! assert_eq!(PAIR, None);
+//! // This is how you can unwrap integers parsed from strings, at compile-time.
+//! const N_100_UNW: i128 = unwrap_ctx!(parse_i128("1337"));
+//! assert_eq!(N_100_UNW, 1337);
+//!
+//!
+//! const NONE: ParseIntResult<i128> = parse_i128("-");
+//! assert!(NONE.is_err());
+//!
+//! const PAIR: ParseIntResult<i128> = parse_i128("1,2");
+//! assert!(PAIR.is_err());
 //!
 //!
 //!
@@ -245,7 +254,8 @@
 //! compile times aren't a problem.
 //!
 //! - `"parsing_no_proc"`(enabled by default):
-//! Enables the [`parsing`] module, for parsing from `&str` and `&[u8]`.
+//! Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
+//! and the `primitive::parse_*` functions.
 //!
 //! - `"constant_time_slice"`(disabled by default):<br>
 //! Improves the performance of slice functions that split slices,
