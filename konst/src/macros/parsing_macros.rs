@@ -76,6 +76,7 @@
 ///
 ///
 /// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 #[macro_export]
 macro_rules! rebind_if_ok {
     (
@@ -200,6 +201,7 @@ macro_rules! __priv_next_ai_access {
 ///
 /// ```
 ///
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 #[macro_export]
 macro_rules! try_rebind {
     (

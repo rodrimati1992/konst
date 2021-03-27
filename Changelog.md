@@ -2,6 +2,30 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.2
 
+### 0.2.1
+
+Defined the `konst_macro_rules` crate 0.2.0, to reexport macros in `konst` submodules.
+
+Added macro equivalents of `Option::{and_then, filter, map, ok_or, ok_or_else, or_else, unwrap_or, unwrap_or_else, flatten}` in the `konst::option` module.
+
+Added macro equivalents of `Result::{unwrap_ctx, unwrap_or, unwrap_or_else, ok, err, map, map_err, and_then, or_else}` in the `konst::result` module.
+
+Deprecated the `unwrap_opt_or`, and `unwrap_res_or` macros.
+
+Defined `result::unwrap_err_or_else` macro for convenience.
+
+Added `try_` and `try_opt` macros
+
+Added `primitive::parse_*` functions, to parse all integer types and bool from `&str` or `&[u8]`.
+
+Added `Parser::parse_` methods for the remaining integer types (`u8`, `u16`, `u32`, `i8`, `i16`, `i32`)
+
+Added "parsing_no_proc" cargo feature, to enable all parser items except for those that require using the `konst_proc_macro` crate.
+
+Fixed `eq_bytes` and `cmp_bytes` doc examples
+
+Fixed the lack of indicators that the `rebind_if_ok` and `try_rebind` macros require the `"parsing_no_proc"` feature.
+
 ### 0.2.0
 
 Breaking change: tightened the syntax of the `parse_any` macro, now it requires the last branch in the match-like syntax to be `_ => <expression>`, forbidding `_` patterns in other branches.

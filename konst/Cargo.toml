@@ -1,14 +1,14 @@
 [package]
 name = "konst"
-version = "0.2.0"
+version = "0.2.2"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 edition = "2018"
 license = "Zlib"
 description = "Compile-time comparison, parsing, and other const functionality"
 documentation = "https://docs.rs/konst/"
 readme="../README.md"
-keywords = ["no-std"]
-categories = ["no-std"]
+keywords = ["no-std", "const_fn", "parsing"]
+categories = ["no-std", "parsing"]
 repository = "https://github.com/rodrimati1992/konst/"
 include = [
     "Cargo.toml", 
@@ -22,12 +22,16 @@ version = "=0.2.0"
 path = "../konst_proc_macros"
 optional = true
 
+[dependencies.konst_macro_rules]
+version = "=0.2.0"
+path = "../konst_macro_rules"
 
 [features]
 default = ["cmp", "parsing"]
 
 cmp = []
-parsing = ["konst_proc_macros"]
+parsing = ["parsing_no_proc", "konst_proc_macros"]
+parsing_no_proc = []
 constant_time_slice = []
 const_generics = []
 

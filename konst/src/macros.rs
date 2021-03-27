@@ -20,7 +20,7 @@ mod polymorphism_macros;
 #[macro_use]
 mod parse_any;
 
-#[cfg(feature = "parsing")]
+#[cfg(feature = "parsing_no_proc")]
 #[macro_use]
 mod parsing_macros;
 
@@ -28,4 +28,4 @@ mod parsing_macros;
 mod impl_cmp;
 
 #[macro_use]
-mod unwrapping;
+pub(crate) mod unwrapping;

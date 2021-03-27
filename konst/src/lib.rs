@@ -78,6 +78,66 @@
 //!
 //! ```
 //!
+//! ### Parsing integers
+//!
+//! You can parse integers using the `parse_*` functions in [`primitive`],
+//! returning an `Err(ParseIntError{...})` if the string as a whole isn't a valid integer.
+//!
+#![cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
+#![cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
+//! use konst::{
+//!     primitive::{ParseIntResult, parse_i128},
+//!     result::unwrap_ctx,
+//! };
+//!
+//! const N_100: ParseIntResult<i128> = parse_i128("100");
+//! assert_eq!(N_100, Ok(100));
+//!
+//! const N_N3: ParseIntResult<i128> = parse_i128("-3");
+//! assert_eq!(N_N3, Ok(-3));
+//!
+//!
+//! // This is how you can unwrap integers parsed from strings, at compile-time.
+//! const N_100_UNW: i128 = unwrap_ctx!(parse_i128("1337"));
+//! assert_eq!(N_100_UNW, 1337);
+//!
+//!
+//! const NONE: ParseIntResult<i128> = parse_i128("-");
+//! assert!(NONE.is_err());
+//!
+//! const PAIR: ParseIntResult<i128> = parse_i128("1,2");
+//! assert!(PAIR.is_err());
+//!
+//!
+//!
+//! ```
+//!
+//! For parsing an integer inside a larger string,
+//! you can use [`Parser::parse_u128`] method and the other `parse_*` methods
+//!
+#![cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
+#![cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
+//! use konst::{Parser, unwrap_ctx};
+//!
+//! const PAIR: (i64, u128) = {;
+//!     let parser = Parser::from_str("1365;6789");
+//!
+//!     // Parsing "1365"
+//!     let (l, parser) = unwrap_ctx!(parser.parse_i64());
+//!
+//!     // Skipping the ";"
+//!     let parser = unwrap_ctx!(parser.strip_prefix(";"));
+//!
+//!     // Parsing "6789"
+//!     let (r, parser) = unwrap_ctx!(parser.parse_u128());
+//!     
+//!     (l, r)
+//! };
+//! assert_eq!(PAIR.0, 1365);
+//! assert_eq!(PAIR.1, 6789);
+//!
+//! ```
+//!
 //! ### Parsing a struct
 //!
 //! This example demonstrates how you can use [`Parser`] to parse a struct at compile-time.
@@ -187,8 +247,15 @@
 //! Enables all comparison functions and macros,
 //! the string equality and ordering comparison functions don't require this feature.
 //!
-//! - `"parser"`(enabled by default):
-//! Enables the [`parsing`] module, for parsing from `&str` and `&[u8]`.
+//! - `"parsing"`(enabled by default):
+//! Enables the `"parsing_no_proc"` feature, compiles the `konst_proc_macros` dependency,
+//! and enables the [`parse_any`] macro.
+//! You can use this feature instead of `"parsing_no_proc"` if the slightly longer
+//! compile times aren't a problem.
+//!
+//! - `"parsing_no_proc"`(enabled by default):
+//! Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
+//! the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
 //!
 //! - `"constant_time_slice"`(disabled by default):<br>
 //! Improves the performance of slice functions that split slices,
@@ -219,8 +286,10 @@
 //! [`const_cmp_for`]: ./macro.const_cmp_for.html
 //! [`polymorphism`]: ./polymorphism/index.html
 //! [`parsing`]: ./parsing/index.html
-//! [`Parser`]: ./parsing/struct.Parser.html
+//! [`primitive`]: ./primitive/index.html
 //! [`parse_any`]: macro.parse_any.html
+//! [`Parser`]: ./parsing/struct.Parser.html
+//! [`Parser::parse_u128`]: ./parsing/struct.Parser.html#method.parse_u128
 //!
 
 #![cfg_attr(
@@ -244,20 +313,24 @@ pub mod polymorphism;
 
 pub mod primitive;
 
+pub mod option;
+
+pub mod result;
+
 pub mod range;
 
 pub mod nonzero;
 
 pub mod other;
 
-#[cfg(feature = "parsing")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
+#[cfg(feature = "parsing_no_proc")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 pub mod parsing;
 
 mod utils;
 
-#[cfg(feature = "parsing")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
+#[cfg(feature = "parsing_no_proc")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 pub use crate::parsing::Parser;
 
 #[cfg(feature = "parsing")]
@@ -269,6 +342,9 @@ pub mod slice;
 pub mod string;
 
 pub use crate::string::{cmp_str, eq_str};
+
+#[doc(no_inline)]
+pub use crate::result::unwrap_ctx;
 
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]

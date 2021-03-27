@@ -190,6 +190,8 @@
 /// ```
 ///
 /// [`Parser`]: parsing/struct.Parser.html
+#[cfg(feature = "parsing")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
 #[macro_export]
 macro_rules! parse_any {
     ($place:expr, find_skip; $($branches:tt)* ) => {
