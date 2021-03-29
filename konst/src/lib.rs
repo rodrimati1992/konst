@@ -326,6 +326,8 @@ pub mod result;
 
 pub mod range;
 
+pub mod maybe_uninit;
+
 pub mod nonzero;
 
 pub mod other;
