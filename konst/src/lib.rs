@@ -306,6 +306,9 @@
 #[macro_use]
 mod macros;
 
+#[cfg(feature = "__test")]
+pub mod doctests;
+
 #[doc(hidden)]
 pub mod __for_cmp_impls;
 

@@ -1,4 +1,4 @@
-use konst::{cmp_str, eq_str};
+use konst::{cmp_str, eq_str, slice::try_into_array};
 
 #[cfg(feature = "cmp")]
 use konst::{
@@ -142,4 +142,55 @@ fn cmp_str_test() {
         ("299999", "12", Greater)
         ("01", "02", Less)
     }
+}
+
+#[test]
+fn try_into_array_macro_explicit_test() {
+    let slice = &[0, 2, 3, 4][..];
+
+    assert!(try_into_array!(slice, 0).is_err());
+    assert!(try_into_array!(slice, 1).is_err());
+    assert!(try_into_array!(slice, 2).is_err());
+    assert!(try_into_array!(slice, 3).is_err());
+    assert_eq!(try_into_array!(slice, 4), Ok(&[0, 2, 3, 4]));
+    assert!(try_into_array!(slice, 5).is_err());
+    assert!(try_into_array!(slice, 6).is_err());
+}
+
+#[test]
+#[cfg(feature = "const_generics")]
+fn try_into_array_macro_implicit_test() {
+    let slice = &[0, 2, 3, 4][..];
+
+    macro_rules! try_into_infer_err {
+        ($slice:expr, $len:expr) => {{
+            let arr: Result<&[_; $len], _> = try_into_array!(slice);
+            assert!(arr.is_err());
+        }};
+    }
+
+    try_into_infer_err! {slice, 0}
+    try_into_infer_err! {slice, 1}
+    try_into_infer_err! {slice, 2}
+    try_into_infer_err! {slice, 3}
+
+    let arr_4: Result<&[_; 4], _> = try_into_array!(slice,);
+    assert_eq!(arr_4, Ok(&[0, 2, 3, 4]));
+
+    try_into_infer_err! {slice, 5}
+    try_into_infer_err! {slice, 6}
+}
+
+#[test]
+#[cfg(feature = "deref_raw_in_fn")]
+fn try_into_array_fn_test() {
+    let slice = &[0, 2, 3, 4][..];
+
+    assert!(try_into_array::<_, 0>(slice).is_err());
+    assert!(try_into_array::<_, 1>(slice).is_err());
+    assert!(try_into_array::<_, 2>(slice).is_err());
+    assert!(try_into_array::<_, 3>(slice).is_err());
+    assert_eq!(try_into_array::<_, 4>(slice), Ok(&[0, 2, 3, 4]));
+    assert!(try_into_array::<_, 5>(slice).is_err());
+    assert!(try_into_array::<_, 6>(slice).is_err());
 }
