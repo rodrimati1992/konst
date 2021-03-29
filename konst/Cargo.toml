@@ -1,6 +1,6 @@
 [package]
 name = "konst"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 edition = "2018"
 license = "Zlib"
@@ -23,7 +23,7 @@ path = "../konst_proc_macros"
 optional = true
 
 [dependencies.konst_macro_rules]
-version = "=0.2.0"
+version = "=0.2.3"
 path = "../konst_macro_rules"
 
 [features]
@@ -33,7 +33,8 @@ cmp = []
 parsing = ["parsing_no_proc", "konst_proc_macros"]
 parsing_no_proc = []
 constant_time_slice = []
-const_generics = []
+const_generics = ["konst_macro_rules/const_generics"]
+deref_raw_in_fn = ["const_generics", "konst_macro_rules/deref_raw_in_fn"]
 
 docsrs = []
 

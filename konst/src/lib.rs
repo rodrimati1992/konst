@@ -258,14 +258,18 @@
 //! the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
 //!
 //! - `"constant_time_slice"`(disabled by default):<br>
+//! Requires Rust nightly.
 //! Improves the performance of slice functions that split slices,
-//! from taking linear time to taking constant time,
-//! this requires using some nightly Rust features.
+//! from taking linear time to taking constant time.
 //! <br>Note that only functions which mention this feature in their documentation are affected.
 //!
 //! - `"const_generics"` (disabled by default):
-//! Changes impls for arrays to use const generics instead of only supporting small arrays.
-//! This feature requires Rust 1.51.0.
+//! Requires Rust 1.51.0.
+//! Enables items that require const generics,
+//! and impls for arrays to use const generics instead of only supporting small arrays.
+//!
+//! - `"deref_raw_in_fn"` (disabled by default):
+//! Requires Rust nightly. Enables `const fn`s that need to dereference raw pointers.
 //!
 //! # No-std support
 //!
