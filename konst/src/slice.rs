@@ -79,7 +79,7 @@ __declare_fns_with_docs! {
     ),
 }
 
-/// Fallible conversion from `&[T]` to `&[T; N]`, usable in `const`s, but not in `const fn`s.
+/// Tries to convert from `&[T]` to `&[T; N]`, usable in `const`s, but not in `const fn`s.
 ///
 /// Evaluates to an `Err(TryIntoArrayError{..})` when the slice doesn't match the expected length.
 ///
@@ -156,7 +156,7 @@ pub use konst_macro_rules::try_into_array;
 #[doc(inline)]
 pub use konst_macro_rules::slice_::TryIntoArrayError;
 
-/// Fallible conversion from `&[T]` to `&[T; N]`, usable in `const fn`s. Requires Rust nightly.
+/// Tries to convert from `&[T]` to `&[T; N]`, usable in `const fn`s. Requires Rust nightly.
 ///
 /// Returns an `Err(TryIntoArrayError{..})` when the slice doesn't match the expected length.
 ///
@@ -182,7 +182,7 @@ pub use konst_macro_rules::slice_::TryIntoArrayError;
 /// const fn arr_5() -> Option<&'static [u64; 5]> {
 ///     let slice: &[u64] = &[1, 10, 100, 1000, 10000];
 ///
-///     // Passing the length explicitly to the macro
+///     // Passing the length explicitly to the function
 ///     result::ok!(try_into_array::<_, 5>(slice))
 /// }
 ///
@@ -192,7 +192,7 @@ pub use konst_macro_rules::slice_::TryIntoArrayError;
 /// const fn err() -> Result<&'static [u64; 5], TryIntoArrayError> {
 ///     let slice: &[u64] = &[];
 ///
-///     // Letting the macro infer the length of the array,
+///     // Letting the function infer the length of the array,
 ///     try_into_array(slice)
 /// }
 ///

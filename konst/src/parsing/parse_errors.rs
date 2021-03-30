@@ -5,7 +5,7 @@ use core::{
     marker::PhantomData,
 };
 
-/// Error returned by all fallible parsing methods.
+/// Error returned by all parsing methods that return Result.
 ///
 /// This error type knows [`where`](#method.offset) the error happened,
 /// in what [`direction`](#method.error_direction) the bytes were being parsed,
