@@ -20,15 +20,15 @@ declare_generic_const! {
     /// #[derive(Debug, PartialEq, Eq, Clone)]
     /// struct NonCopy(u8);
     ///
-    /// const INITS: [NonCopy; 10] = {
-    ///     let mut uninits = [UNINIT::<NonCopy>::V; 10];
-    ///     konst::for_range!{i in 0..10=>
+    /// const INITS: [NonCopy; 5] = {
+    ///     let mut uninits = [UNINIT::<NonCopy>::V; 5];
+    ///     konst::for_range!{i in 0..5=>
     ///         uninits[i] = MaybeUninit::new(NonCopy(i as u8 * 3));
     ///     }
     ///     unsafe{ mem::transmute(uninits) }
     /// };
     ///
-    /// assert_eq!(INITS, [0, 3, 6, 9, 12, 15, 18, 21, 24, 27]);
+    /// assert_eq!(INITS, [NonCopy(0), NonCopy(3), NonCopy(6), NonCopy(9), NonCopy(12)]);
     ///
     for[T]
     pub const UNINIT[T]: MaybeUninit<T> = MaybeUninit::uninit();
