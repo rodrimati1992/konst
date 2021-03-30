@@ -36,6 +36,8 @@ constant_time_slice = []
 const_generics = ["konst_macro_rules/const_generics"]
 deref_raw_in_fn = ["const_generics", "konst_macro_rules/deref_raw_in_fn"]
 
+alloc = []
+
 # Using doctests to ensure that some stuff does/doesn't compile
 __test = []
 

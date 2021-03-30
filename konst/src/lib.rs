@@ -268,6 +268,9 @@
 //! Enables items that require const generics,
 //! and impls for arrays to use const generics instead of only supporting small arrays.
 //!
+//! - `alloc"`:
+//! Enables items that use types from the [`alloc`] crate, including `Vec` and `String`.
+//!
 //! - `"deref_raw_in_fn"` (disabled by default):
 //! Requires Rust nightly. Enables `const fn`s that need to dereference raw pointers.
 //!
@@ -284,6 +287,7 @@
 //!
 //!
 //!
+//! [`alloc`]: https://doc.rust-lang.org/alloc/
 //! [`const_eq`]: ./macro.const_eq.html
 //! [`const_eq_for`]: ./macro.const_eq_for.html
 //! [`const_cmp`]: ./macro.const_cmp.html
@@ -303,6 +307,9 @@
 #![cfg_attr(feature = "docsrs", feature(doc_cfg))]
 #![no_std]
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
 #[macro_use]
 mod macros;
 
@@ -313,6 +320,10 @@ pub mod doctests;
 pub mod __for_cmp_impls;
 
 // pub mod other;
+
+#[cfg(feature = "alloc")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "alloc")))]
+pub mod alloc_type;
 
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
