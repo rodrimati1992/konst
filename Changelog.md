@@ -2,6 +2,12 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.2
 
+### 0.2.4
+
+Fixed handling of length argument of `slice::try_into_array` macro,
+when the "const_generics" feature is enabled,
+it would previously require non-trivial expressions to be wrapped in braces.
+
 ### 0.2.3
 
 Added the `slice::try_into_array` macro and nightly function to try to convert `&[T]` to `&[T; N]`
