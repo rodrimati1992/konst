@@ -68,7 +68,7 @@ macro_rules! __priv_try_into_array {
     // whenever array types like that are allowed.
     (explicit, $slice:ident, $len:expr) => {{
         let slice = $crate::slice_::__priv_SliceLifetime($slice, $crate::slice_::Phantom::NEW);
-        let plen = $crate::slice_::PhantomUsize::<$len>;
+        let plen = $crate::slice_::PhantomUsize::<{ $len }>;
 
         $crate::__priv_try_into_array! {inner, slice, plen}
     }};
