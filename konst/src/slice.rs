@@ -123,6 +123,19 @@ __declare_fns_with_docs! {
 ///
 /// ```
 ///
+/// ### Slice constant to Array
+///
+/// ``` rust
+/// use konst::{slice, unwrap_ctx};
+///
+/// const SLICE: &[u8] = b"Hello world!";
+///
+/// static ARRAY: [u8; SLICE.len()] = *unwrap_ctx!(slice::try_into_array!(SLICE, SLICE.len()));
+///
+/// assert_eq!(ARRAY, *b"Hello world!")
+///
+/// ```
+///
 /// ### Length inference
 ///
 /// `try_into_array` can infer the length of the array with the
@@ -149,6 +162,7 @@ __declare_fns_with_docs! {
 /// ```
 ///
 /// [`try_into_array`]: ./fn.try_into_array.html
+/// [`include_bytes`]: https://doc.rust-lang.org/std/macro.include_bytes.html
 #[doc(inline)]
 pub use konst_macro_rules::try_into_array;
 
@@ -160,7 +174,7 @@ pub use konst_macro_rules::slice_::TryIntoArrayError;
 ///
 /// Returns an `Err(TryIntoArrayError{..})` when the slice doesn't match the expected length.
 ///
-/// For an alternative that work on stable Rust, there is the [`try_into_array`] macro,
+/// For an alternative that works on stable Rust, there is the [`try_into_array`] macro,
 /// but it can only be used in `const`s, not in `const fn`s .
 ///
 /// # Features
