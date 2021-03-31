@@ -229,3 +229,29 @@ pub use konst_macro_rules::opt_flatten as flatten;
 /// ```
 #[doc(inline)]
 pub use konst_macro_rules::opt_filter as filter;
+
+declare_generic_const! {
+    /// Usable to do `[None::<T>; LEN]` when `T` is non-`Copy`.
+    ///
+    /// As of Rust 1.51.0, `[None::<T>; LEN]` is not valid for non-`Copy` types,
+    /// but `[CONST; LEN]` does work, like in the example below.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::option::NONE;
+    ///
+    /// use std::mem::{self, MaybeUninit};
+    ///
+    /// const TEN: [Option<String>; 10] = [NONE::V; 10];
+    ///
+    /// let ten = [NONE::<String>::V; 10];
+    ///
+    /// // the `vec` macro only needs `Option<String>` to be clonable, not Copy.
+    /// assert_eq!(vec![None::<String>; 10], TEN);
+    ///
+    /// assert_eq!(vec![None::<String>; 10], ten);
+    ///
+    for[T]
+    pub const NONE[T]: Option<T> = None;
+}

@@ -2,6 +2,33 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.2
 
+### 0.2.4
+
+Fixed handling of length argument of `slice::try_into_array` macro,
+when the "const_generics" feature is enabled,
+it would previously require non-trivial expressions to be wrapped in braces.
+
+### 0.2.3
+
+Added the `slice::try_into_array` macro and nightly function to try to convert `&[T]` to `&[T; N]`
+
+Defined the `slice::TryIntoArrayError` as the error type for `slice::try_into_array`
+
+Added `slice::{first, last, split_first, split_last}` functions, const equivalents of the slice methods.
+
+Added these (generic) constants, which can be used in `[CONST; LEN]` even for non-`Copy` types:
+
+- `option::NONE`: alias for `None`
+- `alloc_type::COW_STR_NEW`: An empty `Cow<'_, str<`
+- `alloc_type::COW_SLICE_NEW`: An empty `Cow<'_, [T]>`
+- `alloc_type::STRING_NEW`: An empty `String`
+- `alloc_type::VEC_NEW}`: An empty `Vec<T>`
+
+Added `"deref_raw_in_fn"` feature to enable `const fn`s that need to dereference raw pointers, requires the nightly compiler.
+
+Added `"alloc"` feature to enable the `alloc_type` module.
+
+
 ### 0.2.1
 
 Defined the `konst_macro_rules` crate 0.2.0, to reexport macros in `konst` submodules.

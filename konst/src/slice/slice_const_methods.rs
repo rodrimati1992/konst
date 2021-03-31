@@ -485,3 +485,128 @@ pub const fn bytes_rfind(left: &[u8], right: &[u8], from: usize) -> Option<usize
 pub const fn bytes_rcontain(left: &[u8], right: &[u8], from: usize) -> bool {
     matches!(bytes_rfind(left, right, from), Some(_))
 }
+
+/// A const equivalent of
+/// [`<[T]>::first`](https://doc.rust-lang.org/std/primitive.slice.html#method.first)
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// assert_eq!(slice::first(&[8, 5, 3]), Some(&8));
+///
+/// assert_eq!(slice::first(&[5, 3]), Some(&5));
+///
+/// assert_eq!(slice::first(&[3]), Some(&3));
+///
+/// assert_eq!(slice::first::<u8>(&[]), None);
+///
+/// ```
+///
+pub const fn first<T>(slice: &[T]) -> Option<&T> {
+    if let [first, ..] = slice {
+        Some(first)
+    } else {
+        None
+    }
+}
+
+/// A const equivalent of
+/// [`<[T]>::last`](https://doc.rust-lang.org/std/primitive.slice.html#method.last)
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// assert_eq!(slice::last(&[3, 5, 8]), Some(&8));
+///
+/// assert_eq!(slice::last(&[3, 5]), Some(&5));
+///
+/// assert_eq!(slice::last(&[3]), Some(&3));
+///
+/// assert_eq!(slice::last::<u8>(&[]), None);
+///
+/// ```
+///
+pub const fn last<T>(slice: &[T]) -> Option<&T> {
+    if let [.., last] = slice {
+        Some(last)
+    } else {
+        None
+    }
+}
+
+/// A const equivalent of
+/// [`<[T]>::split_first`](https://doc.rust-lang.org/std/primitive.slice.html#method.split_first)
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const fn add_up(mut slice: &[u32]) -> u64 {
+///     let mut ret = 0u64;
+///     while let Some((first, rem)) = slice::split_first(slice) {
+///         ret += *first as u64;
+///
+///         // advances the slice
+///         slice = rem;
+///     }
+///     ret
+/// }
+///
+/// assert_eq!(add_up(&[1]), 1);
+/// assert_eq!(add_up(&[1, 2]), 3);
+/// assert_eq!(add_up(&[1, 2, 3]), 6);
+/// assert_eq!(add_up(&[1, 2, 3, 4]), 10);
+///
+/// ```
+///
+pub const fn split_first<T>(slice: &[T]) -> Option<(&T, &[T])> {
+    if let [first, rem @ ..] = slice {
+        Some((first, rem))
+    } else {
+        None
+    }
+}
+
+/// A const equivalent of
+/// [`<[T]>::split_last`](https://doc.rust-lang.org/std/primitive.slice.html#method.split_last)
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const fn find_last_even(mut slice: &[u32]) -> Option<usize> {
+///     let mut ret = 0u32;
+///     while let Some((last, rem)) = slice::split_last(slice) {
+///         if *last % 2 == 0 {
+///             return Some(rem.len());
+///         }
+///
+///         // advances the slice
+///         slice = rem;
+///     }
+///     None
+/// }
+///
+/// assert_eq!(find_last_even(&[3, 5]), None);
+///
+/// assert_eq!(find_last_even(&[3, 5, 8, 13, 21]), Some(2));
+///
+/// assert_eq!(find_last_even(&[3, 5, 8, 13, 21, 34, 55]), Some(5));
+///
+/// assert_eq!(find_last_even(&[3, 5, 8, 13, 21, 34, 55, 89, 144]), Some(8));
+///
+/// ```
+///
+pub const fn split_last<T>(slice: &[T]) -> Option<(&T, &[T])> {
+    if let [rem @ .., last] = slice {
+        Some((last, rem))
+    } else {
+        None
+    }
+}

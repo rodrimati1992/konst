@@ -258,14 +258,21 @@
 //! the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
 //!
 //! - `"constant_time_slice"`(disabled by default):<br>
+//! Requires Rust nightly.
 //! Improves the performance of slice functions that split slices,
-//! from taking linear time to taking constant time,
-//! this requires using some nightly Rust features.
+//! from taking linear time to taking constant time.
 //! <br>Note that only functions which mention this feature in their documentation are affected.
 //!
 //! - `"const_generics"` (disabled by default):
-//! Changes impls for arrays to use const generics instead of only supporting small arrays.
-//! This feature requires Rust 1.51.0.
+//! Requires Rust 1.51.0.
+//! Enables items that require const generics,
+//! and impls for arrays to use const generics instead of only supporting small arrays.
+//!
+//! - `alloc"`:
+//! Enables items that use types from the [`alloc`] crate, including `Vec` and `String`.
+//!
+//! - `"deref_raw_in_fn"` (disabled by default):
+//! Requires Rust nightly. Enables `const fn`s that need to dereference raw pointers.
 //!
 //! # No-std support
 //!
@@ -280,6 +287,7 @@
 //!
 //!
 //!
+//! [`alloc`]: https://doc.rust-lang.org/alloc/
 //! [`const_eq`]: ./macro.const_eq.html
 //! [`const_eq_for`]: ./macro.const_eq_for.html
 //! [`const_cmp`]: ./macro.const_cmp.html
@@ -299,13 +307,23 @@
 #![cfg_attr(feature = "docsrs", feature(doc_cfg))]
 #![no_std]
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
 #[macro_use]
 mod macros;
+
+#[cfg(feature = "__test")]
+pub mod doctests;
 
 #[doc(hidden)]
 pub mod __for_cmp_impls;
 
 // pub mod other;
+
+#[cfg(feature = "alloc")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "alloc")))]
+pub mod alloc_type;
 
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
@@ -318,6 +336,8 @@ pub mod option;
 pub mod result;
 
 pub mod range;
+
+pub mod maybe_uninit;
 
 pub mod nonzero;
 

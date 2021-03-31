@@ -14,6 +14,9 @@ mod declare_cmp_fn_macros;
 mod bytes_fn_macros;
 
 #[macro_use]
+mod declare_generic_const;
+
+#[macro_use]
 mod polymorphism_macros;
 
 #[cfg(feature = "parsing")]

@@ -25,11 +25,12 @@ jobs:
         cargo build
         
         cd "${{github.workspace}}/konst/"
-        cargo test --no-default-features --features "cmp"
-        cargo test --no-default-features --features "parsing_no_proc"
-        cargo test --no-default-features --features "parsing"
-        cargo test --no-default-features --features "cmp parsing_no_proc"
-        cargo test --no-default-features --features "cmp parsing"
+        cargo test --no-default-features --features "__test cmp"
+        cargo test --no-default-features --features "__test parsing_no_proc"
+        cargo test --no-default-features --features "__test parsing"
+        cargo test --no-default-features --features "__test cmp parsing_no_proc"
+        cargo test --no-default-features --features "__test cmp parsing"
+        cargo test --no-default-features --features "__test alloc cmp parsing"
 
     - uses: actions/checkout@v2
     - name: ci-nighly
@@ -44,13 +45,15 @@ jobs:
 
         cd "${{github.workspace}}/konst/"
         
-        cargo test --no-default-features --features "cmp"
-        cargo test --no-default-features --features "parsing_no_proc"
-        cargo test --no-default-features --features "parsing"
-        cargo test --no-default-features --features "cmp parsing_no_proc"
-        cargo test --no-default-features --features "cmp parsing"
-        cargo test --no-default-features --features "cmp parsing constant_time_slice"
-        cargo test --no-default-features --features "cmp parsing constant_time_slice const_generics"
+        cargo test --no-default-features --features "__test cmp"
+        cargo test --no-default-features --features "__test parsing_no_proc"
+        cargo test --no-default-features --features "__test parsing"
+        cargo test --no-default-features --features "__test cmp parsing_no_proc"
+        cargo test --no-default-features --features "__test cmp parsing"
+        cargo test --no-default-features --features "__test cmp parsing constant_time_slice"
+        cargo test --no-default-features --features "__test cmp parsing constant_time_slice const_generics"
+        cargo test --no-default-features \
+            --features "__test alloc cmp parsing constant_time_slice const_generics"
 
         MIRI_NIGHTLY=nightly-$(curl -s https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/miri)
         echo "Installing latest nightly with Miri"
@@ -63,5 +66,8 @@ jobs:
 
         cargo clean 
 
+        # Needed to test try_into_array impl used before Rust 1.51.0
+        cargo miri test --no-default-features -- try_into_array
+
         cargo miri test --no-default-features \
-            --features "cmp parsing constant_time_slice const_generics"
+            --features "__test cmp parsing constant_time_slice const_generics alloc deref_raw_in_fn"
