@@ -23,6 +23,8 @@ Added these (generic) constants, which can be used in `[CONST; LEN]` even for no
 - `alloc_type::COW_SLICE_NEW`: An empty `Cow<'_, [T]>`
 - `alloc_type::STRING_NEW`: An empty `String`
 - `alloc_type::VEC_NEW}`: An empty `Vec<T>`
+- `maybe_uninit::UNINIT`: An uninit `MaybeUninit<T>`
+- `maybe_uninit::UNINIT_ARRAY`: An uninit `[MaybeUninit<T>; LEN]`
 
 Added `"deref_raw_in_fn"` feature to enable `const fn`s that need to dereference raw pointers, requires the nightly compiler.
 
