@@ -46,5 +46,5 @@ docsrs = []
 
 
 [package.metadata.docs.rs]
-features = ["docsrs", "cmp", "parsing", "const_generics", "deref_raw_in_fn"]
+features = ["docsrs", "alloc", "cmp", "parsing", "const_generics", "deref_raw_in_fn"]
 
