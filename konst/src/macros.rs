@@ -27,6 +27,10 @@ mod parse_any;
 #[macro_use]
 mod parsing_macros;
 
+#[cfg(feature = "parsing_no_proc")]
+#[macro_use]
+mod parsing_polymorphism_macros;
+
 #[macro_use]
 mod impl_cmp;
 
