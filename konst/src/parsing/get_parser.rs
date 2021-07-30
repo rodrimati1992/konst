@@ -52,12 +52,12 @@ use core::marker::PhantomData;
 /// }
 ///
 /// impl Pair {
-///     const fn parse_with(parser: Parser<'_>) -> ParseValueResult<'_, Self> {
+///     const fn parse_with(mut parser: Parser<'_>) -> ParseValueResult<'_, Self> {
 ///         try_rebind!{(let left, parser) = parse_with!(parser, u32)}
 ///         try_rebind!{parser = parser.strip_prefix_u8(b',')}
 ///         try_rebind!{(let right, parser) = parse_with!(parser, u64)}
 ///
-///         Ok(((left, right), parser))
+///         Ok((Pair(left, right), parser))
 ///     }
 /// }
 /// ```

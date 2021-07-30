@@ -58,7 +58,7 @@ macro_rules! parse_with {
     ($parser:expr, $type:ty $(,)*) => {
         match $parser {
             parser @ $crate::Parser { .. } => {
-                let res: $crate::pmr::Result<_, _> =
+                let res: $crate::__::Result<_, _> =
                     <<$type as $crate::parsing::ParserFor>::Parser>::parse_with(parser);
                 res
             }
