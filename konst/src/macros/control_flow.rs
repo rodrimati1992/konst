@@ -61,7 +61,7 @@ macro_rules! for_range {
 /// https://doc.rust-lang.org/1.50.0/unstable-book/language-features/inline-const.html
 #[macro_export]
 macro_rules! konst {
-    ($type:ty, $expr:expr) => {{
+    ($type:ty, $expr:expr $(,)*) => {{
         const __KONST__: $type = $expr;
         __KONST__
     }};

@@ -61,7 +61,7 @@
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
 macro_rules! const_cmp {
-    ($left:expr, $right:expr) => {
+    ($left:expr, $right:expr $(,)*) => {
         match $crate::coerce_to_cmp!($left, $right) {
             (left, right) => left.const_cmp(right),
         }
@@ -291,19 +291,19 @@ macro_rules! __priv_const_cmp_for {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
 macro_rules! try_equal {
-    (break $ord:expr) => {
+    (break $ord:expr $(,)*) => {
         match $ord {
             $crate::__::Ordering::Equal => $crate::__::Ordering::Equal,
             ord => return ord,
         }
     };
-    ($ord:expr) => {
+    ($ord:expr $(,)*) => {
         match $ord {
             $crate::__::Ordering::Equal => $crate::__::Ordering::Equal,
             ord => return ord,
         }
     };
-    (break; $ord:expr) => {
+    (break; $ord:expr $(,)*) => {
         match $ord {
             $crate::__::Ordering::Equal => $crate::__::Ordering::Equal,
             ord => return ord,
@@ -313,7 +313,7 @@ macro_rules! try_equal {
 
 #[cfg(feature = "cmp")]
 macro_rules! cmp_int {
-    ($l:expr, $r:expr) => {{
+    ($l:expr, $r:expr $(,)*) => {{
         if $l == $r {
             Ordering::Equal
         } else if $l < $r {

@@ -151,13 +151,13 @@ macro_rules! unwrap_opt_or {
 ///
 #[macro_export]
 macro_rules! try_ {
-    ($e:expr, map_err = |$($pati:pat)?| $v:expr) => {
+    ($e:expr, map_err = |$($pati:pat)?| $v:expr $(,)*) => {
         match $e {
             $crate::__::Ok(x) => x,
             $crate::__::Err{$(0: $pati,)? ..} => return $crate::__::Err($v),
         }
     };
-    ($e:expr $(,)?) => {{
+    ($e:expr $(,)*) => {{
         match $e {
             $crate::__::Ok(x) => x,
             $crate::__::Err(e) => return $crate::__::Err(e),
@@ -198,7 +198,7 @@ macro_rules! try_ {
 ///
 #[macro_export]
 macro_rules! try_opt {
-    ($opt:expr) => {
+    ($opt:expr $(,)*) => {
         match $opt {
             $crate::__::Some(x) => x,
             $crate::__::None => return $crate::__::None,

@@ -103,14 +103,19 @@ macro_rules! __priv_ai_preprocess_pattern {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_assign_tuple {
+    ($var:ident, $fields:tt, let $pat:tt: $ty:ty $(, $($rem:tt)*)?) => {
+        $crate::__priv_next_ai_access!(
+            (let $pat: $ty) $var, $fields, $($($rem)*)?
+        )
+    };
     ($var:ident, $fields:tt, let $pat:pat $(, $($rem:tt)*)?) => {
         $crate::__priv_next_ai_access!(
             (let $pat) $var, $fields, $($($rem)*)?
         )
     };
-    ($var:ident, $fields:tt, _ $(, $($rem:tt)*)?) => {
+    ($var:ident, $fields:tt, _ $(: $ty:ty)? $(, $($rem:tt)*)?) => {
         $crate::__priv_next_ai_access!(
-            (let _) $var, $fields, $($($rem)*)?
+            (let _ $(: $ty)? ) $var, $fields, $($($rem)*)?
         )
     };
     ($var:ident, $fields:tt, $e:expr $(, $($rem:tt)*)?) => {

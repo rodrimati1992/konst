@@ -2,6 +2,17 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.2
 
+### 0.2.5
+
+Added `ParseFor` trait and `parse_with` macro, for type-dispatched parsing.
+
+Added `StdParser` struct as the parser for std types.
+
+Broadened valid syntax for try_rebind/rebind_if_ok
+
+Added trailing comma support to every macros, where applicable
+
+
 ### 0.2.4
 
 Fixed handling of length argument of `slice::try_into_array` macro,

@@ -61,7 +61,7 @@
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
 macro_rules! const_eq {
-    ($left:expr, $right:expr) => {
+    ($left:expr, $right:expr $(,)*) => {
         match $crate::coerce_to_cmp!($left, $right) {
             (left, right) => left.const_eq(right),
         }

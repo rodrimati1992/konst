@@ -251,7 +251,7 @@ macro_rules! __priv_std_kind_impl {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
 macro_rules! coerce_to_cmp {
-    ($reference:expr) => {{
+    ($reference:expr $(,)*) => {{
         match $reference {
             ref reference => {
                 let marker = $crate::__::IsAConstCmpMarker::NEW;
@@ -262,7 +262,7 @@ macro_rules! coerce_to_cmp {
             }
         }
     }};
-    ($left:expr, $right:expr) => {{
+    ($left:expr, $right:expr $(,)*) => {{
         match (&$left, &$right) {
             (left, right) => {
                 let l_marker = $crate::__::IsAConstCmpMarker::NEW;
