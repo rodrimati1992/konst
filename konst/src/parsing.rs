@@ -8,19 +8,23 @@
 //! then you want to look in the module for that type, eg: [`primitive::parse_bool`].
 //!
 //! If you do want to parse a type fron only part of a string, then you can use
-//! [`Parser`]'s `parser_*` methods.
+//! [`Parser`]'s `parser_*` methods, or the [`parse_with`] macro.
 //!
 //! [`Parser`]: ./struct.Parser.html
 //! [`primitive::parse_bool`]: ../primitive/fn.parse_bool.html
+//! [`parse_with`]: ../macro.parse_with.html
+//!
 
+mod get_parser;
 mod non_parsing_methods;
 mod parse_errors;
 mod primitive_parsing;
 
 /////////////////////////////////////////////////////////////////////////////////
 
-pub use self::parse_errors::{
-    ErrorKind, ParseDirection, ParseError, ParseValueResult, ParserResult,
+pub use self::{
+    get_parser::{ParserFor, StdParser},
+    parse_errors::{ErrorKind, ParseDirection, ParseError, ParseValueResult, ParserResult},
 };
 
 /// For parsing and traversing over byte strings in const contexts.
