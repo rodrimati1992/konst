@@ -174,8 +174,8 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
 /// # Performance
 ///
 /// If the "constant_time_slice" feature is disabled,
-/// thich takes linear time to remove the trailing elements,
-/// proportional to `slice.len() - len`.
+/// thich takes linear time to remove the leading and trailing elements,
+/// proportional to `start + (slice.len() - len)`.
 ///
 /// If the "constant_time_slice" feature is enabled, it takes constant time to run,
 /// but uses a few nightly features.
