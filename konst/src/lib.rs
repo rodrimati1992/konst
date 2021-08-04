@@ -304,6 +304,7 @@
     feature = "constant_time_slice",
     feature(const_slice_from_raw_parts, const_fn_union, const_ptr_offset)
 )]
+#![cfg_attr(feature = "nightly_mut_refs", feature(const_mut_refs))]
 #![cfg_attr(feature = "docsrs", feature(doc_cfg))]
 #![no_std]
 

@@ -3,10 +3,70 @@ use crate::utils::saturating_sub;
 #[cfg(feature = "constant_time_slice")]
 use crate::utils::{min_usize, Dereference};
 
-macro_rules! slice_up_to_impl{
+macro_rules! slice_from_impl {
+    ($slice:ident, $start:ident, [$($mut:tt)*]) => ({
+        let rem = saturating_sub($slice.len(), $start);
+
+        if rem == 0 {
+            return & $($mut)* [];
+        }
+
+        #[cfg(feature = "constant_time_slice")]
+        {
+            unsafe {
+                let raw_slice =
+                    core::ptr::slice_from_raw_parts($slice.as_ptr().offset($start as _), rem);
+                Dereference { ptr: raw_slice }.reff
+            }
+        }
+        #[cfg(not(feature = "constant_time_slice"))]
+        {
+            let mut ret = $slice;
+            let mut to_remove = $start;
+
+            slice_up_to_linear_time_impl! {
+                ret, to_remove, next,
+                () (next @ ..),
+            }
+            ret
+        }
+    })
+}
+
+macro_rules! slice_up_to_impl {
+    ($slice:ident, $len:ident, [$($mut:tt)*]) => {{
+        let rem = saturating_sub($slice.len(), $len);
+
+        if rem == 0 {
+            return $slice;
+        }
+
+        #[cfg(feature = "constant_time_slice")]
+        {
+            // Doing this to get a slice up to length at compile-time
+            unsafe {
+                let raw_slice = core::ptr::slice_from_raw_parts($slice.as_ptr(), $len);
+                Dereference { ptr: raw_slice }.reff
+            }
+        }
+        #[cfg(not(feature = "constant_time_slice"))]
+        {
+            let mut ret = $slice;
+            let mut to_remove = rem;
+
+            slice_up_to_linear_time_impl! {
+                ret, to_remove, next,
+                (next @ ..,) (),
+            }
+            ret
+        }
+    }};
+}
+
+macro_rules! slice_up_to_linear_time_impl{
     (
         $($args:tt)*
-    )=>{
+    )=>({
         slice_up_to_impl_inner!{
             $($args)*
             (64, [
@@ -24,7 +84,7 @@ macro_rules! slice_up_to_impl{
             $($args)*
             (1, [_,])
         }
-    };
+    });
 }
 macro_rules! slice_up_to_impl_inner{
     (
@@ -78,30 +138,13 @@ macro_rules! slice_up_to_impl_inner{
 /// ```
 #[inline]
 pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
-    let rem = saturating_sub(slice.len(), start);
+    slice_from_impl!(slice, start, [])
+}
 
-    if rem == 0 {
-        return &[];
-    }
-
-    #[cfg(feature = "constant_time_slice")]
-    {
-        unsafe {
-            let raw_slice = core::ptr::slice_from_raw_parts(slice.as_ptr().offset(start as _), rem);
-            Dereference { ptr: raw_slice }.reff
-        }
-    }
-    #[cfg(not(feature = "constant_time_slice"))]
-    {
-        let mut ret = slice;
-        let mut to_remove = start;
-
-        slice_up_to_impl! {
-            ret, to_remove, next,
-            () (next @ ..),
-        }
-        ret
-    }
+#[inline]
+#[cfg(feature = "mut_refs")]
+pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
+    slice_from_impl!(slice, start, [mut])
 }
 
 /// A const equivalent of `&slice[..len]`.
@@ -137,31 +180,13 @@ pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
 /// ```
 #[inline]
 pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
-    let rem = saturating_sub(slice.len(), len);
+    slice_up_to_impl!(slice, len, [])
+}
 
-    if rem == 0 {
-        return slice;
-    }
-
-    #[cfg(feature = "constant_time_slice")]
-    {
-        // Doing this to get a slice up to length at compile-time
-        unsafe {
-            let raw_slice = core::ptr::slice_from_raw_parts(slice.as_ptr(), len);
-            Dereference { ptr: raw_slice }.reff
-        }
-    }
-    #[cfg(not(feature = "constant_time_slice"))]
-    {
-        let mut ret = slice;
-        let mut to_remove = rem;
-
-        slice_up_to_impl! {
-            ret, to_remove, next,
-            (next @ ..,) (),
-        }
-        ret
-    }
+#[inline]
+#[cfg(feature = "mut_refs")]
+pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
+    slice_up_to_impl!(slice, len, [mut])
 }
 
 /// A const equivalent of `&slice[start..end]`.
@@ -175,7 +200,7 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
 ///
 /// If the "constant_time_slice" feature is disabled,
 /// thich takes linear time to remove the leading and trailing elements,
-/// proportional to `start + (slice.len() - len)`.
+/// proportional to `start + (slice.len() - end)`.
 ///
 /// If the "constant_time_slice" feature is enabled, it takes constant time to run,
 /// but uses a few nightly features.
@@ -200,6 +225,12 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
 /// ```
 pub const fn slice_range<T>(slice: &[T], start: usize, end: usize) -> &[T] {
     slice_from(slice_up_to(slice, end), start)
+}
+
+#[inline]
+#[cfg(feature = "mut_refs")]
+pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &mut [T] {
+    slice_from_mut(slice_up_to_mut(slice, end), start)
 }
 
 /// A const equivalent of
@@ -230,6 +261,27 @@ pub const fn slice_range<T>(slice: &[T], start: usize, end: usize) -> &[T] {
 ///
 pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
     (slice_up_to(slice, at), slice_from(slice, at))
+}
+
+#[inline]
+#[cfg(all(feature = "mut_refs", feature = "constant_time_slice"))]
+pub const fn split_at_mut<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
+    use crate::utils::slice_from_raw_parts_mut;
+
+    if at > slice.len() {
+        return (&mut [], &mut []);
+    }
+
+    let suffix_len = slice.len() - at;
+
+    unsafe {
+        let ptr = slice.as_ptr_mut();
+
+        let prefix = slice_from_raw_parts_mut(ptr.offset(0), at);
+        let suffix = slice_from_raw_parts_mut(ptr.offset(at as isize), suffix_len);
+
+        (prefix, suffix)
+    }
 }
 
 /// A const equivalent of
@@ -276,9 +328,20 @@ pub const fn bytes_strip_prefix<'a>(mut left: &'a [u8], mut prefix: &[u8]) -> Op
         strip_prefix;
         left = left;
         right = prefix;
-        on_error = return None;
     }
-    Some(left)
+}
+
+#[inline]
+#[cfg(feature = "mut_refs")]
+pub const fn bytes_strip_prefix_mut<'a>(
+    mut left: &'a mut [u8],
+    mut prefix: &[u8],
+) -> Option<&'a mut [u8]> {
+    impl_bytes_function! {
+        strip_prefix;
+        left = left;
+        right = prefix;
+    }
 }
 
 /// A const equivalent of
@@ -325,9 +388,20 @@ pub const fn bytes_strip_suffix<'a>(mut left: &'a [u8], mut suffix: &[u8]) -> Op
         strip_suffix;
         left = left;
         right = suffix;
-        on_error = return None;
     }
-    Some(left)
+}
+
+#[inline]
+#[cfg(feature = "mut_refs")]
+pub const fn bytes_strip_suffix_mut<'a>(
+    mut left: &'a mut [u8],
+    mut suffix: &[u8],
+) -> Option<&'a mut [u8]> {
+    impl_bytes_function! {
+        strip_suffix;
+        left = left;
+        right = suffix;
+    }
 }
 
 /// Finds the byte offset of `right` inside `&left[from..]`.
@@ -512,6 +586,15 @@ pub const fn first<T>(slice: &[T]) -> Option<&T> {
     }
 }
 
+#[cfg(feature = "mut_refs")]
+pub const fn first_mut<T>(slice: &mut [T]) -> Option<&mut T> {
+    if let [first, ..] = slice {
+        Some(first)
+    } else {
+        None
+    }
+}
+
 /// A const equivalent of
 /// [`<[T]>::last`](https://doc.rust-lang.org/std/primitive.slice.html#method.last)
 ///
@@ -531,6 +614,15 @@ pub const fn first<T>(slice: &[T]) -> Option<&T> {
 /// ```
 ///
 pub const fn last<T>(slice: &[T]) -> Option<&T> {
+    if let [.., last] = slice {
+        Some(last)
+    } else {
+        None
+    }
+}
+
+#[cfg(feature = "mut_refs")]
+pub const fn last_mut<T>(slice: &mut [T]) -> Option<&mut T> {
     if let [.., last] = slice {
         Some(last)
     } else {
@@ -572,6 +664,15 @@ pub const fn split_first<T>(slice: &[T]) -> Option<(&T, &[T])> {
     }
 }
 
+#[cfg(feature = "mut_refs")]
+pub const fn split_first_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
+    if let [first, rem @ ..] = slice {
+        Some((first, rem))
+    } else {
+        None
+    }
+}
+
 /// A const equivalent of
 /// [`<[T]>::split_last`](https://doc.rust-lang.org/std/primitive.slice.html#method.split_last)
 ///
@@ -604,6 +705,15 @@ pub const fn split_first<T>(slice: &[T]) -> Option<(&T, &[T])> {
 /// ```
 ///
 pub const fn split_last<T>(slice: &[T]) -> Option<(&T, &[T])> {
+    if let [rem @ .., last] = slice {
+        Some((last, rem))
+    } else {
+        None
+    }
+}
+
+#[cfg(feature = "mut_refs")]
+pub const fn split_last_mut<T>(slice: &mut [T]) -> Option<(&mut T, &[T])> {
     if let [rem @ .., last] = slice {
         Some((last, rem))
     } else {
