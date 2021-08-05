@@ -136,6 +136,36 @@ pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
     slice_from_impl!(slice, start, as_ptr, slice_from_raw_parts, [])
 }
 
+/// A const equivalent of `&mut slice[start..]`.
+///
+/// If `slice.len() < start`, this simply returns an empty slice.
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the leading elements,
+/// proportional to `start`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::slice_from_mut;
+///
+/// let mut fibs = [3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// assert_eq!(slice_from_mut(&mut fibs, 0), &mut [3, 5, 8, 13, 21, 34, 55, 89]);
+/// assert_eq!(slice_from_mut(&mut fibs, 1), &mut [5, 8, 13, 21, 34, 55, 89]);
+/// assert_eq!(slice_from_mut(&mut fibs, 2), &mut [8, 13, 21, 34, 55, 89]);
+/// assert_eq!(slice_from_mut(&mut fibs, 6), &mut [55, 89]);
+/// assert_eq!(slice_from_mut(&mut fibs, 7), &mut [89]);
+/// assert_eq!(slice_from_mut(&mut fibs, 8), &mut []);
+/// assert_eq!(slice_from_mut(&mut fibs, 1000), &mut []);
+///
+///
+/// ```
 #[inline]
 #[cfg(feature = "mut_refs")]
 pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
@@ -178,6 +208,37 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
     slice_up_to_impl!(slice, len, as_ptr, slice_from_raw_parts, [])
 }
 
+/// A const equivalent of `&mut slice[..len]`.
+///
+/// If `slice.len() < len`, this simply returns `slice` back.
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the trailing elements,
+/// proportional to `slice.len() - len`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::slice_up_to_mut;
+///
+/// let mut fibs = [3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// assert_eq!(slice_up_to_mut(&mut fibs, 100), &mut [3, 5, 8, 13, 21, 34, 55, 89]);
+/// assert_eq!(slice_up_to_mut(&mut fibs, 8), &mut [3, 5, 8, 13, 21, 34, 55, 89]);
+/// assert_eq!(slice_up_to_mut(&mut fibs, 7), &mut [3, 5, 8, 13, 21, 34, 55]);
+/// assert_eq!(slice_up_to_mut(&mut fibs, 6), &mut [3, 5, 8, 13, 21, 34]);
+/// assert_eq!(slice_up_to_mut(&mut fibs, 3), &mut [3, 5, 8]);
+/// assert_eq!(slice_up_to_mut(&mut fibs, 2), &mut [3, 5]);
+/// assert_eq!(slice_up_to_mut(&mut fibs, 1), &mut [3]);
+/// assert_eq!(slice_up_to_mut(&mut fibs, 0), &mut []);
+///
+///
+/// ```
 #[inline]
 #[cfg(feature = "mut_refs")]
 pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
@@ -222,6 +283,35 @@ pub const fn slice_range<T>(slice: &[T], start: usize, end: usize) -> &[T] {
     slice_from(slice_up_to(slice, end), start)
 }
 
+/// A const equivalent of `&mut slice[start..end]`.
+///
+/// If `start >= end ` or `slice.len() < start `, this returns an empty slice.
+///
+/// If `slice.len() < end`, this returns the slice from `start`.
+///
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the leading and trailing elements,
+/// proportional to `start + (slice.len() - end)`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::slice_range_mut;
+///
+/// let mut fibb = [3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// assert_eq!(slice_range_mut(&mut fibb, 2, 4), &mut [8, 13]);
+/// assert_eq!(slice_range_mut(&mut fibb, 4, 7), &mut [21, 34, 55]);
+/// assert_eq!(slice_range_mut(&mut fibb, 0, 0), &mut []);
+/// assert_eq!(slice_range_mut(&mut fibb, 0, 1000), &mut [3, 5, 8, 13, 21, 34, 55, 89]);
+///
+/// ```
 #[inline]
 #[cfg(feature = "mut_refs")]
 pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &mut [T] {
@@ -258,6 +348,33 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
     (slice_up_to(slice, at), slice_from(slice, at))
 }
 
+/// A const equivalent of
+/// [`<[T]>::split_at_mut`
+/// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at_mut)
+///
+/// If `at > slice.len()`, this returns a `slice`, empty slice pair.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::split_at_mut;
+///
+/// let mut arr = [3, 5, 8, 13, 21, 34];
+///
+/// assert_eq!(split_at_mut(&mut arr, 0), (&mut [][..], &mut [3, 5, 8, 13, 21, 34][..]));
+///
+/// assert_eq!(split_at_mut(&mut arr, 1), (&mut [3][..], &mut [5, 8, 13, 21, 34][..]));
+///
+/// assert_eq!(split_at_mut(&mut arr, 2), (&mut [3, 5][..], &mut [8, 13, 21, 34][..]));
+///
+/// assert_eq!(split_at_mut(&mut arr, 5), (&mut [3, 5, 8, 13, 21][..], &mut [34][..]));
+///
+/// assert_eq!(split_at_mut(&mut arr, 6), (&mut [3, 5, 8, 13, 21, 34][..], &mut [][..]));
+///
+/// assert_eq!(split_at_mut(&mut arr, 7), (&mut [3, 5, 8, 13, 21, 34][..], &mut [][..]));
+///
+/// ```
+///
 #[inline]
 #[cfg(all(feature = "mut_refs", feature = "constant_time_slice"))]
 pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T]) {
@@ -328,21 +445,6 @@ pub const fn bytes_strip_prefix<'a>(mut left: &'a [u8], mut prefix: &[u8]) -> Op
     Some(left)
 }
 
-#[inline]
-#[cfg(feature = "mut_refs")]
-pub const fn bytes_strip_prefix_mut<'a>(
-    mut left: &'a mut [u8],
-    mut prefix: &[u8],
-) -> Option<&'a mut [u8]> {
-    impl_bytes_function! {
-        strip_prefix;
-        left = left;
-        right = prefix;
-        on_error = return None,
-    }
-    Some(left)
-}
-
 /// A const equivalent of
 /// [`<[u8]>::ends_with`](https://doc.rust-lang.org/std/primitive.slice.html#method.ends_with)
 ///
@@ -383,21 +485,6 @@ pub const fn bytes_end_with(left: &[u8], right: &[u8]) -> bool {
 ///
 #[inline]
 pub const fn bytes_strip_suffix<'a>(mut left: &'a [u8], mut suffix: &[u8]) -> Option<&'a [u8]> {
-    impl_bytes_function! {
-        strip_suffix;
-        left = left;
-        right = suffix;
-        on_error = return None,
-    }
-    Some(left)
-}
-
-#[inline]
-#[cfg(feature = "mut_refs")]
-pub const fn bytes_strip_suffix_mut<'a>(
-    mut left: &'a mut [u8],
-    mut suffix: &[u8],
-) -> Option<&'a mut [u8]> {
     impl_bytes_function! {
         strip_suffix;
         left = left;
@@ -589,6 +676,24 @@ pub const fn first<T>(slice: &[T]) -> Option<&T> {
     }
 }
 
+/// A const equivalent of
+/// [`<[T]>::first_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.first_mut)
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// assert_eq!(slice::first_mut(&mut [8, 5, 3]), Some(&mut 8));
+///
+/// assert_eq!(slice::first_mut(&mut [5, 3]), Some(&mut 5));
+///
+/// assert_eq!(slice::first_mut(&mut [3]), Some(&mut 3));
+///
+/// assert_eq!(slice::first_mut::<u8>(&mut []), None);
+///
+/// ```
+///
 #[cfg(feature = "mut_refs")]
 pub const fn first_mut<T>(slice: &mut [T]) -> Option<&mut T> {
     if let [first, ..] = slice {
@@ -624,6 +729,23 @@ pub const fn last<T>(slice: &[T]) -> Option<&T> {
     }
 }
 
+/// A const equivalent of
+/// [`<[T]>::last_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.last_mut)
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// assert_eq!(slice::last_mut(&mut [3, 5, 8]), Some(&mut 8));
+///
+/// assert_eq!(slice::last_mut(&mut [3, 5]), Some(&mut 5));
+///
+/// assert_eq!(slice::last_mut(&mut [3]), Some(&mut 3));
+///
+/// assert_eq!(slice::last_mut::<u8>(&mut []), None);
+///
+/// ```
 #[cfg(feature = "mut_refs")]
 pub const fn last_mut<T>(slice: &mut [T]) -> Option<&mut T> {
     if let [.., last] = slice {
@@ -667,6 +789,23 @@ pub const fn split_first<T>(slice: &[T]) -> Option<(&T, &[T])> {
     }
 }
 
+/// A const equivalent of
+/// [`<[T]>::split_first_mut`
+/// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_first_mut)
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// assert_eq!(slice::split_first_mut(&mut [5, 8, 13, 21]), Some((&mut 5, &mut [8, 13, 21][..])));
+/// assert_eq!(slice::split_first_mut(&mut [8, 13, 21]), Some((&mut 8, &mut [13, 21][..])));
+/// assert_eq!(slice::split_first_mut(&mut [13, 21]), Some((&mut 13, &mut [21][..])));
+/// assert_eq!(slice::split_first_mut(&mut [21]), Some((&mut 21, &mut [][..])));
+/// assert_eq!(slice::split_first_mut::<()>(&mut []), None);
+///
+/// ```
+///
 #[cfg(feature = "mut_refs")]
 pub const fn split_first_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
     if let [first, rem @ ..] = slice {
@@ -715,8 +854,25 @@ pub const fn split_last<T>(slice: &[T]) -> Option<(&T, &[T])> {
     }
 }
 
+/// A const equivalent of
+/// [`<[T]>::split_last_mut`
+/// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_last_mut)
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// assert_eq!(slice::split_last_mut(&mut [8, 13, 21, 5]), Some((&mut 5, &mut [8, 13, 21][..])));
+/// assert_eq!(slice::split_last_mut(&mut [13, 21, 8]), Some((&mut 8, &mut [13, 21][..])));
+/// assert_eq!(slice::split_last_mut(&mut [21, 13]), Some((&mut 13, &mut [21][..])));
+/// assert_eq!(slice::split_last_mut(&mut [21]), Some((&mut 21, &mut [][..])));
+/// assert_eq!(slice::split_last_mut::<()>(&mut []), None);
+///
+/// ```
+///
 #[cfg(feature = "mut_refs")]
-pub const fn split_last_mut<T>(slice: &mut [T]) -> Option<(&mut T, &[T])> {
+pub const fn split_last_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
     if let [rem @ .., last] = slice {
         Some((last, rem))
     } else {
