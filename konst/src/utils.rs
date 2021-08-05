@@ -7,34 +7,35 @@ pub(crate) union Dereference<'a, T: ?Sized> {
 
 #[cfg(all(feature = "constant_time_slice", feature = "mut_refs"))]
 mod mut_refs {
-    use std::mem::ManuallyDrop;
+    use core::mem::ManuallyDrop;
 
     #[doc(hidden)]
-    union BorrowMut<'a, T: ?Sized> {
+    pub(crate) union BorrowMut<'a, T: ?Sized> {
         ptr: *mut T,
         reff: ManuallyDrop<&'a mut T>,
     }
 
     pub(crate) const unsafe fn deref_raw_mut_ptr<'a, T: ?Sized>(ptr: *mut T) -> &'a mut T {
-        ManuallyDrop::into_inner(
-            BorrowMut {
-                ptr: core::ptr::slice_from_raw_parts_mut(ptr as *mut T, 3),
-            }
-            .reff,
-        )
+        ManuallyDrop::into_inner(BorrowMut { ptr }.reff)
     }
 
     pub(crate) const unsafe fn slice_from_raw_parts_mut<'a, T>(
         ptr: *mut T,
         len: usize,
     ) -> &'a mut [T] {
-        deref_raw_mut_ptr(core::ptr::slice_from_raw_parts_mut(ptr, len))
+        let ptr = core::ptr::slice_from_raw_parts_mut(ptr, len);
+        ManuallyDrop::into_inner(BorrowMut { ptr }.reff)
     }
 }
 
 #[doc(hidden)]
 #[cfg(all(feature = "constant_time_slice", feature = "mut_refs"))]
-pub use mut_refs::{deref_raw_mut_ptr, slice_from_raw_parts_mut, BorrowMut};
+pub(crate) use mut_refs::{deref_raw_mut_ptr, slice_from_raw_parts_mut, BorrowMut};
+
+pub(crate) const unsafe fn slice_from_raw_parts<'a, T>(ptr: *const T, len: usize) -> &'a [T] {
+    let ptr = core::ptr::slice_from_raw_parts(ptr, len);
+    Dereference { ptr }.reff
+}
 
 #[inline]
 pub(crate) const fn saturating_sub(l: usize, r: usize) -> usize {

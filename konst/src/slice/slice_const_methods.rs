@@ -4,7 +4,7 @@ use crate::utils::saturating_sub;
 use crate::utils::{min_usize, Dereference};
 
 macro_rules! slice_from_impl {
-    ($slice:ident, $start:ident, [$($mut:tt)*]) => ({
+    ($slice:ident, $start:ident, $as_ptr:ident, $from_raw_parts:ident, [$($mut:tt)*]) => ({
         let rem = saturating_sub($slice.len(), $start);
 
         if rem == 0 {
@@ -14,9 +14,7 @@ macro_rules! slice_from_impl {
         #[cfg(feature = "constant_time_slice")]
         {
             unsafe {
-                let raw_slice =
-                    core::ptr::slice_from_raw_parts($slice.as_ptr().offset($start as _), rem);
-                Dereference { ptr: raw_slice }.reff
+                crate::utils::$from_raw_parts($slice.$as_ptr().offset($start as _), rem)
             }
         }
         #[cfg(not(feature = "constant_time_slice"))]
@@ -34,7 +32,7 @@ macro_rules! slice_from_impl {
 }
 
 macro_rules! slice_up_to_impl {
-    ($slice:ident, $len:ident, [$($mut:tt)*]) => {{
+    ($slice:ident, $len:ident, $as_ptr:ident, $from_raw_parts:ident, [$($mut:tt)*]) => {{
         let rem = saturating_sub($slice.len(), $len);
 
         if rem == 0 {
@@ -44,10 +42,7 @@ macro_rules! slice_up_to_impl {
         #[cfg(feature = "constant_time_slice")]
         {
             // Doing this to get a slice up to length at compile-time
-            unsafe {
-                let raw_slice = core::ptr::slice_from_raw_parts($slice.as_ptr(), $len);
-                Dereference { ptr: raw_slice }.reff
-            }
+            unsafe { crate::utils::$from_raw_parts($slice.$as_ptr(), $len) }
         }
         #[cfg(not(feature = "constant_time_slice"))]
         {
@@ -138,13 +133,13 @@ macro_rules! slice_up_to_impl_inner{
 /// ```
 #[inline]
 pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
-    slice_from_impl!(slice, start, [])
+    slice_from_impl!(slice, start, as_ptr, slice_from_raw_parts, [])
 }
 
 #[inline]
 #[cfg(feature = "mut_refs")]
 pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
-    slice_from_impl!(slice, start, [mut])
+    slice_from_impl!(slice, start, as_mut_ptr, slice_from_raw_parts_mut, [mut])
 }
 
 /// A const equivalent of `&slice[..len]`.
@@ -180,13 +175,13 @@ pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
 /// ```
 #[inline]
 pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
-    slice_up_to_impl!(slice, len, [])
+    slice_up_to_impl!(slice, len, as_ptr, slice_from_raw_parts, [])
 }
 
 #[inline]
 #[cfg(feature = "mut_refs")]
 pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
-    slice_up_to_impl!(slice, len, [mut])
+    slice_up_to_impl!(slice, len, as_mut_ptr, slice_from_raw_parts_mut, [mut])
 }
 
 /// A const equivalent of `&slice[start..end]`.
@@ -265,17 +260,17 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 
 #[inline]
 #[cfg(all(feature = "mut_refs", feature = "constant_time_slice"))]
-pub const fn split_at_mut<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
+pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T]) {
     use crate::utils::slice_from_raw_parts_mut;
 
     if at > slice.len() {
-        return (&mut [], &mut []);
+        return (slice, &mut []);
     }
 
     let suffix_len = slice.len() - at;
 
     unsafe {
-        let ptr = slice.as_ptr_mut();
+        let ptr = slice.as_mut_ptr();
 
         let prefix = slice_from_raw_parts_mut(ptr.offset(0), at);
         let suffix = slice_from_raw_parts_mut(ptr.offset(at as isize), suffix_len);
@@ -328,7 +323,9 @@ pub const fn bytes_strip_prefix<'a>(mut left: &'a [u8], mut prefix: &[u8]) -> Op
         strip_prefix;
         left = left;
         right = prefix;
+        on_error = return None,
     }
+    Some(left)
 }
 
 #[inline]
@@ -341,7 +338,9 @@ pub const fn bytes_strip_prefix_mut<'a>(
         strip_prefix;
         left = left;
         right = prefix;
+        on_error = return None,
     }
+    Some(left)
 }
 
 /// A const equivalent of
@@ -388,7 +387,9 @@ pub const fn bytes_strip_suffix<'a>(mut left: &'a [u8], mut suffix: &[u8]) -> Op
         strip_suffix;
         left = left;
         right = suffix;
+        on_error = return None,
     }
+    Some(left)
 }
 
 #[inline]
@@ -401,7 +402,9 @@ pub const fn bytes_strip_suffix_mut<'a>(
         strip_suffix;
         left = left;
         right = suffix;
+        on_error = return None,
     }
+    Some(left)
 }
 
 /// Finds the byte offset of `right` inside `&left[from..]`.

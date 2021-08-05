@@ -1,33 +1,67 @@
-use konst::slice::{bytes_find, bytes_rfind, slice_from, slice_up_to, split_at};
+use konst::slice::{bytes_find, bytes_rfind};
+
+macro_rules! slice_splitting_test {
+    (
+        $slice_up_to:ident,
+        $split_at:ident,
+        $slice_from:ident,
+        [$($mut:tt)*]
+    ) => {
+        use konst::slice::{$slice_up_to, $split_at, $slice_from};
+
+        let $($mut)* list = (0..=258).collect::<Vec<u32>>();
+        let $($mut)* listb = list.clone();
+
+        for &pow in [1usize, 8, 64, 256].iter() {
+            let lengths = [pow.saturating_sub(2), pow - 1, pow, pow + 1, pow + 2];
+            for &length in lengths.iter() {
+                let sub = & $($mut)* list[..length];
+                let sub_len = sub.len();
+                let sub2 = & $($mut)* listb[..length];
+                for i in 0..=sub_len {
+                    assert_eq!($slice_up_to(sub, i), & $($mut)* sub2[..i]);
+
+                    assert_eq!($slice_from(sub, i), & $($mut)* sub2[i..]);
+
+                    let (left, right) = sub2.$split_at(i);
+                    assert_eq!($split_at(sub, i), (left, right));
+                }
+                assert_eq!($slice_up_to(sub, sub_len + 1), sub2);
+                assert_eq!($slice_up_to(sub, sub_len + 2), sub2);
+                assert_eq!($slice_up_to(sub, sub_len + 3), sub2);
+
+                assert_eq!($split_at(sub, sub_len + 1), (& $($mut)* *sub2, & $($mut)* [][..]));
+                assert_eq!($split_at(sub, sub_len + 2), (& $($mut)* *sub2, & $($mut)* [][..]));
+                assert_eq!($split_at(sub, sub_len + 3), (& $($mut)* *sub2, & $($mut)* [][..]));
+
+                assert_eq!($slice_from(sub, sub_len + 1), & $($mut)* []);
+                assert_eq!($slice_from(sub, sub_len + 2), & $($mut)* []);
+                assert_eq!($slice_from(sub, sub_len + 3), & $($mut)* []);
+            }
+        }
+    };
+}
 
 #[cfg(any(not(miri), feature = "constant_time_slice"))]
 #[test]
 fn slice_up_to_from_test() {
-    let list = (0..=258).collect::<Vec<u32>>();
+    slice_splitting_test! {
+        slice_up_to,
+        split_at,
+        slice_from,
+        []
+    }
+}
 
-    for &pow in [1usize, 8, 64, 256].iter() {
-        let lengths = [pow.saturating_sub(2), pow - 1, pow, pow + 1, pow + 2];
-        for &length in lengths.iter() {
-            let sub = &list[..length];
-            for i in 0..=sub.len() {
-                assert_eq!(slice_up_to(&sub, i), &sub[..i]);
-
-                assert_eq!(slice_from(&sub, i), &sub[i..]);
-
-                assert_eq!(split_at(&sub, i), (&sub[..i], &sub[i..]));
-            }
-            assert_eq!(slice_up_to(&sub, sub.len() + 1), sub);
-            assert_eq!(slice_up_to(&sub, sub.len() + 2), sub);
-            assert_eq!(slice_up_to(&sub, sub.len() + 3), sub);
-
-            assert_eq!(split_at(&sub, sub.len() + 1), (sub, &[][..]));
-            assert_eq!(split_at(&sub, sub.len() + 2), (sub, &[][..]));
-            assert_eq!(split_at(&sub, sub.len() + 3), (sub, &[][..]));
-
-            assert_eq!(slice_from(&sub, sub.len() + 1), &[]);
-            assert_eq!(slice_from(&sub, sub.len() + 2), &[]);
-            assert_eq!(slice_from(&sub, sub.len() + 3), &[]);
-        }
+#[cfg(feature = "mut_refs")]
+#[cfg(feature = "constant_time_slice")]
+#[test]
+fn slice_up_to_from_mut_test() {
+    slice_splitting_test! {
+        slice_up_to_mut,
+        split_at_mut,
+        slice_from_mut,
+        [mut]
     }
 }
 

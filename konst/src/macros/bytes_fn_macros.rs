@@ -3,9 +3,10 @@ macro_rules! impl_bytes_function {
         strip_prefix;
         left = $left:expr;
         right = $right:expr;
+        on_error = $on_error:expr,
     ) => {
         if $left.len() < $right.len() {
-            return None;
+            $on_error
         }
 
         loop {
@@ -15,10 +16,13 @@ macro_rules! impl_bytes_function {
                     $right = rem_matched;
 
                     if *lb != *rb {
-                        return None;
+                        $on_error
                     }
                 }
-                (rem, _) => break Some(rem),
+                (rem, _) => {
+                    $left = rem;
+                    break;
+                }
             }
         }
     };
@@ -26,9 +30,10 @@ macro_rules! impl_bytes_function {
         strip_suffix;
         left = $left:expr;
         right = $right:expr;
+        on_error = $on_error:expr,
     ) => {
         if $left.len() < $right.len() {
-            return None;
+            $on_error
         }
 
         loop {
@@ -38,10 +43,13 @@ macro_rules! impl_bytes_function {
                     $right = rem_matched;
 
                     if *lb != *rb {
-                        return None;
+                        $on_error
                     }
                 }
-                (rem, _) => break Some(rem),
+                (rem, _) => {
+                    $left = rem;
+                    break;
+                }
             }
         }
     };
