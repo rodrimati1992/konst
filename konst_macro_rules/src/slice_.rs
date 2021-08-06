@@ -151,6 +151,21 @@ pub const fn try_into_array_func<T, const N: usize>(
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#[cfg(feature = "mut_refs")]
+#[inline]
+pub const fn try_into_array_mut_func<T, const N: usize>(
+    slice: &mut [T],
+) -> Result<&mut [T; N], TryIntoArrayError> {
+    if slice.len() == N {
+        let ptr = slice as *mut [T] as *mut [T; N];
+        unsafe { Ok(crate::utils::deref_raw_mut_ptr(ptr)) }
+    } else {
+        Err(TryIntoArrayError { _priv: () })
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct TryIntoArrayError {
     _priv: (),

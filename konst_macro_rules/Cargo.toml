@@ -1,6 +1,6 @@
 [package]
 name = "konst_macro_rules"
-version = "0.2.5"
+version = "0.2.7"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 edition = "2018"
 license = "Zlib"
@@ -20,3 +20,5 @@ include = [
 [features]
 const_generics = []
 deref_raw_in_fn = []
+nightly_mut_refs = ["mut_refs"]
+mut_refs = ["deref_raw_in_fn"]

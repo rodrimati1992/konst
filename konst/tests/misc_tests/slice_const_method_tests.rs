@@ -65,6 +65,47 @@ fn slice_up_to_from_mut_test() {
     }
 }
 
+macro_rules! range_tests {
+    ($slice_range:ident, [$($mut:tt)*]) => {
+            use konst::slice::$slice_range;
+
+            let arr = &$($mut)*[3, 5, 8, 13, 21, 34, 55, 89];
+
+            assert_eq!(*$slice_range(arr, 0, 7), [3, 5, 8, 13, 21, 34, 55]);
+            assert_eq!(*$slice_range(arr, 0, 8), [3, 5, 8, 13, 21, 34, 55, 89]);
+            assert_eq!(*$slice_range(arr, 0, 9), [3, 5, 8, 13, 21, 34, 55, 89]);
+            assert_eq!(*$slice_range(arr, 0, 10), [3, 5, 8, 13, 21, 34, 55, 89]);
+            assert_eq!(*$slice_range(arr, 0, usize::MAX), [3, 5, 8, 13, 21, 34, 55, 89]);
+
+
+            assert_eq!(*$slice_range(arr, 3, 5), [13, 21]);
+            assert_eq!(*$slice_range(arr, 3, 6), [13, 21, 34]);
+            assert_eq!(*$slice_range(arr, 3, 7), [13, 21, 34, 55]);
+            assert_eq!(*$slice_range(arr, 5, 3), []);
+
+            assert_eq!(*$slice_range(arr, 1, usize::MAX), [5, 8, 13, 21, 34, 55, 89]);
+            assert_eq!(*$slice_range(arr, 2, usize::MAX), [8, 13, 21, 34, 55, 89]);
+            assert_eq!(*$slice_range(arr, 3, usize::MAX), [13, 21, 34, 55, 89]);
+            assert_eq!(*$slice_range(arr, 4, usize::MAX), [21, 34, 55, 89]);
+            assert_eq!(*$slice_range(arr, 5, usize::MAX), [34, 55, 89]);
+            assert_eq!(*$slice_range(arr, 6, usize::MAX), [55, 89]);
+            assert_eq!(*$slice_range(arr, 7, usize::MAX), [89]);
+            assert_eq!(*$slice_range(arr, 8, usize::MAX), []);
+            assert_eq!(*$slice_range(arr, 9, usize::MAX), []);
+    };
+}
+
+#[test]
+fn slice_range_test() {
+    range_tests! {slice_range, []}
+}
+
+#[cfg(feature = "mut_refs")]
+#[test]
+fn slice_range_mut_test() {
+    range_tests! {slice_range_mut, [mut]}
+}
+
 // This doesn't use unsafe
 #[cfg(not(miri))]
 #[test]

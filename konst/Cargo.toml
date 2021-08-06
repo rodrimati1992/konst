@@ -23,7 +23,7 @@ path = "../konst_proc_macros"
 optional = true
 
 [dependencies.konst_macro_rules]
-version = "=0.2.5"
+version = "=0.2.7"
 path = "../konst_macro_rules"
 
 [features]
@@ -35,8 +35,11 @@ parsing_no_proc = []
 constant_time_slice = []
 const_generics = ["konst_macro_rules/const_generics"]
 deref_raw_in_fn = ["const_generics", "konst_macro_rules/deref_raw_in_fn"]
-nightly_mut_refs = ["mut_refs"]
-mut_refs = []
+nightly_mut_refs = ["mut_refs", "konst_macro_rules/nightly_mut_refs"]
+mut_refs = ["deref_raw_in_fn", "konst_macro_rules/mut_refs"]
+
+
+
 
 alloc = []
 
