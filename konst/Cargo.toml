@@ -1,6 +1,6 @@
 [package]
 name = "konst"
-version = "0.2.7"
+version = "0.2.8"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 edition = "2018"
 license = "Zlib"
@@ -51,5 +51,5 @@ docsrs = []
 
 
 [package.metadata.docs.rs]
-features = ["docsrs", "alloc", "cmp", "parsing", "const_generics", "deref_raw_in_fn"]
+features = ["docsrs", "alloc", "cmp", "parsing", "const_generics", "deref_raw_in_fn", "nightly_mut_refs"]
 
