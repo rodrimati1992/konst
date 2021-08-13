@@ -251,6 +251,15 @@ Enables items that use types from the [`alloc`] crate, including `Vec` and `Stri
 - `"deref_raw_in_fn"` (disabled by default):
 Requires Rust nightly. Enables `const fn`s that need to dereference raw pointers.
 
+- `"mut_refs"`(disabled by default): 
+Enables const functions that take mutable references.
+Use this whenever mutable references in const contexts are stabilized.
+Also enables the `"deref_raw_in_fn"` feature.
+
+- `"nightly_mut_refs"`(disabled by default): 
+Enables the `"mut_refs"` feature. Requires Rust nightly.
+
+
 
 # No-std support
 

@@ -166,7 +166,8 @@ __declare_fns_with_docs! {
 #[doc(inline)]
 pub use konst_macro_rules::try_into_array;
 
-/// The error produced by trying to convert from a `&[T]` to a `&[T; N]`
+/// The error produced by trying to convert from
+/// `&[T]` to `&[T; N]`, or from `&mut [T]` to `&mut [T; N]`.
 #[doc(inline)]
 pub use konst_macro_rules::slice_::TryIntoArrayError;
 
@@ -233,3 +234,42 @@ pub use konst_macro_rules::slice_::TryIntoArrayError;
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "deref_raw_in_fn")))]
 #[doc(inline)]
 pub use konst_macro_rules::slice_::try_into_array_func as try_into_array;
+
+/// Tries to convert from `&mut [T]` to `&mut [T; N]`.
+///
+/// Returns an `Err(TryIntoArrayError{..})` when the slice doesn't match the expected length.
+///
+/// # Example
+///
+/// ```rust
+/// # #![feature(const_mut_refs)]
+/// use konst::{slice, unwrap_ctx};
+///
+/// const fn mut_array_from<const LEN: usize>(slice: &mut [u8], from: usize) -> &mut [u8; LEN] {
+///     let sliced = slice::slice_range_mut(slice, from, from + LEN);
+///     unwrap_ctx!(slice::try_into_array_mut(sliced))
+/// }
+///
+/// # fn main() {
+///
+/// let slice = &mut [3, 5, 8, 13, 21, 34, 55, 89, 144, 233];
+///
+/// let foo: &mut [u8; 2] = mut_array_from(slice, 0);
+/// assert_eq!(foo, &mut [3, 5]);
+///
+/// let bar: &mut [u8; 3] = mut_array_from(slice, 2);
+/// assert_eq!(bar, &mut [8, 13, 21]);
+///
+/// let baz: &mut [u8; 4] = mut_array_from(slice, 4);
+/// assert_eq!(baz, &mut [21, 34, 55, 89]);
+///
+/// # }
+/// ```
+///
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(
+    feature = "docsrs",
+    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
+)]
+#[doc(inline)]
+pub use konst_macro_rules::slice_::try_into_array_mut_func as try_into_array_mut;

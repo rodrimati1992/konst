@@ -194,3 +194,37 @@ fn try_into_array_fn_test() {
     assert!(try_into_array::<_, 5>(slice).is_err());
     assert!(try_into_array::<_, 6>(slice).is_err());
 }
+
+#[test]
+#[cfg(feature = "mut_refs")]
+fn try_into_array_mut_test() {
+    use konst::slice::try_into_array_mut;
+
+    let mut slice = [0, 2, 3, 4];
+
+    assert!(try_into_array_mut::<_, 0>(&mut slice).is_err());
+    assert!(try_into_array_mut::<_, 1>(&mut slice).is_err());
+    assert!(try_into_array_mut::<_, 2>(&mut slice).is_err());
+    assert!(try_into_array_mut::<_, 3>(&mut slice).is_err());
+
+    assert_eq!(try_into_array_mut::<_, 0>(&mut slice[..0]), Ok(&mut []));
+
+    macro_rules! assert_around {
+        ($prev:expr, $len:expr, $after:expr, $expected:expr) => {
+            assert!(try_into_array_mut::<_, $prev>(&mut slice[..$len]).is_err());
+            assert_eq!(
+                try_into_array_mut::<_, $len>(&mut slice[..$len]),
+                Ok(&mut $expected)
+            );
+            assert!(try_into_array_mut::<_, $after>(&mut slice[..$len]).is_err());
+        };
+    }
+
+    assert_around! {0, 1, 2, [0]}
+    assert_around! {1, 2, 3, [0, 2]}
+    assert_around! {2, 3, 4, [0, 2, 3]}
+    assert_around! {3, 4, 5, [0, 2, 3, 4]}
+
+    assert!(try_into_array_mut::<_, 5>(&mut slice).is_err());
+    assert!(try_into_array_mut::<_, 6>(&mut slice).is_err());
+}

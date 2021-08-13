@@ -2,6 +2,22 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.2
 
+### 0.2.7
+
+Added the  `"mut_refs"`, `"nightly_mut_refs"` features for const fns that take mutable references.
+
+Added these mutable slice functions:
+- `konst::slice::first_mut`
+- `konst::slice::last_mut`
+- `konst::slice::slice_from_mut`
+- `konst::slice::slice_range_mut`
+- `konst::slice::slice_up_to_mut`
+- `konst::slice::split_at_mut`
+- `konst::slice::split_first_mut`
+- `konst::slice::split_last_mut`
+- `konst::slice::try_into_array_mut`
+
+
 ### 0.2.5
 
 Added `ParseFor` trait and `parse_with` macro, for type-dispatched parsing.

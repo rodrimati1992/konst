@@ -266,7 +266,7 @@ impl<'a> Parser<'a> {
                 strip_prefix;
                 left = self.bytes;
                 right = matched;
-                on_error = throw!(ErrorKind::Strip);
+                on_error = throw!(ErrorKind::Strip),
             }
         }
     }
@@ -347,7 +347,7 @@ impl<'a> Parser<'a> {
                 strip_suffix;
                 left = self.bytes;
                 right = matched;
-                on_error = throw!(ErrorKind::Strip);
+                on_error = throw!(ErrorKind::Strip),
             }
         }
     }
