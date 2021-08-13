@@ -267,6 +267,9 @@ pub use konst_macro_rules::slice_::try_into_array_func as try_into_array;
 /// ```
 ///
 #[cfg(feature = "mut_refs")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+#[cfg_attr(
+    feature = "docsrs",
+    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
+)]
 #[doc(inline)]
 pub use konst_macro_rules::slice_::try_into_array_mut_func as try_into_array_mut;
