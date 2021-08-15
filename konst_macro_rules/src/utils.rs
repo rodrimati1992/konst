@@ -1,3 +1,5 @@
+#[doc(hidden)]
+#[repr(C)]
 pub union Dereference<'a, T> {
     pub ptr: *const T,
     pub reff: &'a T,
@@ -8,6 +10,7 @@ mod mut_refs {
     use core::mem::ManuallyDrop;
 
     #[doc(hidden)]
+    #[repr(C)]
     pub(crate) union BorrowMut<'a, T: ?Sized> {
         ptr: *mut T,
         reff: ManuallyDrop<&'a mut T>,

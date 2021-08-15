@@ -1,4 +1,5 @@
 #[doc(hidden)]
+#[repr(C)]
 #[cfg(feature = "constant_time_slice")]
 pub(crate) union Dereference<'a, T: ?Sized> {
     pub ptr: *const T,
@@ -9,6 +10,7 @@ pub(crate) union Dereference<'a, T: ?Sized> {
 mod mut_refs {
     use core::mem::ManuallyDrop;
 
+    #[repr(C)]
     #[doc(hidden)]
     pub(crate) union BorrowMut<'a, T: ?Sized> {
         ptr: *mut T,
