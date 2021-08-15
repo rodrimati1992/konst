@@ -2,6 +2,10 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.2
 
+### 0.2.9
+
+Fixed internal soundness bug in where unions weren't `#[repr(C))]`.
+
 ### 0.2.7
 
 Added the  `"mut_refs"`, `"nightly_mut_refs"` features for const fns that take mutable references.
