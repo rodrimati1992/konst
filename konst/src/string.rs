@@ -232,7 +232,7 @@ pub const fn str_up_to(string: &str, len: usize) -> &str {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
+/// [`crate::slice::slice_from`](../slice/fn.slice_from.html#performance)
 ///
 /// # Panics
 ///
@@ -281,7 +281,7 @@ pub const fn str_from(string: &str, start: usize) -> &str {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
+/// [`crate::slice::slice_range`](../slice/fn.slice_range.html#performance)
 ///
 /// # Panics
 ///

@@ -1,4 +1,7 @@
-use konst::parsing::{ParseDirection, Parser};
+use konst::{
+    parsing::{ParseDirection, Parser},
+    slice::{bytes_strip_prefix, bytes_strip_suffix},
+};
 
 fn reverse(s: &str) -> String {
     s.chars().rev().collect()
@@ -112,7 +115,12 @@ fn strip_prefix_suffix_test() {
             let parser = Parser::from_str(string);
             let returned = returned.map(|x| x.as_bytes());
             let stripped = parser.strip_prefix(needle).ok();
-            assert_eq!(stripped.map(|x| x.bytes()), returned, "normal");
+            {
+                let stripped = stripped.map(|x| x.bytes());
+                let stripped_b = bytes_strip_prefix(string.as_bytes(), needle.as_bytes());
+                assert_eq!(stripped, returned, "normala");
+                assert_eq!(stripped, stripped_b, "normalb");
+            }
 
             if let Some(stripped) = stripped {
                 assert_eq!(stripped.start_offset(), needle.len());
@@ -128,7 +136,12 @@ fn strip_prefix_suffix_test() {
             let rev_returned = rev_returned.as_ref().map(|x| x.as_bytes());
 
             let stripped = parser.strip_suffix(rev_needle).ok();
-            assert_eq!(stripped.map(|x| x.bytes()), rev_returned, "rev");
+            {
+                let stripped = stripped.map(|x| x.bytes());
+                let stripped_b = bytes_strip_suffix(rev_string.as_bytes(), rev_needle.as_bytes());
+                assert_eq!(stripped, rev_returned, "reva");
+                assert_eq!(stripped, stripped_b, "revb");
+            }
 
             if let (Some(stripped), Some(returned)) = (stripped, rev_returned) {
                 assert_eq!(stripped.start_offset(), 0);
