@@ -225,6 +225,50 @@ pub const fn str_up_to(string: &str, len: usize) -> &str {
     }
 }
 
+/// A const equivalent of `string.get(..len)`.
+///
+/// # Performance
+///
+/// This has the same performance as
+/// [`crate::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
+///
+/// # Example
+///
+/// ```
+/// use konst::string;
+///
+/// const STR: &str = "foo bar baz";
+///
+/// const SUB0: Option<&str> = string::get_up_to(STR, 3);
+/// assert_eq!(SUB0, Some("foo"));
+///
+/// const SUB1: Option<&str> = string::get_up_to(STR, 7);
+/// assert_eq!(SUB1, Some("foo bar"));
+///
+/// const SUB2: Option<&str> = string::get_up_to(STR, 11);
+/// assert_eq!(SUB2, Some(STR));
+///
+/// const SUB3: Option<&str> = string::get_up_to(STR, 100);
+/// assert_eq!(SUB3, None);
+///
+///
+/// ```
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn get_up_to(string: &str, len: usize) -> Option<&str> {
+    let bytes = string.as_bytes();
+
+    crate::option::and_then!(
+        crate::slice::get_up_to(bytes, len),
+        |x| if is_char_boundary_get(bytes, len) {
+            // Safety: is_char_boundary_get checks that `len` falls on a char boundary.
+            unsafe { Some(core::str::from_utf8_unchecked(x)) }
+        } else {
+            None
+        }
+    )
+}
+
 /// A const equivalent of `&string[start..]`.
 ///
 /// If `string.len() < start`, this simply returns `string` back.
@@ -272,6 +316,50 @@ pub const fn str_from(string: &str, start: usize) -> &str {
     } else {
         [/* start is not on a char boundary */][start]
     }
+}
+
+/// A const equivalent of `string.get(from..)`.
+///
+/// # Performance
+///
+/// This has the same performance as
+/// [`crate::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
+///
+/// # Example
+///
+/// ```
+/// use konst::string;
+///
+/// const STR: &str = "foo bar baz";
+///
+/// const SUB0: Option<&str> = string::get_from(STR, 0);
+/// assert_eq!(SUB0, Some(STR));
+///
+/// const SUB1: Option<&str> = string::get_from(STR, 4);
+/// assert_eq!(SUB1, Some("bar baz"));
+///
+/// const SUB2: Option<&str> = string::get_from(STR, 8);
+/// assert_eq!(SUB2, Some("baz"));
+///
+/// const SUB3: Option<&str> = string::get_from(STR, 100);
+/// assert_eq!(SUB3, None);
+///
+///
+/// ```
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn get_from(string: &str, from: usize) -> Option<&str> {
+    let bytes = string.as_bytes();
+
+    crate::option::and_then!(
+        crate::slice::get_from(bytes, from),
+        |x| if is_char_boundary_get(bytes, from) {
+            // Safety: is_char_boundary_get checks that `from` falls on a char boundary.
+            unsafe { Some(core::str::from_utf8_unchecked(x)) }
+        } else {
+            None
+        }
+    )
 }
 
 /// A const equivalent of `&string[start..]`.
@@ -322,6 +410,50 @@ pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
     } else {
         [/* start is not on a char boundary */][start]
     }
+}
+
+/// A const equivalent of `string.get(start..end)`.
+///
+/// # Performance
+///
+/// This has the same performance as
+/// [`crate::slice::slice_range`](../slice/fn.slice_range.html#performance)
+///
+/// # Example
+///
+/// ```
+/// use konst::string;
+///
+/// const STR: &str = "foo bar baz";
+///
+/// const SUB0: Option<&str> = string::get_range(STR, 0, 3);
+/// assert_eq!(SUB0, Some("foo"));
+///
+/// const SUB1: Option<&str> = string::get_range(STR, 0, 7);
+/// assert_eq!(SUB1, Some("foo bar"));
+///
+/// const SUB2: Option<&str> = string::get_range(STR, 4, 11);
+/// assert_eq!(SUB2, Some("bar baz"));
+///
+/// const SUB3: Option<&str> = string::get_range(STR, 0, 1000);
+/// assert_eq!(SUB3, None);
+///
+///
+/// ```
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
+    let bytes = string.as_bytes();
+
+    crate::option::and_then!(
+        crate::slice::get_range(bytes, start, end),
+        |x| if is_char_boundary_get(bytes, start) && is_char_boundary_get(bytes, end) {
+            // Safety: is_char_boundary_get checks that `start` and `end` fall on a char boundary.
+            unsafe { Some(core::str::from_utf8_unchecked(x)) }
+        } else {
+            None
+        }
+    )
 }
 
 /// A const subset of [`str::strip_prefix`], this only takes a `&str` pattern.
@@ -391,6 +523,14 @@ pub const fn str_strip_suffix<'a>(string: &'a str, suffix: &str) -> Option<&'a s
     }
 }
 
+#[cfg(feature = "rust_1_55")]
 const fn is_char_boundary(bytes: &[u8], position: usize) -> bool {
     position >= bytes.len() || (bytes[position] as i8) >= -0x40
+}
+
+#[cfg(feature = "rust_1_55")]
+const fn is_char_boundary_get(bytes: &[u8], position: usize) -> bool {
+    let len = bytes.len();
+
+    position == len || (bytes[position] as i8) >= -0x40
 }

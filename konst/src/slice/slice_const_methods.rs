@@ -97,6 +97,64 @@ macro_rules! slice_up_to_impl_inner{
     }
 }
 
+/// A const equivalent of `slice.get(index)`
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const FIBB: &[u16] = &[3, 5, 8];
+///
+/// const ELEM0: Option<&u16> = slice::get(FIBB, 0);
+/// const ELEM1: Option<&u16> = slice::get(FIBB, 1);
+/// const ELEM2: Option<&u16> = slice::get(FIBB, 2);
+/// const ELEM3: Option<&u16> = slice::get(FIBB, 3);
+///
+/// assert_eq!(ELEM0, Some(&3));
+/// assert_eq!(ELEM1, Some(&5));
+/// assert_eq!(ELEM2, Some(&8));
+/// assert_eq!(ELEM3, None);
+///
+/// ```
+#[inline]
+pub const fn get<T>(slice: &[T], index: usize) -> Option<&T> {
+    if slice.len() > index {
+        Some(&slice[index])
+    } else {
+        None
+    }
+}
+
+/// A const equivalent of `slice.get_mut(index)`
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// let mut fibb = [3, 5, 8];
+///
+/// assert_eq!(slice::get_mut(&mut fibb, 0), Some(&mut 3));
+/// assert_eq!(slice::get_mut(&mut fibb, 1), Some(&mut 5));
+/// assert_eq!(slice::get_mut(&mut fibb, 2), Some(&mut 8));
+/// assert_eq!(slice::get_mut(&mut fibb, 3), None);
+///
+/// ```
+#[inline]
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(
+    feature = "docsrs",
+    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
+)]
+pub const fn get_mut<T>(slice: &mut [T], index: usize) -> Option<&mut T> {
+    if slice.len() > index {
+        Some(&mut slice[index])
+    } else {
+        None
+    }
+}
+
 /// A const equivalent of `&slice[start..]`.
 ///
 /// If `slice.len() < start`, this simply returns an empty slice.
