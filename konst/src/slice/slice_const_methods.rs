@@ -1,21 +1,18 @@
-use crate::utils::saturating_sub;
-
 #[cfg(feature = "constant_time_slice")]
 use crate::utils::{min_usize, Dereference};
 
 macro_rules! slice_from_impl {
-    ($slice:ident, $start:ident, $as_ptr:ident, $from_raw_parts:ident, [$($mut:tt)*]) => ({
-        let rem = saturating_sub($slice.len(), $start);
+    ($slice:ident, $start:ident, $as_ptr:ident, $from_raw_parts:ident, $on_overflow:expr) => {{
+        #[allow(unused_variables)]
+        let (rem, overflowed) = $slice.len().overflowing_sub($start);
 
-        if rem == 0 {
-            return & $($mut)* [];
+        if overflowed {
+            return $on_overflow;
         }
 
         #[cfg(feature = "constant_time_slice")]
         {
-            unsafe {
-                crate::utils::$from_raw_parts($slice.$as_ptr().offset($start as _), rem)
-            }
+            unsafe { crate::utils::$from_raw_parts($slice.$as_ptr().offset($start as _), rem) }
         }
         #[cfg(not(feature = "constant_time_slice"))]
         {
@@ -28,15 +25,15 @@ macro_rules! slice_from_impl {
             }
             ret
         }
-    })
+    }};
 }
 
 macro_rules! slice_up_to_impl {
-    ($slice:ident, $len:ident, $as_ptr:ident, $from_raw_parts:ident, [$($mut:tt)*]) => {{
-        let rem = saturating_sub($slice.len(), $len);
+    ($slice:ident, $len:ident, $as_ptr:ident, $from_raw_parts:ident, $on_overflow:expr) => {{
+        let (rem, overflowed) = $slice.len().overflowing_sub($len);
 
-        if rem == 0 {
-            return $slice;
+        if overflowed {
+            return $on_overflow;
         }
 
         #[cfg(feature = "constant_time_slice")]
@@ -133,7 +130,47 @@ macro_rules! slice_up_to_impl_inner{
 /// ```
 #[inline]
 pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
-    slice_from_impl!(slice, start, as_ptr, slice_from_raw_parts, [])
+    slice_from_impl!(slice, start, as_ptr, slice_from_raw_parts, &[])
+}
+
+/// A const equivalent of `slice.get(start..)`.
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the leading elements,
+/// proportional to `start`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const FIBB: &[u16] = &[3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// const TWO: Option<&[u16]> = slice::get_from(FIBB, 2);
+/// const FOUR: Option<&[u16]> = slice::get_from(FIBB, 4);
+/// const ALL: Option<&[u16]> = slice::get_from(FIBB, 0);
+/// const NONE: Option<&[u16]> = slice::get_from(FIBB, 1000);
+///
+/// assert_eq!(TWO, Some(&[8, 13, 21, 34, 55, 89][..]));
+/// assert_eq!(FOUR, Some(&[21, 34, 55, 89][..]));
+/// assert_eq!(ALL, Some(FIBB));
+/// assert_eq!(NONE, None);
+///
+/// ```
+#[inline]
+pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
+    Some(slice_from_impl!(
+        slice,
+        start,
+        as_ptr,
+        slice_from_raw_parts,
+        None
+    ))
 }
 
 /// A const equivalent of `&mut slice[start..]`.
@@ -173,7 +210,51 @@ pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
     doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
 )]
 pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
-    slice_from_impl!(slice, start, as_mut_ptr, slice_from_raw_parts_mut, [mut])
+    slice_from_impl!(slice, start, as_mut_ptr, slice_from_raw_parts_mut, &mut [])
+}
+
+/// A const equivalent of `slice.get_mut(start..)`.
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the leading elements,
+/// proportional to `start`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// let mut fibs = [3, 5, 8, 13, 21, 34, 55];
+///
+/// assert_eq!(slice::get_from_mut(&mut fibs, 0), Some(&mut [3, 5, 8, 13, 21, 34, 55][..]));
+/// assert_eq!(slice::get_from_mut(&mut fibs, 1), Some(&mut [5, 8, 13, 21, 34, 55][..]));
+/// assert_eq!(slice::get_from_mut(&mut fibs, 2), Some(&mut [8, 13, 21, 34, 55][..]));
+/// assert_eq!(slice::get_from_mut(&mut fibs, 6), Some(&mut [55][..]));
+/// assert_eq!(slice::get_from_mut(&mut fibs, 7), Some(&mut [][..]));
+/// assert_eq!(slice::get_from_mut(&mut fibs, 8), None);
+/// assert_eq!(slice::get_from_mut(&mut fibs, 100), None);
+///
+///
+/// ```
+#[inline]
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(
+    feature = "docsrs",
+    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
+)]
+pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> {
+    Some(slice_from_impl!(
+        slice,
+        start,
+        as_mut_ptr,
+        slice_from_raw_parts_mut,
+        None
+    ))
 }
 
 /// A const equivalent of `&slice[..len]`.
@@ -209,7 +290,47 @@ pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
 /// ```
 #[inline]
 pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
-    slice_up_to_impl!(slice, len, as_ptr, slice_from_raw_parts, [])
+    slice_up_to_impl!(slice, len, as_ptr, slice_from_raw_parts, slice)
+}
+
+/// A const equivalent of `slice.get(..len)`.
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the trailing elements,
+/// proportional to `slice.len() - len`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const FIBB: &[u16] = &[3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// const TWO: Option<&[u16]> = slice::get_up_to(FIBB, 2);
+/// const FOUR: Option<&[u16]> = slice::get_up_to(FIBB, 4);
+/// const NONE: Option<&[u16]> = slice::get_up_to(FIBB, 0);
+/// const ALL: Option<&[u16]> = slice::get_up_to(FIBB, 1000);
+///
+/// assert_eq!(TWO, Some(&[3, 5][..]));
+/// assert_eq!(FOUR, Some(&[3, 5, 8, 13][..]));
+/// assert_eq!(NONE, Some(&[][..]));
+/// assert_eq!(ALL, None);
+///
+/// ```
+#[inline]
+pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
+    Some(slice_up_to_impl!(
+        slice,
+        len,
+        as_ptr,
+        slice_from_raw_part,
+        None
+    ))
 }
 
 /// A const equivalent of `&mut slice[..len]`.
@@ -250,7 +371,53 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
     doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
 )]
 pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
-    slice_up_to_impl!(slice, len, as_mut_ptr, slice_from_raw_parts_mut, [mut])
+    slice_up_to_impl!(slice, len, as_mut_ptr, slice_from_raw_parts_mut, slice)
+}
+
+/// A const equivalent of `slice.get_mut(..len)`.
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the trailing elements,
+/// proportional to `slice.len() - len`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// let mut fibs = [3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 100), None);
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 9), None);
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 8), Some(&mut [3, 5, 8, 13, 21, 34, 55, 89][..]));
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 7), Some(&mut [3, 5, 8, 13, 21, 34, 55][..]));
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 6), Some(&mut [3, 5, 8, 13, 21, 34][..]));
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 3), Some(&mut [3, 5, 8][..]));
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 2), Some(&mut [3, 5][..]));
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 1), Some(&mut [3][..]));
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 0), Some(&mut [][..]));
+///
+/// ```
+#[inline]
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(
+    feature = "docsrs",
+    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
+)]
+#[inline]
+pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
+    Some(slice_up_to_impl!(
+        slice,
+        len,
+        as_ptr,
+        slice_from_raw_part,
+        None
+    ))
 }
 
 /// A const equivalent of `&slice[start..end]`.
@@ -291,6 +458,42 @@ pub const fn slice_range<T>(slice: &[T], start: usize, end: usize) -> &[T] {
     slice_from(slice_up_to(slice, end), start)
 }
 
+/// A const equivalent of `slice.get(start..end)`.
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the leading and trailing elements,
+/// proportional to `start + (slice.len() - end)`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const FIBB: &[u16] = &[3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// const TWO: Option<&[u16]> = slice::get_range(FIBB, 2, 4);
+/// const FOUR: Option<&[u16]> = slice::get_range(FIBB, 4, 7);
+/// const ALL: Option<&[u16]> = slice::get_range(FIBB, 0, 8);
+/// const EMPTY: Option<&[u16]> = slice::get_range(FIBB, 0, 0);
+/// const NONE: Option<&[u16]> = slice::get_range(FIBB, 0, 1000);
+///
+/// assert_eq!(TWO, Some(&[8, 13][..]));
+/// assert_eq!(FOUR, Some(&[21, 34, 55][..]));
+/// assert_eq!(ALL, Some(FIBB));
+/// assert_eq!(EMPTY, Some(&[][..]));
+/// assert_eq!(NONE, None);
+///
+/// ```
+pub const fn get_range<T>(slice: &[T], start: usize, end: usize) -> Option<&[T]> {
+    let x = crate::try_opt!(get_up_to(slice, end));
+    get_from(x, start)
+}
+
 /// A const equivalent of `&mut slice[start..end]`.
 ///
 /// If `start >= end ` or `slice.len() < start `, this returns an empty slice.
@@ -328,6 +531,42 @@ pub const fn slice_range<T>(slice: &[T], start: usize, end: usize) -> &[T] {
 )]
 pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &mut [T] {
     slice_from_mut(slice_up_to_mut(slice, end), start)
+}
+
+/// A const equivalent of `slice.get_mut(start..end)`.
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the leading and trailing elements,
+/// proportional to `start + (slice.len() - end)`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// let mut fibb = [3, 5, 8, 13, 21, 34, 55];
+///
+/// assert_eq!(slice::get_range_mut(&mut fibb, 0, 0), Some(&mut [][..]));
+/// assert_eq!(slice::get_range_mut(&mut fibb, 2, 4), Some(&mut [8, 13][..]));
+/// assert_eq!(slice::get_range_mut(&mut fibb, 4, 7), Some(&mut [21, 34, 55][..]));
+/// assert_eq!(slice::get_range_mut(&mut fibb, 0, 7), Some(&mut [3, 5, 8, 13, 21, 34, 55][..]));
+/// assert_eq!(slice::get_range_mut(&mut fibb, 0, 1000), None);
+///
+/// ```
+#[inline]
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(
+    feature = "docsrs",
+    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
+)]
+pub const fn get_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> Option<&mut [T]> {
+    let x = crate::try_opt!(get_up_to_mut(slice, end));
+    get_from_mut(x, start)
 }
 
 /// A const equivalent of
