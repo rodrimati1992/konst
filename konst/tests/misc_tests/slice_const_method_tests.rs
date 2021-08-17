@@ -1,4 +1,4 @@
-use konst::slice::{bytes_find, bytes_rfind};
+use konst::slice::{self, bytes_find, bytes_rfind};
 
 macro_rules! slice_splitting_test {
     (
@@ -104,6 +104,77 @@ fn slice_range_test() {
 #[test]
 fn slice_range_mut_test() {
     range_tests! {slice_range_mut, [mut]}
+}
+
+#[test]
+fn slice_single_elem_get_test() {
+    #[allow(unused_mut)]
+    let mut arr = [3, 5, 8, 13, 21, 34, 55, 89];
+
+    for i in (0..10).chain([!0 - 1, !0].iter().copied()) {
+        assert_eq!(slice::get(&arr, i), arr.get(i));
+
+        #[cfg(feature = "mut_refs")]
+        {
+            let mut clone = arr;
+            assert_eq!(slice::get_mut(&mut arr, i), clone.get_mut(i));
+        }
+    }
+}
+
+#[test]
+fn slice_ranged_get_test() {
+    #[allow(unused_mut)]
+    let mut arr = [3, 5, 8, 13, 21, 34, 55, 89];
+    #[allow(unused_mut, unused_variables)]
+    let mut clone = arr;
+    let len = arr.len();
+
+    let indices = [0, 1, 2, 3, 4, 5, 6, 7, 8, !0 - 1, !0];
+
+    for x in indices.iter().copied() {
+        assert_eq!(slice::slice_from(&arr, x), &arr[x.min(len)..]);
+        assert_eq!(slice::slice_up_to(&arr, x), &arr[..x.min(len)]);
+        assert_eq!(slice::get_from(&arr, x), arr.get(x..));
+        assert_eq!(slice::get_up_to(&arr, x), arr.get(..x));
+
+        #[cfg(feature = "mut_refs")]
+        {
+            assert_eq!(slice::slice_from_mut(&mut arr, x), &mut clone[x.min(len)..]);
+            assert_eq!(
+                slice::slice_up_to_mut(&mut arr, x),
+                &mut clone[..x.min(len)]
+            );
+            assert_eq!(slice::get_from_mut(&mut arr, x), clone.get_mut(x..));
+            assert_eq!(slice::get_up_to_mut(&mut arr, x), clone.get_mut(..x));
+        }
+
+        for end in indices.iter().copied() {
+            {
+                let tmp = slice::slice_range(&arr, x, end);
+                if x <= end {
+                    assert_eq!(tmp, &arr[x.min(len)..end.min(len)]);
+                } else {
+                    assert_eq!(tmp, &[][..]);
+                }
+            }
+            assert_eq!(slice::get_range(&arr, x, end), arr.get(x..end));
+
+            #[cfg(feature = "mut_refs")]
+            {
+                let tmp = slice::slice_range_mut(&mut arr, x, end);
+                if x <= end {
+                    assert_eq!(tmp, &mut clone[x.min(len)..end.min(len)]);
+                } else {
+                    assert_eq!(tmp, &mut [][..]);
+                }
+                assert_eq!(
+                    slice::get_range_mut(&mut arr, x, end),
+                    clone.get_mut(x..end)
+                );
+            }
+        }
+    }
 }
 
 // This doesn't use unsafe

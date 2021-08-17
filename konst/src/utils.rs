@@ -41,6 +41,7 @@ pub(crate) const unsafe fn slice_from_raw_parts<'a, T>(ptr: *const T, len: usize
     Dereference { ptr }.reff
 }
 
+#[allow(dead_code)]
 #[inline]
 pub(crate) const fn saturating_sub(l: usize, r: usize) -> usize {
     let (sub, overflowed) = l.overflowing_sub(r);
