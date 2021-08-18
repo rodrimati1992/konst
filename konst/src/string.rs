@@ -535,6 +535,8 @@ pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
 /// ```
 ///
 /// [`str::strip_prefix`]: https://doc.rust-lang.org/std/primitive.str.html#method.strip_prefix
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn str_strip_prefix<'a>(string: &'a str, prefix: &str) -> Option<&'a str> {
     // Safety: because `prefix` is a `&str`, removing it should result in a valid `&str`
     unsafe {
@@ -568,6 +570,8 @@ pub const fn str_strip_prefix<'a>(string: &'a str, prefix: &str) -> Option<&'a s
 ///
 /// ```
 ///
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn str_strip_suffix<'a>(string: &'a str, suffix: &str) -> Option<&'a str> {
     // Safety: because `suffix` is a `&str`, removing it should result in a valid `&str`
     unsafe {
