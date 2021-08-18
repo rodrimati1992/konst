@@ -23,7 +23,7 @@ path = "../konst_proc_macros"
 optional = true
 
 [dependencies.konst_macro_rules]
-version = "=0.2.9"
+version = "=0.2.10"
 path = "../konst_macro_rules"
 
 [dev-dependencies.rand]
