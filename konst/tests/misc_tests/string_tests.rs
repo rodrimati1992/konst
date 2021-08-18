@@ -207,15 +207,12 @@ fn test_split_at() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#[cfg(feature = "rust_1_55")]
 fn from_utf8_unwrap<E>(s: &[u8]) -> Result<&str, E> {
     Ok(std::str::from_utf8(s).unwrap())
 }
 
-#[cfg(feature = "rust_1_55")]
 const S0: &[u8] = b"helloworldfoobar";
 
-#[cfg(feature = "rust_1_55")]
 const S1: &[u8] = b"hello\x99worldfoobar";
 
 #[test]

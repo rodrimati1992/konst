@@ -120,7 +120,7 @@ const fn is_continuation_byte(b: u8) -> bool {
     (b & 0b11_000000) == 0b10_000000
 }
 
-#[cfg(not(feature = "rust_1_56"))]
+#[cfg(not(feature = "rust_1_55"))]
 #[macro_export]
 macro_rules! from_utf8_macro {
     ($slice:expr) => {
@@ -138,7 +138,7 @@ macro_rules! from_utf8_macro {
     };
 }
 
-#[cfg(feature = "rust_1_56")]
+#[cfg(feature = "rust_1_55")]
 #[macro_export]
 macro_rules! from_utf8_macro {
     ($slice:expr) => {
@@ -146,7 +146,7 @@ macro_rules! from_utf8_macro {
     };
 }
 
-#[cfg(feature = "rust_1_56")]
+#[cfg(feature = "rust_1_55")]
 #[inline]
 pub const fn from_utf8_fn(slice: &[u8]) -> Result<&str, Utf8Error> {
     match check_utf8(slice) {

@@ -466,6 +466,15 @@ pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
 ///
 /// If `string.len() < start` or `string.len() < end`, this simply returns `string` back.
 ///
+/// # Alternatives
+///
+/// For a const equivalent of `&string[start..]` there's [`str_from`].
+///
+/// For a const equivalent of `&string[..end]` there's [`str_up_to`].
+///
+/// [`str_from`]: ./fn.str_from.html
+/// [`str_up_to`]: ./fn.str_up_to.html
+///
 /// # Performance
 ///
 /// This has the same performance as
@@ -513,6 +522,15 @@ pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
 }
 
 /// A const equivalent of `string.get(start..end)`.
+///
+/// # Alternatives
+///
+/// For a const equivalent of `string.get(start..)` there's [`get_from`].
+///
+/// For a const equivalent of `string.get(..end)` there's [`get_up_to`].
+///
+/// [`get_from`]: ./fn.get_from.html
+/// [`get_up_to`]: ./fn.get_up_to.html
 ///
 /// # Performance
 ///
