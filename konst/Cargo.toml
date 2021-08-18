@@ -26,6 +26,11 @@ optional = true
 version = "=0.2.9"
 path = "../konst_macro_rules"
 
+[dev-dependencies.rand]
+version = "0.8.4"
+default-features = false
+features = ["small_rng"]
+
 [features]
 default = ["cmp", "parsing"]
 

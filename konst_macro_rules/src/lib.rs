@@ -13,6 +13,10 @@ mod result_macros_;
 #[doc(hidden)]
 pub mod slice_;
 
+#[macro_use]
+#[doc(hidden)]
+pub mod string;
+
 #[doc(hidden)]
 pub mod utils;
 
@@ -26,7 +30,8 @@ pub mod __ {
         mem::transmute,
         ops::Range,
         option::Option::{self, None, Some},
-        primitive::u8,
+        primitive::{str, u8},
         result::Result::{self, Err, Ok},
+        str::from_utf8_unchecked,
     };
 }

@@ -120,3 +120,80 @@ fn test_out_of_bounds() {
         }
     }
 }
+
+// This doesn't run any unsafe code, so no need to test it in miri
+#[cfg(not(miri))]
+#[test]
+fn test_from_utf8_is_ok() {
+    use rand::rngs::SmallRng;
+    use rand::{Rng, SeedableRng};
+
+    let mut rng = SmallRng::seed_from_u64(6249204433781597762);
+
+    let mut arr = [0u8; 9];
+
+    for _ in 0..100000 {
+        let len: usize = rng.gen_range(0..=arr.len());
+        let slice = &mut arr[..len];
+        rng.fill(slice);
+        let slice = &*slice;
+
+        let res_std = std::str::from_utf8(slice);
+        let res_mine = konst::string::__priv_check_utf8(slice);
+
+        assert_eq!(
+            res_std.is_ok(),
+            res_mine.is_ok(),
+            "slice:\n{:?}\n\nstd:\n{:?}\n\nmin:\n{:?}",
+            slice,
+            res_std,
+            res_mine,
+        );
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+fn from_utf8_unwrap<E>(s: &[u8]) -> Result<&str, E> {
+    Ok(std::str::from_utf8(s).unwrap())
+}
+
+const S0: &[u8] = b"helloworldfoobar";
+const S1: &[u8] = b"hello\x99worldfoobar";
+
+#[test]
+fn test_from_utf8_macro() {
+    const RESULTS: &[Result<&str, string::Utf8Error>] =
+        &[string::from_utf8!(S0), string::from_utf8!(S1)];
+
+    assert_eq!(RESULTS[0], from_utf8_unwrap(S0));
+    assert_eq!(RESULTS[1].as_ref().unwrap_err().valid_up_to(), 5);
+}
+
+#[cfg(feature = "rust_1_55")]
+#[test]
+fn test_from_utf8_both() {
+    const fn mapper<const N: usize>(in_: [&[u8]; N]) -> [[Result<&str, string::Utf8Error>; 2]; N] {
+        const DEF_RESULT: [Result<&str, string::Utf8Error>; 2] = [Ok(""), Ok("")];
+
+        let mut arr = [DEF_RESULT; N];
+
+        konst::for_range! {i in 0..N =>
+            arr[i] = [string::from_utf8!(in_[i]), string::from_utf8(in_[i])];
+        }
+
+        arr
+    }
+
+    let results = mapper([S0, S1]);
+    let expecteds = vec![from_utf8_unwrap(S0), Err(5)];
+
+    for ([l, r], expected) in results.iter().cloned().zip(expecteds) {
+        assert_eq!(l, r);
+
+        match expected {
+            Ok(x) => assert_eq!(l.unwrap(), x),
+            Err(valid_up_to) => assert_eq!(l.unwrap_err().valid_up_to(), valid_up_to),
+        }
+    }
+}

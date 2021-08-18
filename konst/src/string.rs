@@ -23,6 +23,57 @@ __declare_fns_with_docs! {
     ),
 }
 
+#[doc(hidden)]
+pub use konst_macro_rules::string::check_utf8 as __priv_check_utf8;
+
+/// A const equivalent of [`std::str::from_utf8`],
+/// usable *only in `const`s and `static`s.
+///
+/// \* This can be used in `const fn`s when the
+/// `"rust_1_55"` feature is enabled.
+///
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{string, unwrap_ctx};
+///
+/// const OK: &str = unwrap_ctx!(string::from_utf8!(b"foo bar"));
+/// assert_eq!(OK, "foo bar");
+///
+/// const ERR: Result<&str, string::Utf8Error> = string::from_utf8!(b"what\xFA");
+/// assert_eq!(ERR.unwrap_err().valid_up_to(), 4);
+///
+/// ```
+///
+/// [`std::str::from_utf8`]: https://doc.rust-lang.org/std/str/fn.from_utf8.html
+pub use konst_macro_rules::from_utf8_macro as from_utf8;
+
+/// A const equivalent of [`std::str::from_utf8`],
+/// requires Rust 1.55 and the `"rust_1_55"` feature.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{string, unwrap_ctx};
+///
+/// const OK: &str = unwrap_ctx!(string::from_utf8(b"hello world"));
+/// assert_eq!(OK, "hello world");
+///
+/// const ERR: Result<&str, string::Utf8Error> = string::from_utf8(&[32, 34, 255]);
+/// assert_eq!(ERR.unwrap_err().valid_up_to(), 2);
+///
+/// ```
+///
+/// [`std::str::from_utf8`]: https://doc.rust-lang.org/std/str/fn.from_utf8.html
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub use konst_macro_rules::string::from_utf8_fn as from_utf8;
+
+/// Error returned by the `from_utf8` function and macro when the
+/// input byte slice isn't valid utf8.
+pub use konst_macro_rules::string::Utf8Error;
+
 /// A const equivalent of
 /// [`str::starts_with`](https://doc.rust-lang.org/std/primitive.str.html#method.starts_with)
 /// , taking a `&str` parameter.

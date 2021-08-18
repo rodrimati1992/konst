@@ -30,6 +30,7 @@ macro_rules! slice_from_impl {
 
 macro_rules! slice_up_to_impl {
     ($slice:ident, $len:ident, $as_ptr:ident, $from_raw_parts:ident, $on_overflow:expr) => {{
+        #[allow(unused_variables)]
         let (rem, overflowed) = $slice.len().overflowing_sub($len);
 
         if overflowed {
@@ -386,7 +387,7 @@ pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
         slice,
         len,
         as_ptr,
-        slice_from_raw_part,
+        slice_from_raw_parts,
         None
     ))
 }
@@ -472,8 +473,8 @@ pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
     Some(slice_up_to_impl!(
         slice,
         len,
-        as_ptr,
-        slice_from_raw_part,
+        as_mut_ptr,
+        slice_from_raw_parts_mut,
         None
     ))
 }
