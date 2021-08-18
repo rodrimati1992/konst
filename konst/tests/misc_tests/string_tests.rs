@@ -163,13 +163,59 @@ fn test_from_utf8_is_ok() {
     }
 }
 
+#[test]
+#[cfg(feature = "rust_1_55")]
+fn test_split_at() {
+    const IN: &str = "foo bar baz";
+
+    {
+        const SPLIT0: (&str, &str) = string::split_at(IN, 0);
+        assert_eq!(SPLIT0, ("", "foo bar baz"));
+    }
+    {
+        const SPLIT1: (&str, &str) = string::split_at(IN, 4);
+        assert_eq!(SPLIT1, ("foo ", "bar baz"));
+    }
+    {
+        const SPLIT2: (&str, &str) = string::split_at(IN, 8);
+        assert_eq!(SPLIT2, ("foo bar ", "baz"));
+    }
+    {
+        const SPLIT3: (&str, &str) = string::split_at(IN, 11);
+        assert_eq!(SPLIT3, ("foo bar baz", ""));
+    }
+    {
+        const SPLIT4: (&str, &str) = string::split_at(IN, 13);
+        assert_eq!(SPLIT4, ("foo bar baz", ""));
+    }
+
+    for i in INVALID_INDICES.iter().copied() {
+        must_panic(file_span!(), || string::split_at(CHAR_LENS, i)).unwrap();
+    }
+
+    for i in get_valid_indices()
+        .into_iter()
+        .chain(OOB_INDICES.iter().copied())
+    {
+        let (l, r) = string::split_at(CHAR_LENS, i);
+        let j = i.min(LEN);
+
+        assert_eq!(l, &CHAR_LENS[..j]);
+        assert_eq!(r, &CHAR_LENS[j..]);
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
+#[cfg(feature = "rust_1_55")]
 fn from_utf8_unwrap<E>(s: &[u8]) -> Result<&str, E> {
     Ok(std::str::from_utf8(s).unwrap())
 }
 
+#[cfg(feature = "rust_1_55")]
 const S0: &[u8] = b"helloworldfoobar";
+
+#[cfg(feature = "rust_1_55")]
 const S1: &[u8] = b"hello\x99worldfoobar";
 
 #[test]

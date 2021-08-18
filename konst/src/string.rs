@@ -417,6 +417,51 @@ pub const fn get_from(string: &str, from: usize) -> Option<&str> {
     )
 }
 
+/// A const equivalent of [`str::split_at`]
+///
+/// If `at > string.len()` this returns `(string, "")`.
+///
+/// # Panics
+///
+/// This function panics if `at` is inside the string and doesn't fall on a char boundary.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// const IN: &str = "foo bar baz";
+///
+/// {
+///     const SPLIT0: (&str, &str) = string::split_at(IN, 0);
+///     assert_eq!(SPLIT0, ("", "foo bar baz"));
+/// }
+/// {
+///     const SPLIT1: (&str, &str) = string::split_at(IN, 4);
+///     assert_eq!(SPLIT1, ("foo ", "bar baz"));
+/// }
+/// {
+///     const SPLIT2: (&str, &str) = string::split_at(IN, 8);
+///     assert_eq!(SPLIT2, ("foo bar ", "baz"));
+/// }
+/// {
+///     const SPLIT3: (&str, &str) = string::split_at(IN, 11);
+///     assert_eq!(SPLIT3, ("foo bar baz", ""));
+/// }
+/// {
+///     const SPLIT4: (&str, &str) = string::split_at(IN, 13);
+///     assert_eq!(SPLIT4, ("foo bar baz", ""));
+/// }
+///
+/// ```
+///
+/// [`str::split_at`]: https://doc.rust-lang.org/std/primitive.str.html#method.split_at
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
+    (str_up_to(string, at), str_from(string, at))
+}
+
 /// A const equivalent of `&string[start..end]`.
 ///
 /// If `string.len() < start` or `string.len() < end`, this simply returns `string` back.

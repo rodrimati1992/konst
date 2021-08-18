@@ -1,4 +1,4 @@
-#[cfg(feature = "constant_time_slice")]
+#[cfg(feature = "rust_1_56")]
 use crate::utils::{min_usize, Dereference};
 
 macro_rules! slice_from_impl {
