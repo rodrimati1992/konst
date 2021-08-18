@@ -51,6 +51,10 @@ pub use konst_macro_rules::from_utf8_macro as from_utf8;
 /// A const equivalent of [`std::str::from_utf8`],
 /// requires Rust 1.55 and the `"rust_1_55"` feature.
 ///
+/// For an alternative that works in Rust 1.46.0,
+/// there is the [`from_utf8`](./macro.from_utf8.html) macro,
+/// but it can only be used in `const`s, not in `const fn`s .
+///
 /// # Example
 ///
 /// ```rust
@@ -374,7 +378,7 @@ pub const fn str_from(string: &str, start: usize) -> &str {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
+/// [`crate::slice::slice_from`](../slice/fn.slice_from.html#performance)
 ///
 /// # Example
 ///
@@ -413,7 +417,7 @@ pub const fn get_from(string: &str, from: usize) -> Option<&str> {
     )
 }
 
-/// A const equivalent of `&string[start..]`.
+/// A const equivalent of `&string[start..end]`.
 ///
 /// If `string.len() < start` or `string.len() < end`, this simply returns `string` back.
 ///

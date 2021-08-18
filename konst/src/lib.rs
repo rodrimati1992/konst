@@ -4,7 +4,7 @@
 //!
 //! This crate provides:
 //!
-//! - Const fn equivalents of other standard library functions and methods.
+//! - Const fn equivalents of standard library functions and methods.
 //!
 //! - Compile-time parsing through the [`Parser`] type, and [`parse_any`] macro.
 //!
@@ -325,8 +325,9 @@
 
 #![cfg_attr(
     feature = "constant_time_slice",
-    feature(const_slice_from_raw_parts, const_fn_union, const_ptr_offset)
+    feature(const_slice_from_raw_parts, const_ptr_offset)
 )]
+#![cfg_attr(feature = "deref_raw_in_fn", feature(const_fn_union))]
 #![cfg_attr(feature = "nightly_mut_refs", feature(const_mut_refs))]
 #![cfg_attr(feature = "docsrs", feature(doc_cfg))]
 #![no_std]

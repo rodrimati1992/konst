@@ -8,7 +8,7 @@ Const equivalents of std functions, compile-time comparison, and parsing.
 
 This crate provides:
 
-- Const fn equivalents of other standard library functions and methods.
+- Const fn equivalents of standard library functions and methods.
 
 - Compile-time parsing through the [`Parser`] type, and [`parse_any`] macro.
 

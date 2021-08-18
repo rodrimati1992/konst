@@ -37,12 +37,12 @@ macro_rules! slice_up_to_impl {
             return $on_overflow;
         }
 
-        #[cfg(feature = "constant_time_slice")]
+        #[cfg(feature = "rust_1_56")]
         {
             // Doing this to get a slice up to length at compile-time
             unsafe { crate::utils::$from_raw_parts($slice.$as_ptr(), $len) }
         }
-        #[cfg(not(feature = "constant_time_slice"))]
+        #[cfg(not(feature = "rust_1_56"))]
         {
             let mut ret = $slice;
             let mut to_remove = rem;
@@ -322,12 +322,12 @@ pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> 
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_56" feature is disabled,
 /// thich takes linear time to remove the trailing elements,
 /// proportional to `slice.len() - len`.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// If the "rust_1_56" feature is enabled, it takes constant time to run,
+/// but requires Rust 1.56.0 .
 ///
 /// # Example
 ///
@@ -356,12 +356,12 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_56" feature is disabled,
 /// thich takes linear time to remove the trailing elements,
 /// proportional to `slice.len() - len`.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// If the "rust_1_56" feature is enabled, it takes constant time to run,
+/// but requires Rust 1.56.0 .
 ///
 /// # Example
 ///
@@ -398,12 +398,7 @@ pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
-/// thich takes linear time to remove the trailing elements,
-/// proportional to `slice.len() - len`.
-///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// This takes constant time to run.
 ///
 /// # Example
 ///
@@ -437,12 +432,7 @@ pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
-/// thich takes linear time to remove the trailing elements,
-/// proportional to `slice.len() - len`.
-///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// This takes constant time to run.
 ///
 /// # Example
 ///
@@ -485,6 +475,14 @@ pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
 ///
 /// If `slice.len() < end`, this returns the slice from `start`.
 ///
+/// # Alternatives
+///
+/// For a const equivalent of `&slice[start..]` there's [`slice_from`].
+///
+/// For a const equivalent of `&slice[..end]` there's [`slice_up_to`].
+///
+/// [`slice_from`]: ./fn.slice_from.html
+/// [`slice_up_to`]: ./fn.slice_up_to.html
 ///
 /// # Performance
 ///
@@ -518,6 +516,15 @@ pub const fn slice_range<T>(slice: &[T], start: usize, end: usize) -> &[T] {
 }
 
 /// A const equivalent of `slice.get(start..end)`.
+///
+/// # Alternatives
+///
+/// For a const equivalent of `slice.get(start..)` there's [`get_from`].
+///
+/// For a const equivalent of `slice.get(..end)` there's [`get_up_to`].
+///
+/// [`get_from`]: ./fn.get_from.html
+/// [`get_up_to`]: ./fn.get_up_to.html
 ///
 /// # Performance
 ///
@@ -560,6 +567,15 @@ pub const fn get_range<T>(slice: &[T], start: usize, end: usize) -> Option<&[T]>
 /// If `slice.len() < end`, this returns the slice from `start`.
 ///
 ///
+/// # Alternatives
+///
+/// For a const equivalent of `&mut slice[start..]` there's [`slice_from_mut`].
+///
+/// For a const equivalent of `&mut slice[..end]` there's [`slice_up_to_mut`].
+///
+/// [`slice_from_mut`]: ./fn.slice_from_mut.html
+/// [`slice_up_to_mut`]: ./fn.slice_up_to_mut.html
+///
 /// # Performance
 ///
 /// If the "constant_time_slice" feature is disabled,
@@ -593,6 +609,16 @@ pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &m
 }
 
 /// A const equivalent of `slice.get_mut(start..end)`.
+///
+///
+/// # Alternatives
+///
+/// For a const equivalent of `slice.get_mut(start..)` there's [`get_from_mut`].
+///
+/// For a const equivalent of `slice.get_mut(..end)` there's [`get_up_to_mut`].
+///
+/// [`get_from_mut`]: ./fn.get_from_mut.html
+/// [`get_up_to_mut`]: ./fn.get_up_to_mut.html
 ///
 /// # Performance
 ///
@@ -687,6 +713,10 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 ///
 #[inline]
 #[cfg(all(feature = "mut_refs", feature = "constant_time_slice"))]
+#[cfg_attr(
+    feature = "docsrs",
+    doc(cfg(all(feature = "mut_refs", feature = "constant_time_slice")))
+)]
 pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T]) {
     use crate::utils::slice_from_raw_parts_mut;
 
@@ -804,7 +834,7 @@ pub const fn bytes_strip_suffix<'a>(mut left: &'a [u8], mut suffix: &[u8]) -> Op
     Some(left)
 }
 
-/// Finds the byte offset of `right` inside `&left[from..]`.
+/// Finds the byte offset of `right` in `left`, starting from the `from` index.
 ///
 /// Returns `None` if `right` isn't inside `&left[from..]`
 ///
