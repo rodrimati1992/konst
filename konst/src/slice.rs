@@ -181,8 +181,7 @@ pub use konst_macro_rules::slice_::TryIntoArrayError;
 /// # Features
 ///
 /// This is not enabled by default,
-/// you need to enable the `"deref_raw_in_fn"` feature to use it,
-/// which requires Rust nightly.
+/// you need to enable the `"rust_1_56"` feature to use it.
 ///
 /// # Example
 ///
@@ -230,8 +229,8 @@ pub use konst_macro_rules::slice_::TryIntoArrayError;
 /// ```
 ///
 /// [`try_into_array`]: ./macro.try_into_array.html
-#[cfg(feature = "deref_raw_in_fn")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "deref_raw_in_fn")))]
+#[cfg(feature = "rust_1_56")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 #[doc(inline)]
 pub use konst_macro_rules::slice_::try_into_array_func as try_into_array;
 

@@ -136,7 +136,7 @@ pub struct __priv_ArrayLifetime<'a, T, const N: usize>(pub &'a [T; N], pub Phant
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#[cfg(feature = "deref_raw_in_fn")]
+#[cfg(feature = "rust_1_56")]
 #[inline]
 pub const fn try_into_array_func<T, const N: usize>(
     slice: &[T],

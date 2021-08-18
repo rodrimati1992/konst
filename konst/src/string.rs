@@ -32,7 +32,6 @@ pub use konst_macro_rules::string::check_utf8 as __priv_check_utf8;
 /// \* This can be used in `const fn`s when the
 /// `"rust_1_55"` feature is enabled.
 ///
-///
 /// # Example
 ///
 /// ```rust
@@ -70,7 +69,8 @@ pub use konst_macro_rules::from_utf8_macro as from_utf8;
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub use konst_macro_rules::string::from_utf8_fn as from_utf8;
 
-/// Error returned by the `from_utf8` function and macro when the
+/// Error returned by the `from_utf8` [function](fn.from_utf8.html) and
+/// [macro](macro.from_utf8.html) when the
 /// input byte slice isn't valid utf8.
 pub use konst_macro_rules::string::Utf8Error;
 

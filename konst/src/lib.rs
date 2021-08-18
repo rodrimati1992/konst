@@ -1,16 +1,16 @@
-//! Compile-time comparison, parsing, and const equivalents of std methods.
+//! Const equivalents of std functions, compile-time comparison, and parsing.
 //!
 //! # Features
 //!
 //! This crate provides:
+//!
+//! - Const fn equivalents of other standard library functions and methods.
 //!
 //! - Compile-time parsing through the [`Parser`] type, and [`parse_any`] macro.
 //!
 //! - Functions for comparing many standard library types,
 //! with the [`const_eq`]/[`const_eq_for`]/[`const_cmp`]/[`const_cmp_for`] macros
 //! for more conveniently calling them, powered by the [`polymorphism`] module.
-//!
-//! - Const fn equivalents of other standard library functions and methods.
 //!
 //!
 //! # Examples
@@ -257,27 +257,42 @@
 //! Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
 //! the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
 //!
-//! - `"constant_time_slice"`(disabled by default):<br>
-//! Requires Rust nightly.
-//! Improves the performance of slice functions that split slices,
-//! from taking linear time to taking constant time.
-//! <br>Note that only functions which mention this feature in their documentation are affected.
+//! - `alloc"`:
+//! Enables items that use types from the [`alloc`] crate, including `Vec` and `String`.
+//!
+//! ### Rust release related
 //!
 //! - `"const_generics"` (disabled by default):
 //! Requires Rust 1.51.0.
 //! Enables items that require const generics,
 //! and impls for arrays to use const generics instead of only supporting small arrays.
 //!
-//! - `alloc"`:
-//! Enables items that use types from the [`alloc`] crate, including `Vec` and `String`.
+//! - `"rust_1_55"`: Enables the `string::from_utf8` function
+//! (the macro works in all versions),
+//! `str` indexing functions,  and the `"const_generics"` feature.
+//!
+//! - `"rust_1_56"`:
+//! Enables functions that internally use raw pointer dereferences or transmutes,
+//! and the `"rust_1_55"` feature.<br>
+//! Because this crate feature was added before Rust 1.56.0 is released,
+//! those unsafe operations might be unstabilized,
+//! in which case you'll need to use Rust nightly and the `"deref_raw_in_fn"` crate feature.
 //!
 //! - `"deref_raw_in_fn"` (disabled by default):
-//! Requires Rust nightly. Enables `const fn`s that need to dereference raw pointers.
+//! Requires Rust nightly.
+//! Fallback for the case where the `"rust_1_56"` feature causes compilation errors
+//! because Rust features were unstabilized before the release.
+//!
+//! - `"constant_time_slice"`(disabled by default):<br>
+//! Requires Rust nightly.
+//! Improves the performance of slice functions that split slices,
+//! from taking linear time to taking constant time.
+//! <br>Note that only functions which mention this feature in their documentation are affected.
 //!
 //! - `"mut_refs"`(disabled by default):
 //! Enables const functions that take mutable references.
 //! Use this whenever mutable references in const contexts are stabilized.
-//! Also enables the `"deref_raw_in_fn"` feature.
+//! Also enables the `"deref_raw_in_fn"` and `"rust_1_56"` features.
 //!
 //! - `"nightly_mut_refs"`(disabled by default):
 //! Enables the `"mut_refs"` feature. Requires Rust nightly.

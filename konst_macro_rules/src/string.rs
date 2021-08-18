@@ -30,6 +30,8 @@ pub struct Utf8Error {
 
 impl Utf8Error {
     /// The index up to which a `&str` can be validly constructed from the input `&[u8]`.
+    ///
+    /// `&input[..error.valid_up_to()]` is valid utf8.
     pub const fn valid_up_to(&self) -> usize {
         self.valid_up_to
     }
@@ -118,7 +120,7 @@ const fn is_continuation_byte(b: u8) -> bool {
     (b & 0b11_000000) == 0b10_000000
 }
 
-#[cfg(not(feature = "deref_raw_in_fn"))]
+#[cfg(not(feature = "rust_1_56"))]
 #[macro_export]
 macro_rules! from_utf8_macro {
     ($slice:expr) => {
@@ -136,7 +138,7 @@ macro_rules! from_utf8_macro {
     };
 }
 
-#[cfg(feature = "deref_raw_in_fn")]
+#[cfg(feature = "rust_1_56")]
 #[macro_export]
 macro_rules! from_utf8_macro {
     ($slice:expr) => {
@@ -144,7 +146,7 @@ macro_rules! from_utf8_macro {
     };
 }
 
-#[cfg(feature = "deref_raw_in_fn")]
+#[cfg(feature = "rust_1_56")]
 #[inline]
 pub const fn from_utf8_fn(slice: &[u8]) -> Result<&str, Utf8Error> {
     match check_utf8(slice) {

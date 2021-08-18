@@ -19,6 +19,8 @@ include = [
 
 [features]
 const_generics = []
+rust_1_55 = []
+rust_1_56 = []
 deref_raw_in_fn = []
-nightly_mut_refs = ["mut_refs"]
-mut_refs = ["deref_raw_in_fn"]
+nightly_mut_refs = []
+mut_refs = []
