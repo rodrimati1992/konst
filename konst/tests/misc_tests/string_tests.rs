@@ -1,5 +1,6 @@
 use konst::string;
 
+#[cfg(feature = "rust_1_55")]
 use super::test_utils::must_panic;
 
 // 0..1: 'f'
@@ -15,13 +16,20 @@ use super::test_utils::must_panic;
 // 18..19: 'b'
 // 19..20: 'a'
 // 20..21: 'z'
+#[cfg(feature = "rust_1_55")]
 const CHAR_LENS: &str = "fooñ个人bar\u{100000}baz";
+
+#[cfg(feature = "rust_1_55")]
 const LEN: usize = CHAR_LENS.len();
 
+#[cfg(feature = "rust_1_55")]
 const INVALID_INDICES: &[usize] = &[4, 6, 7, 9, 10, 15, 16, 17];
+
+#[cfg(feature = "rust_1_55")]
 const OOB_INDICES: &[usize] = &[LEN + 1, LEN + 10, !0 - 1, !0];
 
 #[test]
+#[cfg(feature = "rust_1_55")]
 fn test_char_boundary_inside() {
     for start in 0..=CHAR_LENS.len() {
         for end in 0..=CHAR_LENS.len() {
@@ -59,6 +67,7 @@ fn test_char_boundary_inside() {
     }
 }
 
+#[cfg(feature = "rust_1_55")]
 fn get_valid_indices() -> Vec<usize> {
     CHAR_LENS
         .char_indices()
@@ -68,6 +77,7 @@ fn get_valid_indices() -> Vec<usize> {
 }
 
 #[test]
+#[cfg(feature = "rust_1_55")]
 fn test_in_bounds() {
     let valid_indices = get_valid_indices();
     for start in valid_indices.iter().copied() {
@@ -92,6 +102,7 @@ fn test_in_bounds() {
 }
 
 #[test]
+#[cfg(feature = "rust_1_55")]
 fn test_out_of_bounds() {
     let valid_indices = get_valid_indices();
 
