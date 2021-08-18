@@ -1,4 +1,5 @@
-set -x
+clear;clear;
+set -x -e
 cargo test --no-default-features --features "__test cmp"
 cargo test --no-default-features --features "__test parsing_no_proc"
 cargo test --no-default-features --features "__test parsing"

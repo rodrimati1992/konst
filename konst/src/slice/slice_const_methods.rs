@@ -1,4 +1,4 @@
-#[cfg(feature = "rust_1_56")]
+#[cfg(feature = "constant_time_slice")]
 use crate::utils::{min_usize, Dereference};
 
 macro_rules! slice_from_impl {
@@ -37,12 +37,12 @@ macro_rules! slice_up_to_impl {
             return $on_overflow;
         }
 
-        #[cfg(feature = "rust_1_56")]
+        #[cfg(feature = "constant_time_slice")]
         {
             // Doing this to get a slice up to length at compile-time
             unsafe { crate::utils::$from_raw_parts($slice.$as_ptr(), $len) }
         }
-        #[cfg(not(feature = "rust_1_56"))]
+        #[cfg(not(feature = "constant_time_slice"))]
         {
             let mut ret = $slice;
             let mut to_remove = rem;
@@ -322,11 +322,11 @@ pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> 
 ///
 /// # Performance
 ///
-/// If the "rust_1_56" feature is disabled,
+/// If the "constant_time_slice" feature is disabled,
 /// thich takes linear time to remove the trailing elements,
 /// proportional to `slice.len() - len`.
 ///
-/// If the "rust_1_56" feature is enabled, it takes constant time to run,
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
 /// but requires Rust 1.56.0 .
 ///
 /// # Example
@@ -356,11 +356,11 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
 ///
 /// # Performance
 ///
-/// If the "rust_1_56" feature is disabled,
+/// If the "constant_time_slice" feature is disabled,
 /// thich takes linear time to remove the trailing elements,
 /// proportional to `slice.len() - len`.
 ///
-/// If the "rust_1_56" feature is enabled, it takes constant time to run,
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
 /// but requires Rust 1.56.0 .
 ///
 /// # Example
