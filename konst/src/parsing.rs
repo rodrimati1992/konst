@@ -408,13 +408,7 @@ impl<'a> Parser<'a> {
     /// ```
     pub const fn trim_start(mut self) -> Self {
         parsing! {self, FromStart;
-            while let [b, rem @ ..] = self.bytes {
-                if matches!(b, b'\t' | b'\n' | b'\r' | b' ') {
-                    self.bytes = rem;
-                } else {
-                    break;
-                }
-            }
+            self.bytes = crate::slice::bytes_trim_start(self.bytes);
         }
     }
 
@@ -436,13 +430,7 @@ impl<'a> Parser<'a> {
     /// ```
     pub const fn trim_end(mut self) -> Self {
         parsing! {self, FromEnd;
-            while let [rem @ .., b] = self.bytes {
-                if matches!(b, b'\t' | b'\n' | b'\r' | b' ') {
-                    self.bytes = rem;
-                } else {
-                    break;
-                }
-            }
+            self.bytes = crate::slice::bytes_trim_end(self.bytes);
         }
     }
 
@@ -483,40 +471,7 @@ impl<'a> Parser<'a> {
     /// [`trim_start_matches`]: #method.trim_start_matches
     pub const fn trim_start_matches_b(mut self, needle: &[u8]) -> Self {
         parsing! {self, FromStart;
-            if needle.is_empty() {
-                ret_!();
-            }
-
-            let mut matched = needle;
-
-            loop {
-                let at_start = self;
-
-                match (self.bytes, matched) {
-                    ([b, rem @ ..], [bm, remm @ ..]) if *b == *bm => {
-                        self.bytes = rem;
-                        matched = remm;
-                    }
-                    _ => break,
-                }
-
-                'inner: loop {
-                    match (self.bytes, matched) {
-                        ([], [_, ..]) => ret_!(self = at_start),
-                        ([b, rem @ ..], [bm, remm @ ..]) => {
-                            if *b == *bm {
-                                self.bytes = rem;
-                                matched = remm;
-                            } else {
-                                ret_!(self = at_start);
-                            }
-                        }
-                        _ => break 'inner,
-                    }
-                }
-
-                matched = needle;
-            }
+            self.bytes = crate::slice::bytes_trim_start_matches(self.bytes, needle);
         }
     }
 
@@ -590,40 +545,7 @@ impl<'a> Parser<'a> {
     /// [`trim_end_matches`]: #method.trim_end_matches
     pub const fn trim_end_matches_b(mut self, needle: &[u8]) -> Self {
         parsing! {self, FromEnd;
-            if needle.is_empty() {
-                ret_!();
-            }
-
-            let mut matched = needle;
-
-            loop {
-                let at_start = self;
-
-                match (self.bytes, matched) {
-                    ([rem @ .., b], [remm @ .., bm]) if *b == *bm => {
-                        self.bytes = rem;
-                        matched = remm;
-                    }
-                    _ => break,
-                }
-
-                'inner: loop {
-                    match (self.bytes, matched) {
-                        ([], [.., _]) => ret_!(self = at_start),
-                        ([rem @ .., b], [remm @ .., bm]) => {
-                            if *b == *bm {
-                                self.bytes = rem;
-                                matched = remm;
-                            } else {
-                                ret_!(self = at_start);
-                            }
-                        }
-                        _ => break 'inner,
-                    }
-                }
-
-                matched = needle;
-            }
+            self.bytes = crate::slice::bytes_trim_end_matches(self.bytes, needle);
         }
     }
 

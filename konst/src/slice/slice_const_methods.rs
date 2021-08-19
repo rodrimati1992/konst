@@ -659,6 +659,14 @@ pub const fn get_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> Opti
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
 ///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to split the string, proportional to its length.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
 /// # Example
 ///
 /// ```rust
@@ -689,6 +697,10 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at_mut)
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
+///
+/// # Performance
+///
+/// This takes constant time to run.
 ///
 /// # Example
 ///
@@ -988,6 +1000,185 @@ pub const fn bytes_rfind(left: &[u8], right: &[u8], from: usize) -> Option<usize
 #[inline(always)]
 pub const fn bytes_rcontain(left: &[u8], right: &[u8], from: usize) -> bool {
     matches!(bytes_rfind(left, right, from), Some(_))
+}
+
+macro_rules! matches_space {
+    ($b:ident) => {
+        matches!($b, b'\t' | b'\n' | b'\r' | b' ')
+    };
+}
+
+/// Removes ascii whitespace from the start and end of `this`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const TRIMMED: &[u8] = slice::bytes_trim(b"\nhello world  ");
+///
+/// assert_eq!(TRIMMED, b"hello world");
+///
+/// ```
+pub const fn bytes_trim(this: &[u8]) -> &[u8] {
+    bytes_trim_start(bytes_trim_end(this))
+}
+
+/// Removes ascii whitespace from the start of `this`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const TRIMMED: &[u8] = slice::bytes_trim_start(b"\tfoo bar  ");
+///
+/// assert_eq!(TRIMMED, b"foo bar  ");
+///
+/// ```
+pub const fn bytes_trim_start(mut this: &[u8]) -> &[u8] {
+    loop {
+        match this {
+            [b, rem @ ..] if matches_space!(b) => this = rem,
+            _ => return this,
+        }
+    }
+}
+
+/// Removes ascii whitespace from the end of `this`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const TRIMMED: &[u8] = slice::bytes_trim_end(b"\rfoo bar  ");
+///
+/// assert_eq!(TRIMMED, b"\rfoo bar");
+///
+/// ```
+pub const fn bytes_trim_end(mut this: &[u8]) -> &[u8] {
+    loop {
+        match this {
+            [rem @ .., b] if matches_space!(b) => this = rem,
+            _ => return this,
+        }
+    }
+}
+
+/// Removes all instances of `needle` from the start and end of `this`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const TRIMMED: &[u8] = slice::bytes_trim_matches(b"<>baz qux<><><>", b"<>");
+///
+/// assert_eq!(TRIMMED, b"baz qux");
+///
+/// ```
+pub const fn bytes_trim_matches<'a>(this: &'a [u8], needle: &[u8]) -> &'a [u8] {
+    let ltrim = bytes_trim_start_matches(this, needle);
+    bytes_trim_end_matches(ltrim, needle)
+}
+
+/// Removes all instances of `needle` from the start of `this`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const TRIMMED: &[u8] = slice::bytes_trim_start_matches(b"#####huh###", b"##");
+///
+/// assert_eq!(TRIMMED, b"#huh###");
+///
+/// ```
+pub const fn bytes_trim_start_matches<'a>(mut this: &'a [u8], needle: &[u8]) -> &'a [u8] {
+    if needle.is_empty() {
+        return this;
+    }
+
+    let mut matched = needle;
+
+    loop {
+        let at_start = this;
+
+        match (this, matched) {
+            ([b, rem @ ..], [bm, remm @ ..]) if *b == *bm => {
+                this = rem;
+                matched = remm;
+            }
+            _ => return this,
+        }
+
+        'inner: loop {
+            match (this, matched) {
+                ([], [_, ..]) => return at_start,
+                ([b, rem @ ..], [bm, remm @ ..]) => {
+                    if *b == *bm {
+                        this = rem;
+                        matched = remm;
+                    } else {
+                        return at_start;
+                    }
+                }
+                _ => break 'inner,
+            }
+        }
+
+        matched = needle;
+    }
+}
+
+/// Removes all instances of `needle` from the end of `this`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const TRIMMED: &[u8] = slice::bytes_trim_end_matches(b"oowowooooo", b"oo");
+///
+/// assert_eq!(TRIMMED, b"oowowo");
+///
+/// ```
+pub const fn bytes_trim_end_matches<'a>(mut this: &'a [u8], needle: &[u8]) -> &'a [u8] {
+    if needle.is_empty() {
+        return this;
+    }
+
+    let mut matched = needle;
+
+    loop {
+        let at_start = this;
+
+        match (this, matched) {
+            ([rem @ .., b], [remm @ .., bm]) if *b == *bm => {
+                this = rem;
+                matched = remm;
+            }
+            _ => return this,
+        }
+
+        'inner: loop {
+            match (this, matched) {
+                ([], [.., _]) => return at_start,
+                ([rem @ .., b], [remm @ .., bm]) => {
+                    if *b == *bm {
+                        this = rem;
+                        matched = remm;
+                    } else {
+                        return at_start;
+                    }
+                }
+                _ => break 'inner,
+            }
+        }
+
+        matched = needle;
+    }
 }
 
 /// A const equivalent of

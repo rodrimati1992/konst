@@ -421,6 +421,10 @@ pub const fn get_from(string: &str, from: usize) -> Option<&str> {
 ///
 /// If `at > string.len()` this returns `(string, "")`.
 ///
+/// # Performance
+///
+/// This has the same performance as [`konst::slice::split_at`](crate::slice::split_at)
+///
 /// # Panics
 ///
 /// This function panics if `at` is inside the string and doesn't fall on a char boundary.
@@ -655,4 +659,131 @@ const fn is_char_boundary_get(bytes: &[u8], position: usize) -> bool {
     let len = bytes.len();
 
     position == len || (bytes[position] as i8) >= -0x40
+}
+
+/// A const subset of [`str::trim`] which only removes ascii whitespace.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// const TRIMMED: &str = string::trim("\nhello world  ");
+///
+/// assert_eq!(TRIMMED, "hello world");
+///
+/// ```
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn trim(this: &str) -> &str {
+    let trimmed = crate::slice::bytes_trim(this.as_bytes());
+    // safety: bytes_trim only removes ascii bytes
+    unsafe { core::str::from_utf8_unchecked(trimmed) }
+}
+
+/// A const subset of [`str::trim_start`] which only removes ascii whitespace.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// const TRIMMED: &str = string::trim_start("\rfoo bar  ");
+///
+/// assert_eq!(TRIMMED, "foo bar  ");
+///
+/// ```
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn trim_start(this: &str) -> &str {
+    let trimmed = crate::slice::bytes_trim_start(this.as_bytes());
+    // safety: bytes_trim_start only removes ascii bytes
+    unsafe { core::str::from_utf8_unchecked(trimmed) }
+}
+
+/// A const subset of [`str::trim_end`] which only removes ascii whitespace.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// const TRIMMED: &str = string::trim_end("\rfoo bar  ");
+///
+/// assert_eq!(TRIMMED, "\rfoo bar");
+///
+/// ```
+///
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn trim_end(this: &str) -> &str {
+    let trimmed = crate::slice::bytes_trim_end(this.as_bytes());
+    // safety: bytes_trim_end only removes ascii bytes
+    unsafe { core::str::from_utf8_unchecked(trimmed) }
+}
+
+/// A const subset of [`str::trim_matches`] which only takes a `&str` pattern.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// const TRIMMED: &str = string::trim_matches("<>baz qux<><><>", "<>");
+///
+/// assert_eq!(TRIMMED, "baz qux");
+///
+/// ```
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn trim_matches<'a>(this: &'a str, needle: &str) -> &'a str {
+    let trimmed = crate::slice::bytes_trim_matches(this.as_bytes(), needle.as_bytes());
+    // safety:
+    // because bytes_trim_matches was passed `&str`s casted to `&[u8]`s,
+    // it returns a valid utf8 sequence.
+    unsafe { core::str::from_utf8_unchecked(trimmed) }
+}
+
+/// A const subset of [`str::trim_start_matches`] which only takes a `&str` pattern.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// const TRIMMED: &str = string::trim_start_matches("#####huh###", "##");
+///
+/// assert_eq!(TRIMMED, "#huh###");
+///
+/// ```
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn trim_start_matches<'a>(this: &'a str, needle: &str) -> &'a str {
+    let trimmed = crate::slice::bytes_trim_start_matches(this.as_bytes(), needle.as_bytes());
+    // safety:
+    // because bytes_trim_start_matches was passed `&str`s casted to `&[u8]`s,
+    // it returns a valid utf8 sequence.
+    unsafe { core::str::from_utf8_unchecked(trimmed) }
+}
+
+/// A const subset of [`str::trim_end_matches`] which only takes a `&str` pattern.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// const TRIMMED: &str = string::trim_end_matches("oowowooooo", "oo");
+///
+/// assert_eq!(TRIMMED, "oowowo");
+///
+/// ```
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn trim_end_matches<'a>(this: &'a str, needle: &str) -> &'a str {
+    let trimmed = crate::slice::bytes_trim_end_matches(this.as_bytes(), needle.as_bytes());
+    // safety:
+    // because bytes_trim_end_matches was passed `&str`s casted to `&[u8]`s,
+    // it returns a valid utf8 sequence.
+    unsafe { core::str::from_utf8_unchecked(trimmed) }
 }

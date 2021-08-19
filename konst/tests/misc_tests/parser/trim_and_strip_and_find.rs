@@ -15,6 +15,14 @@ fn trim_start_end_matches_test() {
             let parser = Parser::from_str(string);
             let trimmed = parser.trim_start_matches(needle);
             assert_eq!(trimmed.bytes(), returned.as_bytes(), "normal");
+
+            #[cfg(feature = "rust_1_55")]
+            assert_eq!(
+                konst::string::trim_start_matches(string, needle),
+                returned,
+                "norm"
+            );
+
             {
                 let start_offset = string.len() - string.trim_start_matches(needle).len();
                 assert_eq!(trimmed.start_offset(), start_offset, "{}", line!());
@@ -36,6 +44,13 @@ fn trim_start_end_matches_test() {
 
             assert_eq!(trimmed.bytes(), rev_returned.as_bytes(), "rev");
 
+            #[cfg(feature = "rust_1_55")]
+            assert_eq!(
+                konst::string::trim_end_matches(rev_string, rev_needle),
+                rev_returned,
+                "rev-"
+            );
+
             {
                 let end_offset = rev_string.trim_end_matches(rev_needle).len();
                 assert_eq!(trimmed.start_offset(), 0, "{}", line!());
@@ -51,6 +66,12 @@ fn trim_start_end_matches_test() {
     }
 
     assertion("helloheloworld", "hello", "heloworld");
+
+    assertion("fooofooworld", "foo", "ofooworld");
+    assertion("foofooworld", "foo", "world");
+    assertion("fofooworld", "foo", "fofooworld");
+    assertion("ffooworld", "foo", "ffooworld");
+    assertion("fooworld", "foo", "world");
 
     assertion("hihihiho", "hi", "ho");
 
