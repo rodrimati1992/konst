@@ -287,14 +287,36 @@ fn strip_prefix_suffix_u8_test() {
 #[test]
 fn find_skip_test() {
     #[track_caller]
-    fn assertion(string: &str, needle: &str, returned: Option<&str>) {
+    fn assertion(string: &str, needle: &str, returned: Option<&str>, returned_keep: Option<&str>) {
         {
             let parser = Parser::from_str(string);
-            let returned = returned.map(|x| x.as_bytes());
+
             assert_eq!(
                 parser.find_skip(needle).map(|x| x.bytes()).ok(),
-                returned,
+                returned.map(|x| x.as_bytes()),
                 "normal"
+            );
+
+            assert_eq!(
+                slice::bytes_find_skip(string.as_bytes(), needle.as_bytes()),
+                returned.map(|x| x.as_bytes()),
+                "normal-2"
+            );
+
+            #[cfg(feature = "rust_1_55")]
+            assert_eq!(string::find_skip(string, needle), returned, "normal-3");
+
+            assert_eq!(
+                slice::bytes_find_keep(string.as_bytes(), needle.as_bytes()),
+                returned_keep.as_ref().map(|x| x.as_bytes()),
+                "normal-4"
+            );
+
+            #[cfg(feature = "rust_1_55")]
+            assert_eq!(
+                string::find_keep(string, needle),
+                returned_keep.as_deref(),
+                "normal-5"
             );
         }
         {
@@ -302,37 +324,91 @@ fn find_skip_test() {
             let parser = Parser::from_str(&rev_string);
             let rev_needle = &*reverse(needle);
             let rev_returned = returned.map(|x| reverse(x));
-            let rev_returned = rev_returned.as_ref().map(|x| x.as_bytes());
+
+            let rev_returned_keep = returned_keep.map(|x| reverse(x));
+
+            let rev_returned_bytes = rev_returned.as_ref().map(|x| x.as_bytes());
 
             let trimmed = parser.rfind_skip(rev_needle).map(|x| x.bytes());
-            assert_eq!(trimmed.ok(), rev_returned, "rev");
+            assert_eq!(trimmed.ok(), rev_returned_bytes, "rev");
+
+            assert_eq!(
+                slice::bytes_rfind_skip(rev_string.as_bytes(), rev_needle.as_bytes()),
+                rev_returned_bytes,
+                "rev-2"
+            );
+
+            #[cfg(feature = "rust_1_55")]
+            assert_eq!(
+                string::rfind_skip(rev_string, rev_needle),
+                rev_returned.as_deref(),
+                "rev-3"
+            );
+
+            assert_eq!(
+                slice::bytes_rfind_keep(rev_string.as_bytes(), rev_needle.as_bytes()),
+                rev_returned_keep.as_ref().map(|x| x.as_bytes()),
+                "rev-4"
+            );
+
+            #[cfg(feature = "rust_1_55")]
+            assert_eq!(
+                string::rfind_keep(rev_string, rev_needle),
+                rev_returned_keep.as_deref(),
+                "rev-5"
+            );
         }
     }
 
-    assertion("hhehelhellhelloworld", "lo", Some("world"));
-    assertion("hhehelhellhelloworld", "hello", Some("world"));
-    assertion("hehelhellhelloworld", "hello", Some("world"));
-    assertion("helhellhelloworld", "hello", Some("world"));
-    assertion("hellhelloworld", "hello", Some("world"));
-    assertion("hellhellohelloworld", "hello", Some("helloworld"));
-    assertion("helloworld", "hello", Some("world"));
+    assertion("hhehelhellhelloworld", "lo", Some("world"), Some("loworld"));
+    assertion(
+        "hhehelhellhelloworld",
+        "hello",
+        Some("world"),
+        Some("helloworld"),
+    );
+    assertion(
+        "hehelhellhelloworld",
+        "hello",
+        Some("world"),
+        Some("helloworld"),
+    );
+    assertion(
+        "helhellhelloworld",
+        "hello",
+        Some("world"),
+        Some("helloworld"),
+    );
+    assertion("hellhelloworld", "hello", Some("world"), Some("helloworld"));
+    assertion(
+        "hellhellohelloworld",
+        "hello",
+        Some("helloworld"),
+        Some("hellohelloworld"),
+    );
+    assertion("helloworld", "hello", Some("world"), Some("helloworld"));
 
-    assertion("helloworld", "", Some("helloworld"));
+    assertion("helloworld", "", Some("helloworld"), Some("helloworld"));
 
-    assertion("_lolololfoo", "lolol", Some("olfoo"));
-    assertion("l_lolololfoo", "lolol", Some("olfoo"));
-    assertion("lo_lolololfoo", "lolol", Some("olfoo"));
-    assertion("lol_lolololfoo", "lolol", Some("olfoo"));
-    assertion("lolo_lolololfoo", "lolol", Some("olfoo"));
+    assertion("_lolololfoo", "lolol", Some("olfoo"), Some("lolololfoo"));
+    assertion("l_lolololfoo", "lolol", Some("olfoo"), Some("lolololfoo"));
+    assertion("lo_lolololfoo", "lolol", Some("olfoo"), Some("lolololfoo"));
+    assertion("lol_lolololfoo", "lolol", Some("olfoo"), Some("lolololfoo"));
+    assertion(
+        "lolo_lolololfoo",
+        "lolol",
+        Some("olfoo"),
+        Some("lolololfoo"),
+    );
 
-    assertion("helloworld", "z", None);
-    assertion("helloworld", "hella", None);
-    assertion("helloworld", "lowa", None);
+    assertion("helloworld", "z", None, None);
+    assertion("helloworld", "hella", None, None);
+    assertion("helloworld", "lowa", None, None);
 
-    assertion("ell", "ell", Some(""));
-    assertion("ell", "ella", None);
+    assertion("ell", "ell", Some(""), Some("ell"));
+    assertion("ell", "ella", None, None);
 
-    assertion("woowooa-that-", "wooa", Some("-that-"));
+    assertion("woowooa-that-", "wooa", Some("-that-"), Some("wooa-that-"));
 }
 
 #[test]
