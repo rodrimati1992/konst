@@ -787,3 +787,179 @@ pub const fn trim_end_matches<'a>(this: &'a str, needle: &str) -> &'a str {
     // it returns a valid utf8 sequence.
     unsafe { core::str::from_utf8_unchecked(trimmed) }
 }
+
+/// Advances `this` past the first instance of `needle`.
+///
+/// Return `None` if no instance of `needle` is found.
+///
+/// Return `Some(this)` if `needle` is empty.
+///
+/// # Motivation
+///
+/// This function exists because calling [`str_find`] + [`str_from`]
+/// when the `"constant_time_slice"` feature is disabled
+/// is slower than it could be, since the slice has to be traversed twice.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// {
+///     const FOUND: Option<&str> = string::find_skip("foo bar baz", "bar");
+///     assert_eq!(FOUND, Some(" baz"));
+/// }
+/// {
+///     const NOT_FOUND: Option<&str> = string::find_skip("foo bar baz", "qux");
+///     assert_eq!(NOT_FOUND, None);
+/// }
+/// {
+///     const EMPTY_NEEDLE: Option<&str> = string::find_skip("foo bar baz", "");
+///     assert_eq!(EMPTY_NEEDLE, Some("foo bar baz"));
+/// }
+/// ```
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn find_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
+    unsafe {
+        crate::option::map!(
+            crate::slice::bytes_find_skip(this.as_bytes(), needle.as_bytes()),
+            // safety:
+            // because bytes_find_skip was passed `&str`s casted to `&[u8]`s,
+            // it returns a valid utf8 sequence.
+            core::str::from_utf8_unchecked,
+        )
+    }
+}
+
+/// Advances `this` up to the first instance of `needle`.
+///
+/// Return `None` if no instance of `needle` is found.
+///
+/// Return `Some(this)` if `needle` is empty.
+///
+/// # Motivation
+///
+/// This function exists because calling [`str_find`] + [`str_from`]
+/// when the `"constant_time_slice"` feature is disabled
+/// is slower than it could be, since the slice has to be traversed twice.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// {
+///     const FOUND: Option<&str> = string::find_keep("foo bar baz", "bar");
+///     assert_eq!(FOUND, Some("bar baz"));
+/// }
+/// {
+///     const NOT_FOUND: Option<&str> = string::find_keep("foo bar baz", "qux");
+///     assert_eq!(NOT_FOUND, None);
+/// }
+/// {
+///     const EMPTY_NEEDLE: Option<&str> = string::find_keep("foo bar baz", "");
+///     assert_eq!(EMPTY_NEEDLE, Some("foo bar baz"));
+/// }
+/// ```
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn find_keep<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
+    unsafe {
+        crate::option::map!(
+            crate::slice::bytes_find_keep(this.as_bytes(), needle.as_bytes()),
+            // safety:
+            // because bytes_find_keep was passed `&str`s casted to `&[u8]`s,
+            // it returns a valid utf8 sequence.
+            core::str::from_utf8_unchecked,
+        )
+    }
+}
+
+/// Truncates `this` to before the last instance of `needle`.
+///
+/// Return `None` if no instance of `needle` is found.
+///
+/// Return `Some(this)` if `needle` is empty.
+///
+/// # Motivation
+///
+/// This function exists because calling [`str_rfind`] + [`str_up_to`]
+/// when the `"constant_time_slice"` feature is disabled
+/// is slower than it could be, since the slice has to be traversed twice.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// {
+///     const FOUND: Option<&str> = string::rfind_skip("foo bar _ bar baz", "bar");
+///     assert_eq!(FOUND, Some("foo bar _ "));
+/// }
+/// {
+///     const NOT_FOUND: Option<&str> = string::rfind_skip("foo bar baz", "qux");
+///     assert_eq!(NOT_FOUND, None);
+/// }
+/// {
+///     const EMPTY_NEEDLE: Option<&str> = string::rfind_skip("foo bar baz", "");
+///     assert_eq!(EMPTY_NEEDLE, Some("foo bar baz"));
+/// }
+/// ```
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn rfind_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
+    unsafe {
+        crate::option::map!(
+            crate::slice::bytes_rfind_skip(this.as_bytes(), needle.as_bytes()),
+            // safety:
+            // because bytes_rfind_skip was passed `&str`s casted to `&[u8]`s,
+            // it returns a valid utf8 sequence.
+            core::str::from_utf8_unchecked,
+        )
+    }
+}
+
+/// Truncates `this` to the last instance of `needle`.
+///
+/// Return `None` if no instance of `needle` is found.
+///
+/// Return `Some(this)` if `needle` is empty.
+///
+/// # Motivation
+///
+/// This function exists because calling [`str_rfind`] + [`str_up_to`]
+/// when the `"constant_time_slice"` feature is disabled
+/// is slower than it could be, since the slice has to be traversed twice.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// {
+///     const FOUND: Option<&str> = string::rfind_keep("foo bar _ bar baz", "bar");
+///     assert_eq!(FOUND, Some("foo bar _ bar"));
+/// }
+/// {
+///     const NOT_FOUND: Option<&str> = string::rfind_keep("foo bar baz", "qux");
+///     assert_eq!(NOT_FOUND, None);
+/// }
+/// {
+///     const EMPTY_NEEDLE: Option<&str> = string::rfind_keep("foo bar baz", "");
+///     assert_eq!(EMPTY_NEEDLE, Some("foo bar baz"));
+/// }
+/// ```
+#[cfg(feature = "rust_1_55")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
+pub const fn rfind_keep<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
+    unsafe {
+        crate::option::map!(
+            crate::slice::bytes_rfind_keep(this.as_bytes(), needle.as_bytes()),
+            // safety:
+            // because bytes_rfind_keep was passed `&str`s casted to `&[u8]`s,
+            // it returns a valid utf8 sequence.
+            core::str::from_utf8_unchecked,
+        )
+    }
+}

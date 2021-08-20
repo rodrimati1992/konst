@@ -1181,6 +1181,205 @@ pub const fn bytes_trim_end_matches<'a>(mut this: &'a [u8], needle: &[u8]) -> &'
     }
 }
 
+macro_rules! elem_then_rem {
+    ($elem:ident, $($rem:tt)*) => { [$elem, $($rem)*] };
+}
+
+macro_rules! rem_then_elem {
+    ($elem:ident, $($rem:tt)*) => { [$($rem)*, $elem] };
+}
+
+macro_rules! byte_find_then {
+    ($slice_order:ident, $this:ident, $needle:ident, |$next:ident| $then:block) => ({
+        if $needle.is_empty() {
+            return Some($this);
+        }
+
+        let mut matching = $needle;
+
+        let mut $next = $this;
+
+        while let $slice_order!(mb, ref m_rem @ ..) = *matching {
+            matching = m_rem;
+
+            if let $slice_order!(b, ref rem @ ..) = *$next {
+                if b != mb {
+                    matching = match *$needle {
+                        // For when the string is "lawlawn" and we are skipping "lawn"
+                        $slice_order!(mb2, ref m_rem2 @ ..) if b == mb2 => {
+                            // This is considered used in half of the macro invocations
+                            #[allow(unused_assignments)]
+                            {$this = $next;}
+                            m_rem2
+                        },
+                        _ => {
+                            // This is considered used in half of the macro invocations
+                            #[allow(unused_assignments)]
+                            {$this = rem;}
+                            $needle
+                        },
+                    };
+                }
+                $next = rem;
+            } else {
+                return None;
+            }
+        }
+
+        $then
+
+        Some($this)
+    });
+}
+
+/// Advances `this` past the first instance of `needle`.
+///
+/// Return `None` if no instance of `needle` is found.
+///
+/// Return `Some(this)` if `needle` is empty.
+///
+/// # Motivation
+///
+/// This function exists because calling [`bytes_find`] + [`slice_from`]
+/// when the `"constant_time_slice"` feature is disabled
+/// is slower than it could be, since the slice has to be traversed twice.
+///
+/// [`bytes_find`]: ./fn.bytes_find.html
+/// [`slice_from`]: ./fn.slice_from.html
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::bytes_find_skip;
+///
+/// {
+///     const FOUND: Option<&[u8]> = bytes_find_skip(b"foo bar baz", b"bar");
+///     assert_eq!(FOUND, Some(&b" baz"[..]));
+/// }
+/// {
+///     const NOT_FOUND: Option<&[u8]> = bytes_find_skip(b"foo bar baz", b"qux");
+///     assert_eq!(NOT_FOUND, None);
+/// }
+/// {
+///     const EMPTY_NEEDLE: Option<&[u8]> = bytes_find_skip(b"foo bar baz", b"");
+///     assert_eq!(EMPTY_NEEDLE, Some(&b"foo bar baz"[..]));
+/// }
+/// ```
+pub const fn bytes_find_skip<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'a [u8]> {
+    byte_find_then! {elem_then_rem, this, needle, |next| {this = next}}
+}
+
+/// Advances `this` up to the first instance of `needle`.
+///
+/// Return `None` if no instance of `needle` is found.
+///
+/// Return `Some(this)` if `needle` is empty.
+///
+/// # Motivation
+///
+/// This function exists because calling [`bytes_find`] + [`slice_from`]
+/// when the `"constant_time_slice"` feature is disabled
+/// is slower than it could be, since the slice has to be traversed twice.
+///
+/// [`bytes_find`]: ./fn.bytes_find.html
+/// [`slice_from`]: ./fn.slice_from.html
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::bytes_find_keep;
+///
+/// {
+///     const FOUND: Option<&[u8]> = bytes_find_keep(b"foo bar baz", b"bar");
+///     assert_eq!(FOUND, Some(&b"bar baz"[..]));
+/// }
+/// {
+///     const NOT_FOUND: Option<&[u8]> = bytes_find_keep(b"foo bar baz", b"qux");
+///     assert_eq!(NOT_FOUND, None);
+/// }
+/// {
+///     const EMPTY_NEEDLE: Option<&[u8]> = bytes_find_keep(b"foo bar baz", b"");
+///     assert_eq!(EMPTY_NEEDLE, Some(&b"foo bar baz"[..]));
+/// }
+/// ```
+pub const fn bytes_find_keep<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'a [u8]> {
+    byte_find_then! {elem_then_rem, this, needle, |next| {}}
+}
+
+/// Truncates `this` to before the last instance of `needle`.
+///
+/// Return `None` if no instance of `needle` is found.
+///
+/// Return `Some(this)` if `needle` is empty.
+///
+/// # Motivation
+///
+/// This function exists because calling [`bytes_rfind`] + [`slice_up_to`]
+/// when the `"constant_time_slice"` feature is disabled
+/// is slower than it could be, since the slice has to be traversed twice.
+///
+/// [`bytes_rfind`]: ./fn.bytes_rfind.html
+/// [`slice_up_to`]: ./fn.slice_up_to.html
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::bytes_rfind_skip;
+///
+/// {
+///     const FOUND: Option<&[u8]> = bytes_rfind_skip(b"foo bar _ bar baz", b"bar");
+///     assert_eq!(FOUND, Some(&b"foo bar _ "[..]));
+/// }
+/// {
+///     const NOT_FOUND: Option<&[u8]> = bytes_rfind_skip(b"foo bar baz", b"qux");
+///     assert_eq!(NOT_FOUND, None);
+/// }
+/// {
+///     const EMPTY_NEEDLE: Option<&[u8]> = bytes_rfind_skip(b"foo bar baz", b"");
+///     assert_eq!(EMPTY_NEEDLE, Some(&b"foo bar baz"[..]));
+/// }
+/// ```
+pub const fn bytes_rfind_skip<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'a [u8]> {
+    byte_find_then! {rem_then_elem, this, needle, |next| {this = next}}
+}
+
+/// Truncates `this` to the last instance of `needle`.
+///
+/// Return `None` if no instance of `needle` is found.
+///
+/// Return `Some(this)` if `needle` is empty.
+///
+/// # Motivation
+///
+/// This function exists because calling [`bytes_rfind`] + [`slice_up_to`]
+/// when the `"constant_time_slice"` feature is disabled
+/// is slower than it could be, since the slice has to be traversed twice.
+///
+/// [`bytes_rfind`]: ./fn.bytes_rfind.html
+/// [`slice_up_to`]: ./fn.slice_up_to.html
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::bytes_rfind_keep;
+///
+/// {
+///     const FOUND: Option<&[u8]> = bytes_rfind_keep(b"foo bar _ bar baz", b"bar");
+///     assert_eq!(FOUND, Some(&b"foo bar _ bar"[..]));
+/// }
+/// {
+///     const NOT_FOUND: Option<&[u8]> = bytes_rfind_keep(b"foo bar baz", b"qux");
+///     assert_eq!(NOT_FOUND, None);
+/// }
+/// {
+///     const EMPTY_NEEDLE: Option<&[u8]> = bytes_rfind_keep(b"foo bar baz", b"");
+///     assert_eq!(EMPTY_NEEDLE, Some(&b"foo bar baz"[..]));
+/// }
+/// ```
+pub const fn bytes_rfind_keep<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'a [u8]> {
+    byte_find_then! {rem_then_elem, this, needle, |next| {}}
+}
+
 /// A const equivalent of
 /// [`<[T]>::first`](https://doc.rust-lang.org/std/primitive.slice.html#method.first)
 ///

@@ -620,27 +620,10 @@ impl<'a> Parser<'a> {
     /// [`find_skip`]: #method.find_skip
     pub const fn find_skip_b(mut self, needle: &[u8]) -> Result<Self, ParseError<'a>> {
         try_parsing! {self, FromStart;
-            if needle.is_empty() {
-                ret_!();
-            }
-
-            let mut matching = needle;
-            while let ([b, rem @ ..], [mb, m_rem @ ..]) = (self.bytes, matching) {
-                self.bytes = rem;
-                matching = m_rem;
-
-                if *b != *mb {
-                    matching = match needle {
-                        // For when the string is "lawlawn" and we are skipping "lawn"
-                        [mb2, m_rem2 @ ..] if *b == *mb2 => m_rem2,
-                        _ => needle,
-                    };
-                }
-            }
-
-            if !matching.is_empty() {
-                throw!(ErrorKind::Find)
-            }
+            self.bytes = match crate::slice::bytes_find_skip(self.bytes, needle) {
+                Some(x) => x,
+                None => throw!(ErrorKind::Find),
+            };
         }
     }
 
@@ -709,27 +692,10 @@ impl<'a> Parser<'a> {
     /// [`find_skip`]: #method.find_skip
     pub const fn rfind_skip_b(mut self, needle: &[u8]) -> Result<Self, ParseError<'a>> {
         try_parsing! {self, FromEnd;
-            if needle.is_empty() {
-                ret_!();
-            }
-
-            let mut matching = needle;
-            while let ([rem @ .., b], [m_rem @ .., mb]) = (self.bytes, matching) {
-                self.bytes = rem;
-                matching = m_rem;
-
-                if *b != *mb {
-                    matching = match needle {
-                        // For when the string is "lawnawn" and we are skipping "lawn"
-                        [m_rem2 @ .., mb2] if *b == *mb2 => m_rem2,
-                        _ => needle,
-                    };
-                }
-            }
-
-            if !matching.is_empty() {
-                throw!(ErrorKind::Find)
-            }
+            self.bytes = match crate::slice::bytes_rfind_skip(self.bytes, needle) {
+                Some(x) => x,
+                None => throw!(ErrorKind::Find),
+            };
         }
     }
 
