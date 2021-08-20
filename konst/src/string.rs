@@ -23,6 +23,77 @@ __declare_fns_with_docs! {
     ),
 }
 
+/// Reexports for `0.2.*` patch releases, will be removed in `0.3.0`
+#[deprecated(
+    since = "0.2.10",
+    note = "reexports for `0.2.*` patch releases, will be removed in `0.3.0`"
+)]
+pub mod deprecated_reexports {
+    macro_rules! declare_deprecated {
+        (
+            $deprecation:literal
+            fn $fn_name:ident($($arg:ident : $arg_ty:ty),*) -> $ret:ty {
+                $delegating_to:ident
+            }
+        ) => {
+            #[deprecated(
+                since = "0.2.10",
+                note = $deprecation,
+            )]
+            #[doc = $deprecation]
+            #[inline(always)]
+            pub const fn $fn_name($($arg: $arg_ty,)*) -> $ret {
+                super::$delegating_to($($arg),*)
+            }
+        };
+    }
+
+    declare_deprecated! {
+        "renamed to `starts_with`, full path: `konst::string::starts_with`"
+        fn str_starts_with(left: &str, right: &str) -> bool {
+            starts_with
+        }
+    }
+
+    declare_deprecated! {
+        "renamed to `ends_with`, full path: `konst::string::ends_with`"
+        fn str_ends_with(left: &str, right: &str) -> bool {
+            ends_with
+        }
+    }
+
+    declare_deprecated! {
+        "renamed to `find`, full path: `konst::string::find`"
+        fn str_find(left: &str, right: &str, from: usize) -> Option<usize> {
+            find
+        }
+    }
+
+    declare_deprecated! {
+        "renamed to `contains`, full path: `konst::string::contains`"
+        fn str_contains(left: &str, right: &str, from: usize) -> bool {
+            contains
+        }
+    }
+
+    declare_deprecated! {
+        "renamed to `rfind`, full path: `konst::string::rfind`"
+        fn str_rfind(left: &str, right: &str, from: usize) -> Option<usize> {
+            rfind
+        }
+    }
+
+    declare_deprecated! {
+         "renamed to `rcontains`, full path: `konst::string::rcontains`"
+        fn str_rcontains(left: &str, right: &str, from: usize) -> bool {
+            rcontains
+        }
+    }
+}
+
+#[allow(deprecated)]
+pub use deprecated_reexports::*;
+
 #[doc(hidden)]
 pub use konst_macro_rules::string::check_utf8 as __priv_check_utf8;
 
@@ -85,17 +156,17 @@ pub use konst_macro_rules::string::Utf8Error;
 /// # Example
 ///
 /// ```rust
-/// use konst::string::str_starts_with;
+/// use konst::string;
 ///
-/// assert!( str_starts_with("foo,bar,baz", "foo,"));
+/// assert!( string::starts_with("foo,bar,baz", "foo,"));
 ///
-/// assert!(!str_starts_with("foo,bar,baz", "bar"));
-/// assert!(!str_starts_with("foo,bar,baz", "baz"));
+/// assert!(!string::starts_with("foo,bar,baz", "bar"));
+/// assert!(!string::starts_with("foo,bar,baz", "baz"));
 ///
 /// ```
 ///
 #[inline(always)]
-pub const fn str_starts_with(left: &str, right: &str) -> bool {
+pub const fn starts_with(left: &str, right: &str) -> bool {
     crate::slice::bytes_start_with(left.as_bytes(), right.as_bytes())
 }
 
@@ -106,17 +177,17 @@ pub const fn str_starts_with(left: &str, right: &str) -> bool {
 /// # Example
 ///
 /// ```rust
-/// use konst::string::str_ends_with;
+/// use konst::string;
 ///
-/// assert!( str_ends_with("foo,bar,baz", ",baz"));
+/// assert!( string::ends_with("foo,bar,baz", ",baz"));
 ///
-/// assert!(!str_ends_with("foo,bar,baz", "bar"));
-/// assert!(!str_ends_with("foo,bar,baz", "foo"));
+/// assert!(!string::ends_with("foo,bar,baz", "bar"));
+/// assert!(!string::ends_with("foo,bar,baz", "foo"));
 ///
 /// ```
 ///
 #[inline(always)]
-pub const fn str_ends_with(left: &str, right: &str) -> bool {
+pub const fn ends_with(left: &str, right: &str) -> bool {
     crate::slice::bytes_end_with(left.as_bytes(), right.as_bytes())
 }
 
@@ -127,21 +198,21 @@ pub const fn str_ends_with(left: &str, right: &str) -> bool {
 /// # Example
 ///
 /// ```rust
-/// use konst::string::str_find;
+/// use konst::string;
 ///
-/// assert_eq!(str_find("foo-bar-baz-foo", "foo", 0), Some(0));
-/// assert_eq!(str_find("foo-bar-baz-foo", "foo", 4), Some(12));
+/// assert_eq!(string::find("foo-bar-baz-foo", "foo", 0), Some(0));
+/// assert_eq!(string::find("foo-bar-baz-foo", "foo", 4), Some(12));
 ///
-/// assert_eq!(str_find("foo-bar-baz-foo-bar", "bar", 0), Some(4));
-/// assert_eq!(str_find("foo-bar-baz-foo-bar", "bar", 4), Some(4));
-/// assert_eq!(str_find("foo-bar-baz-foo-bar", "bar", 5), Some(16));
-/// assert_eq!(str_find("foo-bar-baz-foo-bar", "bar", 16), Some(16));
-/// assert_eq!(str_find("foo-bar-baz-foo-bar", "bar", 17), None);
+/// assert_eq!(string::find("foo-bar-baz-foo-bar", "bar", 0), Some(4));
+/// assert_eq!(string::find("foo-bar-baz-foo-bar", "bar", 4), Some(4));
+/// assert_eq!(string::find("foo-bar-baz-foo-bar", "bar", 5), Some(16));
+/// assert_eq!(string::find("foo-bar-baz-foo-bar", "bar", 16), Some(16));
+/// assert_eq!(string::find("foo-bar-baz-foo-bar", "bar", 17), None);
 ///
 /// ```
 ///
 #[inline]
-pub const fn str_find(left: &str, right: &str, from: usize) -> Option<usize> {
+pub const fn find(left: &str, right: &str, from: usize) -> Option<usize> {
     crate::slice::bytes_find(left.as_bytes(), right.as_bytes(), from)
 }
 
@@ -152,21 +223,21 @@ pub const fn str_find(left: &str, right: &str, from: usize) -> Option<usize> {
 /// # Example
 ///
 /// ```rust
-/// use konst::string::str_contains;
+/// use konst::string;
 ///
-/// assert!(str_contains("foo-bar-baz-foo", "foo", 0));
-/// assert!(str_contains("foo-bar-baz-foo", "foo", 4));
+/// assert!(string::contains("foo-bar-baz-foo", "foo", 0));
+/// assert!(string::contains("foo-bar-baz-foo", "foo", 4));
 ///
-/// assert!( str_contains("foo-bar-baz-foo-bar", "bar", 0));
-/// assert!( str_contains("foo-bar-baz-foo-bar", "bar", 4));
-/// assert!( str_contains("foo-bar-baz-foo-bar", "bar", 5));
-/// assert!( str_contains("foo-bar-baz-foo-bar", "bar", 16));
-/// assert!(!str_contains("foo-bar-baz-foo-bar", "bar", 17));
+/// assert!( string::contains("foo-bar-baz-foo-bar", "bar", 0));
+/// assert!( string::contains("foo-bar-baz-foo-bar", "bar", 4));
+/// assert!( string::contains("foo-bar-baz-foo-bar", "bar", 5));
+/// assert!( string::contains("foo-bar-baz-foo-bar", "bar", 16));
+/// assert!(!string::contains("foo-bar-baz-foo-bar", "bar", 17));
 ///
 /// ```
 ///
 #[inline(always)]
-pub const fn str_contains(left: &str, right: &str, from: usize) -> bool {
+pub const fn contains(left: &str, right: &str, from: usize) -> bool {
     matches!(
         crate::slice::bytes_find(left.as_bytes(), right.as_bytes(), from),
         Some(_)
@@ -183,22 +254,22 @@ pub const fn str_contains(left: &str, right: &str, from: usize) -> bool {
 /// # Example
 ///
 /// ```rust
-/// use konst::string::str_rfind;
+/// use konst::string;
 ///
-/// assert_eq!(str_rfind("foo-bar-baz-foo", "foo", 0), None);
-/// assert_eq!(str_rfind("foo-bar-baz-foo", "foo", 1), None);
+/// assert_eq!(string::rfind("foo-bar-baz-foo", "foo", 0), None);
+/// assert_eq!(string::rfind("foo-bar-baz-foo", "foo", 1), None);
 ///
-/// assert_eq!(str_rfind("foo-bar-baz-foo", "foo", 2), Some(0));
-/// assert_eq!(str_rfind("foo-bar-baz-foo", "foo", 3), Some(0));
-/// assert_eq!(str_rfind("foo-bar-baz-foo", "foo", 4), Some(0));
+/// assert_eq!(string::rfind("foo-bar-baz-foo", "foo", 2), Some(0));
+/// assert_eq!(string::rfind("foo-bar-baz-foo", "foo", 3), Some(0));
+/// assert_eq!(string::rfind("foo-bar-baz-foo", "foo", 4), Some(0));
 ///
-/// assert_eq!(str_rfind("foo-bar-baz-foo", "foo", 15), Some(12));
-/// assert_eq!(str_rfind("foo-bar-baz-foo", "foo", 20000), Some(12));
+/// assert_eq!(string::rfind("foo-bar-baz-foo", "foo", 15), Some(12));
+/// assert_eq!(string::rfind("foo-bar-baz-foo", "foo", 20000), Some(12));
 ///
 /// ```
 ///
 #[inline]
-pub const fn str_rfind(left: &str, right: &str, from: usize) -> Option<usize> {
+pub const fn rfind(left: &str, right: &str, from: usize) -> Option<usize> {
     crate::slice::bytes_rfind(left.as_bytes(), right.as_bytes(), from)
 }
 
@@ -212,22 +283,22 @@ pub const fn str_rfind(left: &str, right: &str, from: usize) -> Option<usize> {
 /// # Example
 ///
 /// ```rust
-/// use konst::string::str_rcontains;
+/// use konst::string;
 ///
-/// assert!(!str_rcontains("foo-bar-baz-foo", "foo", 0));
-/// assert!(!str_rcontains("foo-bar-baz-foo", "foo", 1));
+/// assert!(!string::rcontains("foo-bar-baz-foo", "foo", 0));
+/// assert!(!string::rcontains("foo-bar-baz-foo", "foo", 1));
 ///
-/// assert!(str_rcontains("foo-bar-baz-foo", "foo", 2));
-/// assert!(str_rcontains("foo-bar-baz-foo", "foo", 3));
-/// assert!(str_rcontains("foo-bar-baz-foo", "foo", 4));
+/// assert!(string::rcontains("foo-bar-baz-foo", "foo", 2));
+/// assert!(string::rcontains("foo-bar-baz-foo", "foo", 3));
+/// assert!(string::rcontains("foo-bar-baz-foo", "foo", 4));
 ///
-/// assert!(str_rcontains("foo-bar-baz-foo", "foo", 15));
-/// assert!(str_rcontains("foo-bar-baz-foo", "foo", 20000));
+/// assert!(string::rcontains("foo-bar-baz-foo", "foo", 15));
+/// assert!(string::rcontains("foo-bar-baz-foo", "foo", 20000));
 ///
 /// ```
 ///
 #[inline(always)]
-pub const fn str_rcontains(left: &str, right: &str, from: usize) -> bool {
+pub const fn rcontains(left: &str, right: &str, from: usize) -> bool {
     matches!(
         crate::slice::bytes_rfind(left.as_bytes(), right.as_bytes(), from),
         Some(_)
@@ -583,18 +654,18 @@ pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
 /// # Example
 ///
 /// ```rust
-/// use konst::string::str_strip_prefix;
+/// use konst::string;
 ///
 /// {
-///     const STRIP: Option<&str> = str_strip_prefix("3 5 8", "3");
+///     const STRIP: Option<&str> = string::strip_prefix("3 5 8", "3");
 ///     assert_eq!(STRIP, Some(" 5 8"));
 /// }
 /// {
-///     const STRIP: Option<&str> = str_strip_prefix("3 5 8", "3 5 ");
+///     const STRIP: Option<&str> = string::strip_prefix("3 5 8", "3 5 ");
 ///     assert_eq!(STRIP, Some("8"));
 /// }
 /// {
-///     const STRIP: Option<&str> = str_strip_prefix("3 5 8", "hello");
+///     const STRIP: Option<&str> = string::strip_prefix("3 5 8", "hello");
 ///     assert_eq!(STRIP, None);
 /// }
 ///
@@ -604,7 +675,7 @@ pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
 /// [`str::strip_prefix`]: https://doc.rust-lang.org/std/primitive.str.html#method.strip_prefix
 #[cfg(feature = "rust_1_55")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
-pub const fn str_strip_prefix<'a>(string: &'a str, prefix: &str) -> Option<&'a str> {
+pub const fn strip_prefix<'a>(string: &'a str, prefix: &str) -> Option<&'a str> {
     // Safety: because `prefix` is a `&str`, removing it should result in a valid `&str`
     unsafe {
         crate::option::map!(
@@ -619,18 +690,18 @@ pub const fn str_strip_prefix<'a>(string: &'a str, prefix: &str) -> Option<&'a s
 /// # Example
 ///
 /// ```rust
-/// use konst::string::str_strip_suffix;
+/// use konst::string;
 ///
 /// {
-///     const STRIP: Option<&str> = str_strip_suffix("3 5 8", "8");
+///     const STRIP: Option<&str> = string::strip_suffix("3 5 8", "8");
 ///     assert_eq!(STRIP, Some("3 5 "));
 /// }
 /// {
-///     const STRIP: Option<&str> = str_strip_suffix("3 5 8", " 5 8");
+///     const STRIP: Option<&str> = string::strip_suffix("3 5 8", " 5 8");
 ///     assert_eq!(STRIP, Some("3"));
 /// }
 /// {
-///     const STRIP: Option<&str> = str_strip_suffix("3 5 8", "hello");
+///     const STRIP: Option<&str> = string::strip_suffix("3 5 8", "hello");
 ///     assert_eq!(STRIP, None);
 /// }
 ///
@@ -639,7 +710,7 @@ pub const fn str_strip_prefix<'a>(string: &'a str, prefix: &str) -> Option<&'a s
 ///
 #[cfg(feature = "rust_1_55")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
-pub const fn str_strip_suffix<'a>(string: &'a str, suffix: &str) -> Option<&'a str> {
+pub const fn strip_suffix<'a>(string: &'a str, suffix: &str) -> Option<&'a str> {
     // Safety: because `suffix` is a `&str`, removing it should result in a valid `&str`
     unsafe {
         crate::option::map!(
@@ -796,7 +867,8 @@ pub const fn trim_end_matches<'a>(this: &'a str, needle: &str) -> &'a str {
 ///
 /// # Motivation
 ///
-/// This function exists because calling [`str_find`] + [`str_from`]
+/// This function exists because calling
+/// [`find`](crate::string::find) + [`str_from`]
 /// when the `"constant_time_slice"` feature is disabled
 /// is slower than it could be, since the slice has to be traversed twice.
 ///
@@ -840,7 +912,7 @@ pub const fn find_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 ///
 /// # Motivation
 ///
-/// This function exists because calling [`str_find`] + [`str_from`]
+/// This function exists because calling [`find`](crate::string::find) + [`str_from`]
 /// when the `"constant_time_slice"` feature is disabled
 /// is slower than it could be, since the slice has to be traversed twice.
 ///
@@ -884,7 +956,7 @@ pub const fn find_keep<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 ///
 /// # Motivation
 ///
-/// This function exists because calling [`str_rfind`] + [`str_up_to`]
+/// This function exists because calling [`rfind`](crate::string::rfind) + [`str_up_to`]
 /// when the `"constant_time_slice"` feature is disabled
 /// is slower than it could be, since the slice has to be traversed twice.
 ///
@@ -928,7 +1000,7 @@ pub const fn rfind_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 ///
 /// # Motivation
 ///
-/// This function exists because calling [`str_rfind`] + [`str_up_to`]
+/// This function exists because calling [`rfind`](crate::string::rfind) + [`str_up_to`]
 /// when the `"constant_time_slice"` feature is disabled
 /// is slower than it could be, since the slice has to be traversed twice.
 ///

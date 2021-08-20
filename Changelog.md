@@ -9,12 +9,16 @@ Added `"rust_1_55"` and `"rust_1_56"` features.
 Change: functions that required the `"deref_raw_in_fn"` feature can be used on Rust 1.56.0 (whenever that reaches stable) with the `"rust_1_56"` feature.
 
 Added these slice functions
-- `konst::slice::bytes_trim`
-- `konst::slice::bytes_trim_start`
+- `konst::slice::bytes_find_keep`
+- `konst::slice::bytes_find_skip`
+- `konst::slice::bytes_rfind_keep`
+- `konst::slice::bytes_rfind_skip`
+- `konst::slice::bytes_trim_end_matches`
 - `konst::slice::bytes_trim_end`
 - `konst::slice::bytes_trim_matches`
 - `konst::slice::bytes_trim_start_matches`
-- `konst::slice::bytes_trim_end_matches`
+- `konst::slice::bytes_trim_start`
+- `konst::slice::bytes_trim`
 - `konst::slice::get_from_mut` (requires the `"mut_refs"` feature)
 - `konst::slice::get_from`
 - `konst::slice::get_mut` (requires the `"mut_refs"` feature)
@@ -25,6 +29,7 @@ Added these slice functions
 - `konst::slice::get`
 
 
+
 Added these str functions, all of which require the `"rust_1_55"` feature:
 - `konst::string::from_utf8`
 - `konst::string::get_from`
@@ -33,8 +38,8 @@ Added these str functions, all of which require the `"rust_1_55"` feature:
 - `konst::string::split_at`
 - `konst::string::str_from`
 - `konst::string::str_range`
-- `konst::string::str_strip_prefix`
-- `konst::string::str_strip_suffix`
+- `konst::string::strip_prefix`
+- `konst::string::strip_suffix`
 - `konst::string::str_up_to`
 - `konst::string::trim`
 - `konst::string::trim_start`
@@ -42,6 +47,20 @@ Added these str functions, all of which require the `"rust_1_55"` feature:
 - `konst::string::trim_matches`
 - `konst::string::trim_start_matches`
 - `konst::string::trim_end_matches`
+- `konst::string::find_skip`
+- `konst::string::find_keep`
+- `konst::string::rfind_skip`
+- `konst::string::rfind_keep`
+
+
+Renamed these functions, reexported with old name, and deprecated the reexport:
+- `string::str_starts_with`: renamed to `string::starts_with`
+- `string::str_ends_with`: renamed to `string::ends_with`
+- `string::str_find`: renamed to `string::find`
+- `string::str_contains`: renamed to `string::contains`
+- `string::str_rfind`: renamed to `string::rfind`
+- `string::str_rcontains`: renamed to `string::rcontains`
+
 
 Added the `konst::string::from_utf8` macro.
 
