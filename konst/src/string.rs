@@ -100,8 +100,12 @@ pub use konst_macro_rules::string::check_utf8 as __priv_check_utf8;
 /// A const equivalent of [`std::str::from_utf8`],
 /// usable *only in `const`s and `static`s.
 ///
-/// \* This can be used in `const fn`s when the
+/// \* This can be only used in `const fn`s when the
 /// `"rust_1_55"` feature is enabled.
+///
+/// For an equivalent function, which requires Rust 1.55.0
+/// (while this macro only requires Rust 1.46.0) and the `"rust_1_55"` crate feature,
+/// there is the [`from_utf8` function].
 ///
 /// # Example
 ///
@@ -117,6 +121,7 @@ pub use konst_macro_rules::string::check_utf8 as __priv_check_utf8;
 /// ```
 ///
 /// [`std::str::from_utf8`]: https://doc.rust-lang.org/std/str/fn.from_utf8.html
+/// [`from_utf8` function]: ./fn.from_utf8.html
 pub use konst_macro_rules::from_utf8_macro as from_utf8;
 
 /// A const equivalent of [`std::str::from_utf8`],
