@@ -171,18 +171,13 @@ pub use konst_macro_rules::try_into_array;
 #[doc(inline)]
 pub use konst_macro_rules::slice_::TryIntoArrayError;
 
-/// Tries to convert from `&[T]` to `&[T; N]`, usable in `const fn`s. Requires Rust nightly.
+/// Tries to convert from `&[T]` to `&[T; N]`, usable in `const fn`s.
+/// Requires the `"rust_1_56"` feature.
 ///
 /// Returns an `Err(TryIntoArrayError{..})` when the slice doesn't match the expected length.
 ///
 /// For an alternative that works on stable Rust, there is the [`try_into_array`] macro,
 /// but it can only be used in `const`s, not in `const fn`s .
-///
-/// # Features
-///
-/// This is not enabled by default,
-/// you need to enable the `"deref_raw_in_fn"` feature to use it,
-/// which requires Rust nightly.
 ///
 /// # Example
 ///
@@ -230,8 +225,8 @@ pub use konst_macro_rules::slice_::TryIntoArrayError;
 /// ```
 ///
 /// [`try_into_array`]: ./macro.try_into_array.html
-#[cfg(feature = "deref_raw_in_fn")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "deref_raw_in_fn")))]
+#[cfg(feature = "rust_1_56")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 #[doc(inline)]
 pub use konst_macro_rules::slice_::try_into_array_func as try_into_array;
 

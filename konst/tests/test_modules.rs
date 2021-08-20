@@ -2,9 +2,14 @@ mod misc_tests {
     #[macro_use]
     mod test_macros;
 
+    #[macro_use]
+    mod test_utils;
+
     mod slice_tests;
 
     mod slice_const_method_tests;
+
+    mod string_tests;
 
     #[cfg(feature = "cmp")]
     mod other_types_tests;

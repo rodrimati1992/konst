@@ -182,7 +182,7 @@ fn try_into_array_macro_implicit_test() {
 }
 
 #[test]
-#[cfg(feature = "deref_raw_in_fn")]
+#[cfg(feature = "rust_1_56")]
 fn try_into_array_fn_test() {
     let slice = &[0, 2, 3, 4][..];
 

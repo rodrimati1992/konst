@@ -1,6 +1,6 @@
 #[doc(hidden)]
 #[repr(C)]
-pub union Dereference<'a, T> {
+pub union Dereference<'a, T: ?Sized> {
     pub ptr: *const T,
     pub reff: &'a T,
 }

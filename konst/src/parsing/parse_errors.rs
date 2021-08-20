@@ -68,7 +68,7 @@ impl<'a> ParseError<'a> {
     /// For erroring with an error message,
     /// this is called by the [`unwrap_ctx`] macro.
     ///
-    /// [`unwrap_ctx`]: ../macro.unwrap_ctx.html
+    /// [`unwrap_ctx`]: ../result/macro.unwrap_ctx.html
     #[track_caller]
     pub const fn panic(&self) -> ! {
         match self.kind {

@@ -1,6 +1,6 @@
 #[doc(hidden)]
 #[repr(C)]
-#[cfg(feature = "constant_time_slice")]
+#[cfg(feature = "rust_1_56")]
 pub(crate) union Dereference<'a, T: ?Sized> {
     pub ptr: *const T,
     pub reff: &'a T,
@@ -21,6 +21,7 @@ mod mut_refs {
         ManuallyDrop::into_inner(BorrowMut { ptr }.reff)
     }
 
+    #[cfg(feature = "constant_time_slice")]
     pub(crate) const unsafe fn slice_from_raw_parts_mut<'a, T>(
         ptr: *mut T,
         len: usize,
@@ -41,6 +42,7 @@ pub(crate) const unsafe fn slice_from_raw_parts<'a, T>(ptr: *const T, len: usize
     Dereference { ptr }.reff
 }
 
+#[allow(dead_code)]
 #[inline]
 pub(crate) const fn saturating_sub(l: usize, r: usize) -> usize {
     let (sub, overflowed) = l.overflowing_sub(r);
@@ -52,7 +54,7 @@ pub(crate) const fn saturating_sub(l: usize, r: usize) -> usize {
 }
 
 #[inline]
-#[cfg(feature = "constant_time_slice")]
+#[cfg(feature = "rust_1_56")]
 pub(crate) const fn min_usize(l: usize, r: usize) -> usize {
     if l < r {
         l

@@ -2,11 +2,13 @@
 [![crates-io](https://img.shields.io/crates/v/konst.svg)](https://crates.io/crates/konst)
 [![api-docs](https://docs.rs/konst/badge.svg)](https://docs.rs/konst/*)
 
-Compile-time comparison, parsing, and const equivalents of std methods.
+Const equivalents of std functions, compile-time comparison, and parsing.
 
 # Features
 
 This crate provides:
+
+- Const fn equivalents of standard library functions and methods.
 
 - Compile-time parsing through the [`Parser`] type, and [`parse_any`] macro.
 
@@ -14,7 +16,6 @@ This crate provides:
 with the [`const_eq`]/[`const_eq_for`]/[`const_cmp`]/[`const_cmp_for`] macros
 for more conveniently calling them, powered by the [`polymorphism`] module.
 
-- Const fn equivalents of other standard library functions and methods.
 
 # Examples
 
@@ -61,28 +62,55 @@ fn main() {
     }
 }
 
-```
+#[derive(Debug, PartialEq)]
+pub struct ParseDirectionError;
 
+use std::fmt::{self, Display};
+
+impl Display for ParseDirectionError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("Failed to parse a Direction")
+    }
+}
+
+impl ParseDirectionError {
+    const fn panic(&self) -> ! {
+        [/*failed to parse a Direction*/][0]
+    }
+}
+
+
+
+```
 
 ### Parsing integers
 
 You can parse integers using the `parse_*` functions in [`primitive`],
-returning a `None` if the string as a whole isn't a valid integer.
+returning an `Err(ParseIntError{...})` if the string as a whole isn't a valid integer.
 
 ```rust
-use konst::primitive::parse_i128;
+use konst::{
+    primitive::{ParseIntResult, parse_i128},
+    result::unwrap_ctx,
+};
 
-const N_100: Option<i128> = parse_i128("100");
-assert_eq!(N_100, Some(100));
+const N_100: ParseIntResult<i128> = parse_i128("100");
+assert_eq!(N_100, Ok(100));
 
-const N_N3: Option<i128> = parse_i128("-3");
-assert_eq!(N_N3, Some(-3));
+const N_N3: ParseIntResult<i128> = parse_i128("-3");
+assert_eq!(N_N3, Ok(-3));
 
-const NONE: Option<i128> = parse_i128("-");
-assert_eq!(NONE, None);
 
-const PAIR: Option<i128> = parse_i128("1,2");
-assert_eq!(PAIR, None);
+// This is how you can unwrap integers parsed from strings, at compile-time.
+const N_100_UNW: i128 = unwrap_ctx!(parse_i128("1337"));
+assert_eq!(N_100_UNW, 1337);
+
+
+const NONE: ParseIntResult<i128> = parse_i128("-");
+assert!(NONE.is_err());
+
+const PAIR: ParseIntResult<i128> = parse_i128("1,2");
+assert!(PAIR.is_err());
 
 
 
@@ -112,8 +140,6 @@ assert_eq!(PAIR.0, 1365);
 assert_eq!(PAIR.1, 6789);
 
 ```
-
-
 
 ### Parsing a struct
 
@@ -223,10 +249,9 @@ These are the features of these crates:
 Enables all comparison functions and macros,
 the string equality and ordering comparison functions don't require this feature.
 
-
 - `"parsing"`(enabled by default):
-Enables the `"parsing_no_proc"` feature, compiles the `konst_proc_macros` dependency, 
-and enables the [`parse_any`] macro. 
+Enables the `"parsing_no_proc"` feature, compiles the `konst_proc_macros` dependency,
+and enables the [`parse_any`] macro.
 You can use this feature instead of `"parsing_no_proc"` if the slightly longer
 compile times aren't a problem.
 
@@ -234,32 +259,45 @@ compile times aren't a problem.
 Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
 the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
 
-- `"constant_time_slice"`(disabled by default):<br>
-Requires Rust nightly. 
-Improves the performance of slice functions that split slices,
-from taking linear time to taking constant time.
-<br>Note that only functions which mention this feature in their documentation are affected.
+- `alloc"`:
+Enables items that use types from the [`alloc`] crate, including `Vec` and `String`.
+
+### Rust release related
 
 - `"const_generics"` (disabled by default):
 Requires Rust 1.51.0.
 Enables items that require const generics,
 and impls for arrays to use const generics instead of only supporting small arrays.
 
-- `alloc"`: 
-Enables items that use types from the [`alloc`] crate, including `Vec` and `String`.
+- `"rust_1_55"`: Enables the `string::from_utf8` function
+(the macro works in all versions),
+`str` indexing functions,  and the `"const_generics"` feature.
+
+- `"rust_1_56"`:
+Enables functions that internally use raw pointer dereferences or transmutes,
+and the `"rust_1_55"` feature.<br>
+Because this crate feature was added before Rust 1.56.0 is released,
+those unsafe operations might be unstabilized,
+in which case you'll need to use Rust nightly and the `"deref_raw_in_fn"` crate feature.
 
 - `"deref_raw_in_fn"` (disabled by default):
-Requires Rust nightly. Enables `const fn`s that need to dereference raw pointers.
+Requires Rust nightly.
+Fallback for the case where the `"rust_1_56"` feature causes compilation errors
+because Rust features were unstabilized before the release.
 
-- `"mut_refs"`(disabled by default): 
+- `"constant_time_slice"`(disabled by default):<br>
+Requires Rust nightly.
+Improves the performance of slice functions that split slices,
+from taking linear time to taking constant time.
+<br>Note that only functions which mention this feature in their documentation are affected.
+
+- `"mut_refs"`(disabled by default):
 Enables const functions that take mutable references.
 Use this whenever mutable references in const contexts are stabilized.
-Also enables the `"deref_raw_in_fn"` feature.
+Also enables the `"deref_raw_in_fn"` and `"rust_1_56"` features.
 
-- `"nightly_mut_refs"`(disabled by default): 
+- `"nightly_mut_refs"`(disabled by default):
 Enables the `"mut_refs"` feature. Requires Rust nightly.
-
-
 
 # No-std support
 
@@ -271,6 +309,7 @@ Enables the `"mut_refs"` feature. Requires Rust nightly.
 
 Features that require newer versions of Rust, or the nightly compiler,
 need to be explicitly enabled with cargo features.
+
 
 [`alloc`]: https://doc.rust-lang.org/alloc/
 [`const_eq`]: https://docs.rs/konst/*/konst/macro.const_eq.html

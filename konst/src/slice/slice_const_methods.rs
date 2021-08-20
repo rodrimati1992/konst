@@ -1,21 +1,18 @@
-use crate::utils::saturating_sub;
-
 #[cfg(feature = "constant_time_slice")]
 use crate::utils::{min_usize, Dereference};
 
 macro_rules! slice_from_impl {
-    ($slice:ident, $start:ident, $as_ptr:ident, $from_raw_parts:ident, [$($mut:tt)*]) => ({
-        let rem = saturating_sub($slice.len(), $start);
+    ($slice:ident, $start:ident, $as_ptr:ident, $from_raw_parts:ident, $on_overflow:expr) => {{
+        #[allow(unused_variables)]
+        let (rem, overflowed) = $slice.len().overflowing_sub($start);
 
-        if rem == 0 {
-            return & $($mut)* [];
+        if overflowed {
+            return $on_overflow;
         }
 
         #[cfg(feature = "constant_time_slice")]
         {
-            unsafe {
-                crate::utils::$from_raw_parts($slice.$as_ptr().offset($start as _), rem)
-            }
+            unsafe { crate::utils::$from_raw_parts($slice.$as_ptr().offset($start as _), rem) }
         }
         #[cfg(not(feature = "constant_time_slice"))]
         {
@@ -28,15 +25,16 @@ macro_rules! slice_from_impl {
             }
             ret
         }
-    })
+    }};
 }
 
 macro_rules! slice_up_to_impl {
-    ($slice:ident, $len:ident, $as_ptr:ident, $from_raw_parts:ident, [$($mut:tt)*]) => {{
-        let rem = saturating_sub($slice.len(), $len);
+    ($slice:ident, $len:ident, $as_ptr:ident, $from_raw_parts:ident, $on_overflow:expr) => {{
+        #[allow(unused_variables)]
+        let (rem, overflowed) = $slice.len().overflowing_sub($len);
 
-        if rem == 0 {
-            return $slice;
+        if overflowed {
+            return $on_overflow;
         }
 
         #[cfg(feature = "constant_time_slice")]
@@ -100,6 +98,64 @@ macro_rules! slice_up_to_impl_inner{
     }
 }
 
+/// A const equivalent of `slice.get(index)`
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const FIBB: &[u16] = &[3, 5, 8];
+///
+/// const ELEM0: Option<&u16> = slice::get(FIBB, 0);
+/// const ELEM1: Option<&u16> = slice::get(FIBB, 1);
+/// const ELEM2: Option<&u16> = slice::get(FIBB, 2);
+/// const ELEM3: Option<&u16> = slice::get(FIBB, 3);
+///
+/// assert_eq!(ELEM0, Some(&3));
+/// assert_eq!(ELEM1, Some(&5));
+/// assert_eq!(ELEM2, Some(&8));
+/// assert_eq!(ELEM3, None);
+///
+/// ```
+#[inline]
+pub const fn get<T>(slice: &[T], index: usize) -> Option<&T> {
+    if slice.len() > index {
+        Some(&slice[index])
+    } else {
+        None
+    }
+}
+
+/// A const equivalent of `slice.get_mut(index)`
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// let mut fibb = [3, 5, 8];
+///
+/// assert_eq!(slice::get_mut(&mut fibb, 0), Some(&mut 3));
+/// assert_eq!(slice::get_mut(&mut fibb, 1), Some(&mut 5));
+/// assert_eq!(slice::get_mut(&mut fibb, 2), Some(&mut 8));
+/// assert_eq!(slice::get_mut(&mut fibb, 3), None);
+///
+/// ```
+#[inline]
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(
+    feature = "docsrs",
+    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
+)]
+pub const fn get_mut<T>(slice: &mut [T], index: usize) -> Option<&mut T> {
+    if slice.len() > index {
+        Some(&mut slice[index])
+    } else {
+        None
+    }
+}
+
 /// A const equivalent of `&slice[start..]`.
 ///
 /// If `slice.len() < start`, this simply returns an empty slice.
@@ -133,7 +189,47 @@ macro_rules! slice_up_to_impl_inner{
 /// ```
 #[inline]
 pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
-    slice_from_impl!(slice, start, as_ptr, slice_from_raw_parts, [])
+    slice_from_impl!(slice, start, as_ptr, slice_from_raw_parts, &[])
+}
+
+/// A const equivalent of `slice.get(start..)`.
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the leading elements,
+/// proportional to `start`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const FIBB: &[u16] = &[3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// const TWO: Option<&[u16]> = slice::get_from(FIBB, 2);
+/// const FOUR: Option<&[u16]> = slice::get_from(FIBB, 4);
+/// const ALL: Option<&[u16]> = slice::get_from(FIBB, 0);
+/// const NONE: Option<&[u16]> = slice::get_from(FIBB, 1000);
+///
+/// assert_eq!(TWO, Some(&[8, 13, 21, 34, 55, 89][..]));
+/// assert_eq!(FOUR, Some(&[21, 34, 55, 89][..]));
+/// assert_eq!(ALL, Some(FIBB));
+/// assert_eq!(NONE, None);
+///
+/// ```
+#[inline]
+pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
+    Some(slice_from_impl!(
+        slice,
+        start,
+        as_ptr,
+        slice_from_raw_parts,
+        None
+    ))
 }
 
 /// A const equivalent of `&mut slice[start..]`.
@@ -173,7 +269,51 @@ pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
     doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
 )]
 pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
-    slice_from_impl!(slice, start, as_mut_ptr, slice_from_raw_parts_mut, [mut])
+    slice_from_impl!(slice, start, as_mut_ptr, slice_from_raw_parts_mut, &mut [])
+}
+
+/// A const equivalent of `slice.get_mut(start..)`.
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the leading elements,
+/// proportional to `start`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// let mut fibs = [3, 5, 8, 13, 21, 34, 55];
+///
+/// assert_eq!(slice::get_from_mut(&mut fibs, 0), Some(&mut [3, 5, 8, 13, 21, 34, 55][..]));
+/// assert_eq!(slice::get_from_mut(&mut fibs, 1), Some(&mut [5, 8, 13, 21, 34, 55][..]));
+/// assert_eq!(slice::get_from_mut(&mut fibs, 2), Some(&mut [8, 13, 21, 34, 55][..]));
+/// assert_eq!(slice::get_from_mut(&mut fibs, 6), Some(&mut [55][..]));
+/// assert_eq!(slice::get_from_mut(&mut fibs, 7), Some(&mut [][..]));
+/// assert_eq!(slice::get_from_mut(&mut fibs, 8), None);
+/// assert_eq!(slice::get_from_mut(&mut fibs, 100), None);
+///
+///
+/// ```
+#[inline]
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(
+    feature = "docsrs",
+    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
+)]
+pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> {
+    Some(slice_from_impl!(
+        slice,
+        start,
+        as_mut_ptr,
+        slice_from_raw_parts_mut,
+        None
+    ))
 }
 
 /// A const equivalent of `&slice[..len]`.
@@ -187,7 +327,7 @@ pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
 /// proportional to `slice.len() - len`.
 ///
 /// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// but requires Rust 1.56.0 .
 ///
 /// # Example
 ///
@@ -209,12 +349,10 @@ pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
 /// ```
 #[inline]
 pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
-    slice_up_to_impl!(slice, len, as_ptr, slice_from_raw_parts, [])
+    slice_up_to_impl!(slice, len, as_ptr, slice_from_raw_parts, slice)
 }
 
-/// A const equivalent of `&mut slice[..len]`.
-///
-/// If `slice.len() < len`, this simply returns `slice` back.
+/// A const equivalent of `slice.get(..len)`.
 ///
 /// # Performance
 ///
@@ -223,7 +361,44 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
 /// proportional to `slice.len() - len`.
 ///
 /// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// but requires Rust 1.56.0 .
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const FIBB: &[u16] = &[3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// const TWO: Option<&[u16]> = slice::get_up_to(FIBB, 2);
+/// const FOUR: Option<&[u16]> = slice::get_up_to(FIBB, 4);
+/// const NONE: Option<&[u16]> = slice::get_up_to(FIBB, 0);
+/// const ALL: Option<&[u16]> = slice::get_up_to(FIBB, 1000);
+///
+/// assert_eq!(TWO, Some(&[3, 5][..]));
+/// assert_eq!(FOUR, Some(&[3, 5, 8, 13][..]));
+/// assert_eq!(NONE, Some(&[][..]));
+/// assert_eq!(ALL, None);
+///
+/// ```
+#[inline]
+pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
+    Some(slice_up_to_impl!(
+        slice,
+        len,
+        as_ptr,
+        slice_from_raw_parts,
+        None
+    ))
+}
+
+/// A const equivalent of `&mut slice[..len]`.
+///
+/// If `slice.len() < len`, this simply returns `slice` back.
+///
+/// # Performance
+///
+/// This takes constant time to run.
 ///
 /// # Example
 ///
@@ -250,7 +425,48 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
     doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
 )]
 pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
-    slice_up_to_impl!(slice, len, as_mut_ptr, slice_from_raw_parts_mut, [mut])
+    slice_up_to_impl!(slice, len, as_mut_ptr, slice_from_raw_parts_mut, slice)
+}
+
+/// A const equivalent of `slice.get_mut(..len)`.
+///
+/// # Performance
+///
+/// This takes constant time to run.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// let mut fibs = [3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 100), None);
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 9), None);
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 8), Some(&mut [3, 5, 8, 13, 21, 34, 55, 89][..]));
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 7), Some(&mut [3, 5, 8, 13, 21, 34, 55][..]));
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 6), Some(&mut [3, 5, 8, 13, 21, 34][..]));
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 3), Some(&mut [3, 5, 8][..]));
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 2), Some(&mut [3, 5][..]));
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 1), Some(&mut [3][..]));
+/// assert_eq!(slice::get_up_to_mut(&mut fibs, 0), Some(&mut [][..]));
+///
+/// ```
+#[inline]
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(
+    feature = "docsrs",
+    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
+)]
+#[inline]
+pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
+    Some(slice_up_to_impl!(
+        slice,
+        len,
+        as_mut_ptr,
+        slice_from_raw_parts_mut,
+        None
+    ))
 }
 
 /// A const equivalent of `&slice[start..end]`.
@@ -259,6 +475,14 @@ pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
 ///
 /// If `slice.len() < end`, this returns the slice from `start`.
 ///
+/// # Alternatives
+///
+/// For a const equivalent of `&slice[start..]` there's [`slice_from`].
+///
+/// For a const equivalent of `&slice[..end]` there's [`slice_up_to`].
+///
+/// [`slice_from`]: ./fn.slice_from.html
+/// [`slice_up_to`]: ./fn.slice_up_to.html
 ///
 /// # Performance
 ///
@@ -291,12 +515,66 @@ pub const fn slice_range<T>(slice: &[T], start: usize, end: usize) -> &[T] {
     slice_from(slice_up_to(slice, end), start)
 }
 
+/// A const equivalent of `slice.get(start..end)`.
+///
+/// # Alternatives
+///
+/// For a const equivalent of `slice.get(start..)` there's [`get_from`].
+///
+/// For a const equivalent of `slice.get(..end)` there's [`get_up_to`].
+///
+/// [`get_from`]: ./fn.get_from.html
+/// [`get_up_to`]: ./fn.get_up_to.html
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the leading and trailing elements,
+/// proportional to `start + (slice.len() - end)`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const FIBB: &[u16] = &[3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// const TWO: Option<&[u16]> = slice::get_range(FIBB, 2, 4);
+/// const FOUR: Option<&[u16]> = slice::get_range(FIBB, 4, 7);
+/// const ALL: Option<&[u16]> = slice::get_range(FIBB, 0, 8);
+/// const EMPTY: Option<&[u16]> = slice::get_range(FIBB, 0, 0);
+/// const NONE: Option<&[u16]> = slice::get_range(FIBB, 0, 1000);
+///
+/// assert_eq!(TWO, Some(&[8, 13][..]));
+/// assert_eq!(FOUR, Some(&[21, 34, 55][..]));
+/// assert_eq!(ALL, Some(FIBB));
+/// assert_eq!(EMPTY, Some(&[][..]));
+/// assert_eq!(NONE, None);
+///
+/// ```
+pub const fn get_range<T>(slice: &[T], start: usize, end: usize) -> Option<&[T]> {
+    let x = crate::try_opt!(get_up_to(slice, end));
+    get_from(x, start)
+}
+
 /// A const equivalent of `&mut slice[start..end]`.
 ///
 /// If `start >= end ` or `slice.len() < start `, this returns an empty slice.
 ///
 /// If `slice.len() < end`, this returns the slice from `start`.
 ///
+///
+/// # Alternatives
+///
+/// For a const equivalent of `&mut slice[start..]` there's [`slice_from_mut`].
+///
+/// For a const equivalent of `&mut slice[..end]` there's [`slice_up_to_mut`].
+///
+/// [`slice_from_mut`]: ./fn.slice_from_mut.html
+/// [`slice_up_to_mut`]: ./fn.slice_up_to_mut.html
 ///
 /// # Performance
 ///
@@ -330,10 +608,64 @@ pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &m
     slice_from_mut(slice_up_to_mut(slice, end), start)
 }
 
+/// A const equivalent of `slice.get_mut(start..end)`.
+///
+///
+/// # Alternatives
+///
+/// For a const equivalent of `slice.get_mut(start..)` there's [`get_from_mut`].
+///
+/// For a const equivalent of `slice.get_mut(..end)` there's [`get_up_to_mut`].
+///
+/// [`get_from_mut`]: ./fn.get_from_mut.html
+/// [`get_up_to_mut`]: ./fn.get_up_to_mut.html
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to remove the leading and trailing elements,
+/// proportional to `start + (slice.len() - end)`.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// let mut fibb = [3, 5, 8, 13, 21, 34, 55];
+///
+/// assert_eq!(slice::get_range_mut(&mut fibb, 0, 0), Some(&mut [][..]));
+/// assert_eq!(slice::get_range_mut(&mut fibb, 2, 4), Some(&mut [8, 13][..]));
+/// assert_eq!(slice::get_range_mut(&mut fibb, 4, 7), Some(&mut [21, 34, 55][..]));
+/// assert_eq!(slice::get_range_mut(&mut fibb, 0, 7), Some(&mut [3, 5, 8, 13, 21, 34, 55][..]));
+/// assert_eq!(slice::get_range_mut(&mut fibb, 0, 1000), None);
+///
+/// ```
+#[inline]
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(
+    feature = "docsrs",
+    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
+)]
+pub const fn get_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> Option<&mut [T]> {
+    let x = crate::try_opt!(get_up_to_mut(slice, end));
+    get_from_mut(x, start)
+}
+
 /// A const equivalent of
 /// [`<[T]>::split_at`](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at)
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
+///
+/// # Performance
+///
+/// If the "constant_time_slice" feature is disabled,
+/// thich takes linear time to split the string, proportional to its length.
+///
+/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
+/// but uses a few nightly features.
 ///
 /// # Example
 ///
@@ -366,6 +698,10 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
 ///
+/// # Performance
+///
+/// This takes constant time to run.
+///
 /// # Example
 ///
 /// ```rust
@@ -389,6 +725,10 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 ///
 #[inline]
 #[cfg(all(feature = "mut_refs", feature = "constant_time_slice"))]
+#[cfg_attr(
+    feature = "docsrs",
+    doc(cfg(all(feature = "mut_refs", feature = "constant_time_slice")))
+)]
 pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T]) {
     use crate::utils::slice_from_raw_parts_mut;
 
@@ -506,7 +846,7 @@ pub const fn bytes_strip_suffix<'a>(mut left: &'a [u8], mut suffix: &[u8]) -> Op
     Some(left)
 }
 
-/// Finds the byte offset of `right` inside `&left[from..]`.
+/// Finds the byte offset of `right` in `left`, starting from the `from` index.
 ///
 /// Returns `None` if `right` isn't inside `&left[from..]`
 ///
@@ -660,6 +1000,384 @@ pub const fn bytes_rfind(left: &[u8], right: &[u8], from: usize) -> Option<usize
 #[inline(always)]
 pub const fn bytes_rcontain(left: &[u8], right: &[u8], from: usize) -> bool {
     matches!(bytes_rfind(left, right, from), Some(_))
+}
+
+macro_rules! matches_space {
+    ($b:ident) => {
+        matches!($b, b'\t' | b'\n' | b'\r' | b' ')
+    };
+}
+
+/// Removes ascii whitespace from the start and end of `this`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const TRIMMED: &[u8] = slice::bytes_trim(b"\nhello world  ");
+///
+/// assert_eq!(TRIMMED, b"hello world");
+///
+/// ```
+pub const fn bytes_trim(this: &[u8]) -> &[u8] {
+    bytes_trim_start(bytes_trim_end(this))
+}
+
+/// Removes ascii whitespace from the start of `this`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const TRIMMED: &[u8] = slice::bytes_trim_start(b"\tfoo bar  ");
+///
+/// assert_eq!(TRIMMED, b"foo bar  ");
+///
+/// ```
+pub const fn bytes_trim_start(mut this: &[u8]) -> &[u8] {
+    loop {
+        match this {
+            [b, rem @ ..] if matches_space!(b) => this = rem,
+            _ => return this,
+        }
+    }
+}
+
+/// Removes ascii whitespace from the end of `this`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const TRIMMED: &[u8] = slice::bytes_trim_end(b"\rfoo bar  ");
+///
+/// assert_eq!(TRIMMED, b"\rfoo bar");
+///
+/// ```
+pub const fn bytes_trim_end(mut this: &[u8]) -> &[u8] {
+    loop {
+        match this {
+            [rem @ .., b] if matches_space!(b) => this = rem,
+            _ => return this,
+        }
+    }
+}
+
+/// Removes all instances of `needle` from the start and end of `this`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const TRIMMED: &[u8] = slice::bytes_trim_matches(b"<>baz qux<><><>", b"<>");
+///
+/// assert_eq!(TRIMMED, b"baz qux");
+///
+/// ```
+pub const fn bytes_trim_matches<'a>(this: &'a [u8], needle: &[u8]) -> &'a [u8] {
+    let ltrim = bytes_trim_start_matches(this, needle);
+    bytes_trim_end_matches(ltrim, needle)
+}
+
+/// Removes all instances of `needle` from the start of `this`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const TRIMMED: &[u8] = slice::bytes_trim_start_matches(b"#####huh###", b"##");
+///
+/// assert_eq!(TRIMMED, b"#huh###");
+///
+/// ```
+pub const fn bytes_trim_start_matches<'a>(mut this: &'a [u8], needle: &[u8]) -> &'a [u8] {
+    if needle.is_empty() {
+        return this;
+    }
+
+    let mut matched = needle;
+
+    loop {
+        let at_start = this;
+
+        match (this, matched) {
+            ([b, rem @ ..], [bm, remm @ ..]) if *b == *bm => {
+                this = rem;
+                matched = remm;
+            }
+            _ => return this,
+        }
+
+        'inner: loop {
+            match (this, matched) {
+                ([], [_, ..]) => return at_start,
+                ([b, rem @ ..], [bm, remm @ ..]) => {
+                    if *b == *bm {
+                        this = rem;
+                        matched = remm;
+                    } else {
+                        return at_start;
+                    }
+                }
+                _ => break 'inner,
+            }
+        }
+
+        matched = needle;
+    }
+}
+
+/// Removes all instances of `needle` from the end of `this`.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// const TRIMMED: &[u8] = slice::bytes_trim_end_matches(b"oowowooooo", b"oo");
+///
+/// assert_eq!(TRIMMED, b"oowowo");
+///
+/// ```
+pub const fn bytes_trim_end_matches<'a>(mut this: &'a [u8], needle: &[u8]) -> &'a [u8] {
+    if needle.is_empty() {
+        return this;
+    }
+
+    let mut matched = needle;
+
+    loop {
+        let at_start = this;
+
+        match (this, matched) {
+            ([rem @ .., b], [remm @ .., bm]) if *b == *bm => {
+                this = rem;
+                matched = remm;
+            }
+            _ => return this,
+        }
+
+        'inner: loop {
+            match (this, matched) {
+                ([], [.., _]) => return at_start,
+                ([rem @ .., b], [remm @ .., bm]) => {
+                    if *b == *bm {
+                        this = rem;
+                        matched = remm;
+                    } else {
+                        return at_start;
+                    }
+                }
+                _ => break 'inner,
+            }
+        }
+
+        matched = needle;
+    }
+}
+
+macro_rules! elem_then_rem {
+    ($elem:ident, $($rem:tt)*) => { [$elem, $($rem)*] };
+}
+
+macro_rules! rem_then_elem {
+    ($elem:ident, $($rem:tt)*) => { [$($rem)*, $elem] };
+}
+
+macro_rules! byte_find_then {
+    ($slice_order:ident, $this:ident, $needle:ident, |$next:ident| $then:block) => ({
+        if $needle.is_empty() {
+            return Some($this);
+        }
+
+        let mut matching = $needle;
+
+        let mut $next = $this;
+
+        while let $slice_order!(mb, ref m_rem @ ..) = *matching {
+            matching = m_rem;
+
+            if let $slice_order!(b, ref rem @ ..) = *$next {
+                if b != mb {
+                    matching = match *$needle {
+                        // For when the string is "lawlawn" and we are skipping "lawn"
+                        $slice_order!(mb2, ref m_rem2 @ ..) if b == mb2 => {
+                            // This is considered used in half of the macro invocations
+                            #[allow(unused_assignments)]
+                            {$this = $next;}
+                            m_rem2
+                        },
+                        _ => {
+                            // This is considered used in half of the macro invocations
+                            #[allow(unused_assignments)]
+                            {$this = rem;}
+                            $needle
+                        },
+                    };
+                }
+                $next = rem;
+            } else {
+                return None;
+            }
+        }
+
+        $then
+
+        Some($this)
+    });
+}
+
+/// Advances `this` past the first instance of `needle`.
+///
+/// Return `None` if no instance of `needle` is found.
+///
+/// Return `Some(this)` if `needle` is empty.
+///
+/// # Motivation
+///
+/// This function exists because calling [`bytes_find`] + [`slice_from`]
+/// when the `"constant_time_slice"` feature is disabled
+/// is slower than it could be, since the slice has to be traversed twice.
+///
+/// [`bytes_find`]: ./fn.bytes_find.html
+/// [`slice_from`]: ./fn.slice_from.html
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::bytes_find_skip;
+///
+/// {
+///     const FOUND: Option<&[u8]> = bytes_find_skip(b"foo bar baz", b"bar");
+///     assert_eq!(FOUND, Some(&b" baz"[..]));
+/// }
+/// {
+///     const NOT_FOUND: Option<&[u8]> = bytes_find_skip(b"foo bar baz", b"qux");
+///     assert_eq!(NOT_FOUND, None);
+/// }
+/// {
+///     const EMPTY_NEEDLE: Option<&[u8]> = bytes_find_skip(b"foo bar baz", b"");
+///     assert_eq!(EMPTY_NEEDLE, Some(&b"foo bar baz"[..]));
+/// }
+/// ```
+pub const fn bytes_find_skip<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'a [u8]> {
+    byte_find_then! {elem_then_rem, this, needle, |next| {this = next}}
+}
+
+/// Advances `this` up to the first instance of `needle`.
+///
+/// Return `None` if no instance of `needle` is found.
+///
+/// Return `Some(this)` if `needle` is empty.
+///
+/// # Motivation
+///
+/// This function exists because calling [`bytes_find`] + [`slice_from`]
+/// when the `"constant_time_slice"` feature is disabled
+/// is slower than it could be, since the slice has to be traversed twice.
+///
+/// [`bytes_find`]: ./fn.bytes_find.html
+/// [`slice_from`]: ./fn.slice_from.html
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::bytes_find_keep;
+///
+/// {
+///     const FOUND: Option<&[u8]> = bytes_find_keep(b"foo bar baz", b"bar");
+///     assert_eq!(FOUND, Some(&b"bar baz"[..]));
+/// }
+/// {
+///     const NOT_FOUND: Option<&[u8]> = bytes_find_keep(b"foo bar baz", b"qux");
+///     assert_eq!(NOT_FOUND, None);
+/// }
+/// {
+///     const EMPTY_NEEDLE: Option<&[u8]> = bytes_find_keep(b"foo bar baz", b"");
+///     assert_eq!(EMPTY_NEEDLE, Some(&b"foo bar baz"[..]));
+/// }
+/// ```
+pub const fn bytes_find_keep<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'a [u8]> {
+    byte_find_then! {elem_then_rem, this, needle, |next| {}}
+}
+
+/// Truncates `this` to before the last instance of `needle`.
+///
+/// Return `None` if no instance of `needle` is found.
+///
+/// Return `Some(this)` if `needle` is empty.
+///
+/// # Motivation
+///
+/// This function exists because calling [`bytes_rfind`] + [`slice_up_to`]
+/// when the `"constant_time_slice"` feature is disabled
+/// is slower than it could be, since the slice has to be traversed twice.
+///
+/// [`bytes_rfind`]: ./fn.bytes_rfind.html
+/// [`slice_up_to`]: ./fn.slice_up_to.html
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::bytes_rfind_skip;
+///
+/// {
+///     const FOUND: Option<&[u8]> = bytes_rfind_skip(b"foo bar _ bar baz", b"bar");
+///     assert_eq!(FOUND, Some(&b"foo bar _ "[..]));
+/// }
+/// {
+///     const NOT_FOUND: Option<&[u8]> = bytes_rfind_skip(b"foo bar baz", b"qux");
+///     assert_eq!(NOT_FOUND, None);
+/// }
+/// {
+///     const EMPTY_NEEDLE: Option<&[u8]> = bytes_rfind_skip(b"foo bar baz", b"");
+///     assert_eq!(EMPTY_NEEDLE, Some(&b"foo bar baz"[..]));
+/// }
+/// ```
+pub const fn bytes_rfind_skip<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'a [u8]> {
+    byte_find_then! {rem_then_elem, this, needle, |next| {this = next}}
+}
+
+/// Truncates `this` to the last instance of `needle`.
+///
+/// Return `None` if no instance of `needle` is found.
+///
+/// Return `Some(this)` if `needle` is empty.
+///
+/// # Motivation
+///
+/// This function exists because calling [`bytes_rfind`] + [`slice_up_to`]
+/// when the `"constant_time_slice"` feature is disabled
+/// is slower than it could be, since the slice has to be traversed twice.
+///
+/// [`bytes_rfind`]: ./fn.bytes_rfind.html
+/// [`slice_up_to`]: ./fn.slice_up_to.html
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::bytes_rfind_keep;
+///
+/// {
+///     const FOUND: Option<&[u8]> = bytes_rfind_keep(b"foo bar _ bar baz", b"bar");
+///     assert_eq!(FOUND, Some(&b"foo bar _ bar"[..]));
+/// }
+/// {
+///     const NOT_FOUND: Option<&[u8]> = bytes_rfind_keep(b"foo bar baz", b"qux");
+///     assert_eq!(NOT_FOUND, None);
+/// }
+/// {
+///     const EMPTY_NEEDLE: Option<&[u8]> = bytes_rfind_keep(b"foo bar baz", b"");
+///     assert_eq!(EMPTY_NEEDLE, Some(&b"foo bar baz"[..]));
+/// }
+/// ```
+pub const fn bytes_rfind_keep<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'a [u8]> {
+    byte_find_then! {rem_then_elem, this, needle, |next| {}}
 }
 
 /// A const equivalent of
