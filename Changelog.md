@@ -2,6 +2,10 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.2
 
+### 0.2.12
+
+Added `konst::array::map`, which requires the `rust_1_56` feature.
+
 ### 0.2.10
 
 Added `"rust_1_55"` and `"rust_1_56"` features.

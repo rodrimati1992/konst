@@ -5,6 +5,8 @@ mod misc_tests {
     #[macro_use]
     mod test_utils;
 
+    mod array_tests;
+
     mod slice_tests;
 
     mod slice_const_method_tests;

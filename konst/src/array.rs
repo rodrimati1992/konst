@@ -1,9 +1,10 @@
 //! Const equivalents of array functions.
 
-/// Const equivalent of `array::map`.
+/// Const equivalent of
+/// [`array::map`](https://doc.rust-lang.org/std/primitive.array.html#method.map).
 ///
 /// **Limitation:** requires `$array` and the elements
-/// returned by the passed-in funtion to be `Copy`.
+/// returned by the passed-in function to be `Copy`.
 ///
 /// # Example
 ///

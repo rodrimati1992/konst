@@ -25,7 +25,7 @@ macro_rules! array_map {
     ($array:expr, | $($anything:tt)* ) => {
         compile_error!("expected the closure to take an argument")
     };
-    ($array:expr, $function:path $(,)?) => {
+    ($array:expr, $function:expr $(,)?) => {
         $crate::array_map!($array, |x| $function(x))
     };
 }
