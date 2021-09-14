@@ -3,6 +3,10 @@
 #![cfg_attr(feature = "deref_raw_in_fn", feature(const_fn_union))]
 #![cfg_attr(feature = "nightly_mut_refs", feature(const_mut_refs))]
 
+#[cfg(feature = "rust_1_56")]
+#[macro_use]
+mod array_macros;
+
 #[macro_use]
 mod option_macros_;
 
@@ -22,12 +26,15 @@ pub mod utils;
 
 #[doc(hidden)]
 pub mod __ {
+    #[cfg(feature = "rust_1_56")]
+    pub use crate::array_macros::{assert_array, uninit_array, AssumInitCopyArray};
+
     pub use core::{
         cmp::Ordering::{self, Equal, Greater, Less},
         compile_error,
         marker::PhantomData,
         matches,
-        mem::transmute,
+        mem::{transmute, MaybeUninit},
         ops::Range,
         option::Option::{self, None, Some},
         primitive::{str, u8},
