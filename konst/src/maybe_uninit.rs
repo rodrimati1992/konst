@@ -118,6 +118,46 @@ pub const unsafe fn assume_init_ref<T>(md: &MaybeUninit<T>) -> &T {
     crate::utils_156::__priv_transmute_ref! {MaybeUninit<T>, T, md}
 }
 
+/// Const equivalent of [`MaybeUninit::assume_init_mut`](core::mem::MaybeUninit::assume_init_mut)
+///
+/// # Safety
+///
+/// This has [the same safety requirements as `MaybeUninit::assume_init_mut`
+/// ](https://doc.rust-lang.org/1.55.0/core/mem/union.MaybeUninit.html#safety-3)
+///
+/// # Example
+///
+/// ```rust
+/// # #![feature(const_mut_refs)]
+/// use std::cmp::Ordering;
+/// use std::mem::MaybeUninit;
+///
+/// use konst::maybe_uninit;
+///
+/// const unsafe fn mutate_mu(mu: &mut MaybeUninit<u32>) -> u32 {
+///     let mutref = maybe_uninit::assume_init_mut(mu);
+///     *mutref += 100;
+///     *mutref
+/// }
+///
+/// const MU: (MaybeUninit<u32>, [u32; 3]) = {
+///     let mut mu = MaybeUninit::new(5);
+///     let array = unsafe{
+///         [mutate_mu(&mut mu), mutate_mu(&mut mu), mutate_mu(&mut mu)]
+///     };
+///     (mu, array)
+/// };
+///
+/// unsafe{ assert_eq!(MU.0.assume_init(), 305); }
+/// assert_eq!(MU.1, [105, 205, 305]);
+///
+/// ```
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+pub const unsafe fn assume_init_mut<T>(md: &mut MaybeUninit<T>) -> &mut T {
+    crate::utils_mut::__priv_transmute_mut! {MaybeUninit<T>, T, md}
+}
+
 /// Const equivalent of [`MaybeUninit::as_ptr`](core::mem::MaybeUninit::as_ptr)
 ///
 /// # Example

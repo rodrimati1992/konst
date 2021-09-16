@@ -385,6 +385,9 @@ mod utils;
 #[cfg(feature = "rust_1_56")]
 mod utils_156;
 
+#[cfg(feature = "mut_refs")]
+mod utils_mut;
+
 #[cfg(feature = "parsing_no_proc")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 pub use crate::parsing::Parser;

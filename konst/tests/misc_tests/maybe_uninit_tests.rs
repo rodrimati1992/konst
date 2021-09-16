@@ -51,6 +51,30 @@ fn assume_init_ref_test() {
 }
 
 #[test]
+#[cfg(feature = "mut_refs")]
+fn assume_init_mut_test() {
+    let mut reff = MaybeUninit::new(&0u32);
+    let mut booll = MaybeUninit::new(true);
+    let mut ordering = MaybeUninit::new(Ordering::Greater);
+    let mut string = MaybeUninit::new("wowow");
+
+    unsafe {
+        *maybe_uninit::assume_init_mut(&mut reff) = &3;
+        *maybe_uninit::assume_init_mut(&mut booll) = false;
+        *maybe_uninit::assume_init_mut(&mut ordering) = Ordering::Equal;
+        *maybe_uninit::assume_init_mut(&mut string) = "what";
+
+        assert_eq!(maybe_uninit::assume_init_mut(&mut reff), &mut &3u32);
+        assert_eq!(maybe_uninit::assume_init_mut(&mut booll), &mut false);
+        assert_eq!(
+            maybe_uninit::assume_init_mut(&mut ordering),
+            &mut Ordering::Equal
+        );
+        assert_eq!(maybe_uninit::assume_init_mut(&mut string), &mut "what");
+    }
+}
+
+#[test]
 fn as_ptr_test() {
     let reff = MaybeUninit::new(&0u32);
     let booll = MaybeUninit::new(true);

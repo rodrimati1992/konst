@@ -35,3 +35,35 @@ pub const fn as_inner<T>(md: &ManuallyDrop<T>) -> &T {
         crate::utils_156::__priv_transmute_ref! {ManuallyDrop<T>, T, md}
     }
 }
+
+/// Const equivalent of `&mut *manually_drop`
+///
+/// # Example
+///
+/// ```rust
+/// # #![feature(const_mut_refs)]
+/// use std::mem::ManuallyDrop;
+/// use konst::manually_drop;
+///
+/// const fn add_100(num: &mut u32 ) {
+///     *num += 100;
+/// }
+///
+/// const FOO: ManuallyDrop<u32> = {
+///     let mut mu = ManuallyDrop::new(5);
+///     let inner = manually_drop::as_inner_mut(&mut mu);
+///     add_100(inner);
+///     add_100(inner);
+///     add_100(inner);
+///     mu
+/// };
+///
+/// assert_eq!(*FOO, 305);
+/// ```
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+pub const fn as_inner_mut<T>(md: &mut ManuallyDrop<T>) -> &mut T {
+    unsafe {
+        crate::utils_mut::__priv_transmute_mut! {ManuallyDrop<T>, T, md}
+    }
+}
