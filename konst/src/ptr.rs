@@ -117,6 +117,11 @@ pub mod nonnull {
 
     /// Const equivalent of [`NonNull::as_ref`](core::ptr::NonNull::as_ref).
     ///
+    /// # Safety
+    ///
+    /// This has [the same safety requirements as `NonNull::as_ref`
+    /// ](https://doc.rust-lang.org/1.55.0/core/ptr/struct.NonNull.html#safety-3)
+    ///
     /// # Example
     ///
     /// ```rust
@@ -146,6 +151,7 @@ pub mod nonnull {
     /// Const equivalent of
     /// [`<NonNull<T> as From<&T>>::from`
     /// ](https://doc.rust-lang.org/1.55.0/std/ptr/struct.NonNull.html#impl-From%3C%26%27_%20T%3E)
+    ///
     /// # Example
     ///
     /// ```rust
