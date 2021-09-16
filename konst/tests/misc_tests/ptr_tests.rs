@@ -33,11 +33,9 @@ fn ptr_is_null() {
     let str_ptr: *const str = "hello";
     let array_ptr: *const [u8; 4] = &[3, 5, 8, 13];
 
-    unsafe {
-        assert!(!ptr::is_null(str_ptr));
-        assert!(!ptr::is_null(array_ptr));
-        assert!(ptr::is_null(null::<u8>()));
-    }
+    assert!(!ptr::is_null(str_ptr));
+    assert!(!ptr::is_null(array_ptr));
+    assert!(ptr::is_null(null::<u8>()));
 }
 
 #[test]

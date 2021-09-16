@@ -1,4 +1,4 @@
-//! Generic constants for `MaybeUninit<T>`.
+//! Const fn equivalents of [`MaybeUninit<T>`](core::mem::MaybeUninit) methods.
 
 use core::mem::MaybeUninit;
 

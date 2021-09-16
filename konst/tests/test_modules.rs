@@ -7,6 +7,8 @@ mod misc_tests {
 
     mod array_tests;
 
+    mod manually_drop_tests;
+
     mod maybe_uninit_tests;
 
     mod slice_tests;

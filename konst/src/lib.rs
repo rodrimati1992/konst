@@ -366,6 +366,10 @@ pub mod range;
 
 pub mod maybe_uninit;
 
+#[cfg(feature = "rust_1_56")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
+pub mod manually_drop;
+
 pub mod nonzero;
 
 pub mod other;
