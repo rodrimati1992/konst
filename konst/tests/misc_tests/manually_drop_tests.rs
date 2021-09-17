@@ -1,3 +1,4 @@
+#[cfg(feature = "rust_1_56")]
 use konst::manually_drop;
 
 use core::{cmp::Ordering, mem::ManuallyDrop};

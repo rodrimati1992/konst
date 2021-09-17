@@ -1,6 +1,3 @@
-#[cfg(feature = "constant_time_slice")]
-use crate::utils::{min_usize, Dereference};
-
 macro_rules! slice_from_impl {
     ($slice:ident, $start:ident, $as_ptr:ident, $from_raw_parts:ident, $on_overflow:expr) => {{
         #[allow(unused_variables)]
