@@ -30,6 +30,43 @@ pub const unsafe fn deref<'a, T: ?Sized>(ptr: *const T) -> &'a T {
     core::mem::transmute(ptr)
 }
 
+/// Const equivalent of `&mut *raw_pointer`.
+///
+///
+/// # Safety
+///
+/// This function has the safety requirements of
+/// [`<*const>::as_mut`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety-13),
+/// in addition to requiring that `ptr` is not null.
+///
+/// # Example
+///
+/// ```rust
+/// # #![feature(const_mut_refs)]
+/// use konst::ptr;
+///
+/// assert_eq!(ARR, [33, 35, 38]);
+///
+/// const ARR: [u8; 3] = unsafe {
+///     let mut arr = [3, 5, 8];
+///     mutate(&mut arr[0]);
+///     mutate(&mut arr[1]);
+///     mutate(&mut arr[2]);
+///     arr
+/// };
+///
+/// const unsafe fn mutate(x: *mut u8) {
+///     let mutt = ptr::deref_mut(x);
+///     *mutt += 30;
+/// }
+///
+/// ```
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+pub const unsafe fn deref_mut<'a, T: ?Sized>(ptr: *mut T) -> &'a mut T {
+    core::mem::transmute(ptr)
+}
+
 /// Const equivalent of
 /// [`<*const>::as_ref`](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_ref)
 ///
@@ -56,6 +93,43 @@ pub const unsafe fn deref<'a, T: ?Sized>(ptr: *const T) -> &'a T {
 #[cfg(feature = "rust_1_56")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: *const T) -> Option<&'a T> {
+    core::mem::transmute(ptr)
+}
+
+/// Const equivalent of
+/// [`<*const>::as_mut`](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_mut)
+///
+/// # Safety
+///
+/// This function has the same safety requirements as
+/// [`<*const>::as_mut`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety-13).
+///
+/// # Example
+///
+/// ```rust
+/// # #![feature(const_mut_refs)]
+/// use konst::ptr;
+///
+/// assert_eq!(ARR, [83, 91, 104]);
+///
+/// const ARR: [u8; 3] = unsafe {
+///     let mut arr = [13, 21, 34];
+///     mutate(&mut arr[0]);
+///     mutate(&mut arr[1]);
+///     mutate(&mut arr[2]);
+///     mutate(std::ptr::null_mut()); // no-op
+///     arr
+/// };
+///
+/// const unsafe fn mutate(x: *mut u8) {
+///     if let Some(mutt) = ptr::as_mut(x) {
+///         *mutt += 70;
+///     }
+/// }
+/// ```
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
     core::mem::transmute(ptr)
 }
 
@@ -148,6 +222,43 @@ pub mod nonnull {
         core::mem::transmute(ptr)
     }
 
+    /// Const equivalent of [`NonNull::as_mut`](core::ptr::NonNull::as_mut).
+    ///
+    /// # Safety
+    ///
+    /// This has [the same safety requirements as `NonNull::as_mut`
+    /// ](https://doc.rust-lang.org/1.55.0/std/ptr/struct.NonNull.html#safety-4)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # #![feature(const_mut_refs)]
+    /// use konst::ptr::nonnull;
+    ///
+    /// use core::ptr::NonNull;
+    ///
+    /// assert_eq!(TUP, (13, 15, 18));
+    ///
+    /// const TUP: (u8, u8, u8) = unsafe {
+    ///     let mut tuple = (3, 5, 8);
+    ///     mutate(nonnull::from_mut(&mut tuple.0));
+    ///     mutate(nonnull::from_mut(&mut tuple.1));
+    ///     mutate(nonnull::from_mut(&mut tuple.2));
+    ///     tuple
+    /// };
+    ///
+    /// const unsafe fn mutate(x: NonNull<u8>) {
+    ///     *nonnull::as_mut(x) += 10;
+    /// }
+    ///
+    /// ```
+    ///
+    #[cfg(feature = "mut_refs")]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+    pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: NonNull<T>) -> &'a mut T {
+        core::mem::transmute(ptr)
+    }
+
     /// Const equivalent of
     /// [`<NonNull<T> as From<&T>>::from`
     /// ](https://doc.rust-lang.org/1.55.0/std/ptr/struct.NonNull.html#impl-From%3C%26%27_%20T%3E)
@@ -169,5 +280,42 @@ pub mod nonnull {
     /// ```
     pub const fn from_ref<T: ?Sized>(reff: &T) -> NonNull<T> {
         unsafe { NonNull::new_unchecked(reff as *const _ as *mut _) }
+    }
+
+    /// Const equivalent of
+    /// [`<NonNull<T> as From<&mut T>>::from`
+    /// ](https://doc.rust-lang.org/1.55.0/std/ptr/struct.NonNull.html#impl-From%3C%26%27_%20mut%20T%3E)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # #![feature(const_mut_refs)]
+    /// use konst::ptr::nonnull as nn;
+    ///
+    /// use core::ptr::NonNull;
+    ///
+    /// assert_eq!(ARR, (5, 8, 3));
+    ///
+    /// const ARR: (u8, u8, u8) = unsafe {
+    ///     let mut tup = (3, 5, 8);
+    ///     swap(nn::from_mut(&mut tup.0), nn::from_mut(&mut tup.1));
+    ///     swap(nn::from_mut(&mut tup.1), nn::from_mut(&mut tup.2));
+    ///     tup
+    /// };
+    ///
+    /// const unsafe fn swap(x: NonNull<u8>, y: NonNull<u8>) {
+    ///     let xm = nn::as_mut(x);
+    ///     let ym = nn::as_mut(y);
+    ///     let tmp = *xm;
+    ///     *xm = *ym;
+    ///     *ym = tmp;
+    /// }
+    ///
+    /// ```
+    ///
+    #[cfg(feature = "mut_refs")]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+    pub const fn from_mut<T: ?Sized>(mutt: &mut T) -> NonNull<T> {
+        unsafe { NonNull::new_unchecked(mutt) }
     }
 }

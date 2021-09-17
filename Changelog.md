@@ -2,6 +2,32 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.2
 
+### 0.2.13
+
+Added these functions:
+- `konst::manually_drop::as_inner` (requires the `"rust_1_56"` feature).
+- `konst::manually_drop::as_inner_mut` (requires the `"mut_refs"` feature).
+
+Added these `MaybeUninit` functions:
+- `konst::maybe_uninit::assume_init` (requires the `"rust_1_56"` feature)
+- `konst::maybe_uninit::assume_init_ref` (requires the `"rust_1_56"` feature)
+- `konst::maybe_uninit::assume_init_mut` (requires the `"mut_refs"` feature)
+- `konst::maybe_uninit::as_ptr`
+- `konst::maybe_uninit::array_assume_init` (requires the `"rust_1_56"` feature)
+
+Added these raw pointer/`NonNull` functins:
+- `konst::ptr::deref` (requires the `"rust_1_56"` feature)
+- `konst::ptr::deref_mut` (requires the `"mut_refs"` feature)
+- `konst::ptr::as_ref` (requires the `"rust_1_56"` feature)
+- `konst::ptr::as_mut` (requires the `"mut_refs"` feature)
+- `konst::ptr::is_null` (requires the `"rust_1_56"` feature)
+- `konst::ptr::non_null::new` (requires the `"rust_1_56"` feature)
+- `konst::ptr::non_null::from_ref`
+- `konst::ptr::non_null::from_mut` (requires the `"mut_refs"` feature)
+- `konst::ptr::non_null::as_ref` (requires the `"rust_1_56"` feature)
+- `konst::ptr::non_null::as_mut` (requires the `"mut_refs"` feature)
+
+
 ### 0.2.12
 
 Added `konst::array::map`, which requires the `rust_1_56` feature.
