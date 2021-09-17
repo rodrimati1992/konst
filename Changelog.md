@@ -15,6 +15,7 @@ Added these `MaybeUninit` functions:
 - `konst::maybe_uninit::assume_init_mut` (requires the `"mut_refs"` feature)
 - `konst::maybe_uninit::assume_init_ref` (requires the `"rust_1_56"` feature)
 - `konst::maybe_uninit::assume_init` (requires the `"rust_1_56"` feature)
+- `konst::maybe_uninit::uninit_array` (requires the `"rust_1_56"` feature)
 - `konst::maybe_uninit::write` (requires the `"mut_refs"` feature)
 
 Added these raw pointer/`NonNull` functins:
