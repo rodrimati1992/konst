@@ -37,6 +37,23 @@ fn array_assume_init_test() {
 
 #[test]
 #[cfg(feature = "rust_1_56")]
+fn uninit_array_test() {
+    use konst::maybe_uninit as mu;
+
+    use std::mem::{self, MaybeUninit};
+
+    let mut reffs: [MaybeUninit<&u8>; 2] = maybe_uninit::uninit_array::<&u8, 2>();
+
+    reffs[0] = MaybeUninit::new(&10u8);
+    reffs[1] = MaybeUninit::new(&20);
+
+    unsafe {
+        assert_eq!(maybe_uninit::array_assume_init(reffs), [&10u8, &20u8]);
+    }
+}
+
+#[test]
+#[cfg(feature = "rust_1_56")]
 fn assume_init_ref_test() {
     let reff = MaybeUninit::new(&0u32);
     let booll = MaybeUninit::new(true);

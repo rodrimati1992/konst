@@ -30,6 +30,7 @@ use core::mem::ManuallyDrop;
 ///     }
 /// }
 /// ```
+#[inline(always)]
 pub const fn as_inner<T>(md: &ManuallyDrop<T>) -> &T {
     unsafe {
         crate::utils_156::__priv_transmute_ref! {ManuallyDrop<T>, T, md}
@@ -62,6 +63,7 @@ pub const fn as_inner<T>(md: &ManuallyDrop<T>) -> &T {
 /// ```
 #[cfg(feature = "mut_refs")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+#[inline(always)]
 pub const fn as_inner_mut<T>(md: &mut ManuallyDrop<T>) -> &mut T {
     unsafe {
         crate::utils_mut::__priv_transmute_mut! {ManuallyDrop<T>, T, md}
