@@ -158,6 +158,49 @@ pub const unsafe fn assume_init_mut<T>(md: &mut MaybeUninit<T>) -> &mut T {
     crate::utils_mut::__priv_transmute_mut! {MaybeUninit<T>, T, md}
 }
 
+/// Const equivalent of [`MaybeUninit::assume_init_mut`](core::mem::MaybeUninit::assume_init_mut)
+///
+/// # Safety
+///
+/// This has [the same safety requirements as `MaybeUninit::assume_init_mut`
+/// ](https://doc.rust-lang.org/1.55.0/core/mem/union.MaybeUninit.html#safety-3)
+///
+/// # Example
+///
+/// ```rust
+/// # #![feature(const_mut_refs)]
+/// use std::cmp::Ordering;
+/// use std::mem::MaybeUninit;
+///
+/// use konst::maybe_uninit;
+///
+/// const fn cond_init(mu: &mut MaybeUninit<u32>, value: u32) -> Option<&mut u32> {
+///     if value % 3 != 0 {
+///         Some(maybe_uninit::write(mu, value))
+///     } else {
+///         None
+///     }
+/// }
+///
+/// let mut mu = MaybeUninit::uninit();
+/// assert_eq!(cond_init(&mut mu, 0), None);
+/// assert_eq!(cond_init(&mut mu, 1), Some(&mut 1));
+/// assert_eq!(cond_init(&mut mu, 2), Some(&mut 2));
+/// assert_eq!(cond_init(&mut mu, 3), None);
+/// assert_eq!(cond_init(&mut mu, 4), Some(&mut 4));
+/// assert_eq!(cond_init(&mut mu, 5), Some(&mut 5));
+/// assert_eq!(cond_init(&mut mu, 6), None);
+///
+/// ```
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+pub const fn write<T>(md: &mut MaybeUninit<T>, value: T) -> &mut T {
+    *md = MaybeUninit::new(value);
+    unsafe {
+        crate::utils_mut::__priv_transmute_mut! {MaybeUninit<T>, T, md}
+    }
+}
+
 /// Const equivalent of [`MaybeUninit::as_ptr`](core::mem::MaybeUninit::as_ptr)
 ///
 /// # Example
@@ -177,6 +220,54 @@ pub const unsafe fn assume_init_mut<T>(md: &mut MaybeUninit<T>) -> &mut T {
 /// ```
 pub const fn as_ptr<T>(md: &MaybeUninit<T>) -> *const T {
     md as *const MaybeUninit<T> as *const T
+}
+
+/// Const equivalent of [`MaybeUninit::as_mut_ptr`](core::mem::MaybeUninit::as_mut_ptr)
+///
+/// # Example
+///
+/// Initializing a `#[repr(u8)]` enum
+///
+/// ```rust
+/// # #![feature(const_mut_refs)]
+/// use std::mem::MaybeUninit;
+///
+/// use konst::{maybe_uninit as mu, ptr};
+///
+/// const ENUM: Enum = {
+///     let mut mu = MaybeUninit::<Enum>::uninit();
+///     
+///     let ptr = mu::as_mut_ptr(&mut mu).cast::<MaybeUninit<Discr>>();
+///     unsafe{
+///         *ptr::deref_mut(ptr) = MaybeUninit::new(Discr::Bar);
+///         mu::assume_init(mu)
+///     }
+/// };
+///
+/// unsafe {
+///     assert_eq!(ENUM, Enum::Bar);
+/// }
+///
+/// #[repr(u8)]
+/// enum Discr {
+///     Foo,
+///     Bar,
+///     Baz,
+/// }
+///
+/// #[repr(u8)]
+/// #[derive(Debug, PartialEq)]
+/// enum Enum {
+///     Foo(u8),
+///     Bar,
+///     Baz{s: String},
+/// }
+///
+/// ```
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+pub const fn as_mut_ptr<T>(md: &mut MaybeUninit<T>) -> *mut T {
+    md as *mut MaybeUninit<T> as *mut T
 }
 
 /// Const equivalent of
