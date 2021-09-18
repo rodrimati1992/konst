@@ -1,11 +1,3 @@
-#[doc(hidden)]
-#[repr(C)]
-#[cfg(feature = "rust_1_56")]
-pub(crate) union Dereference<'a, T: ?Sized> {
-    pub ptr: *const T,
-    pub reff: &'a T,
-}
-
 #[cfg(all(feature = "constant_time_slice", feature = "mut_refs"))]
 mod mut_refs {
     use core::mem::ManuallyDrop;
@@ -39,7 +31,7 @@ pub(crate) use mut_refs::{deref_raw_mut_ptr, slice_from_raw_parts_mut, BorrowMut
 #[cfg(feature = "constant_time_slice")]
 pub(crate) const unsafe fn slice_from_raw_parts<'a, T>(ptr: *const T, len: usize) -> &'a [T] {
     let ptr = core::ptr::slice_from_raw_parts(ptr, len);
-    Dereference { ptr }.reff
+    crate::utils_156::PtrToRef { ptr }.reff
 }
 
 #[allow(dead_code)]
@@ -54,7 +46,7 @@ pub(crate) const fn saturating_sub(l: usize, r: usize) -> usize {
 }
 
 #[inline]
-#[cfg(feature = "rust_1_56")]
+#[cfg(feature = "constant_time_slice")]
 pub(crate) const fn min_usize(l: usize, r: usize) -> usize {
     if l < r {
         l

@@ -83,7 +83,9 @@ jobs:
         cargo clean 
 
         # Needed to test try_into_array impl used before Rust 1.51.0
+        env MIRIFLAGS="-Zmiri-disable-isolation -Zmiri-track-raw-pointers" \
         cargo miri test --no-default-features -- try_into_array
 
-        cargo miri test --no-default-features \
+        env MIRIFLAGS="-Zmiri-disable-isolation -Zmiri-track-raw-pointers" \
+            cargo miri test --no-default-features \
             --features "alloc __test cmp parsing constant_time_slice nightly_mut_refs"

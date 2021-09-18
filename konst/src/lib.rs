@@ -366,6 +366,10 @@ pub mod range;
 
 pub mod maybe_uninit;
 
+#[cfg(feature = "rust_1_56")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
+pub mod manually_drop;
+
 pub mod nonzero;
 
 pub mod other;
@@ -374,7 +378,15 @@ pub mod other;
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 pub mod parsing;
 
+pub mod ptr;
+
 mod utils;
+
+#[cfg(feature = "rust_1_56")]
+mod utils_156;
+
+#[cfg(feature = "mut_refs")]
+mod utils_mut;
 
 #[cfg(feature = "parsing_no_proc")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
