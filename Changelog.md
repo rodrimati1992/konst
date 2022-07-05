@@ -2,6 +2,10 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.2
 
+### 0.2.14
+
+Made `"deref_raw_in_fn"` feature only require Rust 1.56.0 by stopping the use of an (already stabilized) nightly feature flag.
+
 ### 0.2.13
 
 Added these functions:

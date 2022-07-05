@@ -273,15 +273,7 @@
 //!
 //! - `"rust_1_56"`:
 //! Enables functions that internally use raw pointer dereferences or transmutes,
-//! and the `"rust_1_55"` feature.<br>
-//! Because this crate feature was added before Rust 1.56.0 is released,
-//! those unsafe operations might be unstabilized,
-//! in which case you'll need to use Rust nightly and the `"deref_raw_in_fn"` crate feature.
-//!
-//! - `"deref_raw_in_fn"` (disabled by default):
-//! Requires Rust nightly.
-//! Fallback for the case where the `"rust_1_56"` feature causes compilation errors
-//! because Rust features were unstabilized before the release.
+//! and the `"rust_1_55"` feature.
 //!
 //! - `"constant_time_slice"`(disabled by default):<br>
 //! Requires Rust nightly.
@@ -292,7 +284,7 @@
 //! - `"mut_refs"`(disabled by default):
 //! Enables const functions that take mutable references.
 //! Use this whenever mutable references in const contexts are stabilized.
-//! Also enables the `"deref_raw_in_fn"` and `"rust_1_56"` features.
+//! Also enables the `"rust_1_56"` feature.
 //!
 //! - `"nightly_mut_refs"`(disabled by default):
 //! Enables the `"mut_refs"` feature. Requires Rust nightly.
@@ -327,7 +319,6 @@
     feature = "constant_time_slice",
     feature(const_slice_from_raw_parts, const_ptr_offset)
 )]
-#![cfg_attr(feature = "deref_raw_in_fn", feature(const_fn_union))]
 #![cfg_attr(feature = "nightly_mut_refs", feature(const_mut_refs))]
 #![cfg_attr(feature = "docsrs", feature(doc_cfg))]
 #![no_std]
