@@ -9,11 +9,16 @@ macro_rules! slice_splitting_test {
     ) => {
         use konst::slice::{$slice_up_to, $split_at, $slice_from};
 
-        let $($mut)* list = (0..=258).collect::<Vec<u32>>();
+        let $($mut)* list = (0..=258).collect::<Vec<u16>>();
         let $($mut)* listb = list.clone();
 
-        for &pow in [1usize, 8, 64, 256].iter() {
+        for &pow in [1usize, 8, 64, 128].iter() {
+            #[cfg(miri)]
+            let lengths = [pow - 1, pow, pow + 1];
+
+            #[cfg(not(miri))]
             let lengths = [pow.saturating_sub(2), pow - 1, pow, pow + 1, pow + 2];
+
             for &length in lengths.iter() {
                 let sub = & $($mut)* list[..length];
                 let sub_len = sub.len();

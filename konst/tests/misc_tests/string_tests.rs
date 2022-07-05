@@ -30,6 +30,7 @@ const OOB_INDICES: &[usize] = &[LEN + 1, LEN + 10, !0 - 1, !0];
 
 #[test]
 #[cfg(feature = "rust_1_55")]
+// #[cfg(not(miri))] // miri got too slow to test this
 fn test_char_boundary_inside() {
     for start in 0..=CHAR_LENS.len() {
         for end in 0..=CHAR_LENS.len() {
