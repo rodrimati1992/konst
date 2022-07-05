@@ -53,6 +53,15 @@
 ///     pub const fn panic(&self) -> ! {
 ///         let offset = self.0;
 ///         [/*Foo errored at offset*/][offset]
+///         
+///         // Alternatively, using the `const_panic` crate (requires Rust 1.57.0):
+///         //
+///         // const_panic::concat_panic!("Foo errored at offset: ", self.0)
+///         
+///         // Alternatively, using the panic macro (requires Rust 1.57.0).
+///         // Unfortunately, formatted `panic!`s are not supported const contexts.
+///         //
+///         // panic!("Foo error")
 ///     }
 /// }
 ///

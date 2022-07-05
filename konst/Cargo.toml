@@ -1,6 +1,6 @@
 [package]
 name = "konst"
-version = "0.2.13"
+version = "0.2.14"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 edition = "2018"
 license = "Zlib"
@@ -23,7 +23,7 @@ path = "../konst_proc_macros"
 optional = true
 
 [dependencies.konst_macro_rules]
-version = "=0.2.13"
+version = "=0.2.14"
 path = "../konst_macro_rules"
 
 [dev-dependencies.rand]
@@ -40,9 +40,9 @@ parsing_no_proc = []
 const_generics = ["konst_macro_rules/const_generics"]
 rust_1_55 = ["const_generics", "konst_macro_rules/rust_1_55"]
 rust_1_56 = ["rust_1_55", "konst_macro_rules/rust_1_56"]
-deref_raw_in_fn = ["rust_1_56", "konst_macro_rules/deref_raw_in_fn"]
+deref_raw_in_fn = ["rust_1_56"]
 constant_time_slice = ["deref_raw_in_fn"]
-mut_refs = ["deref_raw_in_fn", "rust_1_56", "konst_macro_rules/mut_refs"]
+mut_refs = ["rust_1_56", "konst_macro_rules/mut_refs"]
 nightly_mut_refs = ["mut_refs", "konst_macro_rules/nightly_mut_refs"]
 
 

@@ -1,6 +1,5 @@
 //! Implementation detail of the `konst` crate.
 #![no_std]
-#![cfg_attr(feature = "deref_raw_in_fn", feature(const_fn_union))]
 #![cfg_attr(feature = "nightly_mut_refs", feature(const_mut_refs))]
 
 #[cfg(feature = "rust_1_56")]
