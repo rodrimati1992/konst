@@ -69,6 +69,7 @@
 //! # }
 //! #
 //! # impl ParseDirectionError {
+//! #    #[allow(unconditional_panic)]
 //! #    const fn panic(&self) -> ! {
 //! #        [/*failed to parse a Direction*/][0]
 //! #    }
