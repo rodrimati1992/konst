@@ -711,7 +711,7 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 ///
 #[inline]
 #[cfg(feature = "mut_refs")]
-#[cfg_attr(feature = "docsrs", doc(cfg("mut_refs")))]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
 pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T]) {
     use crate::utils::slice_from_raw_parts_mut;
 
