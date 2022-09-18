@@ -7,11 +7,11 @@ macro_rules! slice_from_impl {
             return $on_overflow;
         }
 
-        #[cfg(feature = "constant_time_slice")]
+        #[cfg(feature = "rust_1_64")]
         {
             unsafe { crate::utils::$from_raw_parts($slice.$as_ptr().offset($start as _), rem) }
         }
-        #[cfg(not(feature = "constant_time_slice"))]
+        #[cfg(not(feature = "rust_1_64"))]
         {
             let mut ret = $slice;
             let mut to_remove = $start;
@@ -34,12 +34,12 @@ macro_rules! slice_up_to_impl {
             return $on_overflow;
         }
 
-        #[cfg(feature = "constant_time_slice")]
+        #[cfg(feature = "rust_1_64")]
         {
             // Doing this to get a slice up to length at compile-time
             unsafe { crate::utils::$from_raw_parts($slice.$as_ptr(), $len) }
         }
-        #[cfg(not(feature = "constant_time_slice"))]
+        #[cfg(not(feature = "rust_1_64"))]
         {
             let mut ret = $slice;
             let mut to_remove = rem;
@@ -159,12 +159,11 @@ pub const fn get_mut<T>(slice: &mut [T], index: usize) -> Option<&mut T> {
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_64" feature is disabled,
 /// thich takes linear time to remove the leading elements,
 /// proportional to `start`.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -193,12 +192,11 @@ pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_64" feature is disabled,
 /// thich takes linear time to remove the leading elements,
 /// proportional to `start`.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -235,12 +233,11 @@ pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_64" feature is disabled,
 /// thich takes linear time to remove the leading elements,
 /// proportional to `start`.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -273,12 +270,11 @@ pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_64" feature is disabled,
 /// thich takes linear time to remove the leading elements,
 /// proportional to `start`.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -319,12 +315,11 @@ pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> 
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_64" feature is disabled,
 /// thich takes linear time to remove the trailing elements,
 /// proportional to `slice.len() - len`.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but requires Rust 1.56.0 .
+/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -353,12 +348,11 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_64" feature is disabled,
 /// thich takes linear time to remove the trailing elements,
 /// proportional to `slice.len() - len`.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but requires Rust 1.56.0 .
+/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -483,12 +477,11 @@ pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_64" feature is disabled,
 /// thich takes linear time to remove the leading and trailing elements,
 /// proportional to `start + (slice.len() - end)`.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -525,12 +518,11 @@ pub const fn slice_range<T>(slice: &[T], start: usize, end: usize) -> &[T] {
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_64" feature is disabled,
 /// thich takes linear time to remove the leading and trailing elements,
 /// proportional to `start + (slice.len() - end)`.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -575,12 +567,11 @@ pub const fn get_range<T>(slice: &[T], start: usize, end: usize) -> Option<&[T]>
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_64" feature is disabled,
 /// thich takes linear time to remove the leading and trailing elements,
 /// proportional to `start + (slice.len() - end)`.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -619,12 +610,11 @@ pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &m
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_64" feature is disabled,
 /// thich takes linear time to remove the leading and trailing elements,
 /// proportional to `start + (slice.len() - end)`.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -658,11 +648,10 @@ pub const fn get_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> Opti
 ///
 /// # Performance
 ///
-/// If the "constant_time_slice" feature is disabled,
+/// If the "rust_1_64" feature is disabled,
 /// thich takes linear time to split the string, proportional to its length.
 ///
-/// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-/// but uses a few nightly features.
+/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -721,11 +710,8 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 /// ```
 ///
 #[inline]
-#[cfg(all(feature = "mut_refs", feature = "constant_time_slice"))]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(all(feature = "mut_refs", feature = "constant_time_slice")))
-)]
+#[cfg(feature = "mut_refs")]
+#[cfg_attr(feature = "docsrs", doc(cfg("mut_refs")))]
 pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T]) {
     use crate::utils::slice_from_raw_parts_mut;
 
@@ -1238,7 +1224,7 @@ macro_rules! byte_find_then {
 /// # Motivation
 ///
 /// This function exists because calling [`bytes_find`] + [`slice_from`]
-/// when the `"constant_time_slice"` feature is disabled
+/// when the `"rust_1_64"` feature is disabled
 /// is slower than it could be, since the slice has to be traversed twice.
 ///
 /// [`bytes_find`]: ./fn.bytes_find.html
@@ -1275,7 +1261,7 @@ pub const fn bytes_find_skip<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'
 /// # Motivation
 ///
 /// This function exists because calling [`bytes_find`] + [`slice_from`]
-/// when the `"constant_time_slice"` feature is disabled
+/// when the `"rust_1_64"` feature is disabled
 /// is slower than it could be, since the slice has to be traversed twice.
 ///
 /// [`bytes_find`]: ./fn.bytes_find.html
@@ -1312,7 +1298,7 @@ pub const fn bytes_find_keep<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'
 /// # Motivation
 ///
 /// This function exists because calling [`bytes_rfind`] + [`slice_up_to`]
-/// when the `"constant_time_slice"` feature is disabled
+/// when the `"rust_1_64"` feature is disabled
 /// is slower than it could be, since the slice has to be traversed twice.
 ///
 /// [`bytes_rfind`]: ./fn.bytes_rfind.html
@@ -1349,7 +1335,7 @@ pub const fn bytes_rfind_skip<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&
 /// # Motivation
 ///
 /// This function exists because calling [`bytes_rfind`] + [`slice_up_to`]
-/// when the `"constant_time_slice"` feature is disabled
+/// when the `"rust_1_64"` feature is disabled
 /// is slower than it could be, since the slice has to be traversed twice.
 ///
 /// [`bytes_rfind`]: ./fn.bytes_rfind.html

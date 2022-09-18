@@ -276,8 +276,7 @@
 //! Enables functions that internally use raw pointer dereferences or transmutes,
 //! and the `"rust_1_55"` feature.
 //!
-//! - `"constant_time_slice"`(disabled by default):<br>
-//! Requires Rust nightly.
+//! - `"rust_1_64"`(disabled by default):<br>
 //! Improves the performance of slice functions that split slices,
 //! from taking linear time to taking constant time.
 //! <br>Note that only functions which mention this feature in their documentation are affected.
@@ -317,10 +316,9 @@
 //!
 
 #![cfg_attr(
-    feature = "constant_time_slice",
-    feature(const_slice_from_raw_parts, const_ptr_offset)
+    feature = "nightly_mut_refs",
+    feature(const_mut_refs, const_slice_from_raw_parts_mut)
 )]
-#![cfg_attr(feature = "nightly_mut_refs", feature(const_mut_refs))]
 #![cfg_attr(feature = "docsrs", feature(doc_cfg))]
 #![no_std]
 

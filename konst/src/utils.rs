@@ -1,4 +1,4 @@
-#[cfg(all(feature = "constant_time_slice", feature = "mut_refs"))]
+#[cfg(feature = "mut_refs")]
 mod mut_refs {
     use core::mem::ManuallyDrop;
 
@@ -13,7 +13,6 @@ mod mut_refs {
         ManuallyDrop::into_inner(BorrowMut { ptr }.reff)
     }
 
-    #[cfg(feature = "constant_time_slice")]
     pub(crate) const unsafe fn slice_from_raw_parts_mut<'a, T>(
         ptr: *mut T,
         len: usize,
@@ -24,11 +23,11 @@ mod mut_refs {
 }
 
 #[doc(hidden)]
-#[cfg(all(feature = "constant_time_slice", feature = "mut_refs"))]
+#[cfg(feature = "mut_refs")]
 pub(crate) use mut_refs::{deref_raw_mut_ptr, slice_from_raw_parts_mut, BorrowMut};
 
 #[doc(hidden)]
-#[cfg(feature = "constant_time_slice")]
+#[cfg(feature = "rust_1_64")]
 pub(crate) const unsafe fn slice_from_raw_parts<'a, T>(ptr: *const T, len: usize) -> &'a [T] {
     let ptr = core::ptr::slice_from_raw_parts(ptr, len);
     crate::utils_156::PtrToRef { ptr }.reff
@@ -46,7 +45,7 @@ pub(crate) const fn saturating_sub(l: usize, r: usize) -> usize {
 }
 
 #[inline]
-#[cfg(feature = "constant_time_slice")]
+#[cfg(feature = "rust_1_64")]
 pub(crate) const fn min_usize(l: usize, r: usize) -> usize {
     if l < r {
         l
