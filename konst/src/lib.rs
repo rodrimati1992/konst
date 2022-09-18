@@ -315,7 +315,10 @@
 //! [`Parser::parse_u128`]: ./parsing/struct.Parser.html#method.parse_u128
 //!
 
-#![cfg_attr(feature = "nightly_mut_refs", feature(const_mut_refs))]
+#![cfg_attr(
+    feature = "nightly_mut_refs",
+    feature(const_mut_refs, const_slice_from_raw_parts_mut)
+)]
 #![cfg_attr(feature = "docsrs", feature(doc_cfg))]
 #![no_std]
 
