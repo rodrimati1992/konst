@@ -277,16 +277,16 @@ and impls for arrays to use const generics instead of only supporting small arra
 Enables functions that internally use raw pointer dereferences or transmutes,
 and the `"rust_1_55"` feature.
 
-- `"constant_time_slice"`(disabled by default):<br>
-Requires Rust nightly.
+- `"rust_1_64"`:<br>
 Improves the performance of slice functions that split slices,
 from taking linear time to taking constant time.
 <br>Note that only functions which mention this feature in their documentation are affected.
+<br>Enables the `"rust_1_56"` feature.
 
 - `"mut_refs"`(disabled by default):
 Enables const functions that take mutable references.
 Use this whenever mutable references in const contexts are stabilized.
-Also enables the `"rust_1_56"` feature.
+Also enables the `"rust_1_64"` feature.
 
 - `"nightly_mut_refs"`(disabled by default):
 Enables the `"mut_refs"` feature. Requires Rust nightly.
