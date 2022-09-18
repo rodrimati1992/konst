@@ -174,12 +174,11 @@ impl<'a> Parser<'a> {
     ///
     /// # Performance
     ///
-    /// If the "constant_time_slice" feature is disabled,
+    /// If the "rust_1_64" feature is disabled,
     /// thich takes linear time to remove the leading elements,
     /// proportional to `bytes`.
     ///
-    /// If the "constant_time_slice" feature is enabled, it takes constant time to run,
-    /// but uses a few nightly features.
+    /// If the "rust_1_64" feature is enabled, it takes constant time to run.
     ///
     pub const fn skip(mut self, bytes: usize) -> Self {
         parsing! {self, FromStart;

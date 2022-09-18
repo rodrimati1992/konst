@@ -874,7 +874,7 @@ pub const fn trim_end_matches<'a>(this: &'a str, needle: &str) -> &'a str {
 ///
 /// This function exists because calling
 /// [`find`](crate::string::find) + [`str_from`]
-/// when the `"constant_time_slice"` feature is disabled
+/// when the `"rust_1_64"` feature is disabled
 /// is slower than it could be, since the slice has to be traversed twice.
 ///
 /// # Example
@@ -918,7 +918,7 @@ pub const fn find_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 /// # Motivation
 ///
 /// This function exists because calling [`find`](crate::string::find) + [`str_from`]
-/// when the `"constant_time_slice"` feature is disabled
+/// when the `"rust_1_64"` feature is disabled
 /// is slower than it could be, since the slice has to be traversed twice.
 ///
 /// # Example
@@ -962,7 +962,7 @@ pub const fn find_keep<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 /// # Motivation
 ///
 /// This function exists because calling [`rfind`](crate::string::rfind) + [`str_up_to`]
-/// when the `"constant_time_slice"` feature is disabled
+/// when the `"rust_1_64"` feature is disabled
 /// is slower than it could be, since the slice has to be traversed twice.
 ///
 /// # Example
@@ -1006,7 +1006,7 @@ pub const fn rfind_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 /// # Motivation
 ///
 /// This function exists because calling [`rfind`](crate::string::rfind) + [`str_up_to`]
-/// when the `"constant_time_slice"` feature is disabled
+/// when the `"rust_1_64"` feature is disabled
 /// is slower than it could be, since the slice has to be traversed twice.
 ///
 /// # Example

@@ -47,7 +47,7 @@ macro_rules! slice_splitting_test {
     };
 }
 
-#[cfg(any(not(miri), feature = "constant_time_slice"))]
+#[cfg(any(not(miri), feature = "rust_1_64"))]
 #[test]
 fn slice_up_to_from_test() {
     slice_splitting_test! {
@@ -59,7 +59,7 @@ fn slice_up_to_from_test() {
 }
 
 #[cfg(feature = "mut_refs")]
-#[cfg(feature = "constant_time_slice")]
+#[cfg(feature = "rust_1_64")]
 #[test]
 fn slice_up_to_from_mut_test() {
     slice_splitting_test! {
