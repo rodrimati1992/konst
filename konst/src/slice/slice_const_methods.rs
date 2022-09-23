@@ -53,6 +53,7 @@ macro_rules! slice_up_to_impl {
     }};
 }
 
+#[cfg(not(feature = "rust_1_64"))]
 macro_rules! slice_up_to_linear_time_impl{
     (
         $($args:tt)*
@@ -76,6 +77,7 @@ macro_rules! slice_up_to_linear_time_impl{
         }
     });
 }
+#[cfg(not(feature = "rust_1_64"))]
 macro_rules! slice_up_to_impl_inner{
     (
         $ret:ident, $to_remove:ident, $next:ident,

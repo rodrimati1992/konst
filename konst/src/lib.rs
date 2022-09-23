@@ -267,7 +267,7 @@
 //! Requires Rust 1.51.0.
 //! Enables items that require const generics,
 //! and impls for arrays to use const generics instead of only supporting small arrays.
-//! 
+//!
 //! - `"rust_1_55"`: Enables the `string::from_utf8` function
 //! (the macro works in all versions),
 //! `str` indexing functions,  and the `"const_generics"` feature.
@@ -275,7 +275,7 @@
 //! - `"rust_1_56"`:
 //! Enables functions that internally use raw pointer dereferences or transmutes,
 //! and the `"rust_1_55"` feature.
-//! 
+//!
 //! - `"rust_1_64"`:<br>
 //! Improves the performance of slice functions that split slices,
 //! from taking linear time to taking constant time.

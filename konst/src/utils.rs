@@ -46,6 +46,7 @@ pub(crate) const fn saturating_sub(l: usize, r: usize) -> usize {
 
 #[inline]
 #[cfg(feature = "rust_1_64")]
+#[allow(dead_code)]
 pub(crate) const fn min_usize(l: usize, r: usize) -> usize {
     if l < r {
         l

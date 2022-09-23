@@ -1,5 +1,11 @@
 //! `const fn` equivalents of `str` methods.
 
+#[cfg(feature = "rust_1_64")]
+mod splitting;
+
+#[cfg(feature = "rust_1_64")]
+pub use splitting::*;
+
 __declare_string_cmp_fns! {
     import_path = "konst",
     equality_fn = eq_str,

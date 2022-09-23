@@ -41,9 +41,10 @@ const_generics = ["konst_macro_rules/const_generics"]
 rust_1_55 = ["const_generics", "konst_macro_rules/rust_1_55"]
 rust_1_56 = ["rust_1_55", "konst_macro_rules/rust_1_56"]
 rust_1_64 = ["rust_1_56"]
+rust_latest_stable = ["rust_1_64"]
 deref_raw_in_fn = ["rust_1_56"]
-constant_time_slice = ["rust_1_64"]
-mut_refs = ["rust_1_64", "konst_macro_rules/mut_refs"]
+constant_time_slice = ["rust_latest_stable"]
+mut_refs = ["rust_latest_stable", "konst_macro_rules/mut_refs"]
 nightly_mut_refs = ["mut_refs", "konst_macro_rules/nightly_mut_refs"]
 
 
@@ -59,5 +60,5 @@ docsrs = []
 
 
 [package.metadata.docs.rs]
-features = ["docsrs", "alloc", "cmp", "parsing", "rust_1_64", "nightly_mut_refs"]
+features = ["docsrs", "alloc", "cmp", "parsing", "rust_latest_stable", "nightly_mut_refs"]
 
