@@ -343,6 +343,8 @@ pub mod alloc_type;
 
 pub mod array;
 
+pub mod iter;
+
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub mod polymorphism;

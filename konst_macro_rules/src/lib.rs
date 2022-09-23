@@ -6,6 +6,9 @@
 #[macro_use]
 mod array_macros;
 
+#[doc(hidden)]
+pub mod iter;
+
 #[macro_use]
 mod option_macros_;
 
