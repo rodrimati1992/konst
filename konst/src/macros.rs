@@ -36,3 +36,6 @@ mod impl_cmp;
 
 #[macro_use]
 pub(crate) mod unwrapping;
+
+#[macro_use]
+mod internal_macros;
