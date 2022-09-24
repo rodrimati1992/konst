@@ -1,5 +1,22 @@
 //! `const` equivalents of `Option` methods.
 
+/// A const equivalent of `Option::unwrap`, requires Rust 1.57.0 to invoke.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::option::unwrap;
+///
+/// use std::num::NonZeroUsize;
+///
+///
+/// const TEN: NonZeroUsize = unwrap!(NonZeroUsize::new(10));
+///
+/// assert_eq!(TEN.get(), 10);
+/// ```
+#[doc(inline)]
+pub use konst_macro_rules::opt_unwrap as unwrap;
+
 /// A const equivalent of `Option::unwrap_or`
 ///
 /// # Example

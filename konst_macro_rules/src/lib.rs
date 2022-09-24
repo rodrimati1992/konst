@@ -28,6 +28,8 @@ pub mod utils;
 
 #[doc(hidden)]
 pub mod __ {
+    pub use core::panic;
+
     #[cfg(feature = "rust_1_56")]
     pub use crate::array_macros::{assert_array, uninit_array, AssumInitCopyArray};
 

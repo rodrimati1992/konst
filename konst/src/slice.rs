@@ -6,8 +6,10 @@
 pub mod cmp;
 
 mod slice_const_methods;
+mod slice_iter_methods;
 
 pub use slice_const_methods::*;
+pub use slice_iter_methods::*;
 
 __declare_slice_cmp_fns! {
     import_path = "konst",
