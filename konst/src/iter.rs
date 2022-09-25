@@ -140,6 +140,25 @@ pub use konst_macro_rules::iter_any as any;
 /// ```
 pub use konst_macro_rules::iter_position as position;
 
+/// Const equivalent of [`DoubleEndedIterator::rposition`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{iter, slice};
+///
+/// const fn rfind_num(slice: &[u64], n: u64) -> Option<usize> {
+///     iter::rposition!(slice::iter(slice), |&&elem| elem == n)
+/// }
+///
+/// assert_eq!(rfind_num(&[3, 5, 8], 0), None);
+/// assert_eq!(rfind_num(&[3, 5, 8], 3), Some(2));
+/// assert_eq!(rfind_num(&[3, 5, 8], 5), Some(1));
+/// assert_eq!(rfind_num(&[3, 5, 8], 8), Some(0));
+///
+/// ```
+pub use konst_macro_rules::iter_rposition as rposition;
+
 /// Const equivalent of [`Iterator::find`]
 ///
 /// # Example
@@ -201,3 +220,87 @@ pub use konst_macro_rules::iter_count as count;
 ///
 /// ```
 pub use konst_macro_rules::iter_nth as nth;
+
+/// Const equivalent of [`Iterator::find_map`]
+///
+/// # Example
+///
+/// This example requires the `"parsing_no_proc"` feature.
+///
+#[cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
+#[cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
+/// use konst::{iter, result, slice};
+/// use konst::primitive::parse_u64;
+///
+/// const fn find_parsable(slice: &[&str]) -> Option<u64> {
+///     iter::find_map!(slice::iter(slice), |&s| result::ok!(parse_u64(s)))
+/// }
+///
+/// assert_eq!(find_parsable(&[]), None);
+/// assert_eq!(find_parsable(&["foo"]), None);
+/// assert_eq!(find_parsable(&["foo", "10"]), Some(10));
+/// assert_eq!(find_parsable(&["10", "20"]), Some(10));
+///
+/// ```
+pub use konst_macro_rules::iter_find_map as find_map;
+
+/// Const equivalent of [`Iterator::rfind`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{iter, slice};
+///
+/// const fn sum_u64(slice: &[u64]) -> Option<&u64> {
+///     iter::rfind!(slice::iter(slice), |&elem| elem.is_power_of_two())
+/// }
+///
+/// assert_eq!(sum_u64(&[]), None);
+/// assert_eq!(sum_u64(&[2]), Some(&2));
+/// assert_eq!(sum_u64(&[2, 5, 8]), Some(&8));
+///
+///
+/// ```
+pub use konst_macro_rules::iter_rfind as rfind;
+
+/// Const equivalent of [`Iterator::fold`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{iter, slice};
+///
+/// const fn sum_u64(slice: &[u64]) -> u64 {
+///     iter::fold!(slice::iter(slice), 0, |accum, &rhs| accum + rhs)
+/// }
+///
+/// assert_eq!(sum_u64(&[]), 0);
+/// assert_eq!(sum_u64(&[3]), 3);
+/// assert_eq!(sum_u64(&[3, 5]), 8);
+/// assert_eq!(sum_u64(&[3, 5, 8]), 16);
+///
+///
+/// ```
+pub use konst_macro_rules::iter_fold as fold;
+
+/// Const equivalent of [`DoubleEndedIterator::rfold`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{iter, slice};     
+///
+/// const fn concat_u16s(slice: &[u16]) -> u128 {
+///     iter::rfold!(
+///         slice::iter(slice),
+///         0,
+///         |accum, &rhs| (accum << 16) + (rhs as u128)
+///     )
+/// }
+///
+/// assert_eq!(concat_u16s(&[1, 2, 3]), 0x0003_0002_0001);
+/// assert_eq!(concat_u16s(&[3, 5, 8]), 0x0008_0005_0003);
+///
+///
+/// ```
+pub use konst_macro_rules::iter_rfold as rfold;
