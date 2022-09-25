@@ -86,3 +86,118 @@ pub use konst_macro_rules::for_each;
 ///
 /// ```
 pub use konst_macro_rules::for_each_i;
+
+/// Const equivalent of [`Iterator::all`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{iter, slice};
+///
+/// const fn all_digits(s: &str) -> bool {
+///     iter::all!(slice::iter(s.as_bytes()), |c| c.is_ascii_digit())
+/// }
+///
+/// assert!(all_digits("123456"));
+/// assert!(!all_digits("0x123456"));
+///
+/// ```
+pub use konst_macro_rules::iter_all as all;
+
+/// Const equivalent of [`Iterator::any`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{iter, slice};
+///
+/// const fn contains_pow2(s: &[u64]) -> bool {
+///     iter::any!(slice::iter(s), |c| c.is_power_of_two())
+/// }
+///
+/// assert!(contains_pow2(&[2, 3, 5]));
+/// assert!(!contains_pow2(&[13, 21, 34]));
+///
+/// ```
+pub use konst_macro_rules::iter_any as any;
+
+/// Const equivalent of [`Iterator::position`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{iter, slice};
+///
+/// const fn find_num(slice: &[u64], n: u64) -> Option<usize> {
+///     iter::position!(slice::iter(slice), |&&elem| elem == n)
+/// }
+///
+/// assert_eq!(find_num(&[3, 5, 8], 0), None);
+/// assert_eq!(find_num(&[3, 5, 8], 3), Some(0));
+/// assert_eq!(find_num(&[3, 5, 8], 5), Some(1));
+/// assert_eq!(find_num(&[3, 5, 8], 8), Some(2));
+///
+/// ```
+pub use konst_macro_rules::iter_position as position;
+
+/// Const equivalent of [`Iterator::find`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{iter, slice};
+///
+/// const fn find_odd(slice: &[u64], n: u64) -> Option<&u64> {
+///     iter::find!(slice::iter(slice), |&&elem| elem % 2 == 1)
+/// }
+///
+/// assert_eq!(find_odd(&[], 0), None);
+/// assert_eq!(find_odd(&[2, 4], 0), None);
+/// assert_eq!(find_odd(&[3, 5, 8], 3), Some(&3));
+/// assert_eq!(find_odd(&[8, 12, 13], 3), Some(&13));
+///
+/// ```
+pub use konst_macro_rules::iter_find as find;
+
+/// Const equivalent of [`Iterator::count`]
+///
+/// # Example
+///
+/// This example requires the `"rust_1_64"` crate feature.
+///
+#[cfg_attr(not(feature = "rust_1_64"), doc = "```ignore")]
+#[cfg_attr(feature = "rust_1_64", doc = "```rust")]
+/// use konst::{iter, string};
+///
+/// const fn count_csv(s: &str) -> usize {
+///     iter::count!(string::split(s, ","))
+/// }
+///
+/// assert_eq!(count_csv("foo"), 1);
+/// assert_eq!(count_csv("foo,bar"), 2);
+/// assert_eq!(count_csv("foo,bar,baz"), 3);
+///
+/// ```
+pub use konst_macro_rules::iter_count as count;
+
+/// Const equivalent of [`Iterator::nth`]
+///
+/// # Example
+///
+/// This example requires the `"rust_1_64"` crate feature.
+///
+#[cfg_attr(not(feature = "rust_1_64"), doc = "```ignore")]
+#[cfg_attr(feature = "rust_1_64", doc = "```rust")]
+/// use konst::{iter, string};
+///
+/// const fn nth_csv(s: &str, nth: usize) -> Option<&str> {
+///     iter::nth!(string::split(s, ","), nth)
+/// }
+///
+/// assert_eq!(nth_csv("foo,bar,baz", 0), Some("foo"));
+/// assert_eq!(nth_csv("foo,bar,baz", 1), Some("bar"));
+/// assert_eq!(nth_csv("foo,bar,baz", 2), Some("baz"));
+/// assert_eq!(nth_csv("foo,bar,baz", 3), None);
+///
+/// ```
+pub use konst_macro_rules::iter_nth as nth;

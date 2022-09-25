@@ -21,5 +21,27 @@ mod mut_refs {
     }
 }
 
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __parse_closure {
+    (($($macro:tt)*) ($($args:tt)*) $expected_args:tt, |$($pattern:pat),*| $v:expr $(,)?) => {
+        $($macro)* ! {
+            $($args)*
+            |$($pattern),*| $v
+        }
+    };
+    (($($macro:tt)*) ($($args:tt)*) ($($exp_arg:ident),*), $v:expr $(,)?) => {
+        match $v {func => {
+            $($macro)* ! {
+                $($args)*
+                |$($exp_arg),*| func($($exp_arg),*)
+            }
+        }}
+    };
+    ($arg:tt, $($anything:tt)* ) => {
+        compile_error!("expected a closure argument")
+    };
+}
+
 #[cfg(feature = "mut_refs")]
 pub(crate) use mut_refs::{deref_raw_mut_ptr, BorrowMut};
