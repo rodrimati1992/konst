@@ -408,7 +408,7 @@ pub const fn get_up_to(string: &str, len: usize) -> Option<&str> {
 
 /// A const equivalent of `&string[start..]`.
 ///
-/// If `string.len() < start`, this simply returns `string` back.
+/// If `string.len() < start`, this simply returns an empty string` back.
 ///
 /// # Performance
 ///
@@ -550,7 +550,9 @@ pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
 
 /// A const equivalent of `&string[start..end]`.
 ///
-/// If `string.len() < start` or `string.len() < end`, this simply returns `string` back.
+/// If `start >= end ` or `string.len() < start `, this returns an empty string.
+///
+/// If `string.len() < end`, this returns the string from `start`.
 ///
 /// # Alternatives
 ///

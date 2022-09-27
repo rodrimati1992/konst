@@ -1,26 +1,11 @@
 #[macro_export]
 macro_rules! for_each {
     ($pattern:pat in $iter:expr => $($code:tt)*) => (
-        match $iter {mut iter=>{
+        match $crate::into_iter_macro!($iter) {mut iter=>{
             while let $crate::__::Some((elem, next)) = iter.next() {
                 iter = next;
                 let $pattern = elem;
                 $($code)*
-            }
-        }}
-    );
-}
-
-#[macro_export]
-macro_rules! for_each_i {
-    ($pattern:pat in $iter:expr => $($code:tt)*) => (
-        match $iter {mut iter=>{
-            let mut i = 0;
-            while let $crate::__::Some((elem, next)) = iter.next() {
-                iter = next;
-                let $pattern = (i, elem);
-                $($code)*
-                i += 1;
             }
         }}
     );
@@ -40,7 +25,7 @@ macro_rules! iter_all {
 #[macro_export]
 macro_rules! __iter_all {
     ($iter:expr, |$elem:pat| $v:expr) => {
-        match $iter {
+        match $crate::into_iter_macro!($iter) {
             mut iter => loop {
                 match iter.next() {
                     $crate::__::Some((elem, next)) => {
@@ -70,7 +55,7 @@ macro_rules! __iter_on_found {
         $on_not_found:expr,
         |$elem:pat| $v:expr
     ) => (
-        match $iter { mut iter => {
+        match $crate::into_iter_macro!($iter) { mut iter => {
             $($before_loop)*
             loop {
                 match iter.$next_fn() {
@@ -164,7 +149,7 @@ macro_rules! iter_count {
 #[macro_export]
 macro_rules! iter_nth {
     ($iter:expr, $nth:expr $(,)*) => {{
-        match ($iter, $nth) {
+        match ($crate::into_iter_macro!($iter), $nth) {
             (mut iter, nth) => {
                 let mut n = 0;
                 loop {
@@ -209,7 +194,7 @@ macro_rules! iter_fold {
 #[macro_export]
 macro_rules! __iter_fold {
     ($iter:expr, $next_fn:ident, $accum:expr, |$accum_pat:pat, $elem:pat| $v:expr) => {
-        match ($iter, $accum) {
+        match ($crate::into_iter_macro!($iter), $accum) {
             (mut iter, mut accum) => loop {
                 match iter.$next_fn() {
                     $crate::__::Some((elem, next)) => {
@@ -249,7 +234,7 @@ macro_rules! iter_find_map {
 #[macro_export]
 macro_rules! __iter_find_map {
     ($iter:expr, |$elem:pat| $v:expr) => {
-        match $iter {
+        match $crate::into_iter_macro!($iter) {
             mut iter => loop {
                 match iter.next() {
                     $crate::__::Some((elem, next)) => {
@@ -263,5 +248,45 @@ macro_rules! __iter_find_map {
                 }
             },
         }
+    };
+}
+
+#[macro_export]
+macro_rules! for_each_zip {
+    ($pattern:pat in $($iter:expr),* $(,)? => $($code:tt)*) => (
+        $crate::__for_each_zip!{
+            ($pattern => $($code)*)
+            ($($iter),*)
+            ()
+        }
+    );
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __for_each_zip {
+    (
+        $fixed:tt
+        ($iter:expr $(, $($rest:tt)*)?)
+        ($($prev:tt)*)
+    ) => {
+        $crate::__for_each_zip!{
+            $fixed
+            ($($($rest)*)?)
+            ($($prev)* ($iter, iter, next, elem))
+        }
+    };
+    (
+        ($pattern:pat => $($code:tt)*)
+        ()
+        ($(($iter:expr, $iter_var:ident, $next:ident, $elem:ident))*)
+    ) => {
+        match ($($crate::into_iter_macro!($iter),)*) {($(mut $iter_var,)*) => {
+            while let ($($crate::__::Some(($elem, $next)),)*) = ($($iter_var.next(),)*) {
+                $($iter_var = $next;)*
+                let $pattern = ($($elem,)*);
+                $($code)*
+            }
+        }}
     };
 }

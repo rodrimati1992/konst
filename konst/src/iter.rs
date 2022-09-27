@@ -22,7 +22,11 @@
 /// # Example
 ///
 /// ```rust
+/// use konst::iter::{IntoIterKind, IsIteratorKind};
+///
 /// struct Upto10(u8);
+///
+/// impl IntoIterKind for Upto10 { type Kind = IsIteratorKind; }
 ///
 /// impl Upto10 {
 ///     const fn next(mut self) -> Option<(u8, Self)> {
@@ -49,17 +53,21 @@
 /// ```
 pub use konst_macro_rules::for_each;
 
-/// Iterates over all elements of an [iterator](crate::iter#iterator)
-/// along with an iteration index,
-/// const equivalent of [`Iterator::enumerate`] combined with [`Iterator::for_each`]
+/// Const equivalent of [`Iterator::zip`] combined with [`Iterator::for_each`]
 ///
 /// # Example
 ///
+/// ### Enumerate
+///
 /// ```rust
-/// use konst::iter::for_each_i;
-/// use konst::{option, slice};
+/// use konst::{
+///     iter::{IntoIterKind, IsIteratorKind, for_each_zip},
+///     option,
+/// };
 ///
 /// struct Mersennes(Option<u64>);
+///
+/// impl IntoIterKind for Mersennes { type Kind = IsIteratorKind; }
 ///
 /// impl Mersennes {
 ///     const fn next(mut self) -> Option<(u64, Self)> {
@@ -74,7 +82,7 @@ pub use konst_macro_rules::for_each;
 /// const LEN: usize = 5;
 /// const MERSES: [u64; LEN] = {
 ///     let mut arr = [0u64; LEN];
-///     for_each_i!{(i, num) in Mersennes(Some(1)) =>
+///     for_each_zip!{(i, num) in 0.., Mersennes(Some(1)) =>
 ///         if i >= LEN { break }
 ///         arr[i] = num;
 ///     }
@@ -85,17 +93,36 @@ pub use konst_macro_rules::for_each;
 ///
 ///
 /// ```
-pub use konst_macro_rules::for_each_i;
+///
+/// ### Zip two slices
+///
+/// ```rust
+/// use konst::iter::for_each_zip;
+///     
+/// const fn add_pairs<const N: usize>(l: [u32; N], r: [u32; N]) -> [u32; N] {
+///     let mut out = [0u32; N];
+///     for_each_zip!{(i, &l, &r) in 0.., &l, &r =>
+///         out[i] = l + r;
+///     }
+///
+///     out
+/// }
+///
+/// assert_eq!(add_pairs([], []), []);
+/// assert_eq!(add_pairs([3], [5]), [8]);
+/// assert_eq!(add_pairs([3, 5], [8, 13]), [11, 18]);
+///
+///
+/// ```
+pub use konst_macro_rules::for_each_zip;
 
 /// Const equivalent of [`Iterator::all`]
 ///
 /// # Example
 ///
 /// ```rust
-/// use konst::{iter, slice};
-///
 /// const fn all_digits(s: &str) -> bool {
-///     iter::all!(slice::iter(s.as_bytes()), |c| c.is_ascii_digit())
+///     konst::iter::all!(s.as_bytes(), |c| c.is_ascii_digit())
 /// }
 ///
 /// assert!(all_digits("123456"));
@@ -109,10 +136,10 @@ pub use konst_macro_rules::iter_all as all;
 /// # Example
 ///
 /// ```rust
-/// use konst::{iter, slice};
+/// use konst::iter;
 ///
 /// const fn contains_pow2(s: &[u64]) -> bool {
-///     iter::any!(slice::iter(s), |c| c.is_power_of_two())
+///     iter::any!(s, |c| c.is_power_of_two())
 /// }
 ///
 /// assert!(contains_pow2(&[2, 3, 5]));
@@ -126,10 +153,10 @@ pub use konst_macro_rules::iter_any as any;
 /// # Example
 ///
 /// ```rust
-/// use konst::{iter, slice};
+/// use konst::iter;
 ///
 /// const fn find_num(slice: &[u64], n: u64) -> Option<usize> {
-///     iter::position!(slice::iter(slice), |&&elem| elem == n)
+///     iter::position!(slice, |&&elem| elem == n)
 /// }
 ///
 /// assert_eq!(find_num(&[3, 5, 8], 0), None);
@@ -140,15 +167,15 @@ pub use konst_macro_rules::iter_any as any;
 /// ```
 pub use konst_macro_rules::iter_position as position;
 
-/// Const equivalent of [`DoubleEndedIterator::rposition`]
+/// Const equivalent of [`Iterator::rposition`]
 ///
 /// # Example
 ///
 /// ```rust
-/// use konst::{iter, slice};
+/// use konst::iter;
 ///
 /// const fn rfind_num(slice: &[u64], n: u64) -> Option<usize> {
-///     iter::rposition!(slice::iter(slice), |&&elem| elem == n)
+///     iter::rposition!(slice, |&&elem| elem == n)
 /// }
 ///
 /// assert_eq!(rfind_num(&[3, 5, 8], 0), None);
@@ -164,10 +191,10 @@ pub use konst_macro_rules::iter_rposition as rposition;
 /// # Example
 ///
 /// ```rust
-/// use konst::{iter, slice};
+/// use konst::iter;
 ///
 /// const fn find_odd(slice: &[u64], n: u64) -> Option<&u64> {
-///     iter::find!(slice::iter(slice), |&&elem| elem % 2 == 1)
+///     iter::find!(slice, |&&elem| elem % 2 == 1)
 /// }
 ///
 /// assert_eq!(find_odd(&[], 0), None);
@@ -229,11 +256,11 @@ pub use konst_macro_rules::iter_nth as nth;
 ///
 #[cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
 #[cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
-/// use konst::{iter, result, slice};
+/// use konst::{iter, result};
 /// use konst::primitive::parse_u64;
 ///
 /// const fn find_parsable(slice: &[&str]) -> Option<u64> {
-///     iter::find_map!(slice::iter(slice), |&s| result::ok!(parse_u64(s)))
+///     iter::find_map!(slice, |&s| result::ok!(parse_u64(s)))
 /// }
 ///
 /// assert_eq!(find_parsable(&[]), None);
@@ -244,15 +271,15 @@ pub use konst_macro_rules::iter_nth as nth;
 /// ```
 pub use konst_macro_rules::iter_find_map as find_map;
 
-/// Const equivalent of [`Iterator::rfind`]
+/// Const equivalent of [`DoubleEndedIterator::rfind`]
 ///
 /// # Example
 ///
 /// ```rust
-/// use konst::{iter, slice};
+/// use konst::iter;
 ///
 /// const fn sum_u64(slice: &[u64]) -> Option<&u64> {
-///     iter::rfind!(slice::iter(slice), |&elem| elem.is_power_of_two())
+///     iter::rfind!(slice, |&elem| elem.is_power_of_two())
 /// }
 ///
 /// assert_eq!(sum_u64(&[]), None);
@@ -268,10 +295,10 @@ pub use konst_macro_rules::iter_rfind as rfind;
 /// # Example
 ///
 /// ```rust
-/// use konst::{iter, slice};
+/// use konst::iter;
 ///
 /// const fn sum_u64(slice: &[u64]) -> u64 {
-///     iter::fold!(slice::iter(slice), 0, |accum, &rhs| accum + rhs)
+///     iter::fold!(slice, 0, |accum, &rhs| accum + rhs)
 /// }
 ///
 /// assert_eq!(sum_u64(&[]), 0);
@@ -288,14 +315,10 @@ pub use konst_macro_rules::iter_fold as fold;
 /// # Example
 ///
 /// ```rust
-/// use konst::{iter, slice};     
+/// use konst::iter;     
 ///
 /// const fn concat_u16s(slice: &[u16]) -> u128 {
-///     iter::rfold!(
-///         slice::iter(slice),
-///         0,
-///         |accum, &rhs| (accum << 16) + (rhs as u128)
-///     )
+///     iter::rfold!(slice, 0, |accum, &rhs| (accum << 16) + (rhs as u128))
 /// }
 ///
 /// assert_eq!(concat_u16s(&[1, 2, 3]), 0x0003_0002_0001);
@@ -304,3 +327,113 @@ pub use konst_macro_rules::iter_fold as fold;
 ///
 /// ```
 pub use konst_macro_rules::iter_rfold as rfold;
+
+/// Wrapper for `IntoIterKind` implementors,
+/// that defines different methods depending on the
+/// value of `<T as IntoIterKind>::Kind`.
+#[doc(inline)]
+pub use konst_macro_rules::into_iter::IntoIterWrapper;
+
+/// Marker type for proving that `T: IntoIterKind<Kind = K>`
+#[doc(inline)]
+pub use konst_macro_rules::into_iter::IsIntoIterKind;
+
+/// Macro for converting [`IntoIterKind`] implementors into const iterators.
+///
+#[doc(inline)]
+pub use konst_macro_rules::into_iter_macro as into_iter;
+
+/// Const analog of the [`IntoIterator`] trait.
+///
+/// # Implementor
+///
+/// Implementors are expected to be:
+///
+/// - [Types that have an associated iterator](#isnoniteratorkind),
+///   that have [`IsNonIteratorKind`](crate::iter::IsNonIteratorKind)
+///   as the [`IntoIterKind::Kind`] associated type.
+///
+/// - [Iterators themselves](#isiteratorkind),
+/// that have [`IsIteratorKind`](crate::iter::IsIteratorKind)
+/// as the [`IntoIterKind::Kind`] associated type.
+///
+/// - Standard library types, of the [`IsStdKind`] kind
+///
+/// ### `IsNonIteratorKind`
+///
+/// These types are expected to define this inherent method for converting to
+/// a const iterator:
+///
+/// ```rust
+/// # struct II;
+/// # struct SomeIterator;
+/// # impl II {
+/// const fn const_into_iter(self) -> SomeIterator {
+/// #   loop{}
+/// # }
+/// # }
+/// ```
+///
+/// ### `IsIteratorKind`
+///
+/// These types are expected to have this inherent method:
+///
+/// ```rust
+/// # struct SomeIterator;
+/// # type Item = u8;
+/// # impl SomeIterator {
+/// // Equivalent to `Iterator::next`
+/// const fn next(self) -> Option<(Item, Self)> {
+/// #   loop{}
+/// # }
+/// # }
+/// ```
+/// Where `Item` can be any type.
+///
+/// These are other methods that you can optionaly define,
+/// which most iterators from the `konst` crate define:
+/// ```rust
+/// # struct SomeIterator;
+/// # struct SomeIteratorRev;
+/// # type Item = u8;
+/// # impl SomeIterator {
+/// // equivalent to `DoubleEndedÌterator::mext_back`
+/// const fn next_back(self) -> Option<(Item, Self)> {
+/// #   loop{}
+///     // ... some code...
+/// }
+///
+/// // Reverses the itereator, equivalent to `Iterator::rev`
+/// const fn rev(self) -> SomeIteratorRev {
+/// #   loop{}
+///     // ... some code...
+/// }
+///
+/// // Clones the iterator, equivalent to `Clone::clone`
+/// const fn copy(&self) -> Self {
+/// #   loop{}
+///     // ... some code...
+/// }
+/// # }
+/// ```
+/// Where `SomeIteratorRev` should be a `IntoIterKind<Kind = IsIteratorKind>`
+/// which has the same inherent methods for iteration.
+///
+///
+#[doc(inline)]
+pub use konst_macro_rules::into_iter::IntoIterKind;
+
+/// For marking some type as being from std
+/// in its [`IntoIterKind::Kind`] associated type.
+#[doc(inline)]
+pub use konst_macro_rules::into_iter::IsStdKind;
+
+/// For marking some type as being convertible to an iterator
+/// in its [`IntoIterKind::Kind`] associated type.
+#[doc(inline)]
+pub use konst_macro_rules::into_iter::IsNonIteratorKind;
+
+/// For marking some type as being an iterator
+/// in its [`IntoIterKind::Kind`] associated type.
+#[doc(inline)]
+pub use konst_macro_rules::into_iter::IsIteratorKind;

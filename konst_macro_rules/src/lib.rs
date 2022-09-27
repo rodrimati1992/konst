@@ -6,6 +6,10 @@
 #[macro_use]
 mod array_macros;
 
+#[macro_use]
+mod internal_macros;
+
+pub mod into_iter;
 #[doc(hidden)]
 pub mod iter;
 
@@ -33,12 +37,14 @@ pub mod __ {
     #[cfg(feature = "rust_1_56")]
     pub use crate::array_macros::{assert_array, uninit_array, AssumInitCopyArray};
 
+    pub use crate::into_iter::{IntoIterWrapper, IsIntoIterKind};
+
     pub use core::{
         cmp::Ordering::{self, Equal, Greater, Less},
         compile_error,
         marker::PhantomData,
         matches,
-        mem::{transmute, MaybeUninit},
+        mem::{transmute, ManuallyDrop, MaybeUninit},
         ops::Range,
         option::Option::{self, None, Some},
         primitive::{str, u8},

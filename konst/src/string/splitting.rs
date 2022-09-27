@@ -1,6 +1,11 @@
 //! string splitting that requires Rust 1.64.0 to be efficient.
 
-use crate::string::{self, str_from, str_up_to};
+use crate::{
+    iter::{IntoIterKind, IsIteratorKind},
+    string::{self, str_from, str_up_to},
+};
+
+use konst_macro_rules::iterator_shared;
 
 /// A const-equivalent of the [`str::split_once`] method.
 ///
@@ -56,11 +61,11 @@ pub const fn rsplit_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a
 ///
 /// ```rust
 /// use konst::string;
-/// use konst::iter::for_each_i;
+/// use konst::iter::for_each_zip;
 ///
 /// const STRS: &[&str] = &{
 ///     let mut arr = [""; 3];
-///     for_each_i!{(i, sub) in string::split("foo-bar-baz", "-") =>
+///     for_each_zip!{(i, sub) in 0.., string::split("foo-bar-baz", "-") =>
 ///         arr[i] = sub;
 ///     }
 ///     arr
@@ -84,11 +89,11 @@ pub const fn split<'a, 'b>(this: &'a str, delim: &'b str) -> Split<'a, 'b> {
 ///
 /// ```rust
 /// use konst::string;
-/// use konst::iter::for_each_i;
+/// use konst::iter::for_each_zip;
 ///
 /// const STRS: &[&str] = &{
 ///     let mut arr = [""; 3];
-///     for_each_i!{(i, sub) in string::rsplit("foo-bar-baz", "-") =>
+///     for_each_zip!{(i, sub) in 0.., string::rsplit("foo-bar-baz", "-") =>
 ///         arr[i] = sub;
 ///     }
 ///     arr
@@ -112,53 +117,45 @@ macro_rules! split_shared {
             item = &'a str,
             iter_forward = Split<'a, 'b>,
             iter_reversed = RSplit<'a, 'b>,
-            next = split_next,
-            next_back = split_next_back,
+            next(self){
+                let Self {
+                    this,
+                    delim,
+                    finished,
+                } = self;
+                match string::find(this, delim, 0) {
+                    Some(pos) => {
+                        self.this = str_from(this, pos + delim.len());
+                        Some((str_up_to(this, pos), self))
+                    }
+                    None if finished => None,
+                    None => {
+                        self.finished = true;
+                        Some((this, self))
+                    }
+                }
+            },
+            next_back{
+                let Self {
+                    this,
+                    delim,
+                    finished,
+                } = self;
+                match string::rfind(this, delim, this.len()) {
+                    Some(pos) => {
+                        self.this = str_up_to(this, pos);
+                        Some((str_from(this, pos + delim.len()), self))
+                    }
+                    None if finished => None,
+                    None => {
+                        self.finished = true;
+                        Some((this, self))
+                    }
+                }
+            },
             fields = {this, delim, finished},
         }
     };
-}
-
-macro_rules! split_next {
-    ($self:ident) => {{
-        let Self {
-            this,
-            delim,
-            finished,
-        } = $self;
-        match string::find(this, delim, 0) {
-            Some(pos) => {
-                $self.this = str_from(this, pos + delim.len());
-                Some((str_up_to(this, pos), $self))
-            }
-            None if finished => None,
-            None => {
-                $self.finished = true;
-                Some((this, $self))
-            }
-        }
-    }};
-}
-
-macro_rules! split_next_back {
-    ($self:ident) => {{
-        let Self {
-            this,
-            delim,
-            finished,
-        } = $self;
-        match string::rfind(this, delim, this.len()) {
-            Some(pos) => {
-                $self.this = str_up_to(this, pos);
-                Some((str_from(this, pos + delim.len()), $self))
-            }
-            None if finished => None,
-            None => {
-                $self.finished = true;
-                Some((this, $self))
-            }
-        }
-    }};
 }
 
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
@@ -166,6 +163,9 @@ pub struct Split<'a, 'b> {
     this: &'a str,
     delim: &'b str,
     finished: bool,
+}
+impl IntoIterKind for Split<'_, '_> {
+    type Kind = IsIteratorKind;
 }
 
 impl<'a, 'b> Split<'a, 'b> {
@@ -177,6 +177,9 @@ pub struct RSplit<'a, 'b> {
     this: &'a str,
     delim: &'b str,
     finished: bool,
+}
+impl IntoIterKind for RSplit<'_, '_> {
+    type Kind = IsIteratorKind;
 }
 
 impl<'a, 'b> RSplit<'a, 'b> {
