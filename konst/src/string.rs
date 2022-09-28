@@ -745,6 +745,28 @@ const fn is_char_boundary_get(bytes: &[u8], position: usize) -> bool {
     position == len || (bytes[position] as i8) >= -0x40
 }
 
+#[cfg(feature = "rust_1_64")]
+const fn find_next_char_boundary(bytes: &[u8], mut position: usize) -> usize {
+    loop {
+        position += 1;
+
+        if is_char_boundary(bytes, position) {
+            break position;
+        }
+    }
+}
+
+#[cfg(feature = "rust_1_64")]
+const fn find_prev_char_boundary(bytes: &[u8], mut position: usize) -> usize {
+    position = position.saturating_sub(1);
+
+    while !is_char_boundary(bytes, position) {
+        position -= 1;
+    }
+
+    position
+}
+
 /// A const subset of [`str::trim`] which only removes ascii whitespace.
 ///
 /// # Example

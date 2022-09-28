@@ -77,8 +77,11 @@ pub const fn rsplit_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a
 pub const fn split<'a, 'b>(this: &'a str, delim: &'b str) -> Split<'a, 'b> {
     Split {
         this,
-        delim,
-        finished: false,
+        state: if delim.is_empty() {
+            State::Empty(EmptyState::Start)
+        } else {
+            State::Normal { delim }
+        },
     }
 }
 
@@ -103,15 +106,64 @@ pub const fn split<'a, 'b>(this: &'a str, delim: &'b str) -> Split<'a, 'b> {
 /// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub const fn rsplit<'a, 'b>(this: &'a str, delim: &'b str) -> RSplit<'a, 'b> {
-    RSplit {
-        this,
-        delim,
-        finished: false,
-    }
+    split(this, delim).rev()
+}
+
+#[derive(Copy, Clone)]
+enum State<'a> {
+    Normal { delim: &'a str },
+    Empty(EmptyState),
+    Finished,
+}
+
+#[derive(Copy, Clone)]
+enum EmptyState {
+    Start,
+    Continue,
 }
 
 macro_rules! split_shared {
     (is_forward = $is_forward:ident) => {
+        const fn next_from_empty(mut self, es: EmptyState) -> Option<(&'a str, Self)> {
+            match es {
+                EmptyState::Start => {
+                    self.state = State::Empty(EmptyState::Continue);
+                    Some(("", self))
+                }
+                EmptyState::Continue => {
+                    let this = self.this;
+
+                    if this.is_empty() {
+                        self.state = State::Finished;
+                    }
+                    let next_char = string::find_next_char_boundary(this.as_bytes(), 0);
+                    let (next_char, rem) = string::split_at(this, next_char);
+                    self.this = rem;
+                    Some((next_char, self))
+                }
+            }
+        }
+
+        const fn next_back_from_empty(mut self, es: EmptyState) -> Option<(&'a str, Self)> {
+            match es {
+                EmptyState::Start => {
+                    self.state = State::Empty(EmptyState::Continue);
+                    Some(("", self))
+                }
+                EmptyState::Continue => {
+                    let this = self.this;
+
+                    if self.this.is_empty() {
+                        self.state = State::Finished;
+                    }
+                    let next_char = string::find_prev_char_boundary(this.as_bytes(), this.len());
+                    let (rem, next_char) = string::split_at(this, next_char);
+                    self.this = rem;
+                    Some((next_char, self))
+                }
+            }
+        }
+
         iterator_shared! {
             is_forward = $is_forward,
             item = &'a str,
@@ -120,40 +172,51 @@ macro_rules! split_shared {
             next(self){
                 let Self {
                     this,
-                    delim,
-                    finished,
+                    state,
                 } = self;
-                match string::find(this, delim, 0) {
-                    Some(pos) => {
-                        self.this = str_from(this, pos + delim.len());
-                        Some((str_up_to(this, pos), self))
+
+                match state {
+                    State::Normal{delim} => {
+                        match string::find(this, delim, 0) {
+                            Some(pos) => {
+                                self.this = str_from(this, pos + delim.len());
+                                Some((str_up_to(this, pos), self))
+                            }
+                            None => {
+                                self.this = "";
+                                self.state = State::Finished;
+                                Some((this, self))
+                            }
+                        }
                     }
-                    None if finished => None,
-                    None => {
-                        self.finished = true;
-                        Some((this, self))
-                    }
+                    State::Empty(es) => self.next_from_empty(es),
+                    State::Finished => None,
                 }
             },
             next_back{
                 let Self {
                     this,
-                    delim,
-                    finished,
+                    state,
                 } = self;
-                match string::rfind(this, delim, this.len()) {
-                    Some(pos) => {
-                        self.this = str_up_to(this, pos);
-                        Some((str_from(this, pos + delim.len()), self))
+                match state {
+                    State::Normal{delim} => {
+                        match string::rfind(this, delim, this.len()) {
+                            Some(pos) => {
+                                self.this = str_up_to(this, pos);
+                                Some((str_from(this, pos + delim.len()), self))
+                            }
+                            None => {
+                                self.this = "";
+                                self.state = State::Finished;
+                                Some((this, self))
+                            }
+                        }
                     }
-                    None if finished => None,
-                    None => {
-                        self.finished = true;
-                        Some((this, self))
-                    }
+                    State::Empty(es) => self.next_back_from_empty(es),
+                    State::Finished => None,
                 }
             },
-            fields = {this, delim, finished},
+            fields = {this, state},
         }
     };
 }
@@ -171,8 +234,7 @@ macro_rules! split_shared {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub struct Split<'a, 'b> {
     this: &'a str,
-    delim: &'b str,
-    finished: bool,
+    state: State<'b>,
 }
 impl IntoIterKind for Split<'_, '_> {
     type Kind = IsIteratorKind;
@@ -180,6 +242,31 @@ impl IntoIterKind for Split<'_, '_> {
 
 impl<'a, 'b> Split<'a, 'b> {
     split_shared! {is_forward = true}
+
+    /// Gets the remainder of the string.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let iter = konst::string::split("foo-bar-baz", "-");
+    /// assert_eq!(iter.remainder(), "foo-bar-baz");
+    ///
+    /// let (elem, iter) = iter.next().unwrap();
+    /// assert_eq!(elem, "foo");
+    /// assert_eq!(iter.remainder(), "bar-baz");
+    ///
+    /// let (elem, iter) = iter.next().unwrap();
+    /// assert_eq!(elem, "bar");
+    /// assert_eq!(iter.remainder(), "baz");
+    ///
+    /// let (elem, iter) = iter.next().unwrap();
+    /// assert_eq!(elem, "baz");
+    /// assert_eq!(iter.remainder(), "");
+    ///
+    /// ```
+    pub const fn remainder(&self) -> &'a str {
+        self.this
+    }
 }
 
 /// Const equivalent of `core::iter::Rev<core::str::Split<'_, &str>>`
@@ -195,8 +282,7 @@ impl<'a, 'b> Split<'a, 'b> {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub struct RSplit<'a, 'b> {
     this: &'a str,
-    delim: &'b str,
-    finished: bool,
+    state: State<'b>,
 }
 impl IntoIterKind for RSplit<'_, '_> {
     type Kind = IsIteratorKind;
@@ -204,4 +290,29 @@ impl IntoIterKind for RSplit<'_, '_> {
 
 impl<'a, 'b> RSplit<'a, 'b> {
     split_shared! {is_forward = false}
+
+    /// Gets the remainder of the string.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let iter = konst::string::rsplit("foo-bar-baz", "-");
+    /// assert_eq!(iter.remainder(), "foo-bar-baz");
+    ///
+    /// let (elem, iter) = iter.next().unwrap();
+    /// assert_eq!(elem, "baz");
+    /// assert_eq!(iter.remainder(), "foo-bar");
+    ///
+    /// let (elem, iter) = iter.next().unwrap();
+    /// assert_eq!(elem, "bar");
+    /// assert_eq!(iter.remainder(), "foo");
+    ///
+    /// let (elem, iter) = iter.next().unwrap();
+    /// assert_eq!(elem, "foo");
+    /// assert_eq!(iter.remainder(), "");
+    ///
+    /// ```
+    pub const fn remainder(&self) -> &'a str {
+        self.this
+    }
 }

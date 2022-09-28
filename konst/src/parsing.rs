@@ -152,6 +152,7 @@ pub use self::{
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Parser<'a> {
     parse_direction: ParseDirection,
+    /// The offset of `bytes` in the string that this was created from.
     start_offset: u32,
     bytes: &'a [u8],
 }
