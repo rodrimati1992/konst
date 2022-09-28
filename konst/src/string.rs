@@ -323,7 +323,7 @@ pub const fn rcontains(left: &str, right: &str, from: usize) -> bool {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
+/// [`konst::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
 ///
 /// # Panics
 ///
@@ -367,7 +367,7 @@ pub const fn str_up_to(string: &str, len: usize) -> &str {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
+/// [`konst::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
 ///
 /// # Example
 ///
@@ -413,7 +413,7 @@ pub const fn get_up_to(string: &str, len: usize) -> Option<&str> {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_from`](../slice/fn.slice_from.html#performance)
+/// [`konst::slice::slice_from`](../slice/fn.slice_from.html#performance)
 ///
 /// # Panics
 ///
@@ -460,7 +460,7 @@ pub const fn str_from(string: &str, start: usize) -> &str {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_from`](../slice/fn.slice_from.html#performance)
+/// [`konst::slice::slice_from`](../slice/fn.slice_from.html#performance)
 ///
 /// # Example
 ///
@@ -566,7 +566,7 @@ pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_range`](../slice/fn.slice_range.html#performance)
+/// [`konst::slice::slice_range`](../slice/fn.slice_range.html#performance)
 ///
 /// # Panics
 ///
@@ -623,7 +623,7 @@ pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_range`](../slice/fn.slice_range.html#performance)
+/// [`konst::slice::slice_range`](../slice/fn.slice_range.html#performance)
 ///
 /// # Example
 ///

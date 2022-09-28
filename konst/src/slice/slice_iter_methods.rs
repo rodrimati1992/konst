@@ -50,6 +50,32 @@ use konst_macro_rules::iterator_shared;
 /// ```
 pub use konst_macro_rules::into_iter::slice_into_iter::iter;
 
+/// Const equivalent of [`core::slice::Iter`].
+///
+/// This is constructed in either of these ways:
+/// ```rust
+/// # let a_slice = &[3];
+/// # let _ = (
+/// konst::slice::iter(a_slice)
+/// # ,
+/// konst::iter::into_iter!(a_slice)
+/// # );
+/// ```
+pub use konst_macro_rules::into_iter::slice_into_iter::Iter;
+
+/// Const equivalent of `core::iter::Rev<core::slice::Iter<_>>`
+///
+/// This is constructed in either of these ways:
+/// ```rust
+/// # let a_slice = &[3];
+/// # let _ = (
+/// konst::slice::iter(a_slice).rev()
+/// # ,
+/// konst::iter::into_iter!(a_slice).rev()
+/// # );
+/// ```
+pub use konst_macro_rules::into_iter::slice_into_iter::IterRev;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #[cfg(feature = "rust_1_64")]
@@ -127,6 +153,15 @@ mod requires_rust_1_64 {
         };
     }
 
+    /// Const equivalent of [`core::slice::Windows`]
+    ///
+    /// This is constructed with [`windows`] like this:
+    /// ```rust
+    /// # let slice = &[3];
+    /// # let _ =
+    /// konst::slice::windows(slice, 1)
+    /// # ;
+    /// ```
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     pub struct Windows<'a, T> {
         slice: &'a [T],
@@ -136,6 +171,15 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
     }
 
+    /// Const equivalent of `core::iter::Rev<core::slice::Windows>`
+    ///
+    /// This is constructed with [`windows`] like this:
+    /// ```rust
+    /// # let slice = &[3];
+    /// # let _ =
+    /// konst::slice::windows(slice, 1).rev()
+    /// # ;
+    /// ```
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     pub struct WindowsRev<'a, T> {
         slice: &'a [T],
@@ -217,6 +261,15 @@ mod requires_rust_1_64 {
         };
     }
 
+    /// Const equivalent of [`core::slice::Chunks`]
+    ///
+    /// This is constructed with [`chunks`] like this:
+    /// ```rust
+    /// # let slice = &[3];
+    /// # let _ =
+    /// konst::slice::chunks(slice, 1)
+    /// # ;
+    /// ```
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     pub struct Chunks<'a, T> {
         slice: Option<&'a [T]>,
@@ -226,6 +279,15 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
     }
 
+    /// Const equivalent of `core::iter::Rev<core::slice::Chunks>`
+    ///
+    /// This is constructed with [`chunks`] like this:
+    /// ```rust
+    /// # let slice = &[3];
+    /// # let _ =
+    /// konst::slice::chunks(slice, 1).rev()
+    /// # ;
+    /// ```
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     pub struct ChunksRev<'a, T> {
         slice: Option<&'a [T]>,
@@ -312,6 +374,15 @@ mod requires_rust_1_64 {
         };
     }
 
+    /// Const equivalent of [`core::slice::ChunksExact`]
+    ///
+    /// This is constructed with [`chunks_exact`] like this:
+    /// ```rust
+    /// # let slice = &[3];
+    /// # let _ =
+    /// konst::slice::chunks_exact(slice, 1)
+    /// # ;
+    /// ```
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     pub struct ChunksExact<'a, T> {
         slice: &'a [T],
@@ -321,6 +392,15 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
     }
 
+    /// Const equivalent of `core::iter::Rev<core::slice::ChunksExact>`
+    ///
+    /// This is constructed with [`chunks_exact`] like this:
+    /// ```rust
+    /// # let slice = &[3];
+    /// # let _ =
+    /// konst::slice::chunks_exact(slice, 1).rev()
+    /// # ;
+    /// ```
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     pub struct ChunksExactRev<'a, T> {
         slice: &'a [T],

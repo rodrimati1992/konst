@@ -252,6 +252,7 @@ impl Display for ParseIntError {
 }
 
 impl ParseIntError {
+    /// Panics with this error as the message
     pub const fn panic(&self) -> ! {
         let x = self.something();
         [/*could not parse an integer*/][x]
@@ -279,6 +280,7 @@ impl Display for ParseBoolError {
 }
 
 impl ParseBoolError {
+    /// Panics with this error as the message
     pub const fn panic(&self) -> ! {
         let x = self.something();
         [/*could not parse a bool*/][x]

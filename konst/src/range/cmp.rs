@@ -9,6 +9,7 @@ macro_rules! shared_range_impls {
             type This = Self;
         }
         impl CmpWrapper<$type> {
+            /// Compares `self` and `other` for equality.
             #[inline(always)]
             pub const fn const_eq(&self, other: &$type) -> bool {
                 $eq_fn_name(&self.0, other)
@@ -26,6 +27,7 @@ macro_rules! declare_range_cmp_fns {
         shared_range_impls! {$type, $eq_fn_name}
 
         impl<T> IsAConstCmpMarker<IsStdKind, $type, T> {
+            ///
             #[inline(always)]
             pub const fn coerce(self, range: &$type) -> CmpWrapper<$type> {
                 CmpWrapper(Range {
@@ -71,6 +73,7 @@ macro_rules! declare_rangeinclusive_cmp_fns {
         shared_range_impls! {$type, $eq_fn_name}
 
         impl<T> IsAConstCmpMarker<IsStdKind, $type, T> {
+            ///
             #[inline(always)]
             pub const fn coerce(self, range: &$type) -> CmpWrapper<$type> {
                 CmpWrapper(RangeInclusive::new(*range.start(), *range.end()))

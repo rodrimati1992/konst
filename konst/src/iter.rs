@@ -1,19 +1,7 @@
 //! Const equivalent of iterators with a specific `next` function signature.
 //!
-//! # Iterator
-//!
-//! Iterators are expected to have a `next` method with this signature:
-//! ```rust
-//! # struct Iter;
-//! # type Item = u8;
-//! # impl Iter {
-//! const fn next(self) -> Option<(Item, Self)> {
-//!     // ...
-//! #   None
-//! }
-//! # }
-//! ```
-//! Where `Item` is whatever type the iterator is over.
+//! The docs for [`IntoIterKind`] has more information on
+//! const equivalents of IntoIterator and Iterator.
 //!
 
 /// Iterates over all elements of an [iterator](crate::iter#iterator),
@@ -374,6 +362,8 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 /// # }
 /// ```
 ///
+/// [full example below](#non-iter-example)
+///
 /// ### `IsIteratorKind`
 ///
 /// These types are expected to have this inherent method:
@@ -419,6 +409,171 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 /// Where `SomeIteratorRev` should be a `IntoIterKind<Kind = IsIteratorKind>`
 /// which has the same inherent methods for iteration.
 ///
+/// [full example below](#iter-example)
+///
+/// # Examples
+///
+/// <span id = "non-iter-example"></span>
+/// ### Implementing for a non-iterator
+///
+/// ```rust
+/// use konst::{iter, slice};
+///
+/// struct GetSlice<'a, T>{
+///     slice: &'a [T],
+///     up_to: usize,
+/// }
+///
+/// impl<T> iter::IntoIterKind for GetSlice<'_, T> {
+///     type Kind = iter::IsNonIteratorKind;
+/// }
+///
+/// impl<'a, T> GetSlice<'a, T> {
+///     const fn const_into_iter(self) -> konst::slice::Iter<'a, T> {
+///         slice::iter(slice::slice_up_to(self.slice, self.up_to))
+///     }
+/// }
+///
+/// const fn sum_powers(up_to: usize) -> u64 {
+///     let gs = GetSlice{slice: &[1, 2, 4, 8, 16, 32, 64, 128], up_to};
+///
+///     iter::fold!(gs, 0, |l, &r| l + r)
+/// }
+///
+/// assert_eq!(sum_powers(0), 0);
+/// assert_eq!(sum_powers(1), 1);
+/// assert_eq!(sum_powers(2), 3);
+/// assert_eq!(sum_powers(3), 7);
+/// assert_eq!(sum_powers(4), 15);
+/// assert_eq!(sum_powers(5), 31);
+///
+/// ```
+///
+/// <span id = "iter-example"></span>
+/// ### Implementing for an iterator
+///
+/// ```rust
+/// use konst::iter::{self, IntoIterKind};
+///
+/// struct Countdown(u8);
+///
+/// impl IntoIterKind for Countdown { type Kind = iter::IsIteratorKind; }
+///
+/// impl Countdown {
+///     const fn next(mut self) -> Option<(u8, Self)> {
+///         konst::option::map!(self.0.checked_sub(1), |ret| {
+///             self.0 = ret;
+///             (ret, self)
+///         })
+///     }
+/// }
+///
+/// const fn sum(initial: u8) -> u16 {
+///     iter::fold!(Countdown(initial), 0u16, |accum, elem| accum + elem as u16)
+/// }
+///
+/// assert_eq!(sum(0), 0);
+/// assert_eq!(sum(1), 0);
+/// assert_eq!(sum(2), 1);
+/// assert_eq!(sum(3), 3);
+/// assert_eq!(sum(4), 6);
+/// assert_eq!(sum(5), 10);
+///
+/// ```
+///
+/// ### Implementing for a double-ended iterator
+///
+/// ```rust
+/// use konst::iter;
+///
+/// assert_eq!(HOURS, [1, 2, 3, 4, 5, 6, 12, 11, 10, 9, 8, 7]);
+///
+/// const HOURS: [u8; 12] = {
+///     let mut arr = [0; 12];
+///     let hours = Hours::new();
+///
+///     iter::for_each_zip!{(i, hour) in 0..6, hours.copy() =>
+///         arr[i] = hour;
+///     }
+///     iter::for_each_zip!{(i, hour) in 6..12, hours.rev() =>
+///         arr[i] = hour;
+///     }
+///
+///     arr
+/// };
+///
+///
+/// struct Hours{
+///     start: u8,
+///     end: u8,
+/// }
+///
+/// impl iter::IntoIterKind for Hours {
+///     type Kind = iter::IsIteratorKind;
+/// }
+///
+/// impl Hours {
+///     const fn new() -> Self {
+///         Self {start: 1, end: 13}
+///     }
+///
+///     const fn next(mut self) -> Option<(u8, Self)> {
+///         if self.start == self.end {
+///             None
+///         } else {
+///             let ret = self.start;
+///             self.start += 1;
+///             Some((ret, self))
+///         }
+///     }
+///
+///     const fn next_back(mut self) -> Option<(u8, Self)> {
+///         if self.start == self.end {
+///             None
+///         } else {
+///             self.end -= 1;
+///             Some((self.end, self))
+///         }
+///     }
+///
+///     const fn rev(self) -> HoursRev {
+///         HoursRev(self)
+///     }
+///
+///     /// Since `Clone::clone` isn't const callable on stable,
+///     /// clonable iterators must define an inherent method to be cloned
+///     const fn copy(&self) -> Self {
+///         let Self{start, end} = *self;
+///         Self{start, end}
+///     }
+/// }
+///
+/// struct HoursRev(Hours);
+///
+/// impl iter::IntoIterKind for HoursRev {
+///     type Kind = iter::IsIteratorKind;
+/// }
+///
+/// impl HoursRev {
+///     const fn next(self) -> Option<(u8, Self)> {
+///         konst::option::map!(self.0.next_back(), |(a, h)| (a, HoursRev(h)))
+///     }
+///
+///     const fn next_back(self) -> Option<(u8, Self)> {
+///         konst::option::map!(self.0.next(), |(a, h)| (a, HoursRev(h)))
+///     }
+///
+///     const fn rev(self) -> Hours {
+///         self.0
+///     }
+///
+///     const fn copy(&self) -> Self {
+///         Self(self.0.copy())
+///     }
+/// }
+///
+///
+/// ```
 ///
 #[doc(inline)]
 pub use konst_macro_rules::into_iter::IntoIterKind;

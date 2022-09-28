@@ -18,9 +18,10 @@ macro_rules! iterator_shared {
 
         $(
             /// Reverses the iterator
-            pub const fn rev(self) -> $Rev {
+            pub const fn rev(self) -> $crate::__choose!($is_forward $Rev $Self) {
                 let Self $fields = self;
-                $Rev  $fields
+                type Type<T> = T;
+                Type::<$crate::__choose!($is_forward $Rev $Self)> $fields
             }
         )?
 

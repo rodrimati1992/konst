@@ -158,6 +158,16 @@ macro_rules! split_shared {
     };
 }
 
+/// Const equivalent of `core::str::Split<'_, &str>`
+///
+/// This is constructed with [`split`] like this:
+/// ```rust
+/// # let string = "";
+/// # let delim = "";
+/// # let _ =
+/// konst::string::split(string, delim)
+/// # ;
+/// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub struct Split<'a, 'b> {
     this: &'a str,
@@ -172,6 +182,16 @@ impl<'a, 'b> Split<'a, 'b> {
     split_shared! {is_forward = true}
 }
 
+/// Const equivalent of `core::iter::Rev<core::str::Split<'_, &str>>`
+///
+/// This is constructed with [`rsplit`] like this:
+/// ```rust
+/// # let string = "";
+/// # let delim = "";
+/// # let _ =
+/// konst::string::rsplit(string, delim)
+/// # ;
+/// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub struct RSplit<'a, 'b> {
     this: &'a str,

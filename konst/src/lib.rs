@@ -315,7 +315,7 @@
 //! [`Parser`]: ./parsing/struct.Parser.html
 //! [`Parser::parse_u128`]: ./parsing/struct.Parser.html#method.parse_u128
 //!
-
+#![deny(missing_docs)]
 #![cfg_attr(
     feature = "nightly_mut_refs",
     feature(const_mut_refs, const_slice_from_raw_parts_mut)
