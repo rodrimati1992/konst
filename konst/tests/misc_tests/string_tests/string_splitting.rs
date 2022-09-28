@@ -1,11 +1,13 @@
 // Shamelessly copy pasted test cases from the const_format crate.
 
+use konst::{option, string};
+
 #[track_caller]
 fn split_case(string: &str, delim: &str, expected: &[&str]) {
     {
         let mut items = Vec::new();
 
-        konst::iter::for_each! {item in konst::string::split(string, delim) =>
+        konst::iter::for_each! {item in string::split(string, delim) =>
             items.push(item);
         }
 
@@ -15,7 +17,7 @@ fn split_case(string: &str, delim: &str, expected: &[&str]) {
     {
         let mut items = Vec::new();
 
-        konst::iter::for_each! {item in konst::string::rsplit(string, delim) =>
+        konst::iter::for_each! {item in string::rsplit(string, delim) =>
             items.push(item);
         }
 
@@ -108,3 +110,123 @@ fn test_str_split_with_non_ascii_char_arg() {
         split_case("foo🧡 bar 🧡baz", "🧡", &["foo", " bar ", "baz"]);
     }
 }
+
+
+#[test]
+fn next_basic() {
+    let string = "foo-bar-baz";
+
+    for iter in [
+        string::split(string, "-"),
+        string::split(string, "-").copy(),
+        string::rsplit(string, "-").rev(),
+    ] {
+        let _: string::Split<'_, '_> = iter;
+
+        let (elem, iter) = iter.next().unwrap();
+        assert_eq!(elem, "foo");
+        assert_eq!(iter.remainder(), "bar-baz");
+
+        let (elem, iter) = iter.next().unwrap();
+        assert_eq!(elem, "bar");
+        assert_eq!(iter.remainder(), "baz");
+
+        let (elem, iter) = iter.next().unwrap();
+        assert_eq!(elem, "baz");
+        assert_eq!(iter.remainder(), "");
+
+        assert!(iter.next().is_none());
+    }
+    
+    for iter in [
+        string::split(string, "-").rev(),
+        string::rsplit(string, "-"),
+        string::rsplit(string, "-").copy(),
+    ] {
+        let _: string::RSplit<'_, '_> = iter;
+        
+        let (elem, iter) = iter.next().unwrap();
+        assert_eq!(elem, "baz");
+        assert_eq!(iter.remainder(), "foo-bar");
+
+        let (elem, iter) = iter.next().unwrap();
+        assert_eq!(elem, "bar");
+        assert_eq!(iter.remainder(), "foo");
+
+        let (elem, iter) = iter.next().unwrap();
+        assert_eq!(elem, "foo");
+        assert_eq!(iter.remainder(), "");
+
+        assert!(iter.next().is_none());
+    }
+}
+
+#[test]
+fn next_back_basic() {
+    let string = "foo-bar-baz";
+    
+    for iter in [
+        string::split(string, "-"),
+        string::split(string, "-").copy(),
+        string::rsplit(string, "-").rev(),
+    ] {
+        let _: string::Split<'_, '_> = iter;
+        
+        let (elem, iter) = iter.next_back().unwrap();
+        assert_eq!(elem, "baz");
+        assert_eq!(iter.remainder(), "foo-bar");
+
+        let (elem, iter) = iter.next_back().unwrap();
+        assert_eq!(elem, "bar");
+        assert_eq!(iter.remainder(), "foo");
+
+        let (elem, iter) = iter.next_back().unwrap();
+        assert_eq!(elem, "foo");
+        assert_eq!(iter.remainder(), "");
+
+        assert!(iter.next_back().is_none());
+    }
+
+    for iter in [
+        string::split(string, "-").rev(),
+        string::rsplit(string, "-"),
+    ] {
+        let _: string::RSplit<'_, '_> = iter;
+
+        let (elem, iter) = iter.next_back().unwrap();
+        assert_eq!(elem, "foo");
+        assert_eq!(iter.remainder(), "bar-baz");
+
+        let (elem, iter) = iter.next_back().unwrap();
+        assert_eq!(elem, "bar");
+        assert_eq!(iter.remainder(), "baz");
+
+        let (elem, iter) = iter.next_back().unwrap();
+        assert_eq!(elem, "baz");
+        assert_eq!(iter.remainder(), "");
+
+        assert!(iter.next_back().is_none());
+    }
+}
+
+
+
+
+#[test]
+fn methods_are_const() {
+    const fn __(string: &str, delim: &str) {
+        {
+            let iter: string::Split<'_, '_> = string::split(string, delim);
+            let _ = iter.copy().next();
+            let _ = iter.copy().next_back();
+            let _: string::RSplit<'_, '_> = iter.copy().rev();
+        }
+        {
+            let iter: string::RSplit<'_, '_> = string::rsplit(string, delim);
+            let _ = iter.copy().next();
+            let _ = iter.copy().next_back();
+            let _: string::Split<'_, '_> = iter.copy().rev();
+        }
+    }
+}
+
