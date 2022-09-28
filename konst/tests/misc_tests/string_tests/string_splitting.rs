@@ -4,6 +4,45 @@ use konst::{option, string};
 
 #[track_caller]
 fn split_case(string: &str, delim: &str, expected: &[&str]) {
+    // split_once
+    {
+        let first = expected[0];
+        if let Some((before, after)) = string::split_once(string, delim) {
+            assert_eq!(before, first, "split before");
+            assert_eq!(&string[before.len() + delim.len()..], after, "split rem");
+        } else {
+            assert!(
+                !string.contains(delim),
+                "split none. string: {:?}\ndelim: {:?}",
+                string,
+                delim
+            );
+        }
+    }
+
+    // rsplit_once
+    {
+        let last = *expected.last().unwrap();
+        if let Some((before, after)) = string::rsplit_once(string, delim) {
+            assert_eq!(after, last, "rsplit before");
+            assert_eq!(
+                &string[..string.len() - after.len() - delim.len()],
+                before,
+                "rsplit rem.\nstring: {:?}\ndelim: {:?}",
+                string,
+                delim
+            );
+        } else {
+            assert!(
+                !string.contains(delim),
+                "rsplit none. string: {:?}\ndelim: {:?}",
+                string,
+                delim
+            );
+        }
+    }
+
+    // split
     {
         let mut items = Vec::new();
 
@@ -14,6 +53,7 @@ fn split_case(string: &str, delim: &str, expected: &[&str]) {
         assert_eq!(items, expected);
     }
 
+    // rsplit
     {
         let mut items = Vec::new();
 
@@ -111,7 +151,6 @@ fn test_str_split_with_non_ascii_char_arg() {
     }
 }
 
-
 #[test]
 fn next_basic() {
     let string = "foo-bar-baz";
@@ -137,14 +176,14 @@ fn next_basic() {
 
         assert!(iter.next().is_none());
     }
-    
+
     for iter in [
         string::split(string, "-").rev(),
         string::rsplit(string, "-"),
         string::rsplit(string, "-").copy(),
     ] {
         let _: string::RSplit<'_, '_> = iter;
-        
+
         let (elem, iter) = iter.next().unwrap();
         assert_eq!(elem, "baz");
         assert_eq!(iter.remainder(), "foo-bar");
@@ -164,14 +203,14 @@ fn next_basic() {
 #[test]
 fn next_back_basic() {
     let string = "foo-bar-baz";
-    
+
     for iter in [
         string::split(string, "-"),
         string::split(string, "-").copy(),
         string::rsplit(string, "-").rev(),
     ] {
         let _: string::Split<'_, '_> = iter;
-        
+
         let (elem, iter) = iter.next_back().unwrap();
         assert_eq!(elem, "baz");
         assert_eq!(iter.remainder(), "foo-bar");
@@ -209,9 +248,6 @@ fn next_back_basic() {
     }
 }
 
-
-
-
 #[test]
 fn methods_are_const() {
     const fn __(string: &str, delim: &str) {
@@ -229,4 +265,3 @@ fn methods_are_const() {
         }
     }
 }
-

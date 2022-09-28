@@ -25,9 +25,14 @@ use konst_macro_rules::iterator_shared;
 /// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub const fn split_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a str)> {
-    crate::option::map! {
-        string::find(this, delim, 0),
-        |pos| (str_up_to(this, pos), str_from(this, pos + delim.len()))
+    if delim.is_empty() {
+        // using split_at so that the pointer points within the string
+        Some(string::split_at(this, 0))
+    } else {
+        crate::option::map! {
+            string::find(this, delim, 0),
+            |pos| (str_up_to(this, pos), str_from(this, pos + delim.len()))
+        }
     }
 }
 
@@ -49,9 +54,14 @@ pub const fn split_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a 
 /// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub const fn rsplit_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a str)> {
-    crate::option::map! {
-        string::rfind(this, delim, this.len()),
-        |pos| (str_up_to(this, pos), str_from(this, pos + delim.len()))
+    if delim.is_empty() {
+        // using split_at so that the pointer points within the string
+        Some(string::split_at(this, this.len()))
+    } else {
+        crate::option::map! {
+            string::rfind(this, delim, this.len()),
+            |pos| (str_up_to(this, pos), str_from(this, pos + delim.len()))
+        }
     }
 }
 
