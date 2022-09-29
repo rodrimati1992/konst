@@ -42,57 +42,42 @@ macro_rules! __iter_all {
     };
 }
 
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __iter_on_found {
-    (
-        $iter:expr,
-        $ret_elem:ident,
-        $next_fn:ident,
-        ($($before_loop:tt)*),
-        ($($on_continue:tt)*),
-        $on_found:expr,
-        $on_not_found:expr,
-        |$elem:pat| $v:expr
-    ) => (
-        match $crate::into_iter_macro!($iter) { mut iter => {
-            $($before_loop)*
-            loop {
-                match iter.$next_fn() {
-                    $crate::__::Some(($ret_elem, next)) => {
-                        let $elem = &$ret_elem;
-                        if $v {
-                            break $on_found;
-                        }
-                        iter = next;
-                        $($on_continue)*
-                    }
-                    $crate::__::None => break $on_not_found,
-                }
-            }
-        }}
-    )
-}
-
 #[macro_export]
 macro_rules! iter_any {
     ($iter:expr, $($closure:tt)*) => {
         $crate::__parse_closure!{
-            ($crate::__iter_on_found)
-            ($iter, _elem, next, (), (), true, false,)
-            (elem),
+            ($crate::__iter_any) ($iter,) (elem),
             $($closure)*
         }
     }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __iter_any {
+    ($iter:expr, |$elem:pat| $v:expr) => {
+        match $crate::into_iter_macro!($iter) {
+            mut iter => loop {
+                match iter.next() {
+                    $crate::__::Some((elem, next)) => {
+                        let $elem = elem;
+                        if $v {
+                            break true;
+                        }
+                        iter = next;
+                    }
+                    $crate::__::None => break false,
+                }
+            },
+        }
+    };
 }
 
 #[macro_export]
 macro_rules! iter_position {
     ($iter:expr, $($closure:tt)*) => {
         $crate::__parse_closure!{
-            ($crate::__iter_on_found)
-            ($iter, _elem, next, (let mut i = 0;), (i+=1;), $crate::__::Some(i), $crate::__::None,)
-            (elem),
+            ($crate::__iter_position) ($iter, next,) (elem),
             $($closure)*
         }
     }
@@ -102,24 +87,42 @@ macro_rules! iter_position {
 macro_rules! iter_rposition {
     ($iter:expr, $($closure:tt)*) => {
         $crate::__parse_closure!{
-            ($crate::__iter_on_found)
-            (
-                $iter, _elem, next_back, (let mut i = 0;), (i+=1;),
-                $crate::__::Some(i), $crate::__::None,
-            )
-            (elem),
+            ($crate::__iter_position) ($iter, next_back,) (elem),
             $($closure)*
         }
     }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __iter_position {
+    ($iter:expr, $next_method:ident, |$elem:pat| $v:expr) => {
+        match $crate::into_iter_macro!($iter) {
+            mut iter => {
+                let mut i = 0;
+                loop {
+                    match iter.$next_method() {
+                        $crate::__::Some((elem, next)) => {
+                            let $elem = elem;
+                            if $v {
+                                break $crate::__::Some(i);
+                            }
+                            iter = next;
+                            i += 1;
+                        }
+                        $crate::__::None => break $crate::__::None,
+                    }
+                }
+            }
+        }
+    };
 }
 
 #[macro_export]
 macro_rules! iter_find {
     ($iter:expr, $($closure:tt)*) => {
         $crate::__parse_closure!{
-            ($crate::__iter_on_found)
-            ($iter, elem, next, (), (), $crate::__::Some(elem), $crate::__::None,)
-            (elem),
+            ($crate::__iter_find) ($iter, next,) (elem),
             $($closure)*
         }
     }
@@ -129,12 +132,35 @@ macro_rules! iter_find {
 macro_rules! iter_rfind {
     ($iter:expr, $($closure:tt)*) => {
         $crate::__parse_closure!{
-            ($crate::__iter_on_found)
-            ($iter, elem, next_back, (), (), $crate::__::Some(elem), $crate::__::None,)
-            (elem),
+            ($crate::__iter_find) ($iter, next_back,) (elem),
             $($closure)*
         }
     }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __iter_find {
+    (
+        $iter:expr,
+        $next_fn:ident,
+        |$elem:pat| $v:expr
+    ) => {
+        match $crate::into_iter_macro!($iter) {
+            mut iter => loop {
+                match iter.$next_fn() {
+                    $crate::__::Some((elem, next)) => {
+                        let $elem = &elem;
+                        if $v {
+                            break $crate::__::Some(elem);
+                        }
+                        iter = next;
+                    }
+                    $crate::__::None => break $crate::__::None,
+                }
+            },
+        }
+    };
 }
 
 #[macro_export]
@@ -193,6 +219,9 @@ macro_rules! iter_fold {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __iter_fold {
+    ($iter:expr, $next_fn:ident, $accum:expr, |$($accum_pat:pat)? $(,)*| $v:expr) => {
+        compile_error!("expected a two-argument closure")
+    };
     ($iter:expr, $next_fn:ident, $accum:expr, |$accum_pat:pat, $elem:pat| $v:expr) => {
         match ($crate::into_iter_macro!($iter), $accum) {
             (mut iter, mut accum) => loop {
@@ -208,16 +237,6 @@ macro_rules! __iter_fold {
             },
         }
     };
-}
-
-#[macro_export]
-macro_rules! iter_reduce {
-    ($iter:expr, $($closure:tt)*) => {
-        $crate::__parse_closure!{
-            ($crate::__iter_reduce) ($iter, ) (elem),
-            $($closure)*
-        }
-    }
 }
 
 #[macro_export]

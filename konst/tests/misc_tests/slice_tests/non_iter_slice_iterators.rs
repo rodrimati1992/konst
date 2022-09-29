@@ -41,8 +41,7 @@ macro_rules! compare_with_std {
 
                             assert_eq!(elem, elem_std, "{}", extra_info());
                         }
-                        (Some((elem, next_iter)), None) => {
-                            iter = next_iter;
+                        (Some((elem, _)), None) => {
                             panic!(
                                 "konst {} had {:?} when std iter was exhausted {}",
                                 stringify!($iter_fn),
