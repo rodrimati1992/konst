@@ -14,6 +14,9 @@ use konst::{
     },
 };
 
+#[cfg(feature = "rust_1_64")]
+mod non_iter_slice_iterators;
+
 #[test]
 #[cfg(feature = "cmp")]
 fn eq_slice_test() {
@@ -227,4 +230,109 @@ fn try_into_array_mut_test() {
 
     assert!(try_into_array_mut::<_, 5>(&mut slice).is_err());
     assert!(try_into_array_mut::<_, 6>(&mut slice).is_err());
+}
+
+#[test]
+fn slice_iter_const_callable() {
+    const fn __<'a>(slice: &'a [u8]) {
+        let _: konst::slice::Iter<'a, u8> = konst::slice::iter(slice);
+        konst::slice::iter(slice).next();
+        konst::slice::iter(slice).next_back();
+        konst::slice::iter(slice).copy();
+
+        let rev: konst::slice::IterRev<'a, u8> = konst::slice::iter(slice).rev();
+
+        rev.copy();
+        let _: konst::slice::Iter<'a, u8> = rev.copy().rev();
+        rev.copy().next();
+        rev.copy().next_back();
+    }
+}
+
+#[test]
+fn slice_iter_both_directions() {
+    let slice: &[u8] = &[3, 5, 8, 13, 21];
+    let slice_refs: Vec<&u8> = slice.iter().collect();
+
+    assert_eq!(collect_const_iter!(slice), slice_refs);
+    for iter in [
+        konst::slice::iter(slice),
+        konst::slice::iter(slice).copy(),
+        konst::slice::iter(slice).rev().rev(),
+    ] {
+        assert_eq!(collect_const_iter!(iter), slice_refs);
+    }
+
+    for iter in [
+        konst::slice::iter(slice).rev(),
+        konst::slice::iter(slice).copy().rev(),
+    ] {
+        assert_eq!(
+            collect_const_iter!(iter),
+            slice.iter().rev().collect::<Vec<&u8>>(),
+        );
+    }
+}
+
+#[test]
+fn slice_iter_mixed_directions() {
+    let slice: &[u8] = &[3, 5, 8, 13, 21];
+
+    let mut iter = konst::iter::into_iter!(slice);
+    let mut elem;
+    assert_eq!(iter.as_slice(), [3, 5, 8, 13, 21]);
+
+    (elem, iter) = iter.next_back().unwrap();
+    assert_eq!(*elem, 21);
+    assert_eq!(iter.as_slice(), [3, 5, 8, 13]);
+
+    (elem, iter) = iter.next().unwrap();
+    assert_eq!(*elem, 3);
+    assert_eq!(iter.as_slice(), [5, 8, 13]);
+
+    (elem, iter) = iter.next().unwrap();
+    assert_eq!(*elem, 5);
+    assert_eq!(iter.as_slice(), [8, 13]);
+
+    (elem, iter) = iter.next().unwrap();
+    assert_eq!(*elem, 8);
+    assert_eq!(iter.as_slice(), [13]);
+
+    (elem, iter) = iter.next_back().unwrap();
+    assert_eq!(*elem, 13);
+    assert_eq!(iter.as_slice(), []);
+
+    assert!(iter.next().is_none());
+}
+
+#[test]
+fn slice_iter_rev() {
+    let slice: &[u8] = &[3, 5, 8, 13, 21];
+    let iter = konst::iter::into_iter!(slice);
+
+    let (elem, iter) = iter.rev().next().unwrap();
+    assert_eq!(*elem, 21);
+
+    // making sure to call next_back on the reversed iterator
+    let (elem, iter) = iter.next_back().unwrap();
+    assert_eq!(*elem, 3);
+
+    let (elem, iter) = iter.rev().next().unwrap();
+    assert_eq!(*elem, 5);
+
+    let (elem, iter) = iter.next().unwrap();
+    assert_eq!(*elem, 8);
+
+    {
+        let (elem, iter) = iter.copy().next().unwrap();
+        assert_eq!(*elem, 13);
+        assert!(iter.copy().next_back().is_none());
+        assert!(iter.next().is_none());
+    }
+    {
+        let (elem, iter) = iter.next_back().unwrap();
+        assert_eq!(*elem, 13);
+        assert!(iter.copy().next().is_none());
+        assert!(iter.next_back().is_none());
+    }
 }

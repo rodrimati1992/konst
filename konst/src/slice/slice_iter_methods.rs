@@ -229,7 +229,7 @@ mod requires_rust_1_64 {
         assert!(size != 0, "chunk size must be non-zero");
 
         Chunks {
-            slice: Some(slice),
+            slice: some_if_nonempty(slice),
             size,
         }
     }
@@ -250,7 +250,7 @@ mod requires_rust_1_64 {
                 },
                 next_back{
                     option::map!(self.slice, |slice| {
-                        let at = slice.len().saturating_sub(self.size);
+                        let at = (slice.len() - 1) / self.size * self.size;
                         let (next, ret) = slice::split_at(slice, at);
                         self.slice = some_if_nonempty(next);
                         (ret, self)
@@ -355,10 +355,11 @@ mod requires_rust_1_64 {
                     }
                 },
                 next_back {
-                    if let Some(at) = self.slice.len().checked_sub(self.size) {
+                    if let Some(mut at) = self.slice.len().checked_sub(self.size) {
+                        at = at / self.size * self.size;
                         let (next, ret) = slice::split_at(self.slice, at);
                         self.slice = next;
-                        Some((ret, self))
+                        Some((slice::slice_up_to(ret, self.size), self))
                     } else {
                         None
                     }

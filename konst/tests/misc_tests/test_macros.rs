@@ -212,3 +212,15 @@ macro_rules! assertc_opt_cmp {
         }
     };
 }
+
+macro_rules! collect_const_iter {
+    ($iter:expr) => {{
+        let mut vect = Vec::new();
+
+        konst::iter::for_each! {elem in $iter =>
+            vect.push(elem);
+        }
+
+        vect
+    }};
+}

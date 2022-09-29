@@ -43,28 +43,13 @@ fn split_case(string: &str, delim: &str, expected: &[&str]) {
     }
 
     // split
-    {
-        let mut items = Vec::new();
-
-        konst::iter::for_each! {item in string::split(string, delim) =>
-            items.push(item);
-        }
-
-        assert_eq!(items, expected);
-    }
+    assert_eq!(collect_const_iter!(string::split(string, delim)), expected);
 
     // rsplit
-    {
-        let mut items = Vec::new();
-
-        konst::iter::for_each! {item in string::rsplit(string, delim) =>
-            items.push(item);
-        }
-
-        let rev_expected = expected.iter().rev().copied().collect::<Vec<&str>>();
-
-        assert_eq!(items, rev_expected);
-    }
+    assert_eq!(
+        collect_const_iter!(string::rsplit(string, delim)),
+        expected.iter().rev().copied().collect::<Vec<&str>>(),
+    );
 }
 
 #[test]
