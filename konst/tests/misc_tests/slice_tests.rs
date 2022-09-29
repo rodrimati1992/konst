@@ -161,7 +161,7 @@ fn try_into_array_macro_explicit_test() {
 }
 
 #[test]
-#[cfg(feature = "const_generics")]
+#[cfg(feature = "rust_1_51")]
 fn try_into_array_macro_implicit_test() {
     let slice = &[0, 2, 3, 4][..];
 

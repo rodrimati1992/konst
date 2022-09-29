@@ -105,10 +105,10 @@ macro_rules! int_range_inc_shared {
         iterator_shared! {
             is_forward = $is_forward,
             item = $Int,
-            iter_forward = RangeIter<$Int>,
-            iter_reversed = RangeIterRev<$Int>,
+            iter_forward = RangeInclusiveIter<$Int>,
+            iter_reversed = RangeInclusiveIterRev<$Int>,
             next(self){
-                if self.start >= self.end {
+                if self.start > self.end {
                     None
                 } else {
                     let ret = self.start;
@@ -131,8 +131,8 @@ macro_rules! int_range_inc_shared {
                         self.end = 0;
                         self.start = 1;
                     } else {
-                        self.end -= 1;
                         ret = self.end;
+                        self.end -= 1;
                     }
                     Some((ret, self))
                 }

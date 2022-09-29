@@ -18,7 +18,7 @@ include = [
 [dependencies]
 
 [features]
-const_generics = []
+rust_1_51 = []
 rust_1_55 = []
 rust_1_56 = []
 deref_raw_in_fn = []

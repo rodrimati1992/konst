@@ -98,14 +98,10 @@ mod requires_rust_1_64 {
     /// # Example
     ///
     /// ```rust
-    /// use konst::iter::for_each;
-    /// use konst::slice;
+    /// use konst::{iter, slice};
     ///
     /// const fn is_sorted(slice: &[u8]) -> bool {
-    ///     for_each!{window in slice::windows(slice, 2) =>
-    ///         if window[0] > window[1] { return false; }
-    ///     }
-    ///     true
+    ///     iter::all!(slice::windows(slice, 2), |w| w[1] > w[0])
     /// }
     ///
     /// assert!(is_sorted(&[3, 5, 8]));

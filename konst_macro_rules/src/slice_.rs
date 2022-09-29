@@ -20,7 +20,7 @@ macro_rules! try_into_array {
 }
 
 #[macro_export]
-#[cfg(not(feature = "const_generics"))]
+#[cfg(not(feature = "rust_1_51"))]
 macro_rules! __priv_try_into_array {
     // This implementation is used when const generics are disabled.
     (explicit, $slice:ident, $len:expr) => {{
@@ -47,7 +47,7 @@ macro_rules! __priv_try_into_array {
         $crate::__::compile_error!(concat!(
             "\
                 To infer the length of the returned array,\n\
-                you must enable the  \"const_generics\" feature (which requires Rust 1.51.0).\n\
+                you must enable the  \"rust_1_51\" feature (which requires Rust 1.51.0).\n\
                 \n\
                 Otherwise you need to pass the length explicitly, \
                 eg: try_into_array!(foo, 10)"
@@ -56,7 +56,7 @@ macro_rules! __priv_try_into_array {
 }
 
 #[macro_export]
-#[cfg(feature = "const_generics")]
+#[cfg(feature = "rust_1_51")]
 macro_rules! __priv_try_into_array {
     // This implementation is used when const generics are enabled,
     // and should work with arrays like ARR in
@@ -110,11 +110,11 @@ pub struct __priv_TypeLifetime<'a, T, U> {
 #[repr(transparent)]
 pub struct __priv_SliceLifetime<'a, T>(pub &'a [T], pub Phantom<'a, T>);
 
-#[cfg(feature = "const_generics")]
+#[cfg(feature = "rust_1_51")]
 #[derive(Copy, Clone)]
 pub struct PhantomUsize<const N: usize>;
 
-#[cfg(feature = "const_generics")]
+#[cfg(feature = "rust_1_51")]
 pub const fn get_length<'a, T, const N: usize>(
     _: PhantomUsize<N>,
 ) -> Result<&'a [T; N], TryIntoArrayError> {
@@ -122,7 +122,7 @@ pub const fn get_length<'a, T, const N: usize>(
 }
 
 #[inline(always)]
-#[cfg(feature = "const_generics")]
+#[cfg(feature = "rust_1_51")]
 pub const fn check_length<T, const N: usize>(
     slice: &[T],
     _len: PhantomUsize<N>,
@@ -131,7 +131,7 @@ pub const fn check_length<T, const N: usize>(
 }
 
 #[repr(transparent)]
-#[cfg(feature = "const_generics")]
+#[cfg(feature = "rust_1_51")]
 pub struct __priv_ArrayLifetime<'a, T, const N: usize>(pub &'a [T; N], pub Phantom<'a, T>);
 
 ////////////////////////////////////////////////////////////////////////////////

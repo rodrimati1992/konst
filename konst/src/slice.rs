@@ -92,7 +92,7 @@ __declare_fns_with_docs! {
 ///
 /// By default you need to pass the length of the returned array.
 ///
-/// To infer the length of the array you need to enable the `"const_generics"` feature,
+/// To infer the length of the array you need to enable the `"rust_1_51"` feature,
 /// which requires Rust 1.51.0
 ///
 /// # Example
@@ -141,10 +141,10 @@ __declare_fns_with_docs! {
 /// ### Length inference
 ///
 /// `try_into_array` can infer the length of the array with the
-/// `"const_generic"` feature, which requires Rust 1.51.0.
+/// `"rust_1_51"` feature, which requires Rust 1.51.0.
 ///
-#[cfg_attr(feature = "const_generics", doc = "```rust")]
-#[cfg_attr(not(feature = "const_generics"), doc = "```ignore")]
+#[cfg_attr(feature = "rust_1_51", doc = "```rust")]
+#[cfg_attr(not(feature = "rust_1_51"), doc = "```ignore")]
 /// use konst::{slice::try_into_array, unwrap_ctx};
 ///
 /// const ARR_3: &[u64; 3] = {

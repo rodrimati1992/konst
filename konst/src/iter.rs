@@ -84,7 +84,10 @@ pub use konst_macro_rules::for_each;
 ///
 /// ### Zip two slices
 ///
-/// ```rust
+/// This example requires the `"rust_1_51"` feature
+///
+#[cfg_attr(feature = "rust_1_51", doc = "```rust")]
+#[cfg_attr(not(feature = "rust_1_51"), doc = "```ignore")]
 /// use konst::iter::for_each_zip;
 ///     
 /// const fn add_pairs<const N: usize>(l: [u32; N], r: [u32; N]) -> [u32; N] {

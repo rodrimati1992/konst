@@ -2,7 +2,7 @@ use super::{IntoIterKind, IntoIterWrapper, IsIteratorKind, IsStdKind};
 
 use core::mem::ManuallyDrop;
 
-#[cfg(feature = "const_generics")]
+#[cfg(feature = "rust_1_51")]
 macro_rules! array_impls {
     ($($tt:tt)*) => {
         impl<T, const N: usize> IntoIterKind for &[T; N] {
@@ -19,7 +19,7 @@ macro_rules! array_impls {
     };
 }
 
-#[cfg(not(feature = "const_generics"))]
+#[cfg(not(feature = "rust_1_51"))]
 macro_rules! array_impls {
     ($($len:literal),* $(,)* ) => (
         $(

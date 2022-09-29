@@ -35,13 +35,13 @@ declare_generic_const! {
     pub const UNINIT[T]: MaybeUninit<T> = MaybeUninit::uninit();
 }
 
-#[cfg(feature = "const_generics")]
+#[cfg(feature = "rust_1_51")]
 declare_generic_const! {
     /// Generic constant for an uninitialized `[MaybeUninit<T>; N]`. Requires Rust 1.51.0.
     ///
     /// # Features
     ///
-    /// This requires the "const_generics" feature, which requires Rust 1.51.0.
+    /// This requires the "rust_1_51" feature, which requires Rust 1.51.0.
     ///
     /// # Example
     ///
@@ -61,7 +61,7 @@ declare_generic_const! {
     ///
     /// assert_eq!(INITS, [[3, 5], [8, 13]]);
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "const_generics")))]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_51")))]
     for[T, const N: usize]
     pub const UNINIT_ARRAY[T; N]: [MaybeUninit<T>; N] = [UNINIT::V; N];
 }
