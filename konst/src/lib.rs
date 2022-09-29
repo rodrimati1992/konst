@@ -275,13 +275,16 @@
 //! Enables functions that internally use raw pointer dereferences or transmutes,
 //! and the `"rust_1_55"` feature.
 //!
+//! - `"rust_1_61"`:
+//! Enables const fns that use trait bounds, and the `"rust_1_56"` feature.
+//!
 //! - `"rust_1_64"`:<br>
 //! Adds slice and string iterators,
 //! string splitting functions(`[r]split_once`),
 //! const equivalents of iterator methods(in `konst::iter`),
 //! and makes slicing functions more efficient.
 //! <br>Note that only functions which mention this feature in their documentation are affected.
-//! <br>Enables the `"rust_1_56"` feature.
+//! <br>Enables the `"rust_1_61"` feature.
 //!
 //! - `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature.
 //! Only recommendable if you can update the Rust compiler every stable release.

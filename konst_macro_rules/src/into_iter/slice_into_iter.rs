@@ -112,3 +112,73 @@ impl<'a, T> Iter<'a, T> {
 impl<'a, T> IterRev<'a, T> {
     iter_shared! {is_forward = false}
 }
+
+#[cfg(feature = "rust_1_61")]
+pub use copied::{iter_copied, IterCopied, IterCopiedRev};
+
+#[cfg(feature = "rust_1_61")]
+mod copied {
+    use super::*;
+
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
+    pub const fn iter_copied<T: Copy>(slice: &[T]) -> IterCopied<'_, T> {
+        IterCopied { slice }
+    }
+
+    macro_rules! iter_copied_shared {
+        (is_forward = $is_forward:ident) => {
+            iterator_shared! {
+                is_forward = $is_forward,
+                item = T,
+                iter_forward = IterCopied<'a, T>,
+                iter_reversed = IterCopiedRev<'a, T>,
+                next(self) {
+                    if let [elem, rem @ ..] = self.slice {
+                        self.slice = rem;
+                        Some((*elem, self))
+                    } else {
+                        None
+                    }
+                },
+                next_back {
+                    if let [rem @ .., elem] = self.slice {
+                        self.slice = rem;
+                        Some((*elem, self))
+                    } else {
+                        None
+                    }
+                },
+                fields = {slice},
+            }
+
+            /// Accesses the remaining slice.
+            pub const fn as_slice(&self) -> &'a [T] {
+                self.slice
+            }
+        };
+    }
+
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
+    pub struct IterCopied<'a, T> {
+        slice: &'a [T],
+    }
+    impl<'a, T> IntoIterKind for IterCopied<'a, T> {
+        type Kind = IsIteratorKind;
+    }
+
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
+    pub struct IterCopiedRev<'a, T> {
+        slice: &'a [T],
+    }
+    impl<'a, T> IntoIterKind for IterCopiedRev<'a, T> {
+        type Kind = IsIteratorKind;
+    }
+
+    impl<'a, T: Copy> IterCopied<'a, T> {
+        iter_copied_shared! {is_forward = true}
+    }
+
+    impl<'a, T: Copy> IterCopiedRev<'a, T> {
+        iter_copied_shared! {is_forward = false}
+    }
+}

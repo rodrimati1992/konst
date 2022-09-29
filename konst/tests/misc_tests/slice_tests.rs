@@ -14,6 +14,9 @@ use konst::{
     },
 };
 
+#[cfg(feature = "rust_1_61")]
+mod slice_iter_copied;
+
 #[cfg(feature = "rust_1_64")]
 mod non_iter_slice_iterators;
 

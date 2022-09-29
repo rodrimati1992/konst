@@ -76,6 +76,80 @@ pub use konst_macro_rules::into_iter::slice_into_iter::Iter;
 /// ```
 pub use konst_macro_rules::into_iter::slice_into_iter::IterRev;
 
+/// A const equivalent of `slice.iter().copied()`
+///
+/// # Version compatibility
+///
+/// This requires the `"rust_1_61"` feature.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{iter, slice};
+///
+/// const fn find_even(slice: &[u32]) -> Option<u32> {
+///     iter::find(slice::iter_copied(slice), |elem| elem % 2 == 0)
+/// }
+///
+/// assert_eq!(find_even(&[]), None);
+/// assert_eq!(find_even(&[1]), None);
+/// assert_eq!(find_even(&[1, 2]), Some(2));
+/// assert_eq!(find_even(&[5, 4, 3, 2, 1]), Some(4));
+///
+/// ```
+///
+#[cfg(feature = "rust_1_61")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
+pub use konst_macro_rules::into_iter::slice_into_iter::iter_copied;
+
+/// A const equivalent of `iter::Copied<slice::Iter<'a, T>>`.
+///
+/// This const iterator can be created with [`iter_copied`].
+///
+/// # Version compatibility
+///
+/// This requires the `"rust_1_61"` feature.
+///
+#[cfg(feature = "rust_1_61")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
+pub use konst_macro_rules::into_iter::slice_into_iter::IterCopied;
+
+/// A const equivalent of `iter::Rev<iter::Copied<slice::Iter<'a, T>>>`
+///
+/// This const iterator can be created with
+/// ```rust
+/// # let slice = &[3, 5, 8];
+/// # let _: konst::slice::IterCopiedRev<'_, u32> =
+/// konst::slice::iter_copied(slice).rev()
+/// # ;
+/// ```
+///
+/// # Version compatibility
+///
+/// This requires the `"rust_1_61"` feature.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::iter;
+/// use konst::slice::{self, IterCopiedRev};
+///
+/// const fn rfind_even(slice: &[u32]) -> Option<u32> {
+///     let iter: IterCopiedRev<'_, u32> = slice::iter_copied(slice).rev();
+///     iter::find(iter, |elem| elem % 2 == 0)
+/// }
+///
+/// assert_eq!(rfind_even(&[]), None);
+/// assert_eq!(rfind_even(&[1]), None);
+/// assert_eq!(rfind_even(&[1, 2]), Some(2));
+/// assert_eq!(rfind_even(&[1, 2, 3, 4, 5]), Some(4));
+///
+/// ```
+///
+#[cfg(feature = "rust_1_61")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
+pub use konst_macro_rules::into_iter::slice_into_iter::IterCopiedRev;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #[cfg(feature = "rust_1_64")]
