@@ -200,7 +200,7 @@ macro_rules! iter_nth {
 macro_rules! iter_rfold {
     ($iter:expr, $accum:expr, $($closure:tt)*) => {
         $crate::__parse_closure!{
-            ($crate::__iter_fold) ($iter, next_back, $accum,) (elem),
+            ($crate::__iter_fold) ($iter, next_back, $accum,) (accum, elem),
             $($closure)*
         }
     }
@@ -210,7 +210,7 @@ macro_rules! iter_rfold {
 macro_rules! iter_fold {
     ($iter:expr, $accum:expr, $($closure:tt)*) => {
         $crate::__parse_closure!{
-            ($crate::__iter_fold) ($iter, next, $accum,) (elem),
+            ($crate::__iter_fold) ($iter, next, $accum,) (accum, elem),
             $($closure)*
         }
     }

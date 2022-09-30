@@ -1,9 +1,25 @@
 use konst::iter;
 
+const fn is_rru8_even(n: &&u8) -> bool {
+    is_u8_even(**n)
+}
+
+const fn is_ru8_even(n: &u8) -> bool {
+    is_u8_even(*n)
+}
+
+const fn is_u8_even(n: u8) -> bool {
+    n % 2 == 0
+}
+
+const fn add_usize(l: usize, r: usize) -> usize {
+    l + r
+}
+
 #[test]
 fn iterator_all_test() {
     const fn all_fn(slice: &[u8]) -> bool {
-        iter::all!(slice, |&elem| elem % 2 == 0)
+        iter::all!(slice, is_ru8_even)
     }
 
     const fn all_fn_breaking(slice: &[u8]) -> Option<bool> {
@@ -23,7 +39,7 @@ fn iterator_all_test() {
 #[test]
 fn iterator_any_test() {
     const fn any_fn(slice: &[u8]) -> bool {
-        iter::any!(slice, |&elem| elem % 2 == 0)
+        iter::any!(slice, is_ru8_even)
     }
 
     const fn any_fn_breaking(slice: &[u8]) -> Option<bool> {
@@ -88,6 +104,19 @@ fn find_tests() {
     assert_eq!(find_even(&[5, 1, 2]), Some(&2));
     assert_eq!(find_even(&[1, 3]), Some(&255));
     assert_eq!(find_even(&[1, 3, 2]), Some(&255));
+
+    {
+        const fn calls_const_fn(slice: &[u8]) -> Option<&u8> {
+            iter::find!(slice, is_rru8_even)
+        }
+
+        assert_eq!(calls_const_fn(&[]), None);
+        assert_eq!(calls_const_fn(&[1]), None);
+        assert_eq!(calls_const_fn(&[2]), Some(&2));
+        assert_eq!(calls_const_fn(&[1, 2]), Some(&2));
+        assert_eq!(calls_const_fn(&[4]), Some(&4));
+        assert_eq!(calls_const_fn(&[1, 4, 2]), Some(&4));
+    }
 }
 
 #[test]
@@ -107,6 +136,19 @@ fn rfind_tests() {
     assert_eq!(rfind_even(&[2, 1, 5]), Some(&2));
     assert_eq!(rfind_even(&[3, 1]), Some(&255));
     assert_eq!(rfind_even(&[2, 3, 1]), Some(&255));
+
+    {
+        const fn calls_const_fn(slice: &[u8]) -> Option<&u8> {
+            iter::rfind!(slice, is_rru8_even,)
+        }
+
+        assert_eq!(calls_const_fn(&[]), None);
+        assert_eq!(calls_const_fn(&[1]), None);
+        assert_eq!(calls_const_fn(&[2]), Some(&2));
+        assert_eq!(calls_const_fn(&[2, 1]), Some(&2));
+        assert_eq!(calls_const_fn(&[4]), Some(&4));
+        assert_eq!(calls_const_fn(&[2, 4, 1]), Some(&4));
+    }
 }
 
 #[test]
@@ -126,6 +168,25 @@ fn find_map_test() {
     assert_eq!(find_even(&[5, 1, 2]), Some(20));
     assert_eq!(find_even(&[1, 3]), Some(u16::MAX));
     assert_eq!(find_even(&[1, 3, 2]), Some(u16::MAX));
+
+    {
+        const fn calls_const_fn(slice: &[u16]) -> Option<u16> {
+            const fn func(n: &u16) -> Option<u16> {
+                if *n % 2 == 0 {
+                    Some(*n * 10)
+                } else {
+                    None
+                }
+            }
+
+            iter::find_map!(slice, func)
+        }
+
+        assert_eq!(calls_const_fn(&[]), None);
+        assert_eq!(calls_const_fn(&[1]), None);
+        assert_eq!(calls_const_fn(&[2]), Some(20));
+        assert_eq!(calls_const_fn(&[1, 2]), Some(20));
+    }
 }
 
 #[test]
@@ -135,7 +196,7 @@ fn fold_test() {
     }
 
     const fn sum_range(range: std::ops::Range<usize>) -> usize {
-        iter::fold!(range, 0, |accum, elem| accum + elem)
+        iter::fold!(range, 0, add_usize)
     }
 
     const fn ret_on_0(slice: &[u8]) -> Option<u8> {
@@ -169,7 +230,11 @@ fn fold_test() {
 #[test]
 fn rfold_test() {
     const fn shifter(range: &[u8]) -> u128 {
-        iter::rfold!(range, 0, |accum, &elem| (accum << 8) | (elem as u128))
+        const fn func(accum: u128, elem: &u8) -> u128 {
+            (accum << 8) | (*elem as u128)
+        }
+
+        iter::rfold!(range, 0, func,)
     }
 
     const fn ret_on_0(slice: &[u8]) -> Option<u8> {
@@ -307,6 +372,18 @@ fn position_tests() {
     assert_eq!(position_even(&[5, 1, 10]), Some(2));
     assert_eq!(position_even(&[1, 3]), Some(usize::MAX));
     assert_eq!(position_even(&[1, 3, 2]), Some(usize::MAX));
+
+    {
+        const fn calls_const_fn(slice: &[u8]) -> Option<usize> {
+            iter::position!(slice, is_ru8_even)
+        }
+
+        assert_eq!(calls_const_fn(&[]), None);
+        assert_eq!(calls_const_fn(&[1]), None);
+        assert_eq!(calls_const_fn(&[2]), Some(0));
+        assert_eq!(calls_const_fn(&[1, 2]), Some(1));
+        assert_eq!(calls_const_fn(&[1, 3, 4]), Some(2));
+    }
 }
 
 #[test]
@@ -327,4 +404,16 @@ fn rposition_tests() {
     assert_eq!(rposition_even(&[10, 1, 5]), Some(2));
     assert_eq!(rposition_even(&[3, 1]), Some(usize::MAX));
     assert_eq!(rposition_even(&[2, 3, 1]), Some(usize::MAX));
+
+    {
+        const fn calls_const_fn(slice: &[u8]) -> Option<usize> {
+            iter::rposition!(slice, is_ru8_even,)
+        }
+
+        assert_eq!(calls_const_fn(&[]), None);
+        assert_eq!(calls_const_fn(&[1]), None);
+        assert_eq!(calls_const_fn(&[2]), Some(0));
+        assert_eq!(calls_const_fn(&[2, 1]), Some(1));
+        assert_eq!(calls_const_fn(&[4, 3, 1]), Some(2));
+    }
 }
