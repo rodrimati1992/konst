@@ -263,7 +263,9 @@
 //!
 //! ### Rust release related
 //!
-//! - `"rust_1_51"` (disabled by default):
+//! None of thse features are enabled by default.
+//!
+//! - `"rust_1_51"`:
 //! Enables items that require const generics,
 //! and impls for arrays to use const generics instead of only supporting small arrays.
 //!
