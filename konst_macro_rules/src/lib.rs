@@ -31,11 +31,27 @@ pub mod string;
 pub mod utils;
 
 #[doc(hidden)]
+#[cfg(feature = "rust_1_56")]
+mod type_eq;
+
+#[doc(hidden)]
+#[cfg(feature = "rust_1_56")]
+mod collect_const;
+
+#[doc(hidden)]
+#[cfg(feature = "rust_1_56")]
+pub mod utils_1_56;
+
+#[doc(hidden)]
 pub mod __ {
     pub use core::panic;
 
     #[cfg(feature = "rust_1_56")]
-    pub use crate::array_macros::{assert_array, uninit_array, AssumInitCopyArray};
+    pub use crate::{
+        array_macros::{assert_array, uninit_array, AssumInitCopyArray},
+        collect_const::{ArrayVec, CollectorCmd, ComputedLength},
+        type_eq::TypeEq,
+    };
 
     pub use crate::into_iter::{IntoIterWrapper, IsIntoIterKind};
 
@@ -47,7 +63,7 @@ pub mod __ {
         mem::{transmute, ManuallyDrop, MaybeUninit},
         ops::Range,
         option::Option::{self, None, Some},
-        primitive::{str, u8},
+        primitive::{str, u8, usize},
         result::Result::{self, Err, Ok},
         str::from_utf8_unchecked,
     };

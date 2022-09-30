@@ -88,15 +88,7 @@ declare_generic_const! {
 /// ```
 #[cfg(feature = "rust_1_56")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
-#[inline(always)]
-pub const fn uninit_array<T, const LEN: usize>() -> [MaybeUninit<T>; LEN] {
-    union MakeMUArray<T, const LEN: usize> {
-        unit: (),
-        array: core::mem::ManuallyDrop<[MaybeUninit<T>; LEN]>,
-    }
-
-    unsafe { core::mem::ManuallyDrop::into_inner(MakeMUArray { unit: () }.array) }
-}
+pub use konst_macro_rules::utils_1_56::uninit_array;
 
 /// Const equivalent of [`MaybeUninit::assume_init`](core::mem::MaybeUninit::assume_init)
 ///

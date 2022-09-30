@@ -595,3 +595,5 @@ pub use konst_macro_rules::into_iter::IsNonIteratorKind;
 /// in its [`IntoIterKind::Kind`] associated type.
 #[doc(inline)]
 pub use konst_macro_rules::into_iter::IsIteratorKind;
+
+include! {"./iter/collect_const.rs"}
