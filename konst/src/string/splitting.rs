@@ -11,6 +11,10 @@ use konst_macro_rules::iterator_shared;
 ///
 /// This only accepts `&str` as the delimiter.
 ///
+/// # Version compatibility
+///
+/// This requires the `"rust_1_64"` feature.
+///
 /// # Example
 ///
 /// ```rust
@@ -40,6 +44,10 @@ pub const fn split_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a 
 ///
 /// This only accepts `&str` as the delimiter.
 ///
+/// # Version compatibility
+///
+/// This requires the `"rust_1_64"` feature.
+///
 /// # Example
 ///
 /// ```rust
@@ -65,7 +73,13 @@ pub const fn rsplit_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a
     }
 }
 
-/// Makes an iterator over the substrings in `this` separated by `delim`.
+//////////////////////////////////////////////////
+
+/// Const equivalent of [`str::split`], which only takes a `&str` delimiter.
+///
+/// # Version compatibility
+///
+/// This requires the `"rust_1_64"` feature.
 ///
 /// # Example
 ///
@@ -95,8 +109,11 @@ pub const fn split<'a, 'b>(this: &'a str, delim: &'b str) -> Split<'a, 'b> {
     }
 }
 
-/// Makes an iterator over the substrings in `this` separated by `delim`,
-/// iterating from the back.
+/// Const equivalent of [`str::rsplit`], which only takes a `&str` delimiter.
+///
+/// # Version compatibility
+///
+/// This requires the `"rust_1_64"` feature.
 ///
 /// # Example
 ///
@@ -231,7 +248,7 @@ macro_rules! split_shared {
     };
 }
 
-/// Const equivalent of `core::str::Split<'_, &str>`
+/// Const equivalent of `core::str::Split<'a, &'b str>`
 ///
 /// This is constructed with [`split`] like this:
 /// ```rust
@@ -241,6 +258,11 @@ macro_rules! split_shared {
 /// konst::string::split(string, delim)
 /// # ;
 /// ```
+///
+/// # Version compatibility
+///
+/// This requires the `"rust_1_64"` feature.
+///
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub struct Split<'a, 'b> {
     this: &'a str,
@@ -279,7 +301,7 @@ impl<'a, 'b> Split<'a, 'b> {
     }
 }
 
-/// Const equivalent of `core::iter::Rev<core::str::Split<'_, &str>>`
+/// Const equivalent of `core::str::RSplit<'a, &'b str>`
 ///
 /// This is constructed with [`rsplit`] like this:
 /// ```rust
@@ -289,6 +311,11 @@ impl<'a, 'b> Split<'a, 'b> {
 /// konst::string::rsplit(string, delim)
 /// # ;
 /// ```
+///
+/// # Version compatibility
+///
+/// This requires the `"rust_1_64"` feature.
+///
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub struct RSplit<'a, 'b> {
     this: &'a str,

@@ -147,7 +147,7 @@ pub use konst_macro_rules::iter_any as any;
 /// use konst::iter;
 ///
 /// const fn find_num(slice: &[u64], n: u64) -> Option<usize> {
-///     iter::position!(slice, |&&elem| elem == n)
+///     iter::position!(slice, |&elem| elem == n)
 /// }
 ///
 /// assert_eq!(find_num(&[3, 5, 8], 0), None);
@@ -166,7 +166,7 @@ pub use konst_macro_rules::iter_position as position;
 /// use konst::iter;
 ///
 /// const fn rfind_num(slice: &[u64], n: u64) -> Option<usize> {
-///     iter::rposition!(slice, |&&elem| elem == n)
+///     iter::rposition!(slice, |&elem| elem == n)
 /// }
 ///
 /// assert_eq!(rfind_num(&[3, 5, 8], 0), None);

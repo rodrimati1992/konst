@@ -4,6 +4,8 @@ use konst::{option, string};
 
 #[track_caller]
 fn split_case(string: &str, delim: &str, expected: &[&str]) {
+    let rev_expected: &[&str] = &expected.iter().rev().copied().collect::<Vec<&str>>();
+
     // split_once
     {
         let first = expected[0];
@@ -42,13 +44,50 @@ fn split_case(string: &str, delim: &str, expected: &[&str]) {
         }
     }
 
+    // [r]split_terminator
+    {
+        // split_terminator
+        //
+        // SplitTerminator, unlike Split,
+        // doesn't yield the empty string after the delimiter at the end of the string
+        let fwd_expected = if string.ends_with(delim) {
+            let (&last, expected) = expected.split_last().unwrap();
+            assert_eq!(last, "", "last-split-terminator");
+            expected
+        } else {
+            expected
+        };
+
+        assert_eq!(
+            collect_const_iter!(string::split_terminator(string, delim)),
+            fwd_expected
+        );
+
+        // rsplit_terminator
+        //
+        // RSplitTerminator, unlike RSplit,
+        // doesn't yield the empty string before the delimiter at the start of the string
+        let bck_expected = if string.starts_with(delim) {
+            let (&last, rev_expected) = rev_expected.split_last().unwrap();
+            assert_eq!(last, "", "last-rsplit-terminator");
+            rev_expected
+        } else {
+            rev_expected
+        };
+
+        assert_eq!(
+            collect_const_iter!(string::rsplit_terminator(string, delim)),
+            bck_expected,
+        );
+    }
+
     // split
     assert_eq!(collect_const_iter!(string::split(string, delim)), expected);
 
     // rsplit
     assert_eq!(
         collect_const_iter!(string::rsplit(string, delim)),
-        expected.iter().rev().copied().collect::<Vec<&str>>(),
+        rev_expected
     );
 }
 
@@ -146,6 +185,7 @@ fn next_basic() {
         string::rsplit(string, "-").rev(),
     ] {
         let _: string::Split<'_, '_> = iter;
+        assert_eq!(iter.remainder(), "foo-bar-baz");
 
         let (elem, iter) = iter.next().unwrap();
         assert_eq!(elem, "foo");
@@ -168,6 +208,7 @@ fn next_basic() {
         string::rsplit(string, "-").copy(),
     ] {
         let _: string::RSplit<'_, '_> = iter;
+        assert_eq!(iter.remainder(), "foo-bar-baz");
 
         let (elem, iter) = iter.next().unwrap();
         assert_eq!(elem, "baz");
@@ -176,6 +217,56 @@ fn next_basic() {
         let (elem, iter) = iter.next().unwrap();
         assert_eq!(elem, "bar");
         assert_eq!(iter.remainder(), "foo");
+
+        let (elem, iter) = iter.next().unwrap();
+        assert_eq!(elem, "foo");
+        assert_eq!(iter.remainder(), "");
+
+        assert!(iter.next().is_none());
+    }
+}
+
+#[test]
+fn next_basic_terminated() {
+    let fwd_string = "foo-bar-baz-";
+    let rev_string = "-foo-bar-baz";
+
+    for iter in [
+        string::split_terminator(fwd_string, "-"),
+        string::split_terminator(fwd_string, "-").copy(),
+    ] {
+        let _: string::SplitTerminator<'_, '_> = iter;
+        assert_eq!(iter.remainder(), "foo-bar-baz-");
+
+        let (elem, iter) = iter.next().unwrap();
+        assert_eq!(elem, "foo");
+        assert_eq!(iter.remainder(), "bar-baz-");
+
+        let (elem, iter) = iter.next().unwrap();
+        assert_eq!(elem, "bar");
+        assert_eq!(iter.remainder(), "baz-");
+
+        let (elem, iter) = iter.next().unwrap();
+        assert_eq!(elem, "baz");
+        assert_eq!(iter.remainder(), "");
+
+        assert!(iter.next().is_none());
+    }
+
+    for iter in [
+        string::rsplit_terminator(rev_string, "-"),
+        string::rsplit_terminator(rev_string, "-").copy(),
+    ] {
+        let _: string::RSplitTerminator<'_, '_> = iter;
+        assert_eq!(iter.remainder(), "-foo-bar-baz");
+
+        let (elem, iter) = iter.next().unwrap();
+        assert_eq!(elem, "baz");
+        assert_eq!(iter.remainder(), "-foo-bar");
+
+        let (elem, iter) = iter.next().unwrap();
+        assert_eq!(elem, "bar");
+        assert_eq!(iter.remainder(), "-foo");
 
         let (elem, iter) = iter.next().unwrap();
         assert_eq!(elem, "foo");
@@ -247,6 +338,14 @@ fn methods_are_const() {
             let _ = iter.copy().next();
             let _ = iter.copy().next_back();
             let _: string::Split<'_, '_> = iter.copy().rev();
+        }
+        {
+            let iter: string::SplitTerminator<'_, '_> = string::split_terminator(string, delim);
+            let _ = iter.copy().next();
+        }
+        {
+            let iter: string::RSplitTerminator<'_, '_> = string::rsplit_terminator(string, delim);
+            let _ = iter.copy().next();
         }
     }
 }

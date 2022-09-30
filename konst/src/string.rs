@@ -6,6 +6,12 @@ mod splitting;
 #[cfg(feature = "rust_1_64")]
 pub use splitting::*;
 
+#[cfg(feature = "rust_1_64")]
+mod split_terminator_items;
+
+#[cfg(feature = "rust_1_64")]
+pub use split_terminator_items::*;
+
 __declare_string_cmp_fns! {
     import_path = "konst",
     equality_fn = eq_str,
