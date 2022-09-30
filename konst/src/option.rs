@@ -247,6 +247,36 @@ pub use konst_macro_rules::opt_flatten as flatten;
 #[doc(inline)]
 pub use konst_macro_rules::opt_filter as filter;
 
+/// A const equivalent of the [`Option::copied`] method.
+///
+/// # Version compatibility
+///
+/// This requires the `"rust_1_61"` feature.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::{iter, option};
+///
+/// const fn find_pow2(slice: &[u64]) -> Option<u64> {
+///     option::copied(iter::find!(slice, |elem| elem.is_power_of_two()))
+/// }
+///
+/// assert_eq!(find_pow2(&[3, 5]), None);
+/// assert_eq!(find_pow2(&[16]), Some(16));
+/// assert_eq!(find_pow2(&[3, 5, 8, 13]), Some(8));
+///
+///
+/// ```
+#[cfg(feature = "rust_1_61")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
+pub const fn copied<T: Copy>(opt: Option<&T>) -> Option<T> {
+    match opt {
+        Some(x) => Some(*x),
+        None => None,
+    }
+}
+
 declare_generic_const! {
     /// Usable to do `[None::<T>; LEN]` when `T` is non-`Copy`.
     ///
