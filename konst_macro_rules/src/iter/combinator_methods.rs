@@ -16,8 +16,8 @@ macro_rules! __process_iter_args {
         $($args:tt)*
     ) => (
         $crate::__call_iter_methods!{
-            (($($callback_macro)*) ($($fixed_arguments)*) ($label) $allowed_methods)
-            (($($callback_macro)*) ($($fixed_arguments)*) ($label) $allowed_methods)
+            (($($callback_macro)*) ($($fixed_arguments)*) ($label $label) $allowed_methods)
+            (($($callback_macro)*) ($($fixed_arguments)*) ($label $label) $allowed_methods)
             $item
             (
                 (
@@ -27,7 +27,7 @@ macro_rules! __process_iter_args {
                         iter = next_;
                         elem_
                     } else {
-                        break;
+                        break $label;
                     };
                 )
             )
@@ -56,7 +56,7 @@ macro_rules! __call_iter_methods {
 
                     ($item, elem_)
                 } else {
-                    break;
+                    $crate::__cim_break!{$fixed}
                 };
             ))
 
@@ -80,8 +80,30 @@ macro_rules! __call_iter_methods {
         }
     );
     (
+        $fixed:tt
+        $fixedb:tt
+        $item:ident
+        ($($iters:tt)*)
+        $(,)? take($amount:expr $(,)?) $($rem:tt)*
+    ) => (
+        $crate::__call_iter_methods!{
+            $fixed
+            $fixedb
+            $item
+            ( $($iters)* (
+                { let mut rem: $crate::__::usize = $amount; }
+                if rem == 0 {
+                    $crate::__cim_break!{$fixed}
+                } else {
+                    rem -= 1;
+                }
+            ))
+            $($rem)*
+        }
+    );
+    (
         $fixed:tt $fixedb:tt $item:ident ($($iters:tt)*)
-        $(,)? filter($($args:tt)*) $($rem:tt)*
+        $(,)? take_while($($pred:tt)*) $($rem:tt)*
     ) => (
         $crate::__call_iter_methods!{
             $fixed
@@ -91,7 +113,67 @@ macro_rules! __call_iter_methods {
                 {}
                 if !$crate::__parse_closure!(
                     ($crate::__cim_filter) ($item,) (elem),
-                    $($args)*
+                    $($pred)*
+                ) {
+                    $crate::__cim_break!{$fixed}
+                }
+            ))
+            $($rem)*
+        }
+    );
+    (
+        $fixed:tt $fixedb:tt $item:ident ($($iters:tt)*)
+        $(,)? skip($amount:expr $(,)?) $($rem:tt)*
+    ) => (
+        $crate::__call_iter_methods!{
+            $fixed
+            $fixedb
+            $item
+            ( $($iters)* (
+                { let mut rem: $crate::__::usize = $amount; }
+                if rem != 0 {
+                    rem -= 1;
+                    continue;
+                }
+            ))
+            $($rem)*
+        }
+    );
+    (
+        $fixed:tt $fixedb:tt $item:ident ($($iters:tt)*)
+        $(,)? skip_while($($pred:tt)*) $($rem:tt)*
+    ) => (
+        $crate::__call_iter_methods!{
+            $fixed
+            $fixedb
+            $item
+            ( $($iters)* (
+                {let mut still_skipping = true; }
+                still_skipping = still_skipping && $crate::__parse_closure!(
+                    ($crate::__cim_filter) ($item,) (elem),
+                    $($pred)*
+                );
+
+                if still_skipping {
+                    continue;
+                }
+            ))
+            $($rem)*
+        }
+    );
+    (
+        $fixed:tt $fixedb:tt $item:ident ($($iters:tt)*)
+        $(,)? filter($($pred:tt)*) $($rem:tt)*
+    ) => (
+        $crate::__call_iter_methods!{
+            $fixed
+            $fixedb
+            $item
+            ( $($iters)* (
+                {}
+                if !$crate::__parse_closure!(
+                    ($crate::__cim_filter) ($item,) (elem),
+                    $($pred)*
                 ) {
                     continue;
                 }
@@ -253,7 +335,12 @@ macro_rules! __call_iter_consumer_methods {
 #[macro_export]
 macro_rules! __cim_output_layer {
     (
-        ($macro:tt $prev_args:tt ($($label:lifetime)?) $allowed_methods:ident)
+        (
+            $macro:tt
+            $prev_args:tt
+            ($break_label:lifetime $($label:lifetime)?)
+            $allowed_methods:ident
+        )
         $item:ident
         (
             $((
@@ -302,9 +389,27 @@ macro_rules! __cim_map {
 
 #[doc(hidden)]
 #[macro_export]
+macro_rules! __cim_break {
+    ((
+        $macro:tt
+        $prev_args:tt
+        ($break_label:tt $($label:tt)?)
+        $allowed_methods:ident
+    )) => {
+        break $break_label;
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
 macro_rules! __cim_flat_map {
     (
-        ($macro:tt $prev_args:tt $_label:tt $allowed_methods:ident)
+        (
+            $macro:tt
+            $prev_args:tt
+            ($break_label:tt $($label:tt)?)
+            $allowed_methods:ident
+        )
         $item:ident
         ($($rem:tt)*)
         |$elem:pat| $v:expr
@@ -317,8 +422,8 @@ macro_rules! __cim_flat_map {
         };
 
         $crate::__call_iter_methods!{
-            ($macro $prev_args () $allowed_methods)
-            ($macro $prev_args () $allowed_methods)
+            ($macro $prev_args ($break_label) $allowed_methods)
+            ($macro $prev_args ($break_label) $allowed_methods)
             $item
             (
                 (
