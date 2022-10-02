@@ -49,15 +49,15 @@ pub mod __ {
     #[cfg(feature = "rust_1_56")]
     pub use crate::{
         array_macros::{assert_array, uninit_array, AssumInitCopyArray},
-        collect_const::{ArrayVec, CollectorCmd, ComputedLength},
+        collect_const::{CollectorCmd, ComputedLength},
         type_eq::TypeEq,
     };
 
-    pub use crate::into_iter::{IntoIterWrapper, IsIntoIterKind};
+    pub use crate::into_iter::{EmptyIter, IntoIterWrapper, IsIntoIterKind};
 
     pub use core::{
         cmp::Ordering::{self, Equal, Greater, Less},
-        compile_error,
+        compile_error, concat,
         marker::PhantomData,
         matches,
         mem::{transmute, ManuallyDrop, MaybeUninit},
@@ -66,5 +66,6 @@ pub mod __ {
         primitive::{str, u8, usize},
         result::Result::{self, Err, Ok},
         str::from_utf8_unchecked,
+        stringify,
     };
 }

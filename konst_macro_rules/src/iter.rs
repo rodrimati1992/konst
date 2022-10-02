@@ -1,3 +1,5 @@
+mod combinator_methods;
+
 #[macro_export]
 macro_rules! for_each {
     ($pattern:pat in $iter:expr => $($code:tt)*) => (

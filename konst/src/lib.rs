@@ -385,7 +385,7 @@ pub mod ptr;
 mod utils;
 
 #[cfg(feature = "rust_1_56")]
-mod utils_156 {
+mod utils_1_56 {
     pub(crate) use konst_macro_rules::__priv_transmute;
     pub(crate) use konst_macro_rules::__priv_transmute_ref;
     pub(crate) use konst_macro_rules::utils_1_56::PtrToRef;

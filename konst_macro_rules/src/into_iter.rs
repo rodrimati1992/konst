@@ -62,6 +62,21 @@ impl<T> IntoIterWrapper<T, IsIteratorKind> {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+pub struct EmptyIter;
+
+impl EmptyIter {
+    #[inline(always)]
+    pub const fn next(self) -> Option<(core::convert::Infallible, Self)> {
+        None
+    }
+}
+
+impl IntoIterKind for EmptyIter {
+    type Kind = IsIteratorKind;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 #[macro_export]
 macro_rules! into_iter_macro {
     ($iter:expr) => {

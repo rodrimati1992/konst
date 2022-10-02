@@ -30,7 +30,7 @@ pub(crate) use mut_refs::{deref_raw_mut_ptr, slice_from_raw_parts_mut, BorrowMut
 #[cfg(feature = "rust_1_64")]
 pub(crate) const unsafe fn slice_from_raw_parts<'a, T>(ptr: *const T, len: usize) -> &'a [T] {
     let ptr = core::ptr::slice_from_raw_parts(ptr, len);
-    crate::utils_156::PtrToRef { ptr }.reff
+    crate::utils_1_56::PtrToRef { ptr }.reff
 }
 
 #[allow(dead_code)]

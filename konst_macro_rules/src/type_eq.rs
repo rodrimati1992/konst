@@ -34,7 +34,7 @@ impl<L, R> TypeEq<L, R> {
     /// Whether `L` is the same type as `R`.
     const ARE_SAME_TYPE: Amb = {
         // hacky way to emulate a lifetime-unaware
-        // `TypeId::of<L>() != TypeId::of<R>()`
+        // `TypeId::of<L>() == TypeId::of<R>()`
         let approx_same_type = {
             core::mem::size_of::<L>() == core::mem::size_of::<R>()
                 && core::mem::align_of::<L>() == core::mem::align_of::<R>()

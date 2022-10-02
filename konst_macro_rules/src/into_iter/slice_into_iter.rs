@@ -9,10 +9,21 @@ macro_rules! array_impls {
             type Kind = IsStdKind;
         }
 
+        impl<T, const N: usize> IntoIterKind for &&[T; N] {
+            type Kind = IsStdKind;
+        }
+
         impl<'a, T, const N: usize> IntoIterWrapper<&'a [T; N], IsStdKind> {
             pub const fn const_into_iter(self) -> Iter<'a, T> {
                 Iter {
                     slice: ManuallyDrop::into_inner(self.iter) as &[T],
+                }
+            }
+        }
+        impl<'a, T, const N: usize> IntoIterWrapper<&&'a [T; N], IsStdKind> {
+            pub const fn const_into_iter(self) -> Iter<'a, T> {
+                Iter {
+                    slice: (*ManuallyDrop::into_inner(self.iter)) as &[T],
                 }
             }
         }
@@ -26,8 +37,16 @@ macro_rules! array_impls {
             impl<T> IntoIterKind for &[T; $len] {
                 type Kind = IsStdKind;
             }
+            impl<T> IntoIterKind for &&[T; $len] {
+                type Kind = IsStdKind;
+            }
 
             impl<'a, T> IntoIterWrapper<&'a [T; $len], IsStdKind> {
+                pub const fn const_into_iter(self) -> Iter<'a, T> {
+                    Iter { slice: ManuallyDrop::into_inner(self.iter) as &[T] }
+                }
+            }
+            impl<'a, T> IntoIterWrapper<&&'a [T; $len], IsStdKind> {
                 pub const fn const_into_iter(self) -> Iter<'a, T> {
                     Iter { slice: ManuallyDrop::into_inner(self.iter) as &[T] }
                 }
@@ -50,6 +69,18 @@ impl<'a, T> IntoIterWrapper<&'a [T], IsStdKind> {
     pub const fn const_into_iter(self) -> Iter<'a, T> {
         Iter {
             slice: ManuallyDrop::into_inner(self.iter),
+        }
+    }
+}
+
+impl<T> IntoIterKind for &&[T] {
+    type Kind = IsStdKind;
+}
+
+impl<'a, T> IntoIterWrapper<&&'a [T], IsStdKind> {
+    pub const fn const_into_iter(self) -> Iter<'a, T> {
+        Iter {
+            slice: *ManuallyDrop::into_inner(self.iter),
         }
     }
 }

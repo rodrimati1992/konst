@@ -114,7 +114,7 @@ pub use konst_macro_rules::utils_1_56::uninit_array;
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 #[inline(always)]
 pub const unsafe fn assume_init<T>(md: MaybeUninit<T>) -> T {
-    crate::utils_156::__priv_transmute! {MaybeUninit<T>, T, md}
+    crate::utils_1_56::__priv_transmute! {MaybeUninit<T>, T, md}
 }
 
 /// Const equivalent of [`MaybeUninit::assume_init_ref`](core::mem::MaybeUninit::assume_init_ref)
@@ -142,7 +142,7 @@ pub const unsafe fn assume_init<T>(md: MaybeUninit<T>) -> T {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 #[inline(always)]
 pub const unsafe fn assume_init_ref<T>(md: &MaybeUninit<T>) -> &T {
-    crate::utils_156::__priv_transmute_ref! {MaybeUninit<T>, T, md}
+    crate::utils_1_56::__priv_transmute_ref! {MaybeUninit<T>, T, md}
 }
 
 /// Const equivalent of [`MaybeUninit::assume_init_mut`](core::mem::MaybeUninit::assume_init_mut)
@@ -332,7 +332,4 @@ pub const fn as_mut_ptr<T>(md: &mut MaybeUninit<T>) -> *mut T {
 /// ```
 #[cfg(feature = "rust_1_56")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
-#[inline(always)]
-pub const unsafe fn array_assume_init<T, const N: usize>(md: [MaybeUninit<T>; N]) -> [T; N] {
-    crate::utils_156::__priv_transmute! {[MaybeUninit<T>; N], [T; N], md}
-}
+pub use konst_macro_rules::utils_1_56::array_assume_init;

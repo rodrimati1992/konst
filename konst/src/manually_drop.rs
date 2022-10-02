@@ -33,7 +33,7 @@ use core::mem::ManuallyDrop;
 #[inline(always)]
 pub const fn as_inner<T>(md: &ManuallyDrop<T>) -> &T {
     unsafe {
-        crate::utils_156::__priv_transmute_ref! {ManuallyDrop<T>, T, md}
+        crate::utils_1_56::__priv_transmute_ref! {ManuallyDrop<T>, T, md}
     }
 }
 
