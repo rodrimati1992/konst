@@ -381,9 +381,8 @@ macro_rules! __cim_filter {
 macro_rules! __cim_map {
     ($item:ident, |$elem:pat| $v:expr) => {{
         let $elem = $item;
-        // avoiding lifetime extension
-        let v = $v;
-        v
+        // allowing for lifetime extension of temporaries
+        $v
     }};
 }
 
@@ -415,11 +414,8 @@ macro_rules! __cim_flat_map {
         |$elem:pat| $v:expr
     ) => ({
         let $elem = $item;
-        let v = {
-            // avoiding lifetime extension
-            let v = $v;
-            v
-        };
+        // allowing for lifetime extension of temporaries
+        let v = $v;
 
         $crate::__call_iter_methods!{
             ($macro $prev_args ($break_label) $allowed_methods)

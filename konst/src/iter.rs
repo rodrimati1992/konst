@@ -4,6 +4,8 @@
 //! const equivalents of IntoIterator and Iterator.
 //!
 
+pub mod iterator_dsl;
+
 /// Iterates over all elements of an [iterator](crate::iter#iterator),
 /// const equivalent of [`Iterator::for_each`]
 ///
