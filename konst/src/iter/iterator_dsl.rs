@@ -11,6 +11,9 @@ unless specified otherwise.
 
 ### `zip`
 
+This has the limitation that it can't be passed iterator adaptors
+(e.g: `zip(iterator,copied())`).
+
 ```rust
 use konst::iter;
 

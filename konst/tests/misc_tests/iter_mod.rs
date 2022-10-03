@@ -1,5 +1,8 @@
 use konst::iter;
 
+#[cfg(feature = "rust_1_56")]
+mod collect_const_tests;
+
 const fn is_rru8_even(n: &&u8) -> bool {
     is_u8_even(**n)
 }

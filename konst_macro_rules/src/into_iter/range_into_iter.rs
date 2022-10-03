@@ -11,6 +11,9 @@ macro_rules! impl_std_kinds {
             impl<T> IntoIterKind for $ty<T> {
                 type Kind = IsStdKind;
             }
+            impl<T> IntoIterKind for &$ty<T> {
+                type Kind = IsStdKind;
+            }
         )*
     )
 }
@@ -186,38 +189,46 @@ macro_rules! range_from_impls {
 
 //////////////////////////////////////////////////
 
+macro_rules! ii_wrapper_range_impls {
+    ($Int:ty, $($reff:tt)?) => {
+        impl IntoIterWrapper<$($reff)? Range<$Int>, IsStdKind> {
+            pub const fn const_into_iter(self) -> RangeIter<$Int> {
+                let range = ManuallyDrop::into_inner(self.iter);
+                RangeIter {
+                    start: range.start,
+                    end: range.end,
+                }
+            }
+        }
+
+        impl IntoIterWrapper<$($reff)? RangeInclusive<$Int>, IsStdKind> {
+            pub const fn const_into_iter(self) -> RangeInclusiveIter<$Int> {
+                let range = ManuallyDrop::into_inner(self.iter);
+                RangeInclusiveIter {
+                    start: *range.start(),
+                    end: *range.end(),
+                }
+            }
+        }
+
+        impl IntoIterWrapper<$($reff)? RangeFrom<$Int>, IsStdKind> {
+            pub const fn const_into_iter(self) -> RangeFromIter<$Int> {
+                let range = ManuallyDrop::into_inner(self.iter);
+                RangeFromIter {
+                    start: range.start,
+                }
+            }
+        }
+
+    }
+}
+
 macro_rules! all_range_impls {
     ($($Int:ty),*) => (
 
         $(
-            impl IntoIterWrapper<Range<$Int>, IsStdKind> {
-                pub const fn const_into_iter(self) -> RangeIter<$Int> {
-                    let range = ManuallyDrop::into_inner(self.iter);
-                    RangeIter {
-                        start: range.start,
-                        end: range.end,
-                    }
-                }
-            }
-
-            impl IntoIterWrapper<RangeInclusive<$Int>, IsStdKind> {
-                pub const fn const_into_iter(self) -> RangeInclusiveIter<$Int> {
-                    let range = ManuallyDrop::into_inner(self.iter);
-                    RangeInclusiveIter {
-                        start: *range.start(),
-                        end: *range.end(),
-                    }
-                }
-            }
-
-            impl IntoIterWrapper<RangeFrom<$Int>, IsStdKind> {
-                pub const fn const_into_iter(self) -> RangeFromIter<$Int> {
-                    let range = ManuallyDrop::into_inner(self.iter);
-                    RangeFromIter {
-                        start: range.start,
-                    }
-                }
-            }
+            ii_wrapper_range_impls!{$Int, }
+            ii_wrapper_range_impls!{$Int, &}
         )*
 
         range_exc_impls!{$($Int),*}
