@@ -4,6 +4,7 @@ Collects an iterator constant into an array
 # Iterator methods
 
 This macro supports emulating iterator methods by expanding to equivalent code.
+
 The supported iterator methods are documented in the [`iterator_dsl`] module,
 because they are also supported by other `konst::iter` macros.
 
@@ -66,6 +67,8 @@ assert_eq!(ARR, [9, 11, 19, 21, 29, 31]);
 
 
 
-[`iterator_dsl`]: crate::iterator::iterator_dsl
+[`iterator_dsl`]: crate::iter::iterator_dsl
 */
+#[cfg(feature = "rust_1_56")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 pub use konst_macro_rules::iter_collect_const as collect_const;

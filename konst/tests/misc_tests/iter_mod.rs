@@ -288,7 +288,7 @@ fn for_each_test() {
 fn for_each_zip_test() {
     const fn enum_sum_positives(slice: &[u64]) -> Result<u64, usize> {
         let mut sum = 0u64;
-        iter::for_each_zip! {(i, &elem) in 0usize.., slice =>
+        iter::for_each! {(i, &elem) in 0usize..,zip(slice) =>
             if elem == 0 {
                 return Err(i);
             } else {
@@ -298,9 +298,9 @@ fn for_each_zip_test() {
         Ok(sum)
     }
 
-    fn trunc_iters(slice: &[char]) -> Vec<(usize, usize, &char)> {
+    fn trunc_iters(slice: &[char]) -> Vec<((usize, usize), &char)> {
         let mut vect = Vec::new();
-        iter::for_each_zip! {tup in 0..=3, 10..=16, slice =>
+        iter::for_each! {tup in 0..=3,zip(10..=16),zip(slice) =>
             vect.push(tup);
         }
         vect
@@ -317,11 +317,11 @@ fn for_each_zip_test() {
     assert_eq!(enum_sum_positives(&[1, 2, 3, 4]), Ok(10));
 
     assert_eq!(trunc_iters(&[]), []);
-    assert_eq!(trunc_iters(&['a']), [(0, 10, &'a')]);
-    assert_eq!(trunc_iters(&['a', 'b']), [(0, 10, &'a'), (1, 11, &'b')]);
+    assert_eq!(trunc_iters(&['a']), [((0, 10), &'a')]);
+    assert_eq!(trunc_iters(&['a', 'b']), [((0, 10), &'a'), ((1, 11), &'b')]);
     assert_eq!(
         trunc_iters(&['a', 'b', 'c']),
-        [(0, 10, &'a'), (1, 11, &'b'), (2, 12, &'c')],
+        [((0, 10), &'a'), ((1, 11), &'b'), ((2, 12), &'c')],
     );
 
     for slice in vec![
@@ -331,7 +331,12 @@ fn for_each_zip_test() {
     ] {
         assert_eq!(
             trunc_iters(slice),
-            [(0, 10, &'a'), (1, 11, &'b'), (2, 12, &'c'), (3, 13, &'d')],
+            [
+                ((0, 10), &'a'),
+                ((1, 11), &'b'),
+                ((2, 12), &'c'),
+                ((3, 13), &'d')
+            ],
         );
     }
 }

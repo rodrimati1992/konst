@@ -85,15 +85,9 @@ pub const fn rsplit_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a
 ///
 /// ```rust
 /// use konst::string;
-/// use konst::iter::for_each_zip;
+/// use konst::iter::collect_const;
 ///
-/// const STRS: &[&str] = &{
-///     let mut arr = [""; 3];
-///     for_each_zip!{(i, sub) in 0.., string::split("foo-bar-baz", "-") =>
-///         arr[i] = sub;
-///     }
-///     arr
-/// };
+/// const STRS: [&str; 3] = collect_const!(&str => string::split("foo-bar-baz", "-"));
 ///
 /// assert_eq!(STRS, ["foo", "bar", "baz"]);
 /// ```
@@ -119,15 +113,9 @@ pub const fn split<'a, 'b>(this: &'a str, delim: &'b str) -> Split<'a, 'b> {
 ///
 /// ```rust
 /// use konst::string;
-/// use konst::iter::for_each_zip;
+/// use konst::iter::collect_const;
 ///
-/// const STRS: &[&str] = &{
-///     let mut arr = [""; 3];
-///     for_each_zip!{(i, sub) in 0.., string::rsplit("foo-bar-baz", "-") =>
-///         arr[i] = sub;
-///     }
-///     arr
-/// };
+/// const STRS: [&str; 3] = collect_const!(&str => string::rsplit("foo-bar-baz", "-"));
 ///
 /// assert_eq!(STRS, ["baz", "bar", "foo"]);
 /// ```

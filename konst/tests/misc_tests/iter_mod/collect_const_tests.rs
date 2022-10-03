@@ -7,6 +7,7 @@ fn collect_const_zip() {
 
         assert_eq!(ARR, [(&3, 100), (&5, 101), (&8, 102), (&13, 103)]);
     }
+    #[cfg(feature = "rust_1_61")]
     {
         const ARR: [((&u8, &str), usize); 2] = collect_const!(((&u8, &str), usize) =>
             &[3u8, 5, 8, 13],
@@ -16,6 +17,7 @@ fn collect_const_zip() {
 
         assert_eq!(ARR, [((&3, "hello"), 100), ((&5, "world"), 101)]);
     }
+    #[cfg(feature = "rust_1_61")]
     {
         const ARR: [usize; 2] = collect_const!(usize =>
             slice::iter_copied(&[3usize, 5, 8, 13]),
@@ -35,6 +37,7 @@ fn collect_const_enumerate() {
 
         assert_eq!(ARR, [(0, &3), (1, &5), (2, &8), (3, &13)]);
     }
+    #[cfg(feature = "rust_1_61")]
     {
         const ARR: [((usize, &u8), u32); 3] = collect_const!(((usize, &u8), u32) =>
             &[3u8, 5, 8, 13],
@@ -44,6 +47,7 @@ fn collect_const_enumerate() {
 
         assert_eq!(ARR, [((0, &3), 10), ((1, &5), 11), ((2, &8), 12)]);
     }
+    #[cfg(feature = "rust_1_61")]
     {
         const ARR: [(usize, (&u8, u32)); 3] = collect_const!((usize, (&u8, u32)) =>
             &[3u8, 5, 8, 13],
@@ -99,6 +103,7 @@ fn collect_const_filter_map() {
 
         assert_eq!(ARR, [3, 1, 5, 6].map(|n| NonZeroU8::new(n).unwrap()));
     }
+    #[cfg(feature = "rust_1_61")]
     {
         const ARR: [u8; 5] = collect_const!(u8 =>
             slice::iter_copied(&[3u8, 0, 1, 5, 6]),

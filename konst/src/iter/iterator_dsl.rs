@@ -4,6 +4,8 @@ Documentation on the iterator DSL that some `konst::iter` macros support.
 The macros from this crate don't directly invoke any of the method listed below,
 they expand to equivalent code, this allows the macros to work on stable.
 
+The `konst::iter::collect_const` macro is used in examples here purely for simplicity.
+
 # Methods
 
 Every iterator method below behaves the same as in Iterator,

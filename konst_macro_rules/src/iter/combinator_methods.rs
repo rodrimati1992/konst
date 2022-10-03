@@ -2,13 +2,28 @@
 #[macro_export]
 macro_rules! __process_iter_args {
     (
+        $callback_macro:tt
+        $fixed_arguments:tt
+        $other_args:tt
+        $iter:expr =>
+        $($args:tt)*
+    ) => (
+        $crate::__process_iter_args!{
+            $callback_macro
+            $fixed_arguments
+            $other_args
+            $iter, =>
+            $($args)*
+        }
+    );
+    (
         ($($callback_macro:tt)*)
         ($($fixed_arguments:tt)*)
         (
             $item:ident,
             $label:lifetime,
-            // adapters: analogous to iterator adapters, which return iterators
-            // consumers: methods which consume the iterator without (necessarily)
+            // adapter: analogous to iterator adapter, which return iterators
+            // consumer: methods which consume the iterator without (necessarily)
             //            returning an iterator.
             $allowed_methods:ident,
         )
@@ -65,8 +80,10 @@ macro_rules! __call_iter_methods {
     );
     (
         $fixed:tt $fixedb:tt $item:ident ($($iters:tt)*)
-        $(,)? enumerate() $($rem:tt)*
-    ) => (
+        $(,)? enumerate($($args:tt)*) $($rem:tt)*
+    ) => ({
+        $crate::__cim_error_on_args!{enumerate($($args)*)}
+
         $crate::__call_iter_methods!{
             $fixed
             $fixedb
@@ -78,7 +95,7 @@ macro_rules! __call_iter_methods {
             ))
             $($rem)*
         }
-    );
+    });
     (
         $fixed:tt
         $fixedb:tt
@@ -223,8 +240,10 @@ macro_rules! __call_iter_methods {
     );
     (
         $fixed:tt $fixedb:tt $item:ident ($($iters:tt)*)
-        $(,)? copied() $($rem:tt)*
-    ) => (
+        $(,)? copied($($args:tt)*) $($rem:tt)*
+    ) => ({
+        $crate::__cim_error_on_args!{copied($($args)*)}
+
         $crate::__call_iter_methods!{
             $fixed
             $fixedb
@@ -235,7 +254,7 @@ macro_rules! __call_iter_methods {
             ))
             $($rem)*
         }
-    );
+    });
     (
         $fixed:tt $fixedb:tt $item:ident $iters:tt
         $(,)? flat_map($($args:tt)*) $($rem:tt)*
@@ -255,8 +274,9 @@ macro_rules! __call_iter_methods {
     };
     (
         $fixed:tt $fixedb:tt $item:ident $iters:tt
-        $(,)? flatten() $($rem:tt)*
-    ) => {
+        $(,)? flatten($($args:tt)*) $($rem:tt)*
+    ) => ({
+        $crate::__cim_error_on_args!{enumerate($($args)*)}
         $crate::__cim_output_layer!{
             $fixed
             $item
@@ -271,10 +291,10 @@ macro_rules! __call_iter_methods {
             }
             {}
         }
-    };
+    });
     (
         $fixed:tt
-        ($macro:tt $prev_args:tt $label:tt adapters)
+        ($macro:tt $prev_args:tt $label:tt adapter)
         $item:tt $iters:tt
         $(,)? $comb:ident $($rem:tt)*
     ) => {
@@ -286,11 +306,12 @@ macro_rules! __call_iter_methods {
     };
     (
         $fixed:tt
-        ($macro:tt $prev_args:tt $label:tt consumers)
-        $($rem:tt)*
+        ($macro:tt $prev_args:tt $label:tt consumer)
+        $item:tt $iters:tt
+        $(,)? $comb:ident $($rem:tt)*
     ) => {
-        $crate::__::__call_iter_consumer_methods!{
-            $fixed $fixed $($rem:tt)*
+        $crate::__call_iter_consumer_methods!{
+            $fixed $fixed $item $iters ,$comb $($rem)*
         }
     };
     (
@@ -374,6 +395,9 @@ macro_rules! __cim_filter {
         let v = $v;
         v
     }};
+    ($item:ident, |$elem:pat $(,$extra_pat:pat)*| $v:expr) => {{
+        $crate::__cim_extra_args_error!{filter, "one parameter", $($extra_pat),*}
+    }};
 }
 
 #[doc(hidden)]
@@ -383,6 +407,9 @@ macro_rules! __cim_map {
         let $elem = $item;
         // allowing for lifetime extension of temporaries
         $v
+    }};
+    ($item:ident, |$elem:pat $(,$extra_pat:pat)*| $v:expr) => {{
+        $crate::__cim_extra_args_error!{map, "one parameter", $($extra_pat),*}
     }};
 }
 
@@ -436,4 +463,37 @@ macro_rules! __cim_flat_map {
             $($rem)*
         }
     });
+    ($fixed:tt $item:ident $rem:tt, |$elem:pat $(,$extra_pat:pat)*| $v:expr) => {{
+        $crate::__cim_extra_args_error!{flat_map, "one parameter", $($extra_pat),*}
+    }};
+
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __cim_error_on_args {
+    ($func:ident()) => ();
+    ($func:ident ($($args:tt)*)) => {
+        $crate::__::compile_error!{$crate::__::concat!{
+            "`",
+            $crate::__::stringify!($func),
+            "` does not take arguments, passed: ",
+            $crate::__::stringify!($($args)*),
+        }}
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __cim_extra_args_error {
+    ($func:ident, $param_count:literal, $($extra_pat:pat),*) => {{
+        $crate::__::compile_error!{$crate::__::concat!{
+            "`",
+            $crate::__::stringify!($func),
+            "` only has ",
+            $param_count,
+            ", extra parameters: ",
+            $crate::__::stringify!($($extra_pat),*),
+        }}
+    }};
 }

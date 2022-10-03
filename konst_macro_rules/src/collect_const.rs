@@ -32,7 +32,7 @@ macro_rules! iter_collect_const {
                 (
                     item,
                     'zxe7hgbnjs,
-                    adapters,
+                    adapter,
                 )
                 $($rem)*,
             }
@@ -72,7 +72,7 @@ macro_rules! __iter_collect_const {
         @each
         $Item:ty,
         ($cmd:ident $array:ident $length:ident),
-        ($item:ident adapters),
+        ($item:ident adapter),
         $(,)*
     ) => {
         if let $crate::__::CollectorCmd::BuildArray(teq) = $cmd {

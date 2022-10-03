@@ -18,11 +18,11 @@ use konst_macro_rules::iterator_shared;
 ///
 /// ```rust
 /// use konst::string;
-/// use konst::iter::for_each_zip;
+/// use konst::iter::for_each;
 ///
 /// const STRS: &[&str] = &{
 ///     let mut arr = [""; 3];
-///     for_each_zip!{(i, sub) in 0.., string::split_terminator("foo,bar,baz,", ",") =>
+///     for_each!{(i, sub) in string::split_terminator("foo,bar,baz,", ","),enumerate() =>
 ///         arr[i] = sub;
 ///     }
 ///     arr
@@ -55,11 +55,11 @@ pub const fn split_terminator<'a, 'b>(this: &'a str, delim: &'b str) -> SplitTer
 ///
 /// ```rust
 /// use konst::string;
-/// use konst::iter::for_each_zip;
+/// use konst::iter::for_each;
 ///
 /// const STRS: &[&str] = &{
 ///     let mut arr = [""; 3];
-///     for_each_zip!{(i, sub) in 0.., string::rsplit_terminator(":foo:bar:baz", ":") =>
+///     for_each!{(i, sub) in string::rsplit_terminator(":foo:bar:baz", ":"),enumerate() =>
 ///         arr[i] = sub;
 ///     }
 ///     arr

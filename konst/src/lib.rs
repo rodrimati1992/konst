@@ -338,6 +338,7 @@ extern crate alloc;
 #[macro_use]
 mod macros;
 
+///
 #[cfg(feature = "__test")]
 pub mod doctests;
 

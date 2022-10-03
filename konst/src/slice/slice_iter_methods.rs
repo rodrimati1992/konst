@@ -14,14 +14,14 @@ use konst_macro_rules::iterator_shared;
 /// ### Normal
 ///
 /// ```rust
-/// use konst::iter::for_each_zip;
+/// use konst::iter::for_each;
 /// use konst::slice;
 ///
 /// const ARR: &[usize] = &{
 ///     let mut arr = [0usize; 3];
 ///     // the `slice::iter` call here is unnecessary,
 ///     // you can pass a slice reference to `for_each*`
-///     for_each_zip!{(i, elem) in 0.., slice::iter(&["foo", "hello", "That box"]) =>
+///     for_each!{(i, elem) in slice::iter(&["foo", "hello", "That box"]), enumerate() =>
 ///         arr[i] = elem.len();
 ///     }
 ///     arr
@@ -34,12 +34,12 @@ use konst_macro_rules::iterator_shared;
 /// ### Reversed
 ///
 /// ```rust
-/// use konst::iter::for_each_zip;
+/// use konst::iter::for_each;
 /// use konst::slice;
 ///
 /// const ARR: &[usize] = &{
 ///     let mut arr = [0usize; 3];
-///     for_each_zip!{(i, elem) in 0.., slice::iter(&["foo", "hello", "That box"]).rev() =>
+///     for_each!{(i, elem) in slice::iter(&["foo", "hello", "That box"]).rev(),enumerate() =>
 ///         arr[i] = elem.len();
 ///     }
 ///     arr
@@ -276,12 +276,13 @@ mod requires_rust_1_64 {
     /// # Example
     ///
     /// ```rust
-    /// use konst::iter::for_each_zip;
+    /// use konst::iter::for_each;
     /// use konst::slice;
     ///
     /// const CHUNKS: &[&[u8]] = &{
     ///     let mut out = [&[] as &[u8]; 3] ;
-    ///     for_each_zip!{(i, chunk) in 0.., slice::chunks(&[3, 5, 8, 13, 21, 34, 55, 89], 3) =>
+    ///     let fibb = &[3, 5, 8, 13, 21, 34, 55, 89];
+    ///     for_each!{(i, chunk) in slice::chunks(fibb, 3),enumerate() =>
     ///         out[i] = chunk;
     ///     }
     ///     out

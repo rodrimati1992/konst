@@ -4,12 +4,22 @@
 //! const equivalents of IntoIterator and Iterator.
 //!
 
+#[cfg(any(not(doctest), feature = "rust_1_56"))]
 pub mod iterator_dsl;
 
 /// Iterates over all elements of an [iterator](crate::iter#iterator),
 /// const equivalent of [`Iterator::for_each`]
 ///
-/// # Example
+/// # Iterator methods
+///
+/// This macro supports emulating iterator methods by expanding to equivalent code.
+///
+/// The supported iterator methods are documented in the [`iterator_dsl`] module,
+/// because they are also supported by other `konst::iter` macros.
+///
+/// # Examples
+///
+/// ### Custom iterator
 ///
 /// ```rust
 /// use konst::iter::{IntoIterKind, IsIteratorKind};
@@ -41,61 +51,20 @@ pub mod iterator_dsl;
 /// assert_eq!(N, 789);
 ///
 /// ```
-pub use konst_macro_rules::for_each;
-
-/// Const equivalent of [`Iterator::zip`] combined with [`Iterator::for_each`]
 ///
-/// # Example
+/// ### Summing pairs
 ///
-/// ### Enumerate
-///
-/// ```rust
-/// use konst::{
-///     iter::{IntoIterKind, IsIteratorKind, for_each_zip},
-///     option,
-/// };
-///
-/// struct Mersennes(Option<u64>);
-///
-/// impl IntoIterKind for Mersennes { type Kind = IsIteratorKind; }
-///
-/// impl Mersennes {
-///     const fn next(mut self) -> Option<(u64, Self)> {
-///         option::map!(self.0, |number| {
-///             let newer = (number << 1) | 1;
-///             self.0 = if newer == number { None } else { Some(newer) };
-///             (number, self)
-///         })
-///     }
-/// }
-///
-/// const LEN: usize = 5;
-/// const MERSES: [u64; LEN] = {
-///     let mut arr = [0u64; LEN];
-///     for_each_zip!{(i, num) in 0.., Mersennes(Some(1)) =>
-///         if i >= LEN { break }
-///         arr[i] = num;
-///     }
-///     arr
-/// };
-///
-/// assert_eq!(MERSES, [1, 3, 7, 15, 31])
-///
-///
-/// ```
-///
-/// ### Zip two slices
-///
-/// This example requires the `"rust_1_51"` feature
+/// This example requires the `"rust_1_51"` feature, because it uses const generics.
 ///
 #[cfg_attr(feature = "rust_1_51", doc = "```rust")]
 #[cfg_attr(not(feature = "rust_1_51"), doc = "```ignore")]
-/// use konst::iter::for_each_zip;
+/// use konst::iter::for_each;
 ///     
 /// const fn add_pairs<const N: usize>(l: [u32; N], r: [u32; N]) -> [u32; N] {
 ///     let mut out = [0u32; N];
-///     for_each_zip!{(i, &l, &r) in 0.., &l, &r =>
-///         out[i] = l + r;
+///
+///     for_each!{(i, val) in &l,zip(&r),map(|(l, r)| *l + *r),enumerate() =>
+///         out[i] = val;
 ///     }
 ///
 ///     out
@@ -105,9 +74,10 @@ pub use konst_macro_rules::for_each;
 /// assert_eq!(add_pairs([3], [5]), [8]);
 /// assert_eq!(add_pairs([3, 5], [8, 13]), [11, 18]);
 ///
-///
 /// ```
-pub use konst_macro_rules::for_each_zip;
+///
+/// [`iterator_dsl`]: crate::iter::iterator_dsl
+pub use konst_macro_rules::for_each;
 
 /// Const equivalent of [`Iterator::all`]
 ///
@@ -497,10 +467,10 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 ///     let mut arr = [0; 12];
 ///     let hours = Hours::new();
 ///
-///     iter::for_each_zip!{(i, hour) in 0..6, hours.copy() =>
+///     iter::for_each!{(i, hour) in 0..6,zip(hours.copy()) =>
 ///         arr[i] = hour;
 ///     }
-///     iter::for_each_zip!{(i, hour) in 6..12, hours.rev() =>
+///     iter::for_each!{(i, hour) in 6..12,zip(hours.rev()) =>
 ///         arr[i] = hour;
 ///     }
 ///

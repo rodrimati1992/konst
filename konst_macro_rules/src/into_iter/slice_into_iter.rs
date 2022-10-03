@@ -48,7 +48,7 @@ macro_rules! array_impls {
             }
             impl<'a, T> IntoIterWrapper<&&'a [T; $len], IsStdKind> {
                 pub const fn const_into_iter(self) -> Iter<'a, T> {
-                    Iter { slice: ManuallyDrop::into_inner(self.iter) as &[T] }
+                    Iter { slice: (*ManuallyDrop::into_inner(self.iter)) as &[T] }
                 }
             }
         )*

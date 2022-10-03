@@ -2,15 +2,33 @@ mod combinator_methods;
 
 #[macro_export]
 macro_rules! for_each {
-    ($pattern:pat in $iter:expr => $($code:tt)*) => (
-        match $crate::into_iter_macro!($iter) {mut iter=>{
-            while let $crate::__::Some((elem, next)) = iter.next() {
-                iter = next;
-                let $pattern = elem;
-                $($code)*
-            }
-        }}
-    );
+    ($pattern:pat in $($rem:tt)*) => ({
+        $crate::__process_iter_args!{
+            ($crate::__for_each)
+            (($pattern),)
+            (
+                item,
+                'zxe7hgbnjs,
+                consumer,
+            )
+            $($rem)*
+        }
+    });
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __for_each {
+    (
+        @each
+        ($pattern:pat),
+        ($item:ident consumer),
+        $(,)? => $($code:tt)*
+    ) => {
+        let $pattern = $item;
+        $($code)*
+    };
+    (@end $($tt:tt)*)=>{};
 }
 
 #[macro_export]
@@ -222,7 +240,7 @@ macro_rules! iter_fold {
 #[macro_export]
 macro_rules! __iter_fold {
     ($iter:expr, $next_fn:ident, $accum:expr, |$($accum_pat:pat)? $(,)*| $v:expr) => {
-        compile_error!("expected a two-argument closure")
+        $crate::__::compile_error!("expected a two-argument closure")
     };
     ($iter:expr, $next_fn:ident, $accum:expr, |$accum_pat:pat, $elem:pat| $v:expr) => {
         match ($crate::into_iter_macro!($iter), $accum) {
@@ -269,45 +287,5 @@ macro_rules! __iter_find_map {
                 }
             },
         }
-    };
-}
-
-#[macro_export]
-macro_rules! for_each_zip {
-    ($pattern:pat in $($iter:expr),* $(,)? => $($code:tt)*) => (
-        $crate::__for_each_zip!{
-            ($pattern => $($code)*)
-            ($($iter),*)
-            ()
-        }
-    );
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __for_each_zip {
-    (
-        $fixed:tt
-        ($iter:expr $(, $($rest:tt)*)?)
-        ($($prev:tt)*)
-    ) => {
-        $crate::__for_each_zip!{
-            $fixed
-            ($($($rest)*)?)
-            ($($prev)* ($iter, iter, next, elem))
-        }
-    };
-    (
-        ($pattern:pat => $($code:tt)*)
-        ()
-        ($(($iter:expr, $iter_var:ident, $next:ident, $elem:ident))*)
-    ) => {
-        match ($($crate::into_iter_macro!($iter),)*) {($(mut $iter_var,)*) => {
-            while let ($($crate::__::Some(($elem, $next)),)*) = ($($iter_var.next(),)*) {
-                $($iter_var = $next;)*
-                let $pattern = ($($elem,)*);
-                $($code)*
-            }
-        }}
     };
 }
