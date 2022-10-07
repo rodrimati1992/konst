@@ -11,10 +11,25 @@ The `konst::iter::collect_const` macro is used in examples here purely for simpl
 Every iterator method below behaves the same as in Iterator,
 unless specified otherwise.
 
+The methods listed alphabetically:
+- [`copied`](#copied)
+- [`enumerate`](#enumerate)
+- [`filter_map`](#filter_map)
+- [`filter`](#filter)
+- [`flat_map`](#flat_map)
+- [`flatten`](#flatten)
+- [`map`](#map)
+- [`rev`](#rev)
+- [`skip_while`](#skip_while)
+- [`skip`](#skip)
+- [`take_while`](#take_while)
+- [`take`](#take)
+- [`zip`](#zip)
+
+
 ### `zip`
 
-This has the limitation that it can't be passed iterator adaptors
-(e.g: `zip(iterator,copied())`).
+Limitation: the iterator DSL can't passed as an argument to this method.
 
 ```rust
 use konst::iter;
@@ -76,6 +91,8 @@ assert_eq!(ARR, [3, 1, 5, 6].map(|n| NonZeroU8::new(n).unwrap()));
 
 ### `flat_map`
 
+Limitation: the iterator DSL can't passed as an argument to this method.
+
 ```rust
 use konst::iter;
 
@@ -113,6 +130,19 @@ const ARR: [u8; 3] = iter::collect_const!(u8 =>
 );
 
 assert_eq!(ARR, [2, 4, 6]);
+```
+
+### `rev`
+
+Limitation: iterator-reversing methods can't be called more than once in
+the same macro invocation.
+
+```rust
+use konst::iter;
+
+const ARR: [&u8; 3] = iter::collect_const!(&u8 => &[2, 3, 5],rev());
+
+assert_eq!(ARR, [&5, &3, &2]);
 ```
 
 ### `take`

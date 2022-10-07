@@ -1,16 +1,51 @@
 /**
+Emulates iterator method chains, by expanding to equivalent code.
 
-Emulates most iterator methods.
-
+For examples that use multiple methods [look here](#full-examples)
 
 # Methods
 
-`konst::iter::eval` supports emulating iterator methods by expanding to equivalent code.
+### Consuming methods
 
-### Other Methods
+Consuming methods are those that consume the iterator, returning a non-iterator.
 
-This macro supports the methods described below and 
-the ones described in the [`iterator_dsl`] module.
+The consuming methods listed alphabetically:
+- [`all`](#all)
+- [`any`](#any)
+- [`count`](#count)
+- [`find_map`](#find_map)
+- [`find`](#find)
+- [`fold`](#fold)
+- [`for_each`](#for_each)
+- [`next`](#next)
+- [`nth`](#nth)
+- [`position`](#position)
+- [`rfind`](#rfind)
+- [`rfold`](#rfold)
+- [`rposition`](#rposition)
+
+### Adaptor Methods
+
+Adaptor methods are those that transform the iterator into a different iterator.
+They are shared with other `konst::iter` macros and are documented
+in the  [`iterator_dsl`] module.
+
+The iterator adaptor methods, listed alphabetically
+(these links go to the [`iterator_dsl`] module):
+- [`copied`](./iterator_dsl/index.html#copied)
+- [`enumerate`](./iterator_dsl/index.html#enumerate)
+- [`filter_map`](./iterator_dsl/index.html#filter_map)
+- [`filter`](./iterator_dsl/index.html#filter)
+- [`flat_map`](./iterator_dsl/index.html#flat_map)
+- [`flatten`](./iterator_dsl/index.html#flatten)
+- [`map`](./iterator_dsl/index.html#map)
+- [`rev`](./iterator_dsl/index.html#rev)
+- [`skip_while`](./iterator_dsl/index.html#skip_while)
+- [`skip`](./iterator_dsl/index.html#skip)
+- [`take_while`](./iterator_dsl/index.html#take_while)
+- [`take`](./iterator_dsl/index.html#take)
+- [`zip`](./iterator_dsl/index.html#zip)
+
 
 ### `all`
 
@@ -149,6 +184,9 @@ assert_eq!(find_num(&[3, 5, 8], 8), Some(2));
 
 Const equivalent of [`Iterator::rposition`]
 
+Limitation: iterator-reversing methods can't be called more than once in 
+the same macro invocation.
+
 ```rust
 use konst::iter;
 
@@ -209,6 +247,9 @@ assert_eq!(find_parsable(&["10", "20"]), Some(10));
 
 Const equivalent of [`DoubleEndedIterator::rfind`]
 
+Limitation: iterator-reversing methods can't be called more than once in 
+the same macro invocation.
+
 ```rust
 use konst::iter;
 
@@ -245,6 +286,9 @@ assert_eq!(sum_u64(&[3, 5, 8]), 16);
 
 Const equivalent of [`DoubleEndedIterator::rfold`]
 
+Limitation: iterator-reversing methods can't be called more than once in 
+the same macro invocation.
+
 ```rust
 use konst::iter;     
 
@@ -258,6 +302,41 @@ assert_eq!(concat_u16s(&[3, 5, 8]), 0x0008_0005_0003);
 
 ```
 
+<span id = "full-examples"></span>
+# Examples
+
+### Second number in CSV
+
+This example demonstrates a function that gets the second number in a CSV string,
+using iterators.
+
+This example requires both the `"parsing_no_proc"` and `"rust_1_64"` features.
+
+*/
+#[cfg_attr(not(all(feature = "parsing_no_proc", feature = "rust_1_64")), doc = "```ignore")]
+#[cfg_attr(all(feature = "parsing_no_proc", feature = "rust_1_64"), doc = "```rust")]
+/**
+use konst::{
+    iter,
+    primitive::parse_u64,
+    result,
+    string,
+};
+
+const fn second_number(s: &str) -> Option<u64> {
+    iter::eval!(
+        string::split(s, ","),
+            filter_map(|s| result::ok!(parse_u64(s))),
+            nth(1),
+    )
+}
+
+assert_eq!(second_number("foo,bar,baz"), None);
+assert_eq!(second_number("foo,3,bar"), None);
+assert_eq!(second_number("foo,3,bar,5"), Some(5));
+assert_eq!(second_number("foo,8,bar,13,baz,21"), Some(13));
+
+```
 
 
 [`iterator_dsl`]: ./iterator_dsl/index.html
