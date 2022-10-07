@@ -1,4 +1,5 @@
 mod combinator_methods;
+mod iter_eval_macro;
 
 #[macro_export]
 macro_rules! for_each {
@@ -9,7 +10,7 @@ macro_rules! for_each {
             (
                 item,
                 'zxe7hgbnjs,
-                consumer,
+                adapter,
             )
             $($rem)*
         }
@@ -22,82 +23,20 @@ macro_rules! __for_each {
     (
         @each
         ($pattern:pat),
-        ($item:ident consumer),
+        ($item:ident adapter),
         $(,)? => $($code:tt)*
-    ) => {
+    ) => ({
         let $pattern = $item;
         $($code)*
-    };
-    (@end $($tt:tt)*)=>{};
-}
-
-#[macro_export]
-macro_rules! iter_all {
-    ($iter:expr, $($closure:tt)*) => {
-        $crate::__parse_closure!{
-            ($crate::__iter_all) ($iter,) (elem),
-            $($closure)*
-        }
-    }
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __iter_all {
-    ($iter:expr, |$elem:pat| $v:expr) => {
-        match $crate::into_iter_macro!($iter) {
-            mut iter => loop {
-                match iter.next() {
-                    $crate::__::Some((elem, next)) => {
-                        iter = next;
-                        let $elem = elem;
-                        if !$v {
-                            break false;
-                        }
-                    }
-                    $crate::__::None => break true,
-                }
-            },
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! iter_any {
-    ($iter:expr, $($closure:tt)*) => {
-        $crate::__parse_closure!{
-            ($crate::__iter_any) ($iter,) (elem),
-            $($closure)*
-        }
-    }
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __iter_any {
-    ($iter:expr, |$elem:pat| $v:expr) => {
-        match $crate::into_iter_macro!($iter) {
-            mut iter => loop {
-                match iter.next() {
-                    $crate::__::Some((elem, next)) => {
-                        let $elem = elem;
-                        if $v {
-                            break true;
-                        }
-                        iter = next;
-                    }
-                    $crate::__::None => break false,
-                }
-            },
-        }
-    };
+    });
+    (@$other:ident $($tt:tt)*) =>{};
 }
 
 #[macro_export]
 macro_rules! iter_position {
     ($iter:expr, $($closure:tt)*) => {
-        $crate::__parse_closure!{
-            ($crate::__iter_position) ($iter, next,) (elem),
+        $crate::utils::__parse_closure_1!{
+            ($crate::__iter_position) ($iter, next,) (position),
             $($closure)*
         }
     }
@@ -106,8 +45,8 @@ macro_rules! iter_position {
 #[macro_export]
 macro_rules! iter_rposition {
     ($iter:expr, $($closure:tt)*) => {
-        $crate::__parse_closure!{
-            ($crate::__iter_position) ($iter, next_back,) (elem),
+        $crate::utils::__parse_closure_1!{
+            ($crate::__iter_position) ($iter, next_back,) (rposition),
             $($closure)*
         }
     }
@@ -116,12 +55,12 @@ macro_rules! iter_rposition {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __iter_position {
-    ($iter:expr, $next_method:ident, |$elem:pat| $v:expr) => {
+    ($iter:expr, $next_fn:ident, |$elem:pat| $v:expr) => {
         match $crate::into_iter_macro!($iter) {
             mut iter => {
                 let mut i = 0;
                 loop {
-                    match iter.$next_method() {
+                    match iter.$next_fn() {
                         $crate::__::Some((elem, next)) => {
                             let $elem = elem;
                             if $v {
@@ -141,8 +80,8 @@ macro_rules! __iter_position {
 #[macro_export]
 macro_rules! iter_find {
     ($iter:expr, $($closure:tt)*) => {
-        $crate::__parse_closure!{
-            ($crate::__iter_find) ($iter, next,) (elem),
+        $crate::utils::__parse_closure_1!{
+            ($crate::__iter_find) ($iter, next,) (find),
             $($closure)*
         }
     }
@@ -151,8 +90,8 @@ macro_rules! iter_find {
 #[macro_export]
 macro_rules! iter_rfind {
     ($iter:expr, $($closure:tt)*) => {
-        $crate::__parse_closure!{
-            ($crate::__iter_find) ($iter, next_back,) (elem),
+        $crate::utils::__parse_closure_1!{
+            ($crate::__iter_find) ($iter, next_back,) (rfind),
             $($closure)*
         }
     }
@@ -219,8 +158,8 @@ macro_rules! iter_nth {
 #[macro_export]
 macro_rules! iter_rfold {
     ($iter:expr, $accum:expr, $($closure:tt)*) => {
-        $crate::__parse_closure!{
-            ($crate::__iter_fold) ($iter, next_back, $accum,) (accum, elem),
+        $crate::__parse_closure_2!{
+            ($crate::__iter_fold) ($iter, next_back, $accum,) (rfold),
             $($closure)*
         }
     }
@@ -229,8 +168,8 @@ macro_rules! iter_rfold {
 #[macro_export]
 macro_rules! iter_fold {
     ($iter:expr, $accum:expr, $($closure:tt)*) => {
-        $crate::__parse_closure!{
-            ($crate::__iter_fold) ($iter, next, $accum,) (accum, elem),
+        $crate::__parse_closure_2!{
+            ($crate::__iter_fold) ($iter, next, $accum,) (fold),
             $($closure)*
         }
     }
@@ -262,8 +201,8 @@ macro_rules! __iter_fold {
 #[macro_export]
 macro_rules! iter_find_map {
     ($iter:expr, $($closure:tt)*) => {
-        $crate::__parse_closure!{
-            ($crate::__iter_find_map) ($iter,) (elem),
+        $crate::utils::__parse_closure_1!{
+            ($crate::__iter_find_map) ($iter,) (find_map),
             $($closure)*
         }
     }
@@ -286,6 +225,154 @@ macro_rules! __iter_find_map {
                     $crate::__::None => break $crate::__::None,
                 }
             },
+        }
+    };
+}
+
+macro_rules! make__cim_detect_rev_method__macro {
+    (
+        $_:tt
+        [$($fn:ident,)*]
+        [$($reversing_fn:ident,)*]
+        $($finished_arm:tt)*
+    ) => {
+        #[doc(hidden)]
+        #[macro_export]
+        macro_rules! __cim_detect_rev_method {
+            $($finished_arm)*
+            (
+                $fixed:tt
+                $next_fn:ident
+
+                $func:ident $($_($fn)?)* ,
+                $_($rest:tt)*
+            ) => {
+                $crate::iter::__cim_detect_rev_method!{
+                    $fixed
+                    $next_fn
+                    $_($rest)*
+                }
+            };
+            (
+                $fixed:tt
+                next
+
+                $func:ident $($_($reversing_fn)?)* ,
+                $_($rest:tt)*
+            ) => {
+                $crate::iter::__cim_detect_rev_method!{
+                    $fixed
+                    next_back
+                    $_($rest)*
+                }
+            };
+            (
+                $fixed:tt
+                next_back
+
+                $func:ident $($_($reversing_fn)?)* ,
+                $_($rest:tt)*
+            ) => {
+                $crate::__::compile_error!{$crate::__::concat!(
+                    "cannot call two iterator-reversing methods in `konst::iter` macros,",
+                    " called: ",
+                    $crate::__::stringify!($func),
+                )}
+            };
+                        (
+                $fixed:tt
+                $next_fn:ident
+
+                $func:ident $func2:ident,
+                $_($rest:tt)*
+            ) => {
+                $crate::__::compile_error!{$crate::__::concat!(
+                    "unsupported iterator method: ",
+                    $crate::__::stringify!($func),
+                )}
+            }
+        }
+
+        #[doc(hidden)]
+        pub use __cim_detect_rev_method;
+    };
+}
+
+make__cim_detect_rev_method__macro! {
+    $
+    [
+        copied,
+        enumerate,
+        filter,
+        filter_map,
+        flat_map,
+        flatten,
+        map,
+        skip,
+        skip_while,
+        take,
+        take_while,
+        zip,
+
+        all,
+        any,
+        count,
+        find,
+        find_map,
+        fold,
+        for_each,
+        nth,
+        next,
+        position,
+    ]
+    [
+        rev,
+
+        rfind,
+        rfold,
+        rposition,
+    ]
+
+    (
+        (
+            ($($callback_macro:tt)*)
+            ($($fixed_arguments:tt)*)
+            (
+                $item:ident,
+                $label:lifetime,
+                // adapter: analogous to iterator adapter, which return iterators
+                // consumer: methods which consume the iterator without (necessarily)
+                //            returning an iterator.
+                $allowed_methods:ident,
+            )
+            ($iter:expr)
+            ($($args:tt)*)
+        )
+        $next_fn:ident
+    ) => {
+        $crate::__call_iter_methods!{
+            (
+                ($($callback_macro)*) ($($fixed_arguments)*)
+                ($label $label) $next_fn $allowed_methods
+            )
+            (
+                ($($callback_macro)*) ($($fixed_arguments)*)
+                ($label $label) $next_fn $allowed_methods
+            )
+            $item
+            (
+                (
+                    iter = $iter
+                    {}
+                    let $item = if let $crate::__::Some((elem_, next_)) = iter.$next_fn() {
+                        iter = next_;
+                        elem_
+                    } else {
+                        break $label;
+                    };
+                )
+            )
+            $($args)*
         }
     };
 }

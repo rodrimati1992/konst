@@ -79,38 +79,6 @@ pub mod iterator_dsl;
 /// [`iterator_dsl`]: crate::iter::iterator_dsl
 pub use konst_macro_rules::for_each;
 
-/// Const equivalent of [`Iterator::all`]
-///
-/// # Example
-///
-/// ```rust
-/// const fn all_digits(s: &str) -> bool {
-///     konst::iter::all!(s.as_bytes(), |c| c.is_ascii_digit())
-/// }
-///
-/// assert!(all_digits("123456"));
-/// assert!(!all_digits("0x123456"));
-///
-/// ```
-pub use konst_macro_rules::iter_all as all;
-
-/// Const equivalent of [`Iterator::any`]
-///
-/// # Example
-///
-/// ```rust
-/// use konst::iter;
-///
-/// const fn contains_pow2(s: &[u64]) -> bool {
-///     iter::any!(s, |c| c.is_power_of_two())
-/// }
-///
-/// assert!(contains_pow2(&[2, 3, 5]));
-/// assert!(!contains_pow2(&[13, 21, 34]));
-///
-/// ```
-pub use konst_macro_rules::iter_any as any;
-
 /// Const equivalent of [`Iterator::position`]
 ///
 /// # Example
@@ -569,3 +537,4 @@ pub use konst_macro_rules::into_iter::IsNonIteratorKind;
 pub use konst_macro_rules::into_iter::IsIteratorKind;
 
 include! {"./iter/collect_const.rs"}
+include! {"./iter/iter_eval.rs"}

@@ -175,7 +175,7 @@ mod requires_rust_1_64 {
     /// use konst::{iter, slice};
     ///
     /// const fn is_sorted(slice: &[u8]) -> bool {
-    ///     iter::all!(slice::windows(slice, 2), |w| w[1] > w[0])
+    ///     iter::eval!(slice::windows(slice, 2),all(|w| w[1] > w[0]))
     /// }
     ///
     /// assert!(is_sorted(&[3, 5, 8]));

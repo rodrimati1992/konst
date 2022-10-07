@@ -22,7 +22,7 @@ collect_const!(
 Where `$Item` is the type of the elements that'll be collected into an array.
 
 Where `$into_iterator` is any type that can be converted into a const iterator, with 
-[`konst::iter::into_iter`].
+[`konst::iter::into_iter`](crate::iter::into_iter).
 
 Where `$iterator_method` is any of the supported methods described in 
 the [`iterator_dsl`] module.

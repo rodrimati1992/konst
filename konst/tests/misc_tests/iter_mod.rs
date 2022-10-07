@@ -22,11 +22,14 @@ const fn add_usize(l: usize, r: usize) -> usize {
 #[test]
 fn iterator_all_test() {
     const fn all_fn(slice: &[u8]) -> bool {
-        iter::all!(slice, is_ru8_even)
+        iter::eval!(slice, all(is_ru8_even))
     }
 
     const fn all_fn_breaking(slice: &[u8]) -> Option<bool> {
-        Some(iter::all!(slice, |&elem| elem % 2 == 0 && return None,))
+        Some(iter::eval!(
+            slice,
+            all(|&elem| elem % 2 == 0 && return None,)
+        ))
     }
 
     assert!(all_fn(&[]));
@@ -42,15 +45,18 @@ fn iterator_all_test() {
 #[test]
 fn iterator_any_test() {
     const fn any_fn(slice: &[u8]) -> bool {
-        iter::any!(slice, is_ru8_even)
+        iter::eval!(slice, any(is_ru8_even))
     }
 
     const fn any_fn_breaking(slice: &[u8]) -> Option<bool> {
-        Some(iter::any!(slice, |&elem| match elem % 3 {
-            0 => true,
-            1 => false,
-            _ => return None,
-        },))
+        Some(iter::eval!(
+            slice,
+            any(|&elem| match elem % 3 {
+                0 => true,
+                1 => false,
+                _ => return None,
+            })
+        ))
     }
 
     assert!(!any_fn(&[]));
