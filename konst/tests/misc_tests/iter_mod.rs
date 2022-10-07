@@ -80,20 +80,20 @@ fn iterator_any_test() {
 #[test]
 fn count_tests() {
     // ensure that this macro is const-evaluable
-    const COUNT: usize = iter::count!(0..10);
+    const COUNT: usize = iter::eval!(0..10, count());
     assert_eq!(COUNT, 10);
 
-    assert_eq!(iter::count!(0..0), 0);
-    assert_eq!(iter::count!(0..1), 1);
-    assert_eq!(iter::count!(0..2), 2);
-    assert_eq!(iter::count!(0..3), 3);
-    assert_eq!(iter::count!(0..4), 4);
+    assert_eq!(iter::eval!(0..0, count()), 0);
+    assert_eq!(iter::eval!(0..1, count()), 1);
+    assert_eq!(iter::eval!(0..2, count()), 2);
+    assert_eq!(iter::eval!(0..3, count()), 3);
+    assert_eq!(iter::eval!(0..4, count()), 4);
 
-    assert_eq!(iter::count!(&[0u8; 0]), 0);
-    assert_eq!(iter::count!(&[0u8; 1]), 1);
-    assert_eq!(iter::count!(&[0u8; 2]), 2);
-    assert_eq!(iter::count!(&[0u8; 3]), 3);
-    assert_eq!(iter::count!(&[0u8; 4]), 4);
+    assert_eq!(iter::eval!(&[0u8; 0], count()), 0);
+    assert_eq!(iter::eval!(&[0u8; 1], count()), 1);
+    assert_eq!(iter::eval!(&[0u8; 2], count()), 2);
+    assert_eq!(iter::eval!(&[0u8; 3], count()), 3);
+    assert_eq!(iter::eval!(&[0u8; 4], count()), 4);
 }
 
 #[test]
@@ -210,19 +210,22 @@ fn find_map_test() {
 #[test]
 fn fold_test() {
     const fn shifter(range: &[u8]) -> u128 {
-        iter::fold!(range, 0, |accum, &elem| (accum << 8) | (elem as u128))
+        iter::eval!(range, fold(0, |accum, &elem| (accum << 8) | (elem as u128)))
     }
 
     const fn sum_range(range: std::ops::Range<usize>) -> usize {
-        iter::fold!(range, 0, add_usize)
+        iter::eval!(range, fold(0, add_usize))
     }
 
     const fn ret_on_0(slice: &[u8]) -> Option<u8> {
-        Some(iter::fold!(slice, 0, |accum, &elem| if elem == 0 {
-            return None;
-        } else {
-            accum + elem
-        }))
+        Some(iter::eval!(
+            slice,
+            fold(0, |accum, &elem| if elem == 0 {
+                return None;
+            } else {
+                accum + elem
+            })
+        ))
     }
 
     assert_eq!(shifter(&[]), 0);
@@ -252,15 +255,18 @@ fn rfold_test() {
             (accum << 8) | (*elem as u128)
         }
 
-        iter::rfold!(range, 0, func,)
+        iter::eval!(range, rfold(0, func,))
     }
 
     const fn ret_on_0(slice: &[u8]) -> Option<u8> {
-        Some(iter::rfold!(slice, 0, |accum, &elem| if elem == 0 {
-            return None;
-        } else {
-            accum + elem
-        }))
+        Some(iter::eval!(
+            slice,
+            rfold(0, |accum, &elem| if elem == 0 {
+                return None;
+            } else {
+                accum + elem
+            })
+        ))
     }
 
     assert_eq!(shifter(&[]), 0);
@@ -359,22 +365,22 @@ fn for_each_zip_test() {
 #[test]
 fn nth_test() {
     // ensure that this macro is const-evaluable
-    const ELEM: Option<usize> = iter::nth!(0..4, 0);
+    const ELEM: Option<usize> = iter::eval!(0..4, nth(0));
     assert_eq!(ELEM, Some(0));
 
-    assert_eq!(iter::nth!(0..4, 0), Some(0));
-    assert_eq!(iter::nth!(0..4, 1), Some(1));
-    assert_eq!(iter::nth!(0..4, 2), Some(2));
-    assert_eq!(iter::nth!(0..4, 3), Some(3));
-    assert_eq!(iter::nth!(0..4, 4), None);
-    assert_eq!(iter::nth!(0..4, 5), None);
+    assert_eq!(iter::eval!(0..4, nth(0)), Some(0));
+    assert_eq!(iter::eval!(0..4, nth(1)), Some(1));
+    assert_eq!(iter::eval!(0..4, nth(2)), Some(2));
+    assert_eq!(iter::eval!(0..4, nth(3)), Some(3));
+    assert_eq!(iter::eval!(0..4, nth(4)), None);
+    assert_eq!(iter::eval!(0..4, nth(5)), None);
 
-    assert_eq!(iter::nth!(&[0, 1, 2, 3], 0,), Some(&0));
-    assert_eq!(iter::nth!(&[0, 1, 2, 3], 1,), Some(&1));
-    assert_eq!(iter::nth!(&[0, 1, 2, 3], 2,), Some(&2));
-    assert_eq!(iter::nth!(&[0, 1, 2, 3], 3,), Some(&3));
-    assert_eq!(iter::nth!(&[0, 1, 2, 3], 4,), None);
-    assert_eq!(iter::nth!(&[0, 1, 2, 3], 5,), None);
+    assert_eq!(iter::eval!(&[0, 1, 2, 3], nth(0,)), Some(&0));
+    assert_eq!(iter::eval!(&[0, 1, 2, 3], nth(1,)), Some(&1));
+    assert_eq!(iter::eval!(&[0, 1, 2, 3], nth(2,)), Some(&2));
+    assert_eq!(iter::eval!(&[0, 1, 2, 3], nth(3,)), Some(&3));
+    assert_eq!(iter::eval!(&[0, 1, 2, 3], nth(4,)), None);
+    assert_eq!(iter::eval!(&[0, 1, 2, 3], nth(5,)), None);
 }
 
 #[test]

@@ -37,6 +37,16 @@ macro_rules! __iter_eval {
             $($closure)*
         }
     };
+    ($fixed:tt $item:ident count($($args:tt)*), $(,)* ) => ({
+        $crate::__cim_error_on_args!{count ($($args)*)}
+
+        $crate::__ie_output!{
+            $fixed
+            { let mut i = 0usize; }
+            { i += 1; }
+            { i }
+        }
+    });
     // there's guaranteed to be an identifier for the method name,
     // so it is required to be either position or rposition.
     //
@@ -45,7 +55,7 @@ macro_rules! __iter_eval {
         $crate::utils::__parse_closure_1!{
             ($crate::__ie_position)
             ($fixed $item,)
-            (position or rposition),
+            (position, rposition),
             $($closure)*
         }
     };
@@ -53,7 +63,7 @@ macro_rules! __iter_eval {
         $crate::utils::__parse_closure_1!{
             ($crate::__ie_find_map)
             ($fixed $item,)
-            (find or rfind),
+            (find_map),
             $($closure)*
         }
     };
@@ -61,9 +71,20 @@ macro_rules! __iter_eval {
         $crate::utils::__parse_closure_1!{
             ($crate::__ie_find)
             ($fixed $item,)
-            (find or rfind),
+            (find, rfind),
             $($closure)*
         }
+    };
+    ($fixed:tt $item:ident $(fold)? $(rfold)? ($accum:expr, $($closure:tt)*), $(,)* ) => {
+        $crate::utils::__parse_closure_2!{
+            ($crate::__ie_fold)
+            ($fixed $item, $accum,)
+            (fold, rfold),
+            $($closure)*
+        }
+    };
+    ($fixed:tt $item:ident $(fold)? $(rfold)? ($($args:tt)*), $(,)* ) => {
+        $crate::__::compile_error! {"fold/rfold methods expect 2 arguments"}
     };
     ($fixed:tt $item:ident next($($args:tt)*), $(,)* ) => ({
         $crate::__cim_error_on_args!{next ($($args)*)}
@@ -77,6 +98,28 @@ macro_rules! __iter_eval {
             { next }
         }
     });
+    ($fixed:tt $item:ident nth($nth:expr $(,)?), $(,)* ) => ({
+        $crate::__ie_output!{
+            $fixed
+            {
+                let mut nth = $nth;
+                let mut ret = $crate::__::None;
+            }
+            {
+                let _: $crate::__::usize = nth;
+                if nth == 0 {
+                    ret = $crate::__::Some($item);
+                    $crate::__ie_break!{$fixed}
+                } else {
+                    nth -= 1;
+                }
+            }
+            { ret }
+        }
+    });
+    ($fixed:tt $item:ident nth($($args:tt)*), $(,)* ) => {
+        $crate::__::compile_error! {"nth expects 1 argument"}
+    };
     ($fixed:tt $item:ident $comb:ident $($rem:tt)*) => {
         $crate::__::compile_error! {$crate::__::concat!(
             "Unsupported iterator method: `",
@@ -155,7 +198,7 @@ macro_rules! __ie_position {
             $fixed
             {
                 let mut position = $crate::__::None;
-                let mut i = 0;
+                let mut i = 0usize;
             }
             {
                 let $elem = $item;
@@ -215,6 +258,23 @@ macro_rules! __ie_find {
 
 #[doc(hidden)]
 #[macro_export]
+macro_rules! __ie_fold {
+    ($fixed:tt $item:ident, $accum:expr, |$accum_pat:pat, $elem:pat| $v:expr) => {
+        $crate::__ie_output! {
+            $fixed
+            {let mut accum = $accum;}
+            {
+                let $accum_pat = accum;
+                let $elem = $item;
+                accum = $v;
+            }
+            { accum }
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
 macro_rules! __ie_output {
     (
         (
@@ -228,14 +288,15 @@ macro_rules! __ie_output {
                 ))*
             )
         )
-        {$($extra_init:tt)*}
+        {
+            $(let $vars:pat = $value:expr;)*
+        }
         $each:tt
         $finish:tt
     ) => ({
-        match ($($( $crate::into_iter_macro!($iter_expr) ,)?)*) {
-            ($($(mut $iter_var,)?)*) => {
+        match ($($( $crate::into_iter_macro!($iter_expr) ,)?)* $($value,)*) {
+            ($($(mut $iter_var,)?)* $($vars,)*) => {
                 $($($init)*)*
-                $($extra_init)*
                 $($label:)? loop {
                     $($($code)*)*
                     $each

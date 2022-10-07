@@ -7,6 +7,8 @@ Emulates most iterator methods.
 
 `konst::iter::eval` supports emulating iterator methods by expanding to equivalent code.
 
+### Other Methods
+
 This macro supports the methods described below and 
 the ones described in the [`iterator_dsl`] module.
 
@@ -39,6 +41,29 @@ const fn contains_pow2(s: &[u64]) -> bool {
 
 assert!(contains_pow2(&[2, 3, 5]));
 assert!(!contains_pow2(&[13, 21, 34]));
+
+```
+
+### `count`
+
+Const equivalent of [`Iterator::count`]
+
+This example requires the `"rust_1_64"` crate feature,
+because it calls `string::split`.
+
+*/
+#[cfg_attr(not(feature = "rust_1_64"), doc = "```ignore")]
+#[cfg_attr(feature = "rust_1_64", doc = "```rust")]
+/**
+use konst::{iter, string};
+
+const fn count_csv(s: &str) -> usize {
+    iter::eval!(string::split(s, ","),count())
+}
+
+assert_eq!(count_csv("foo"), 1);
+assert_eq!(count_csv("foo,bar"), 2);
+assert_eq!(count_csv("foo,bar,baz"), 3);
 
 ```
 
@@ -78,8 +103,29 @@ assert_eq!(first_elem(&[3, 5]), Some(3));
 
 ```
 
-[`iterator_dsl`]: ../iterator_dsl/index.html
+### `nth`
 
+Const equivalent of [`Iterator::nth`]
+
+This example requires the `"rust_1_64"` crate feature,
+because it calls `string::split`.
+
+*/
+#[cfg_attr(not(feature = "rust_1_64"), doc = "```ignore")]
+#[cfg_attr(feature = "rust_1_64", doc = "```rust")]
+/**
+use konst::{iter, string};
+
+const fn nth_csv(s: &str, nth: usize) -> Option<&str> {
+    iter::eval!(string::split(s, ","),nth(nth))
+}
+
+assert_eq!(nth_csv("foo,bar,baz", 0), Some("foo"));
+assert_eq!(nth_csv("foo,bar,baz", 1), Some("bar"));
+assert_eq!(nth_csv("foo,bar,baz", 2), Some("baz"));
+assert_eq!(nth_csv("foo,bar,baz", 3), None);
+
+```
 
 ### `position`
 
@@ -175,6 +221,46 @@ assert_eq!(sum_u64(&[2]), Some(&2));
 assert_eq!(sum_u64(&[2, 5, 8]), Some(&8));
 
 ```
+
+### `fold`
+
+Const equivalent of [`Iterator::fold`]
+
+```rust
+use konst::iter;
+
+const fn sum_u64(slice: &[u64]) -> u64 {
+    iter::eval!(slice,fold(0, |accum, &rhs| accum + rhs))
+}
+
+assert_eq!(sum_u64(&[]), 0);
+assert_eq!(sum_u64(&[3]), 3);
+assert_eq!(sum_u64(&[3, 5]), 8);
+assert_eq!(sum_u64(&[3, 5, 8]), 16);
+
+
+```
+
+### `rfold`
+
+Const equivalent of [`DoubleEndedIterator::rfold`]
+
+```rust
+use konst::iter;     
+
+const fn concat_u16s(slice: &[u16]) -> u128 {
+    iter::eval!(slice,rfold(0, |accum, &rhs| (accum << 16) + (rhs as u128)))
+}
+
+assert_eq!(concat_u16s(&[1, 2, 3]), 0x0003_0002_0001);
+assert_eq!(concat_u16s(&[3, 5, 8]), 0x0008_0005_0003);
+
+
+```
+
+
+
+[`iterator_dsl`]: ./iterator_dsl/index.html
 
 */
 pub use konst_macro_rules::iter_eval as eval;

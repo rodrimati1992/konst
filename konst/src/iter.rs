@@ -79,87 +79,6 @@ pub mod iterator_dsl;
 /// [`iterator_dsl`]: crate::iter::iterator_dsl
 pub use konst_macro_rules::for_each;
 
-/// Const equivalent of [`Iterator::count`]
-///
-/// # Example
-///
-/// This example requires the `"rust_1_64"` crate feature.
-///
-#[cfg_attr(not(feature = "rust_1_64"), doc = "```ignore")]
-#[cfg_attr(feature = "rust_1_64", doc = "```rust")]
-/// use konst::{iter, string};
-///
-/// const fn count_csv(s: &str) -> usize {
-///     iter::count!(string::split(s, ","))
-/// }
-///
-/// assert_eq!(count_csv("foo"), 1);
-/// assert_eq!(count_csv("foo,bar"), 2);
-/// assert_eq!(count_csv("foo,bar,baz"), 3);
-///
-/// ```
-pub use konst_macro_rules::iter_count as count;
-
-/// Const equivalent of [`Iterator::nth`]
-///
-/// # Example
-///
-/// This example requires the `"rust_1_64"` crate feature.
-///
-#[cfg_attr(not(feature = "rust_1_64"), doc = "```ignore")]
-#[cfg_attr(feature = "rust_1_64", doc = "```rust")]
-/// use konst::{iter, string};
-///
-/// const fn nth_csv(s: &str, nth: usize) -> Option<&str> {
-///     iter::nth!(string::split(s, ","), nth)
-/// }
-///
-/// assert_eq!(nth_csv("foo,bar,baz", 0), Some("foo"));
-/// assert_eq!(nth_csv("foo,bar,baz", 1), Some("bar"));
-/// assert_eq!(nth_csv("foo,bar,baz", 2), Some("baz"));
-/// assert_eq!(nth_csv("foo,bar,baz", 3), None);
-///
-/// ```
-pub use konst_macro_rules::iter_nth as nth;
-
-/// Const equivalent of [`Iterator::fold`]
-///
-/// # Example
-///
-/// ```rust
-/// use konst::iter;
-///
-/// const fn sum_u64(slice: &[u64]) -> u64 {
-///     iter::fold!(slice, 0, |accum, &rhs| accum + rhs)
-/// }
-///
-/// assert_eq!(sum_u64(&[]), 0);
-/// assert_eq!(sum_u64(&[3]), 3);
-/// assert_eq!(sum_u64(&[3, 5]), 8);
-/// assert_eq!(sum_u64(&[3, 5, 8]), 16);
-///
-///
-/// ```
-pub use konst_macro_rules::iter_fold as fold;
-
-/// Const equivalent of [`DoubleEndedIterator::rfold`]
-///
-/// # Example
-///
-/// ```rust
-/// use konst::iter;     
-///
-/// const fn concat_u16s(slice: &[u16]) -> u128 {
-///     iter::rfold!(slice, 0, |accum, &rhs| (accum << 16) + (rhs as u128))
-/// }
-///
-/// assert_eq!(concat_u16s(&[1, 2, 3]), 0x0003_0002_0001);
-/// assert_eq!(concat_u16s(&[3, 5, 8]), 0x0008_0005_0003);
-///
-///
-/// ```
-pub use konst_macro_rules::iter_rfold as rfold;
-
 /// Wrapper for `IntoIterKind` implementors,
 /// that defines different methods depending on the
 /// value of `<T as IntoIterKind>::Kind`.
@@ -281,7 +200,7 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 /// const fn sum_powers(up_to: usize) -> u64 {
 ///     let gs = GetSlice{slice: &[1, 2, 4, 8, 16, 32, 64, 128], up_to};
 ///
-///     iter::fold!(gs, 0, |l, &r| l + r)
+///     iter::eval!(gs,fold(0, |l, &r| l + r))
 /// }
 ///
 /// assert_eq!(sum_powers(0), 0);
@@ -313,7 +232,7 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 /// }
 ///
 /// const fn sum(initial: u8) -> u16 {
-///     iter::fold!(Countdown(initial), 0u16, |accum, elem| accum + elem as u16)
+///     iter::eval!(Countdown(initial),fold(0u16, |accum, elem| accum + elem as u16))
 /// }
 ///
 /// assert_eq!(sum(0), 0);
