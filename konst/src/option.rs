@@ -256,15 +256,15 @@ pub use konst_macro_rules::opt_filter as filter;
 /// # Example
 ///
 /// ```rust
-/// use konst::{iter, option};
+/// use konst::option;
 ///
-/// const fn find_pow2(slice: &[u64]) -> Option<u64> {
-///     option::copied(iter::find!(slice, |elem| elem.is_power_of_two()))
+/// const fn get_last(slice: &[u64]) -> Option<u64> {
+///     option::copied(slice.last())
 /// }
 ///
-/// assert_eq!(find_pow2(&[3, 5]), None);
-/// assert_eq!(find_pow2(&[16]), Some(16));
-/// assert_eq!(find_pow2(&[3, 5, 8, 13]), Some(8));
+/// assert_eq!(get_last(&[]), None);
+/// assert_eq!(get_last(&[16]), Some(16));
+/// assert_eq!(get_last(&[3, 5, 8, 13]), Some(13));
 ///
 ///
 /// ```

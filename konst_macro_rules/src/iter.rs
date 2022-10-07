@@ -33,96 +33,6 @@ macro_rules! __for_each {
 }
 
 #[macro_export]
-macro_rules! iter_position {
-    ($iter:expr, $($closure:tt)*) => {
-        $crate::utils::__parse_closure_1!{
-            ($crate::__iter_position) ($iter, next,) (position),
-            $($closure)*
-        }
-    }
-}
-
-#[macro_export]
-macro_rules! iter_rposition {
-    ($iter:expr, $($closure:tt)*) => {
-        $crate::utils::__parse_closure_1!{
-            ($crate::__iter_position) ($iter, next_back,) (rposition),
-            $($closure)*
-        }
-    }
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __iter_position {
-    ($iter:expr, $next_fn:ident, |$elem:pat| $v:expr) => {
-        match $crate::into_iter_macro!($iter) {
-            mut iter => {
-                let mut i = 0;
-                loop {
-                    match iter.$next_fn() {
-                        $crate::__::Some((elem, next)) => {
-                            let $elem = elem;
-                            if $v {
-                                break $crate::__::Some(i);
-                            }
-                            iter = next;
-                            i += 1;
-                        }
-                        $crate::__::None => break $crate::__::None,
-                    }
-                }
-            }
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! iter_find {
-    ($iter:expr, $($closure:tt)*) => {
-        $crate::utils::__parse_closure_1!{
-            ($crate::__iter_find) ($iter, next,) (find),
-            $($closure)*
-        }
-    }
-}
-
-#[macro_export]
-macro_rules! iter_rfind {
-    ($iter:expr, $($closure:tt)*) => {
-        $crate::utils::__parse_closure_1!{
-            ($crate::__iter_find) ($iter, next_back,) (rfind),
-            $($closure)*
-        }
-    }
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __iter_find {
-    (
-        $iter:expr,
-        $next_fn:ident,
-        |$elem:pat| $v:expr
-    ) => {
-        match $crate::into_iter_macro!($iter) {
-            mut iter => loop {
-                match iter.$next_fn() {
-                    $crate::__::Some((elem, next)) => {
-                        let $elem = &elem;
-                        if $v {
-                            break $crate::__::Some(elem);
-                        }
-                        iter = next;
-                    }
-                    $crate::__::None => break $crate::__::None,
-                }
-            },
-        }
-    };
-}
-
-#[macro_export]
 macro_rules! iter_count {
     ($iter:expr $(,)*) => {{
         let mut count = 0;
@@ -192,37 +102,6 @@ macro_rules! __iter_fold {
                         accum = $v;
                     }
                     $crate::__::None => break accum,
-                }
-            },
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! iter_find_map {
-    ($iter:expr, $($closure:tt)*) => {
-        $crate::utils::__parse_closure_1!{
-            ($crate::__iter_find_map) ($iter,) (find_map),
-            $($closure)*
-        }
-    }
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __iter_find_map {
-    ($iter:expr, |$elem:pat| $v:expr) => {
-        match $crate::into_iter_macro!($iter) {
-            mut iter => loop {
-                match iter.next() {
-                    $crate::__::Some((elem, next)) => {
-                        let $elem = elem;
-                        if let opt @ $crate::__::Some(_) = $v {
-                            break opt;
-                        }
-                        iter = next;
-                    }
-                    $crate::__::None => break $crate::__::None,
                 }
             },
         }

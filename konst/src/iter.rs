@@ -79,63 +79,6 @@ pub mod iterator_dsl;
 /// [`iterator_dsl`]: crate::iter::iterator_dsl
 pub use konst_macro_rules::for_each;
 
-/// Const equivalent of [`Iterator::position`]
-///
-/// # Example
-///
-/// ```rust
-/// use konst::iter;
-///
-/// const fn find_num(slice: &[u64], n: u64) -> Option<usize> {
-///     iter::position!(slice, |&elem| elem == n)
-/// }
-///
-/// assert_eq!(find_num(&[3, 5, 8], 0), None);
-/// assert_eq!(find_num(&[3, 5, 8], 3), Some(0));
-/// assert_eq!(find_num(&[3, 5, 8], 5), Some(1));
-/// assert_eq!(find_num(&[3, 5, 8], 8), Some(2));
-///
-/// ```
-pub use konst_macro_rules::iter_position as position;
-
-/// Const equivalent of [`Iterator::rposition`]
-///
-/// # Example
-///
-/// ```rust
-/// use konst::iter;
-///
-/// const fn rfind_num(slice: &[u64], n: u64) -> Option<usize> {
-///     iter::rposition!(slice, |&elem| elem == n)
-/// }
-///
-/// assert_eq!(rfind_num(&[3, 5, 8], 0), None);
-/// assert_eq!(rfind_num(&[3, 5, 8], 3), Some(2));
-/// assert_eq!(rfind_num(&[3, 5, 8], 5), Some(1));
-/// assert_eq!(rfind_num(&[3, 5, 8], 8), Some(0));
-///
-/// ```
-pub use konst_macro_rules::iter_rposition as rposition;
-
-/// Const equivalent of [`Iterator::find`]
-///
-/// # Example
-///
-/// ```rust
-/// use konst::iter;
-///
-/// const fn find_odd(slice: &[u64], n: u64) -> Option<&u64> {
-///     iter::find!(slice, |&&elem| elem % 2 == 1)
-/// }
-///
-/// assert_eq!(find_odd(&[], 0), None);
-/// assert_eq!(find_odd(&[2, 4], 0), None);
-/// assert_eq!(find_odd(&[3, 5, 8], 3), Some(&3));
-/// assert_eq!(find_odd(&[8, 12, 13], 3), Some(&13));
-///
-/// ```
-pub use konst_macro_rules::iter_find as find;
-
 /// Const equivalent of [`Iterator::count`]
 ///
 /// # Example
@@ -178,48 +121,6 @@ pub use konst_macro_rules::iter_count as count;
 ///
 /// ```
 pub use konst_macro_rules::iter_nth as nth;
-
-/// Const equivalent of [`Iterator::find_map`]
-///
-/// # Example
-///
-/// This example requires the `"parsing_no_proc"` feature.
-///
-#[cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
-#[cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
-/// use konst::{iter, result};
-/// use konst::primitive::parse_u64;
-///
-/// const fn find_parsable(slice: &[&str]) -> Option<u64> {
-///     iter::find_map!(slice, |&s| result::ok!(parse_u64(s)))
-/// }
-///
-/// assert_eq!(find_parsable(&[]), None);
-/// assert_eq!(find_parsable(&["foo"]), None);
-/// assert_eq!(find_parsable(&["foo", "10"]), Some(10));
-/// assert_eq!(find_parsable(&["10", "20"]), Some(10));
-///
-/// ```
-pub use konst_macro_rules::iter_find_map as find_map;
-
-/// Const equivalent of [`DoubleEndedIterator::rfind`]
-///
-/// # Example
-///
-/// ```rust
-/// use konst::iter;
-///
-/// const fn sum_u64(slice: &[u64]) -> Option<&u64> {
-///     iter::rfind!(slice, |&elem| elem.is_power_of_two())
-/// }
-///
-/// assert_eq!(sum_u64(&[]), None);
-/// assert_eq!(sum_u64(&[2]), Some(&2));
-/// assert_eq!(sum_u64(&[2, 5, 8]), Some(&8));
-///
-///
-/// ```
-pub use konst_macro_rules::iter_rfind as rfind;
 
 /// Const equivalent of [`Iterator::fold`]
 ///

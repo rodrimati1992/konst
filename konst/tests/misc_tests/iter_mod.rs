@@ -99,11 +99,14 @@ fn count_tests() {
 #[test]
 fn find_tests() {
     const fn find_even(slice: &[u8]) -> Option<&u8> {
-        iter::find!(slice, |&&elem| match elem % 4 {
-            1 => false,
-            3 => return Some(&255),
-            _ => true,
-        })
+        iter::eval!(
+            slice,
+            find(|&&elem| match elem % 4 {
+                1 => false,
+                3 => return Some(&255),
+                _ => true,
+            })
+        )
     }
 
     assert_eq!(find_even(&[]), None);
@@ -116,7 +119,7 @@ fn find_tests() {
 
     {
         const fn calls_const_fn(slice: &[u8]) -> Option<&u8> {
-            iter::find!(slice, is_rru8_even)
+            iter::eval!(slice, find(is_rru8_even))
         }
 
         assert_eq!(calls_const_fn(&[]), None);
@@ -131,11 +134,14 @@ fn find_tests() {
 #[test]
 fn rfind_tests() {
     const fn rfind_even(slice: &[u8]) -> Option<&u8> {
-        iter::rfind!(slice, |&&elem| match elem % 4 {
-            1 => false,
-            3 => return Some(&255),
-            _ => true,
-        })
+        iter::eval!(
+            slice,
+            rfind(|&&elem| match elem % 4 {
+                1 => false,
+                3 => return Some(&255),
+                _ => true,
+            })
+        )
     }
 
     assert_eq!(rfind_even(&[]), None);
@@ -148,7 +154,7 @@ fn rfind_tests() {
 
     {
         const fn calls_const_fn(slice: &[u8]) -> Option<&u8> {
-            iter::rfind!(slice, is_rru8_even,)
+            iter::eval!(slice, rfind(is_rru8_even,))
         }
 
         assert_eq!(calls_const_fn(&[]), None);
@@ -163,11 +169,14 @@ fn rfind_tests() {
 #[test]
 fn find_map_test() {
     const fn find_even(slice: &[u16]) -> Option<u16> {
-        iter::find_map!(slice, |&elem| match elem % 4 {
-            1 => None,
-            3 => return Some(u16::MAX),
-            _ => Some(elem * 10),
-        })
+        iter::eval!(
+            slice,
+            find_map(|&elem| match elem % 4 {
+                1 => None,
+                3 => return Some(u16::MAX),
+                _ => Some(elem * 10),
+            })
+        )
     }
 
     assert_eq!(find_even(&[]), None);
@@ -188,7 +197,7 @@ fn find_map_test() {
                 }
             }
 
-            iter::find_map!(slice, func)
+            iter::eval!(slice, find_map(func))
         }
 
         assert_eq!(calls_const_fn(&[]), None);
@@ -371,11 +380,14 @@ fn nth_test() {
 #[test]
 fn position_tests() {
     const fn position_even(slice: &[u8]) -> Option<usize> {
-        iter::position!(slice, |&elem| match elem % 4 {
-            1 => false,
-            3 => return Some(usize::MAX),
-            _ => true,
-        })
+        iter::eval!(
+            slice,
+            position(|&elem| match elem % 4 {
+                1 => false,
+                3 => return Some(usize::MAX),
+                _ => true,
+            })
+        )
     }
 
     assert_eq!(position_even(&[]), None);
@@ -389,7 +401,7 @@ fn position_tests() {
 
     {
         const fn calls_const_fn(slice: &[u8]) -> Option<usize> {
-            iter::position!(slice, is_ru8_even)
+            iter::eval!(slice, position(is_ru8_even))
         }
 
         assert_eq!(calls_const_fn(&[]), None);
@@ -403,11 +415,14 @@ fn position_tests() {
 #[test]
 fn rposition_tests() {
     const fn rposition_even(slice: &[u8]) -> Option<usize> {
-        iter::rposition!(slice, |&elem| match elem % 4 {
-            1 => false,
-            3 => return Some(usize::MAX),
-            _ => true,
-        })
+        iter::eval!(
+            slice,
+            rposition(|&elem| match elem % 4 {
+                1 => false,
+                3 => return Some(usize::MAX),
+                _ => true,
+            })
+        )
     }
 
     assert_eq!(rposition_even(&[]), None);
@@ -421,7 +436,7 @@ fn rposition_tests() {
 
     {
         const fn calls_const_fn(slice: &[u8]) -> Option<usize> {
-            iter::rposition!(slice, is_ru8_even,)
+            iter::eval!(slice, rposition(is_ru8_even,))
         }
 
         assert_eq!(calls_const_fn(&[]), None);

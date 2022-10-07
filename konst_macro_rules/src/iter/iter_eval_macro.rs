@@ -37,6 +37,34 @@ macro_rules! __iter_eval {
             $($closure)*
         }
     };
+    // there's guaranteed to be an identifier for the method name,
+    // so it is required to be either position or rposition.
+    //
+    // `rposition` reverses the iterator in `__cim_detect_rev_method`
+    ($fixed:tt $item:ident $(position)? $(rposition)? ($($closure:tt)*), $(,)* ) => {
+        $crate::utils::__parse_closure_1!{
+            ($crate::__ie_position)
+            ($fixed $item,)
+            (position or rposition),
+            $($closure)*
+        }
+    };
+    ($fixed:tt $item:ident find_map ($($closure:tt)*), $(,)* ) => {
+        $crate::utils::__parse_closure_1!{
+            ($crate::__ie_find_map)
+            ($fixed $item,)
+            (find or rfind),
+            $($closure)*
+        }
+    };
+    ($fixed:tt $item:ident $(find)? $(rfind)? ($($closure:tt)*), $(,)* ) => {
+        $crate::utils::__parse_closure_1!{
+            ($crate::__ie_find)
+            ($fixed $item,)
+            (find or rfind),
+            $($closure)*
+        }
+    };
     ($fixed:tt $item:ident next($($args:tt)*), $(,)* ) => ({
         $crate::__cim_error_on_args!{next ($($args)*)}
         $crate::__ie_output!{
@@ -115,6 +143,72 @@ macro_rules! __ie_all {
                 }
             }
             { cond }
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __ie_position {
+    ($fixed:tt $item:ident, |$elem:pat| $v:expr) => {
+        $crate::__ie_output! {
+            $fixed
+            {
+                let mut position = $crate::__::None;
+                let mut i = 0;
+            }
+            {
+                let $elem = $item;
+                if $v {
+                    position = $crate::__::Some(i);
+                    $crate::__ie_break!{$fixed}
+                } else {
+                    i += 1;
+                }
+            }
+            { position }
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __ie_find_map {
+    ($fixed:tt $item:ident, |$elem:pat| $v:expr) => {
+        $crate::__ie_output! {
+            $fixed
+            {
+                let mut val = $crate::__::None;
+            }
+            {
+                let $elem = $item;
+                val = $v;
+                if let $crate::__::Some(_) = val {
+                    $crate::__ie_break!{$fixed}
+                }
+            }
+            { val }
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __ie_find {
+    ($fixed:tt $item:ident, |$elem:pat| $v:expr) => {
+        $crate::__ie_output! {
+            $fixed
+            {
+                let mut val = $crate::__::None;
+            }
+            {
+                let $elem = &$item;
+                if $v {
+                    val = $crate::__::Some($item);
+                    $crate::__ie_break!{$fixed}
+                }
+            }
+            { val }
         }
     };
 }

@@ -88,7 +88,7 @@ pub use konst_macro_rules::into_iter::slice_into_iter::IterRev;
 /// use konst::{iter, slice};
 ///
 /// const fn find_even(slice: &[u32]) -> Option<u32> {
-///     iter::find!(slice::iter_copied(slice), |elem| *elem % 2 == 0)
+///     iter::eval!(slice::iter_copied(slice),find(|elem| *elem % 2 == 0))
 /// }
 ///
 /// assert_eq!(find_even(&[]), None);
@@ -136,7 +136,7 @@ pub use konst_macro_rules::into_iter::slice_into_iter::IterCopied;
 ///
 /// const fn rfind_even(slice: &[u32]) -> Option<u32> {
 ///     let iter: IterCopiedRev<'_, u32> = slice::iter_copied(slice).rev();
-///     iter::find!(iter, |&elem| elem % 2 == 0)
+///     iter::eval!(iter,find(|&elem| elem % 2 == 0))
 /// }
 ///
 /// assert_eq!(rfind_even(&[]), None);
