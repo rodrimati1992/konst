@@ -20,6 +20,84 @@ const fn add_usize(l: usize, r: usize) -> usize {
 }
 
 #[test]
+fn iterator_rev_and_flatten_test() {
+    const fn rev_then_flatten(slice: &[[u8; 3]; 3]) -> [u8; 9] {
+        let mut arr = [0; 9];
+
+        iter::eval! {
+            slice,
+                rev(),
+                flatten(),
+                copied(),
+                enumerate(),
+                for_each(|(i, v)| arr[i] = v),
+        }
+
+        arr
+    }
+    const fn flatten_then_rev(slice: &[[u8; 3]; 3]) -> [u8; 9] {
+        let mut arr = [0; 9];
+
+        iter::eval! {
+            slice,
+                flatten(),
+                rev(),
+                copied(),
+                enumerate(),
+                for_each(|(i, v)| arr[i] = v),
+        }
+
+        arr
+    }
+
+    let input = &[[1, 3, 5], [9, 11, 13], [15, 17, 19]];
+    assert_eq!(rev_then_flatten(input), [15, 17, 19, 9, 11, 13, 1, 3, 5]);
+    assert_eq!(flatten_then_rev(input), [19, 17, 15, 13, 11, 9, 5, 3, 1]);
+}
+
+#[test]
+fn iterator_rev_and_flat_map_test() {
+    const fn rev_then_flat_map(slice: &[[u8; 3]; 3]) -> [u8; 9] {
+        let mut arr = [0; 9];
+
+        iter::eval! {
+            slice,
+                rev(),
+                flat_map(|&[a, b, c]| &[100 + a, b, c]),
+                copied(),
+                enumerate(),
+                for_each(|(i, v)| arr[i] = v),
+        }
+
+        arr
+    }
+    const fn flat_map_then_rev(slice: &[[u8; 3]; 3]) -> [u8; 9] {
+        let mut arr = [0; 9];
+
+        iter::eval! {
+            slice,
+                flat_map(|&[a, b, c]| &[100 + a, b, c]),
+                rev(),
+                copied(),
+                enumerate(),
+                for_each(|(i, v)| arr[i] = v),
+        }
+
+        arr
+    }
+
+    let input = &[[1, 3, 5], [9, 11, 13], [15, 17, 19]];
+    assert_eq!(
+        rev_then_flat_map(input),
+        [115, 17, 19, 109, 11, 13, 101, 3, 5]
+    );
+    assert_eq!(
+        flat_map_then_rev(input),
+        [19, 17, 115, 13, 11, 109, 5, 3, 101]
+    );
+}
+
+#[test]
 fn iterator_all_test() {
     const fn all_fn(slice: &[u8]) -> bool {
         iter::eval!(slice, all(is_ru8_even))
@@ -83,17 +161,75 @@ fn count_tests() {
     const COUNT: usize = iter::eval!(0..10, count());
     assert_eq!(COUNT, 10);
 
-    assert_eq!(iter::eval!(0..0, count()), 0);
-    assert_eq!(iter::eval!(0..1, count()), 1);
-    assert_eq!(iter::eval!(0..2, count()), 2);
-    assert_eq!(iter::eval!(0..3, count()), 3);
-    assert_eq!(iter::eval!(0..4, count()), 4);
+    for (range, count) in vec![(0..0, 0), (0..1, 1), (0..2, 2), (0..3, 3), (0..4, 4)] {
+        assert_eq!(iter::eval!(range, count()), count);
+    }
 
-    assert_eq!(iter::eval!(&[0u8; 0], count()), 0);
-    assert_eq!(iter::eval!(&[0u8; 1], count()), 1);
-    assert_eq!(iter::eval!(&[0u8; 2], count()), 2);
-    assert_eq!(iter::eval!(&[0u8; 3], count()), 3);
-    assert_eq!(iter::eval!(&[0u8; 4], count()), 4);
+    for (slice, count) in vec![
+        (&[0u8; 0] as &[_], 0),
+        (&[0u8; 1], 1),
+        (&[0u8; 2], 2),
+        (&[0u8; 3], 3),
+        (&[0u8; 4], 4),
+    ] {
+        assert_eq!(iter::eval!(slice, count()), count);
+    }
+}
+
+#[test]
+fn flat_map_count_test() {
+    const fn range_f(n: &usize) -> std::ops::Range<usize> {
+        let x10 = *n * 10;
+        x10..x10 + 4
+    }
+
+    for (slice, count) in vec![(&[3usize] as &[_], 4), (&[3, 5], 8), (&[3, 5, 8], 12)] {
+        assert_eq!(iter::eval!(slice, flat_map(range_f), count()), count);
+    }
+}
+
+#[test]
+fn flat_map_nth_test() {
+    const fn range_f(n: &usize) -> std::ops::Range<usize> {
+        let x10 = *n * 10;
+        x10..x10 + 2
+    }
+
+    for &(i, v) in &[
+        (0, Some(30)),
+        (1, Some(31)),
+        (2, Some(50)),
+        (3, Some(51)),
+        (4, None),
+    ] {
+        assert_eq!(iter::eval!(&[3, 5], flat_map(range_f), nth(i)), v);
+    }
+}
+
+#[test]
+fn flat_map_rposition_test() {
+    const fn range_f(n: &usize) -> std::ops::Range<usize> {
+        let x10 = *n * 10;
+        x10..x10 + 2
+    }
+
+    for &(eq, v) in &[
+        (51, Some(0)),
+        (50, Some(1)),
+        (31, Some(2)),
+        (30, Some(3)),
+        (0, None),
+    ] {
+        assert_eq!(
+            iter::eval!(&[3, 5], flat_map(range_f), rposition(|e| e == eq)),
+            v
+        );
+
+        assert_eq!(
+            iter::eval!(&[3, 5], flat_map(range_f), rev(), position(|e| e == eq)),
+            v
+        );
+    }
 }
 
 #[test]
@@ -368,19 +504,27 @@ fn nth_test() {
     const ELEM: Option<usize> = iter::eval!(0..4, nth(0));
     assert_eq!(ELEM, Some(0));
 
-    assert_eq!(iter::eval!(0..4, nth(0)), Some(0));
-    assert_eq!(iter::eval!(0..4, nth(1)), Some(1));
-    assert_eq!(iter::eval!(0..4, nth(2)), Some(2));
-    assert_eq!(iter::eval!(0..4, nth(3)), Some(3));
-    assert_eq!(iter::eval!(0..4, nth(4)), None);
-    assert_eq!(iter::eval!(0..4, nth(5)), None);
+    for (range, nth, v) in vec![
+        (0..4, 0, Some(0)),
+        (0..4, 1, Some(1)),
+        (0..4, 2, Some(2)),
+        (0..4, 3, Some(3)),
+        (0..4, 4, None),
+        (0..4, 5, None),
+    ] {
+        assert_eq!(iter::eval!(range, nth(nth)), v);
+    }
 
-    assert_eq!(iter::eval!(&[0, 1, 2, 3], nth(0,)), Some(&0));
-    assert_eq!(iter::eval!(&[0, 1, 2, 3], nth(1,)), Some(&1));
-    assert_eq!(iter::eval!(&[0, 1, 2, 3], nth(2,)), Some(&2));
-    assert_eq!(iter::eval!(&[0, 1, 2, 3], nth(3,)), Some(&3));
-    assert_eq!(iter::eval!(&[0, 1, 2, 3], nth(4,)), None);
-    assert_eq!(iter::eval!(&[0, 1, 2, 3], nth(5,)), None);
+    for (slice, nth, v) in vec![
+        (&[0, 1, 2, 3] as &[_], 0, Some(&0)),
+        (&[0, 1, 2, 3], 1, Some(&1)),
+        (&[0, 1, 2, 3], 2, Some(&2)),
+        (&[0, 1, 2, 3], 3, Some(&3)),
+        (&[0, 1, 2, 3], 4, None),
+        (&[0, 1, 2, 3], 5, None),
+    ] {
+        assert_eq!(iter::eval!(slice, nth(nth,)), v);
+    }
 }
 
 #[test]

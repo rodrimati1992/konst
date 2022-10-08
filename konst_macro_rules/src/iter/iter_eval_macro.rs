@@ -13,7 +13,7 @@ macro_rules! iter_eval {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __iter_eval {
-    ($fixed:tt $item:ident for_each($($closure:tt)*), $(,)* ) => {
+    ($fixed:tt () $item:ident for_each($($closure:tt)*), $(,)* ) => {
         $crate::utils::__parse_closure_1!{
             ($crate::__ie_for_each)
             ($fixed $item,)
@@ -21,116 +21,107 @@ macro_rules! __iter_eval {
             $($closure)*
         }
     };
-    ($fixed:tt $item:ident any($($closure:tt)*), $(,)* ) => {
+    ($fixed:tt $vars:tt $item:ident any($($closure:tt)*), $(,)* ) => {
         $crate::utils::__parse_closure_1!{
             ($crate::__ie_any)
-            ($fixed $item,)
+            ($fixed $vars $item,)
             (any),
             $($closure)*
         }
     };
-    ($fixed:tt $item:ident all($($closure:tt)*), $(,)* ) => {
+    ($fixed:tt $vars:tt $item:ident all($($closure:tt)*), $(,)* ) => {
         $crate::utils::__parse_closure_1!{
             ($crate::__ie_all)
-            ($fixed $item,)
+            ($fixed $vars $item,)
             (all),
             $($closure)*
         }
     };
-    ($fixed:tt $item:ident count($($args:tt)*), $(,)* ) => ({
+    ($fixed:tt ($var:ident) $item:ident count($($args:tt)*), $(,)* ) => ({
         $crate::__cim_error_on_args!{count ($($args)*)}
 
         $crate::__ie_output!{
             $fixed
-            { let mut i = 0usize; }
-            { i += 1; }
-            { i }
+            { $var += 1; }
         }
     });
     // there's guaranteed to be an identifier for the method name,
     // so it is required to be either position or rposition.
     //
-    // `rposition` reverses the iterator in `__cim_detect_rev_method`
-    ($fixed:tt $item:ident $(position)? $(rposition)? ($($closure:tt)*), $(,)* ) => {
+    // `rposition` reverses the iterator in `__cim_preprocess_methods`
+    ($fixed:tt $vars:tt $item:ident $(position)? $(rposition)? ($($closure:tt)*), $(,)* ) => {
         $crate::utils::__parse_closure_1!{
             ($crate::__ie_position)
-            ($fixed $item,)
+            ($fixed $vars $item,)
             (position, rposition),
             $($closure)*
         }
     };
-    ($fixed:tt $item:ident find_map ($($closure:tt)*), $(,)* ) => {
+    ($fixed:tt $vars:tt $item:ident find_map ($($closure:tt)*), $(,)* ) => {
         $crate::utils::__parse_closure_1!{
             ($crate::__ie_find_map)
-            ($fixed $item,)
+            ($fixed $vars $item,)
             (find_map),
             $($closure)*
         }
     };
-    ($fixed:tt $item:ident $(find)? $(rfind)? ($($closure:tt)*), $(,)* ) => {
+    ($fixed:tt $vars:tt $item:ident $(find)? $(rfind)? ($($closure:tt)*), $(,)* ) => {
         $crate::utils::__parse_closure_1!{
             ($crate::__ie_find)
-            ($fixed $item,)
+            ($fixed $vars $item,)
             (find, rfind),
             $($closure)*
         }
     };
-    ($fixed:tt $item:ident $(fold)? $(rfold)? ($accum:expr, $($closure:tt)*), $(,)* ) => {
+    ($fixed:tt $vars:tt $item:ident $(fold)? $(rfold)? ($accum:expr, $($closure:tt)*), $(,)* ) => {
         $crate::utils::__parse_closure_2!{
             ($crate::__ie_fold)
-            ($fixed $item, $accum,)
+            ($fixed $vars $item,)
             (fold, rfold),
             $($closure)*
         }
     };
-    ($fixed:tt $item:ident $(fold)? $(rfold)? ($($args:tt)*), $(,)* ) => {
+    ($fixed:tt () $item:ident $(fold)? $(rfold)? ($($args:tt)*), $(,)* ) => {
         $crate::__::compile_error! {"fold/rfold methods expect 2 arguments"}
     };
-    ($fixed:tt $item:ident next($($args:tt)*), $(,)* ) => ({
+    ($fixed:tt ($var:ident) $item:ident next($($args:tt)*), $(,)* ) => ({
         $crate::__cim_error_on_args!{next ($($args)*)}
         $crate::__ie_output!{
             $fixed
-            { let mut next = $crate::__::None;}
             {
-                next = $crate::__::Some($item);
+                $var = $crate::__::Some($item);
                 $crate::__ie_break!{$fixed}
             }
-            { next }
         }
     });
-    ($fixed:tt $item:ident nth($nth:expr $(,)?), $(,)* ) => ({
+    ($fixed:tt ($nth:ident $ret:ident) $item:ident nth($($args:tt)*), $(,)* ) => ({
         $crate::__ie_output!{
             $fixed
             {
-                let mut nth = $nth;
-                let mut ret = $crate::__::None;
-            }
-            {
-                let _: $crate::__::usize = nth;
-                if nth == 0 {
-                    ret = $crate::__::Some($item);
+                let _: $crate::__::usize = $nth;
+                if $nth == 0 {
+                    $ret = $crate::__::Some($item);
                     $crate::__ie_break!{$fixed}
                 } else {
-                    nth -= 1;
+                    $nth -= 1;
                 }
             }
-            { ret }
         }
     });
-    ($fixed:tt $item:ident nth($($args:tt)*), $(,)* ) => {
+    ($fixed:tt () $item:ident nth($($args:tt)*), $(,)* ) => {
         $crate::__::compile_error! {"nth expects 1 argument"}
     };
-    ($fixed:tt $item:ident $comb:ident $($rem:tt)*) => {
+    ($fixed:tt () $item:ident $comb:ident $($rem:tt)*) => {
         $crate::__::compile_error! {$crate::__::concat!(
             "Unsupported iterator method: `",
             $crate::__::stringify!($comb),
             "`",
         )}
     };
-    ($fixed:tt $item:ident $(,)*) => {
-        $crate::__ie_output!{$fixed {} {} {}}
+    ($fixed:tt () $item:ident $(,)*) => {
+        $crate::__ie_output!{$fixed {}}
     };
-    ($fixed:tt $item:ident $($rem:tt)*) => {
+    ($fixed:tt () $item:ident $($rem:tt)*) => {
         $crate::__::compile_error! {$crate::__::concat!(
             "Unsupported trailing syntax: `",
             $crate::__::stringify!($($rem)*),
@@ -145,9 +136,7 @@ macro_rules! __ie_for_each {
     ($fixed:tt $item:ident, |$elem:pat| $value:expr) => {
         $crate::__ie_output! {
             $fixed
-            {}
             {let $elem = $item; $value;}
-            {}
         }
     };
 }
@@ -155,18 +144,16 @@ macro_rules! __ie_for_each {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_any {
-    ($fixed:tt $item:ident, |$elem:pat| $v:expr) => {
+    ($fixed:tt ($cond:ident) $item:ident, |$elem:pat| $v:expr) => {
         $crate::__ie_output! {
             $fixed
-            { let mut cond = false;}
             {
                 let $elem = $item;
                 if $v {
-                    cond = true;
+                    $cond = true;
                     $crate::__ie_break!{$fixed}
                 }
             }
-            { cond }
         }
     };
 }
@@ -174,18 +161,16 @@ macro_rules! __ie_any {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_all {
-    ($fixed:tt $item:ident, |$elem:pat| $v:expr) => {
+    ($fixed:tt ($cond:ident) $item:ident, |$elem:pat| $v:expr) => {
         $crate::__ie_output! {
             $fixed
-            { let mut cond = true; }
             {
                 let $elem = $item;
                 if !$v {
-                    cond = false;
+                    $cond = false;
                     $crate::__ie_break!{$fixed}
                 }
             }
-            { cond }
         }
     };
 }
@@ -193,23 +178,18 @@ macro_rules! __ie_all {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_position {
-    ($fixed:tt $item:ident, |$elem:pat| $v:expr) => {
+    ($fixed:tt ($i:ident $position:ident) $item:ident, |$elem:pat| $v:expr) => {
         $crate::__ie_output! {
             $fixed
             {
-                let mut position = $crate::__::None;
-                let mut i = 0usize;
-            }
-            {
                 let $elem = $item;
                 if $v {
-                    position = $crate::__::Some(i);
+                    $position = $crate::__::Some($i);
                     $crate::__ie_break!{$fixed}
                 } else {
-                    i += 1;
+                    $i += 1;
                 }
             }
-            { position }
         }
     };
 }
@@ -217,20 +197,16 @@ macro_rules! __ie_position {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_find_map {
-    ($fixed:tt $item:ident, |$elem:pat| $v:expr) => {
+    ($fixed:tt ($ret:ident) $item:ident, |$elem:pat| $v:expr) => {
         $crate::__ie_output! {
             $fixed
             {
-                let mut val = $crate::__::None;
-            }
-            {
                 let $elem = $item;
-                val = $v;
-                if let $crate::__::Some(_) = val {
+                $ret = $v;
+                if let $crate::__::Some(_) = $ret {
                     $crate::__ie_break!{$fixed}
                 }
             }
-            { val }
         }
     };
 }
@@ -238,20 +214,16 @@ macro_rules! __ie_find_map {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_find {
-    ($fixed:tt $item:ident, |$elem:pat| $v:expr) => {
+    ($fixed:tt ($ret:ident) $item:ident, |$elem:pat| $v:expr) => {
         $crate::__ie_output! {
             $fixed
             {
-                let mut val = $crate::__::None;
-            }
-            {
                 let $elem = &$item;
                 if $v {
-                    val = $crate::__::Some($item);
+                    $ret = $crate::__::Some($item);
                     $crate::__ie_break!{$fixed}
                 }
             }
-            { val }
         }
     };
 }
@@ -259,16 +231,14 @@ macro_rules! __ie_find {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_fold {
-    ($fixed:tt $item:ident, $accum:expr, |$accum_pat:pat, $elem:pat| $v:expr) => {
+    ($fixed:tt ($accum:ident) $item:ident, |$accum_pat:pat, $elem:pat| $v:expr) => {
         $crate::__ie_output! {
             $fixed
-            {let mut accum = $accum;}
             {
-                let $accum_pat = accum;
+                let $accum_pat = $accum;
                 let $elem = $item;
-                accum = $v;
+                $accum = $v;
             }
-            { accum }
         }
     };
 }
@@ -282,26 +252,19 @@ macro_rules! __ie_output {
             $item:ident
             (
                 $((
-                    $($iter_var:ident = $iter_expr:tt)?
-                    {$($init:tt)*}
+                    {$($var_a:ident = $var_a_expr:expr),* $(,)?}
                     $($code:tt)*
                 ))*
             )
         )
-        {
-            $(let $vars:pat = $value:expr;)*
-        }
         $each:tt
-        $finish:tt
     ) => ({
-        match ($($( $crate::into_iter_macro!($iter_expr) ,)?)* $($value,)*) {
-            ($($(mut $iter_var,)?)* $($vars,)*) => {
-                $($($init)*)*
+        match ($($( $var_a_expr,)?)*) {
+            ($($(mut $var_a,)?)*) => {
                 $($label:)? loop {
                     $($($code)*)*
                     $each
                 }
-                $finish
             },
         }
     });

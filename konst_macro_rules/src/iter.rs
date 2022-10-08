@@ -41,61 +41,71 @@ macro_rules! iter_count {
     }};
 }
 
-macro_rules! make__cim_detect_rev_method__macro {
+macro_rules! make__cim_preprocess_methods__macro {
     (
         $_:tt
-        [$($fn:ident,)*]
-        [$($reversing_fn:ident,)*]
+        [$(
+            $fn:ident [$($next_fn:ident)?] $args:tt
+            $(return $ret_var:tt)?
+            $(var $new_var:tt)?,
+        )*]
+        [$(
+            ($($st_func:ident)* ($($func_args:tt)*)) => { $var:ident = $var_expr:tt }
+        )*]
         $($finished_arm:tt)*
     ) => {
         #[doc(hidden)]
         #[macro_export]
-        macro_rules! __cim_detect_rev_method {
+        macro_rules! __cim_preprocess_methods {
             $($finished_arm)*
-            (
-                $fixed:tt
-                $next_fn:ident
 
-                $func:ident $($_($fn)?)* ,
-                $_($rest:tt)*
-            ) => {
-                $crate::iter::__cim_detect_rev_method!{
-                    $fixed
-                    $next_fn
-                    $_($rest)*
-                }
-            };
-            (
-                $fixed:tt
-                next
+            $(
+                (
+                    (($_($vars_after:tt)*) $_($fixed:tt)*)
+                    [$prev_next_fn:ident $_($ignored:tt)*]
 
-                $func:ident $($_($reversing_fn)?)* ,
-                $_($rest:tt)*
-            ) => {
-                $crate::iter::__cim_detect_rev_method!{
-                    $fixed
-                    next_back
-                    $_($rest)*
-                }
-            };
-            (
-                $fixed:tt
-                next_back
+                    $func_:ident $_($fn)? $args,
+                    $_($rest:tt)*
+                ) => ({
+                    $( $crate::__assert_first_rev!{$func_ $prev_next_fn $next_fn} )?
 
-                $func:ident $($_($reversing_fn)?)* ,
-                $_($rest:tt)*
-            ) => {
-                $crate::__::compile_error!{$crate::__::concat!(
-                    "cannot call two iterator-reversing methods in `konst::iter` macros,",
-                    " called: ",
-                    $crate::__::stringify!($func),
-                )}
-            };
+                    $crate::iter::__cim_preprocess_methods!{
                         (
-                $fixed:tt
-                $next_fn:ident
+                            (
+                                $(return(rets = $ret_var))?
+                                $_($vars_after)*
+                                $((var = $new_var))?
+                            )
+                            $_($fixed)*
+                        )
+                        [$($next_fn)? $prev_next_fn]
+                        $_($rest)*
+                    }
+                });
+            )*
 
-                $func:ident $func2:ident,
+            $(
+                (
+                    (($_($vars_before:tt)*) $_($fixed:tt)*)
+                    [$prev_next_fn:ident $_($ignored:tt)*]
+
+                    $func_:ident $($_($st_func)?)* ($($func_args)*),
+                    $_($rest:tt)*
+                ) => ({
+                    $crate::iter::__cim_preprocess_methods!{
+                        (($_($vars_before)* ($var = $var_expr)) $_($fixed)*)
+                        [$prev_next_fn]
+                        $_($rest)*
+                    }
+                });
+            )*
+
+
+            (
+                $fixed:tt
+                $prev_next_fn:tt
+
+                $func:ident $func2:ident ($_($args_:tt)*),
                 $_($rest:tt)*
             ) => {
                 $crate::__::compile_error!{$crate::__::concat!(
@@ -106,47 +116,99 @@ macro_rules! make__cim_detect_rev_method__macro {
         }
 
         #[doc(hidden)]
-        pub use __cim_detect_rev_method;
+        pub use __cim_preprocess_methods;
     };
 }
 
-make__cim_detect_rev_method__macro! {
+make__cim_preprocess_methods__macro! {
     $
     [
-        copied,
-        enumerate,
-        filter,
-        filter_map,
-        flat_map,
-        flatten,
-        map,
-        skip,
-        skip_while,
-        take,
-        take_while,
-        zip,
+        copied[] ($($args:tt)*),
+        filter[] ($($args:tt)*),
+        filter_map[] ($($args:tt)*),
+        flat_map[] ($($args:tt)*),
+        flatten[] ($($args:tt)*),
+        map[] ($($args:tt)*),
+        take_while[] ($($args:tt)*),
+        rev[next_back] ($($args:tt)*),
 
-        all,
-        any,
-        count,
-        find,
-        find_map,
-        fold,
-        for_each,
-        nth,
-        next,
-        position,
+        rfind[next_back] ($($args:tt)*)
+            return($crate::__::None),
+
+        all[] ($($args:tt)*)
+            return(true),
+
+        any[] ($($args:tt)*)
+            return(false),
+
+        count[] ($($args:tt)*)
+            return(0usize),
+
+        find[] ($($args:tt)*)
+            return($crate::__::None),
+
+        find_map[] ($($args:tt)*)
+            return($crate::__::None),
+
+        rfold[next_back] ($($args:tt)*)
+            return($crate::__assert_fold_accum!(rfold, $($args)*)),
+
+        fold[] ($($args:tt)*)
+            return($crate::__assert_fold_accum!(fold, $($args)*)),
+
+        for_each[] ($($args:tt)*),
+
+        nth[] ($($args:tt)*)
+            return($crate::__::None)
+            var($crate::__cim_assert_expr!{nth($($args)*)}),
+
+        next[] ($($args:tt)*)
+            return($crate::__::None),
+
+        position[] ($($args:tt)*)
+            return($crate::__::None)
+            var(0usize),
+
+        rposition[next_back] ($($args:tt)*)
+            return($crate::__::None)
+            var(0usize),
     ]
-    [
-        rev,
 
-        rfind,
-        rfold,
-        rposition,
+    [
+        ( zip($($args:tt)*) ) => {
+            iter = (
+                $crate::into_iter_macro!(
+                    $crate::__cim_assert_expr!{zip($($args)*)}
+                )
+            )
+        }
+
+        ( enumerate($($args:tt)*) ) => {
+            i = {
+                $crate::__cim_error_on_args!{enumerate($($args)*)}
+                0usize
+            }
+        }
+
+        ( take skip ($($args:tt)*) ) => {
+            rem = {
+                let x: $crate::__::usize = $crate::__cim_assert_expr!{take($($args)*)};
+                x
+            }
+        }
+
+        ( skip_while ($($args:tt)*) ) => {
+            still_skipping = true
+        }
     ]
 
     (
         (
+            (
+                $(return($ret_var:ident = $ret_val:tt))?
+                ($iter_var:ident = $iter_expr:expr);
+                $(($var:ident = $var_value:expr))*
+            )
             ($($callback_macro:tt)*)
             ($($fixed_arguments:tt)*)
             (
@@ -157,27 +219,35 @@ make__cim_detect_rev_method__macro! {
                 //            returning an iterator.
                 $allowed_methods:ident,
             )
-            ($iter:expr)
             ($($args:tt)*)
         )
-        $next_fn:ident
-    ) => {
+        [$next_fn:ident $($ignored:tt)*]
+    ) => ({
+        $(let mut $ret_var = $ret_val;)?
         $crate::__call_iter_methods!{
             (
+                ($($var)* $($ret_var)?)
                 ($($callback_macro)*) ($($fixed_arguments)*)
-                ($label $label) $next_fn $allowed_methods
+                ($label $label)
+                $next_fn
+                $allowed_methods
             )
             (
+                ($($var)* $($ret_var)?)
                 ($($callback_macro)*) ($($fixed_arguments)*)
-                ($label $label) $next_fn $allowed_methods
+                ($label $label)
+                $next_fn
+                $allowed_methods
             )
             $item
             (
                 (
-                    iter = $iter
-                    {}
-                    let $item = if let $crate::__::Some((elem_, next_)) = iter.$next_fn() {
-                        iter = next_;
+                    {
+                        $iter_var = $iter_expr,
+                        $($var = $var_value,)*
+                    }
+                    let $item = if let $crate::__::Some((elem_, next_)) = $iter_var.$next_fn() {
+                        $iter_var = next_;
                         elem_
                     } else {
                         break $label;
@@ -186,5 +256,33 @@ make__cim_detect_rev_method__macro! {
             )
             $($args)*
         }
+        $($ret_var)?
+    });
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __assert_first_rev {
+    ($func:ident next_back next_back) => {
+        $crate::__::compile_error! {$crate::__::concat!(
+            "cannot call two iterator-reversing methods in `konst::iter` macros,",
+            " called: ",
+            $crate::__::stringify!($func),
+        )}
+    };
+    ($func:ident $prev_next_fn:ident $($next_fn:ident)?) => {};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __assert_fold_accum {
+    ($func:ident, $e:expr $(, $($__:tt)*)?) => { $e };
+    ($func:ident, $($args:tt)*) => {
+        $crate::__::compile_error!{$crate::__::concat!(
+            "expected expression as first argument to `",
+            $crate::__::stringify!($func),
+            "`, found: "
+            $crate::__::stringify!($($args)*),
+        )}
     };
 }

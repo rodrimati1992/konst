@@ -42,6 +42,8 @@ assert_eq!(ARR, [(&3, 100), (&5, 101), (&8, 102), (&13, 103)]);
 
 ### `enumerate`
 
+`enumerate` always counts from `0`, regardless of whether the iterator is reversed.
+
 ```rust
 use konst::iter;
 

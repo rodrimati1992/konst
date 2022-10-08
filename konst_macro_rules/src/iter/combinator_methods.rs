@@ -9,21 +9,21 @@ macro_rules! __process_iter_args {
         =>
         $($rem:tt)*
     ) => (
-        $crate::iter::__cim_detect_rev_method !{
+        $crate::iter::__cim_preprocess_methods !{
             (
+                ((iter = $crate::into_iter_macro!($iter));)
                 $callback_macro
                 $fixed_arguments
                 $other_args
-                ( $iter )
                 (
                     $($method($($args)*),)*
                     => $($rem)*
                 )
             )
 
-            next
+            [next]
 
-            $($method $method,)*
+            $($method $method ($($args)*),)*
         }
     );
     (
@@ -32,18 +32,18 @@ macro_rules! __process_iter_args {
         $other_args:tt
         $iter:expr $(, $method:ident ($($args:tt)*) )* $(,)*
     ) => (
-        $crate::iter::__cim_detect_rev_method !{
+        $crate::iter::__cim_preprocess_methods !{
             (
+                ((iter = $crate::into_iter_macro!($iter));)
                 $callback_macro
                 $fixed_arguments
                 $other_args
-                ($iter)
                 ( $($method($($args)*),)* )
             )
 
-            next
+            [next]
 
-            $($method $method,)*
+            $($method $method ($($args)*),)*
         }
     );
 }
@@ -51,17 +51,17 @@ macro_rules! __process_iter_args {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __call_iter_methods {
-    // this method is detected by `__cim_detect_rev_method`,
-    // and causes the iterator method to change from next to next_back
     (
-        $fixed:tt $fixedb:tt $item:ident $iters:tt
+        $fixed:tt
+        ($vars:tt $macro:tt $prev_args:tt $label:tt next_back $allowed_methods:tt)
+        $item:ident $iters:tt
         rev($($args:tt)*), $($rem:tt)*
     ) => ({
         $crate::__cim_error_on_args!{rev($($args)*)}
 
         $crate::__call_iter_methods!{
-            $fixed
-            $fixedb
+            ($vars $macro $prev_args $label next $allowed_methods)
+            ($vars $macro $prev_args $label next $allowed_methods)
             $item
             $iters
             $($rem)*
@@ -69,25 +69,47 @@ macro_rules! __call_iter_methods {
     });
     (
         $fixed:tt
-        ($macro:tt $prev_args:tt $label:tt $next_fn:tt $allowed_methods:ident)
+        ($vars:tt $macro:tt $prev_args:tt $label:tt next $allowed_methods:tt)
+        $item:ident $iters:tt
+        rev($($args:tt)*), $($rem:tt)*
+    ) => ({
+        $crate::__cim_error_on_args!{rev($($args)*)}
+
+        $crate::__call_iter_methods!{
+            ($vars $macro $prev_args $label next_back $allowed_methods)
+            ($vars $macro $prev_args $label next_back $allowed_methods)
+            $item
+            $iters
+            $($rem)*
+        }
+    });
+    (
+        (
+            $vars:tt
+            $macro:tt
+            $prev_args:tt
+            $label:tt
+            $next_fn:tt
+            $allowed_methods:ident
+        )
+        (($iter_var:ident $($rem_vars:ident)*) $($rem_fixed:tt)*)
         $item:ident
         ($($iters:tt)*)
         zip($iter:expr), $($rem:tt)*
     ) => (
         $crate::__call_iter_methods!{
-            $fixed
-            $fixed
+            (($($rem_vars)*) $($rem_fixed)*)
+            (($($rem_vars)*) $($rem_fixed)*)
             $item
             ( $($iters)* (
-                iter = $iter
-                {/*init*/}
+                {}
 
-                let $item = if let $crate::__::Some((elem_, next_)) = iter.$next_fn() {
-                    iter = next_;
+                let $item = if let $crate::__::Some((elem_, next_)) = $iter_var.$next_fn() {
+                    $iter_var = next_;
 
                     ($item, elem_)
                 } else {
-                    $crate::__cim_break!{$fixed}
+                    $crate::__cim_break!{(($($rem_vars)*) $($rem_fixed)*)}
                 };
             ))
 
@@ -95,40 +117,42 @@ macro_rules! __call_iter_methods {
         }
     );
     (
-        $fixed:tt $fixedb:tt $item:ident ($($iters:tt)*)
+        $fixed:tt
+        (($iter_var:ident $($rem_vars:ident)*) $($rem_fixed:tt)*)
+        $item:ident ($($iters:tt)*)
         enumerate($($args:tt)*), $($rem:tt)*
     ) => ({
         $crate::__cim_error_on_args!{enumerate($($args)*)}
 
         $crate::__call_iter_methods!{
-            $fixed
-            $fixedb
+            (($($rem_vars)*) $($rem_fixed)*)
+            (($($rem_vars)*) $($rem_fixed)*)
             $item
             ( $($iters)* (
-                {let mut i = 0usize;}
-                let $item = (i, $item);
-                i+=1;
+                {}
+                let $item = ($iter_var, $item);
+                $iter_var+=1;
             ))
             $($rem)*
         }
     });
     (
         $fixed:tt
-        $fixedb:tt
+        (($var:ident $($rem_vars:ident)*) $($rem_fixed:tt)*)
         $item:ident
         ($($iters:tt)*)
         take($amount:expr $(,)?), $($rem:tt)*
     ) => (
         $crate::__call_iter_methods!{
-            $fixed
-            $fixedb
+            (($($rem_vars)*) $($rem_fixed)*)
+            (($($rem_vars)*) $($rem_fixed)*)
             $item
             ( $($iters)* (
-                { let mut rem: $crate::__::usize = $amount; }
-                if rem == 0 {
+                {}
+                if $var == 0 {
                     $crate::__cim_break!{$fixed}
                 } else {
-                    rem -= 1;
+                    $var -= 1;
                 }
             ))
             $($rem)*
@@ -155,17 +179,19 @@ macro_rules! __call_iter_methods {
         }
     );
     (
-        $fixed:tt $fixedb:tt $item:ident ($($iters:tt)*)
+        $fixed:tt
+        (($var:ident $($rem_vars:ident)*) $($rem_fixed:tt)*)
+        $item:ident ($($iters:tt)*)
         skip($amount:expr $(,)?), $($rem:tt)*
     ) => (
         $crate::__call_iter_methods!{
-            $fixed
-            $fixedb
+            (($($rem_vars)*) $($rem_fixed)*)
+            (($($rem_vars)*) $($rem_fixed)*)
             $item
             ( $($iters)* (
-                { let mut rem: $crate::__::usize = $amount; }
-                if rem != 0 {
-                    rem -= 1;
+                {}
+                if $var != 0 {
+                    $var -= 1;
                     continue;
                 }
             ))
@@ -173,21 +199,23 @@ macro_rules! __call_iter_methods {
         }
     );
     (
-        $fixed:tt $fixedb:tt $item:ident ($($iters:tt)*)
+        $fixed:tt
+        (($still_skipping:ident $($rem_vars:ident)*) $($rem_fixed:tt)*)
+        $item:ident ($($iters:tt)*)
         skip_while($($pred:tt)*), $($rem:tt)*
     ) => (
         $crate::__call_iter_methods!{
-            $fixed
-            $fixedb
+            (($($rem_vars)*) $($rem_fixed)*)
+            (($($rem_vars)*) $($rem_fixed)*)
             $item
             ( $($iters)* (
-                {let mut still_skipping = true; }
-                still_skipping = still_skipping && $crate::utils::__parse_closure_1!(
+                {}
+                $still_skipping = $still_skipping && $crate::utils::__parse_closure_1!(
                     ($crate::__cim_filter) ($item,) (skip_while),
                     $($pred)*
                 );
 
-                if still_skipping {
+                if $still_skipping {
                     continue;
                 }
             ))
@@ -312,7 +340,7 @@ macro_rules! __call_iter_methods {
     });
     (
         $fixed:tt
-        ($macro:tt $prev_args:tt $label:tt $next_fn:tt adapter)
+        ($vars:tt $macro:tt $prev_args:tt $label:tt $next_fn:tt adapter)
         $item:tt $iters:tt
         $comb:ident ($($args:tt)*), $($rem:tt)*
     ) => {
@@ -324,7 +352,14 @@ macro_rules! __call_iter_methods {
     };
     (
         $fixed:tt
-        (($($macro:tt)*) ($($prev_args:tt)*) $label:tt $next_fn:tt consumer)
+        (
+            $vars:tt
+            ($($macro:tt)*)
+            ($($prev_args:tt)*)
+            $label:tt
+            $next_fn:tt
+            consumer
+        )
         $item:ident
         $iters:tt
         $($rem:tt)*
@@ -332,13 +367,14 @@ macro_rules! __call_iter_methods {
         $($macro)* ! {
             $($prev_args)*
             ($label $item $iters)
+            $vars
             $item
             $($rem)*
         }
     };
     (
         $fixed:tt
-        (($($macro:tt)*) ($($prev_args:tt)*) $label:tt $next_fn:tt $allowed_methods:ident)
+        ($vars:tt ($($macro:tt)*) ($($prev_args:tt)*) $label:tt $next_fn:tt $allowed_methods:ident)
         $item:ident
         $iters:tt
         $($rem:tt)*
@@ -365,6 +401,7 @@ macro_rules! __call_iter_methods {
 macro_rules! __cim_output_layer {
     (
         (
+            $vars:tt
             $macro:tt
             $prev_args:tt
             ($break_label:lifetime $($label:lifetime)?)
@@ -374,8 +411,7 @@ macro_rules! __cim_output_layer {
         $item:ident
         (
             $((
-                $($iter_var:ident = $iter_expr:tt)?
-                {$($init:tt)*}
+                { $($var:ident = $var_expr:expr),* $(,)? }
                 $($code:tt)*
             ))*
         )
@@ -383,9 +419,8 @@ macro_rules! __cim_output_layer {
         $each:tt
         $finish:tt
     ) => ({
-        match ($($( $crate::into_iter_macro!($iter_expr) ,)?)*) {
-            ($($(mut $iter_var,)?)*) => {
-                $($($init)*)*
+        match ($(($($var_expr,)*),)*) {
+            ($(($(mut $var,)*),)*) => {
                 $($extra_init)*
                 $($label:)? loop {
                     $($($code)*)*
@@ -422,6 +457,7 @@ macro_rules! __cim_map {
 #[macro_export]
 macro_rules! __cim_break {
     ((
+        $vars:tt
         $macro:tt
         $prev_args:tt
         ($break_label:tt $($label:tt)?)
@@ -437,6 +473,7 @@ macro_rules! __cim_break {
 macro_rules! __cim_flat_map {
     (
         (
+            $vars:tt
             $macro:tt
             $prev_args:tt
             ($break_label:tt $($label:tt)?)
@@ -448,17 +485,13 @@ macro_rules! __cim_flat_map {
         |$elem:pat| $v:expr
     ) => ({
         let $elem = $item;
-        // allowing for lifetime extension of temporaries
-        let v = $v;
-
         $crate::__call_iter_methods!{
-            ($macro $prev_args ($break_label) $next_fn $allowed_methods)
-            ($macro $prev_args ($break_label) $next_fn $allowed_methods)
+            ($vars $macro $prev_args ($break_label) $next_fn $allowed_methods)
+            ($vars $macro $prev_args ($break_label) $next_fn $allowed_methods)
             $item
             (
                 (
-                    iter = v
-                    {}
+                    {iter = $crate::into_iter_macro!($v)}
                     let $item = if let $crate::__::Some((elem_, next_)) = iter.$next_fn() {
                         iter = next_;
                         elem_
@@ -482,6 +515,20 @@ macro_rules! __cim_error_on_args {
             "`",
             $crate::__::stringify!($func),
             "` does not take arguments, passed: ",
+            $crate::__::stringify!($($args)*),
+        }}
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __cim_assert_expr {
+    ($func:ident( $expr:expr $(,)?)) => ($expr);
+    ($func:ident ($($args:tt)*)) => {
+        $crate::__::compile_error!{$crate::__::concat!{
+            "`",
+            $crate::__::stringify!($func),
+            "` expected an expression to be passed, passed: ",
             $crate::__::stringify!($($args)*),
         }}
     };

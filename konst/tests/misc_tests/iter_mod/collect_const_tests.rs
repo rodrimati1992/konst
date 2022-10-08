@@ -60,6 +60,25 @@ fn collect_const_enumerate() {
 }
 
 #[test]
+fn collect_const_enumerate_and_rev() {
+    {
+        const ARR0: [(usize, &u8); 4] = collect_const!((usize, &u8) =>
+            &[3u8, 5, 8, 13],
+                enumerate(),
+                rev(),
+        );
+        const ARR1: [(usize, &u8); 4] = collect_const!((usize, &u8) =>
+            &[3u8, 5, 8, 13],
+                rev(),
+                enumerate(),
+        );
+
+        assert_eq!(ARR0, [(0, &13), (1, &8), (2, &5), (3, &3)]);
+        assert_eq!(ARR1, [(0, &13), (1, &8), (2, &5), (3, &3)]);
+    }
+}
+
+#[test]
 fn collect_const_filter() {
     const ARR: [&u8; 4] = collect_const!(&u8 =>
         &[3u8, 5, 8, 13, 21],
@@ -147,6 +166,116 @@ fn collect_const_flat_map() {
         );
 
         assert_eq!(ARR, [30, 31, 32, 50, 51, 52, 80, 81, 82]);
+    }
+}
+
+#[test]
+fn collect_const_flat_map_and_rev() {
+    {
+        const ARR: [usize; 9] = collect_const!(usize =>
+            &[3, 5, 8],
+                rev(),
+                flat_map(|x| {
+                    let x10 = *x * 10;
+                    x10..x10 + 3
+                }),
+        );
+
+        assert_eq!(ARR, [80, 81, 82, 50, 51, 52, 30, 31, 32]);
+    }
+    {
+        const ARR: [usize; 9] = collect_const!(usize =>
+            &[3, 5, 8],
+                flat_map(|x| {
+                    let x10 = *x * 10;
+                    x10..x10 + 3
+                }),
+                rev(),
+        );
+
+        assert_eq!(ARR, [82, 81, 80, 52, 51, 50, 32, 31, 30]);
+    }
+}
+
+#[test]
+fn collect_const_flat_map_and_zip() {
+    {
+        const ARR: [(usize, usize); 4] = collect_const!((usize, usize) =>
+            &[3, 5],
+                flat_map(|x| {
+                    let x10 = *x * 10;
+                    x10..x10 + 2
+                }),
+                zip(5..)
+        );
+
+        assert_eq!(ARR, [(30, 5), (31, 6), (50, 7), (51, 8)]);
+    }
+}
+
+#[test]
+fn collect_const_flat_map_and_enumerate() {
+    {
+        const ARR: [(usize, usize); 4] = collect_const!((usize, usize) =>
+            &[3, 5],
+                flat_map(|x| {
+                    let x10 = *x * 10;
+                    x10..x10 + 2
+                }),
+                enumerate()
+        );
+
+        assert_eq!(ARR, [(0, 30), (1, 31), (2, 50), (3, 51)]);
+    }
+}
+
+#[test]
+fn collect_const_flat_map_and_take_skip_while() {
+    const fn range_f(n: &usize) -> std::ops::Range<usize> {
+        let x10 = *n * 10;
+        x10..x10 + 4
+    }
+
+    {
+        const ARR: [usize; 5] = collect_const!(usize => &[3, 5],flat_map(range_f),take(5));
+        assert_eq!(ARR, [30, 31, 32, 33, 50]);
+    }
+    {
+        const ARR: [usize; 8] =
+            collect_const!(usize => &[3, 5, 8, 13, 21],take(2),flat_map(range_f));
+        assert_eq!(ARR, [30, 31, 32, 33, 50, 51, 52, 53]);
+    }
+
+    {
+        const ARR: [usize; 3] = collect_const!(usize => &[3, 5],flat_map(range_f),skip(5));
+        assert_eq!(ARR, [51, 52, 53]);
+    }
+    {
+        const ARR: [usize; 8] =
+            collect_const!(usize => &[3, 5, 8, 13, 21, 34, 55],skip(5),flat_map(range_f));
+        assert_eq!(ARR, [340, 341, 342, 343, 550, 551, 552, 553]);
+    }
+
+    {
+        const ARR: [usize; 3] =
+            collect_const!(usize => &[3, 5],flat_map(range_f),take_while(|x| *x % 10 < 3));
+        assert_eq!(ARR, [30, 31, 32]);
+    }
+    {
+        const ARR: [usize; 8] =
+            collect_const!(usize => &[3, 5, 8, 13, 21],take_while(|x| **x < 8),flat_map(range_f));
+        assert_eq!(ARR, [30, 31, 32, 33, 50, 51, 52, 53]);
+    }
+
+    {
+        const ARR: [usize; 5] =
+            collect_const!(usize => &[3, 5],flat_map(range_f),skip_while(|x| *x % 10 < 3));
+        assert_eq!(ARR, [33, 50, 51, 52, 53]);
+    }
+    {
+        const ARR: [usize; 8] =
+            collect_const!(usize => &[3, 5, 8, 13, 21],skip_while(|x| **x <= 8),flat_map(range_f));
+        assert_eq!(ARR, [130, 131, 132, 133, 210, 211, 212, 213]);
     }
 }
 
