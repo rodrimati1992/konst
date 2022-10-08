@@ -160,7 +160,7 @@ make__cim_preprocess_methods__macro! {
 
         nth[] ($($args:tt)*)
             return($crate::__::None)
-            var($crate::__cim_assert_expr!{nth($($args)*)}),
+            var($crate::__cim_assert_expr!{nth($($args)*), 0}),
 
         next[] ($($args:tt)*)
             return($crate::__::None),
@@ -178,21 +178,18 @@ make__cim_preprocess_methods__macro! {
         ( zip($($args:tt)*) ) => {
             iter = (
                 $crate::into_iter_macro!(
-                    $crate::__cim_assert_expr!{zip($($args)*)}
+                    $crate::__cim_assert_expr!{zip($($args)*), 0usize..0}
                 )
             )
         }
 
         ( enumerate($($args:tt)*) ) => {
-            i = {
-                $crate::__cim_error_on_args!{enumerate($($args)*)}
-                0usize
-            }
+            i = { 0usize }
         }
 
         ( take skip ($($args:tt)*) ) => {
             rem = {
-                let x: $crate::__::usize = $crate::__cim_assert_expr!{take($($args)*)};
+                let x: $crate::__::usize = $crate::__cim_assert_expr!{take($($args)*), 0};
                 x
             }
         }
@@ -275,14 +272,63 @@ macro_rules! __assert_first_rev {
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __assert_fold_accum {
-    ($func:ident, $e:expr $(, $($__:tt)*)?) => { $e };
-    ($func:ident, $($args:tt)*) => {
-        $crate::__::compile_error!{$crate::__::concat!(
-            "expected expression as first argument to `",
+macro_rules! __cim_assert_expr {
+    ($func:ident (), $def:expr) => {{
+        $crate::__cim_no_expr_arg_error! {$func ()}
+        $def
+    }};
+    ($func:ident ( $expr:expr $(,)?), $def:expr) => {
+        $expr
+    };
+    ($func:ident ($expr:expr ,$($args:tt)+), $def:expr) => {{
+        $crate::__::compile_error! {$crate::__::concat!{
+            "`",
             $crate::__::stringify!($func),
-            "`, found: "
-            $crate::__::stringify!($($args)*),
-        )}
+            "` only takes one argument"
+        }}
+
+        $def
+    }};
+    ($func:ident $args:tt, $def:expr) => {{
+        $crate::__cim_no_expr_arg_error! {$func $args}
+        $def
+    }};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __cim_no_expr_arg_error {
+    ($func:ident $args:tt) => {
+        $crate::__::compile_error! {$crate::__::concat!{
+            "`",
+            $crate::__::stringify!($func),
+            "` expected an expression to be passed, passed: ",
+            $crate::__cim_if_empty!{
+                $args {
+                    "``"
+                } else {
+                    $crate::__::stringify! $args
+                }
+            },
+        }}
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __cim_if_empty {
+    (() {$($then:tt)*} else $else:tt) => { $($then)* };
+    (() $then:tt else {$($else:tt)*}) => { $($else)* };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __assert_fold_accum {
+    ($func:ident, $e:expr $(, $($__:tt)*)?) => {
+        $e
+    };
+    // dummy default value, this'll error in __iter_eval
+    ($func:ident, $($args:tt)*) => {
+        ()
     };
 }

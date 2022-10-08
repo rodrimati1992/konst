@@ -1,0 +1,119 @@
+error: `rfind` expects to be passed a 1-parameter closure
+ --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:5:5
+  |
+5 |     konst::iter::eval!(R, rfind());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rfind` expects to be passed a 1-parameter closure
+ --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:6:5
+  |
+6 |     konst::iter::eval!(R, rfind(||false));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rfind` expects no arguments after closure argument
+ --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:7:5
+  |
+7 |     konst::iter::eval!(R, rfind(|_| false, 100));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rfind` expects to be passed a 1-parameter closure
+ --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:8:5
+  |
+8 |     konst::iter::eval!(R, rfind(|a, b|false));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: rfold method expects accumulator and closure arguments
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:12:5
+   |
+12 |     konst::iter::eval!(R, rfold());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter_eval` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rfold` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:13:5
+   |
+13 |     konst::iter::eval!(R, rfold(0));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rfold` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:14:5
+   |
+14 |     konst::iter::eval!(R, rfold(0,));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rfold` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:15:5
+   |
+15 |     konst::iter::eval!(R, rfold(0, || 10));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rfold` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:16:5
+   |
+16 |     konst::iter::eval!(R, rfold(0, |_| 10));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rfold` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:17:5
+   |
+17 |     konst::iter::eval!(R, rfold(0, |_, _| ));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rfold` expects no arguments after closure argument
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:18:5
+   |
+18 |     konst::iter::eval!(R, rfold(0, |_, _| 10, 100));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rposition` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:22:5
+   |
+22 |     konst::iter::eval!(R, rposition());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rposition` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:23:5
+   |
+23 |     konst::iter::eval!(R, rposition(||false));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rposition` expects no arguments after closure argument
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:24:5
+   |
+24 |     konst::iter::eval!(R, rposition(|_| false, 100));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `rposition` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:25:5
+   |
+25 |     konst::iter::eval!(R, rposition(|a, b|false));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

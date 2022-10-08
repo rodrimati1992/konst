@@ -17,6 +17,7 @@ include = [
     "LICENSE-ZLIB.md", 
 ]
 
+
 [dependencies.konst_proc_macros]
 version = "=0.2.11"
 path = "../konst_proc_macros"
@@ -30,6 +31,9 @@ path = "../konst_macro_rules"
 version = "0.8.4"
 default-features = false
 features = ["small_rng"]
+
+[dev-dependencies.trybuild]
+version = "1.0"
 
 [features]
 default = ["cmp", "parsing"]

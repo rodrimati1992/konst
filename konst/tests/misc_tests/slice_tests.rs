@@ -213,7 +213,10 @@ fn try_into_array_mut_test() {
     assert!(try_into_array_mut::<_, 2>(&mut slice).is_err());
     assert!(try_into_array_mut::<_, 3>(&mut slice).is_err());
 
-    assert_eq!(try_into_array_mut::<_, 0>(&mut slice[..0]), Ok(&mut []));
+    assert_eq!(
+        try_into_array_mut::<_, 0>(&mut slice[..0]),
+        Ok(&mut [0i32; 0])
+    );
 
     macro_rules! assert_around {
         ($prev:expr, $len:expr, $after:expr, $expected:expr) => {
@@ -302,7 +305,7 @@ fn slice_iter_mixed_directions() {
 
     let (elem, iter) = iter.next_back().unwrap();
     assert_eq!(*elem, 13);
-    assert_eq!(iter.as_slice(), []);
+    assert_eq!(iter.as_slice(), [0u8; 0]);
 
     assert!(iter.next().is_none());
 }

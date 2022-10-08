@@ -34,4 +34,6 @@ mod misc_tests {
 
     #[cfg(feature = "cmp")]
     mod primitive_tests;
+
+    mod ui_tests;
 }

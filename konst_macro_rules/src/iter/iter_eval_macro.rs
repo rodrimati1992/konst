@@ -1,5 +1,8 @@
 #[macro_export]
 macro_rules! iter_eval {
+    () => {
+        $crate::__::compile_error!{ "`eval` expects an iterator argument" }
+    };
     ($iter:expr $(, $($rem:tt)*)?) => {
         $crate::__process_iter_args!{
             ($crate::__iter_eval)
@@ -49,11 +52,16 @@ macro_rules! __iter_eval {
     // so it is required to be either position or rposition.
     //
     // `rposition` reverses the iterator in `__cim_preprocess_methods`
-    ($fixed:tt $vars:tt $item:ident $(position)? $(rposition)? ($($closure:tt)*), $(,)* ) => {
+    (
+        $fixed:tt
+        $vars:tt
+        $item:ident
+        $(position $(@$position:tt)?)? $(rposition $(@$rposition:tt)?)? ($($closure:tt)*), $(,)*
+    ) => {
         $crate::utils::__parse_closure_1!{
             ($crate::__ie_position)
             ($fixed $vars $item,)
-            (position, rposition),
+            ($(position $(@$position)?)? $(rposition $(@$rposition)?)?),
             $($closure)*
         }
     };
@@ -65,24 +73,44 @@ macro_rules! __iter_eval {
             $($closure)*
         }
     };
-    ($fixed:tt $vars:tt $item:ident $(find)? $(rfind)? ($($closure:tt)*), $(,)* ) => {
+    (
+        $fixed:tt
+        $vars:tt
+        $item:ident
+        $(find $(@$find:tt)?)? $(rfind $(@$rfind:tt)?)? ($($closure:tt)*),
+        $(,)*
+    ) => {
         $crate::utils::__parse_closure_1!{
             ($crate::__ie_find)
             ($fixed $vars $item,)
-            (find, rfind),
+            ($(find $(@$find)?)? $(rfind $(@$rfind)?)?),
             $($closure)*
         }
     };
-    ($fixed:tt $vars:tt $item:ident $(fold)? $(rfold)? ($accum:expr, $($closure:tt)*), $(,)* ) => {
+    ($fixed:tt $vars:tt $item:ident fold (), $(,)* ) => {
+        $crate::__::compile_error! {"fold method expects accumulator and closure arguments"}
+    };
+    ($fixed:tt $vars:tt $item:ident rfold (), $(,)* ) => {
+        $crate::__::compile_error! {"rfold method expects accumulator and closure arguments"}
+    };
+    (
+        $fixed:tt
+        $vars:tt
+        $item:ident
+        $(fold $(@$fold:tt)?)? $(rfold $(@$rfold:tt)?)? ($accum:expr $(, $($closure:tt)*)?), $(,)*
+    ) => {
         $crate::utils::__parse_closure_2!{
             ($crate::__ie_fold)
             ($fixed $vars $item,)
-            (fold, rfold),
-            $($closure)*
+            ($(fold $(@$fold)?)? $(rfold $(@$rfold)?)?),
+            $($($closure)*)?
         }
     };
-    ($fixed:tt () $item:ident $(fold)? $(rfold)? ($($args:tt)*), $(,)* ) => {
-        $crate::__::compile_error! {"fold/rfold methods expect 2 arguments"}
+    ($fixed:tt $vars:tt $item:ident fold $args:tt, $(,)* ) => {
+        $crate::__::compile_error! {"fold method expects accumulator and closure arguments"}
+    };
+    ($fixed:tt $vars:tt $item:ident rfold $args:tt, $(,)* ) => {
+        $crate::__::compile_error! {"rfold method expects accumulator and closure arguments"}
     };
     ($fixed:tt ($var:ident) $item:ident next($($args:tt)*), $(,)* ) => ({
         $crate::__cim_error_on_args!{next ($($args)*)}
@@ -108,9 +136,6 @@ macro_rules! __iter_eval {
             }
         }
     });
-    ($fixed:tt () $item:ident nth($($args:tt)*), $(,)* ) => {
-        $crate::__::compile_error! {"nth expects 1 argument"}
-    };
     ($fixed:tt () $item:ident $comb:ident $($rem:tt)*) => {
         $crate::__::compile_error! {$crate::__::concat!(
             "Unsupported iterator method: `",

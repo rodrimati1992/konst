@@ -1,0 +1,47 @@
+error: `eval` expects an iterator argument
+ --> tests/misc_tests/iter_eval_ui_tests/method_dispatch_err.rs:2:5
+  |
+2 |     konst::iter::eval!();
+  |     ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unsupported iterator method: asdasdasd
+ --> tests/misc_tests/iter_eval_ui_tests/method_dispatch_err.rs:6:5
+  |
+6 |     konst::iter::eval!(0usize..10, asdasdasd());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__cim_preprocess_methods` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: method call expected arguments: enumerate
+  --> tests/misc_tests/iter_eval_ui_tests/method_dispatch_err.rs:10:5
+   |
+10 |     konst::iter::eval!(0usize..10, enumerate);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__cim_assert_has_args` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: method call expected arguments: asdasdasd
+  --> tests/misc_tests/iter_eval_ui_tests/method_dispatch_err.rs:14:5
+   |
+14 |     konst::iter::eval!(0usize..10, asdasdasd);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__cim_assert_has_args` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unsupported iterator method: asdasdasd
+  --> tests/misc_tests/iter_eval_ui_tests/method_dispatch_err.rs:14:5
+   |
+14 |     konst::iter::eval!(0usize..10, asdasdasd);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::iter::__cim_preprocess_methods` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: iterator methods in this macro are comma-separated
+  --> tests/misc_tests/iter_eval_ui_tests/method_dispatch_err.rs:18:5
+   |
+18 |     konst::iter::eval!(0usize..10, enumerate().foo());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__process_iter_args` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

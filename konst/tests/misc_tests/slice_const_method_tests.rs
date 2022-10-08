@@ -35,13 +35,13 @@ macro_rules! slice_splitting_test {
                 assert_eq!($slice_up_to(sub, sub_len + 2), sub2);
                 assert_eq!($slice_up_to(sub, sub_len + 3), sub2);
 
-                assert_eq!($split_at(sub, sub_len + 1), (& $($mut)* *sub2, & $($mut)* [][..]));
-                assert_eq!($split_at(sub, sub_len + 2), (& $($mut)* *sub2, & $($mut)* [][..]));
-                assert_eq!($split_at(sub, sub_len + 3), (& $($mut)* *sub2, & $($mut)* [][..]));
+                assert_eq!($split_at(sub, sub_len + 1), (& $($mut)* *sub2, & $($mut)* [0u16; 0][..]));
+                assert_eq!($split_at(sub, sub_len + 2), (& $($mut)* *sub2, & $($mut)* [0u16; 0][..]));
+                assert_eq!($split_at(sub, sub_len + 3), (& $($mut)* *sub2, & $($mut)* [0u16; 0][..]));
 
-                assert_eq!($slice_from(sub, sub_len + 1), & $($mut)* []);
-                assert_eq!($slice_from(sub, sub_len + 2), & $($mut)* []);
-                assert_eq!($slice_from(sub, sub_len + 3), & $($mut)* []);
+                assert_eq!($slice_from(sub, sub_len + 1), & $($mut)* [0u16; 0]);
+                assert_eq!($slice_from(sub, sub_len + 2), & $($mut)* [0u16; 0]);
+                assert_eq!($slice_from(sub, sub_len + 3), & $($mut)* [0u16; 0]);
             }
         }
     };
@@ -86,7 +86,7 @@ macro_rules! range_tests {
             assert_eq!(*$slice_range(arr, 3, 5), [13, 21]);
             assert_eq!(*$slice_range(arr, 3, 6), [13, 21, 34]);
             assert_eq!(*$slice_range(arr, 3, 7), [13, 21, 34, 55]);
-            assert_eq!(*$slice_range(arr, 5, 3), []);
+            assert_eq!(*$slice_range(arr, 5, 3), [0usize; 0]);
 
             assert_eq!(*$slice_range(arr, 1, usize::MAX), [5, 8, 13, 21, 34, 55, 89]);
             assert_eq!(*$slice_range(arr, 2, usize::MAX), [8, 13, 21, 34, 55, 89]);
@@ -95,8 +95,8 @@ macro_rules! range_tests {
             assert_eq!(*$slice_range(arr, 5, usize::MAX), [34, 55, 89]);
             assert_eq!(*$slice_range(arr, 6, usize::MAX), [55, 89]);
             assert_eq!(*$slice_range(arr, 7, usize::MAX), [89]);
-            assert_eq!(*$slice_range(arr, 8, usize::MAX), []);
-            assert_eq!(*$slice_range(arr, 9, usize::MAX), []);
+            assert_eq!(*$slice_range(arr, 8, usize::MAX), [0usize; 0]);
+            assert_eq!(*$slice_range(arr, 9, usize::MAX), [0usize; 0]);
     };
 }
 
@@ -160,7 +160,7 @@ fn slice_ranged_get_test() {
                 if x <= end {
                     assert_eq!(tmp, &arr[x.min(len)..end.min(len)]);
                 } else {
-                    assert_eq!(tmp, &[][..]);
+                    assert_eq!(tmp, &[0usize; 0][..]);
                 }
             }
             assert_eq!(slice::get_range(&arr, x, end), arr.get(x..end));
@@ -171,7 +171,7 @@ fn slice_ranged_get_test() {
                 if x <= end {
                     assert_eq!(tmp, &mut clone[x.min(len)..end.min(len)]);
                 } else {
-                    assert_eq!(tmp, &mut [][..]);
+                    assert_eq!(tmp, &mut [0usize; 0][..]);
                 }
                 assert_eq!(
                     slice::get_range_mut(&mut arr, x, end),

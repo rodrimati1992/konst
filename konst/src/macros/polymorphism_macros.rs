@@ -210,7 +210,7 @@ macro_rules! __priv_std_kind_impl {
 ///
 /// # Limitations
 ///
-/// The argument(s) must be concrete types, and have a fully inferred type.
+/// The parameter(s) must be concrete types, and have a fully inferred type.
 /// eg: if you pass an integer literal it must have a suffix to indicate its type.
 ///
 /// # Example

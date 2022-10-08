@@ -137,7 +137,7 @@ fn collect_const_filter_map() {
                 filter_map(|_| None),
         );
 
-        assert_eq!(ARR, []);
+        assert_eq!(ARR, [0u8; 0]);
     }
 }
 

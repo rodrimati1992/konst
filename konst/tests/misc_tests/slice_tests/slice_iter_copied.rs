@@ -66,7 +66,7 @@ fn slice_iter_mixed_directions() {
 
     (elem, iter) = iter.next_back().unwrap();
     assert_eq!(elem, 13);
-    assert_eq!(iter.as_slice(), []);
+    assert_eq!(iter.as_slice(), [0u8; 0]);
 
     assert!(iter.next().is_none());
 }

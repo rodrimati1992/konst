@@ -1,0 +1,109 @@
+error: `map` expects to be passed a 1-parameter closure
+ --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:4:5
+  |
+4 |     konst::iter::eval!(R, map());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `map` expects to be passed a 1-parameter closure
+ --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:5:5
+  |
+5 |     konst::iter::eval!(R, map(||false));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `map` expects valid closure syntax, passed closure without return value
+ --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:6:5
+  |
+6 |     konst::iter::eval!(R, map(|_|));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `map` expects no arguments after closure argument
+ --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:7:5
+  |
+7 |     konst::iter::eval!(R, map(|_| false, 100));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `map` expects to be passed a 1-parameter closure
+ --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:8:5
+  |
+8 |     konst::iter::eval!(R, map(|a, b|false));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `next` does not take arguments, passed: 10
+  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:12:5
+   |
+12 |     konst::iter::eval!(R, next(10));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__cim_error_on_args` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `nth` expected an expression to be passed, passed: ``
+  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:16:5
+   |
+16 |     konst::iter::eval!(R, nth());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__cim_no_expr_arg_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `nth` only takes one argument
+  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:17:5
+   |
+17 |     konst::iter::eval!(R, nth(10, 20));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__cim_assert_expr` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `position` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:21:5
+   |
+21 |     konst::iter::eval!(R, position());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `position` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:22:5
+   |
+22 |     konst::iter::eval!(R, position(||false));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `position` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:23:5
+   |
+23 |     konst::iter::eval!(R, position(|_|));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `position` expects no arguments after closure argument
+  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:24:5
+   |
+24 |     konst::iter::eval!(R, position(|_| false, 100));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `position` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:25:5
+   |
+25 |     konst::iter::eval!(R, position(|a, b|false));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0601]: `main` function not found in crate `$CRATE`
+  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:26:3
+   |
+26 | };
+   |   ^ consider adding a `main` function to `$DIR/tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs`
