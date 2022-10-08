@@ -237,7 +237,7 @@ pub type ParseBoolResult = Result<bool, ParseBoolError>;
 
 use core::fmt::{self, Display};
 
-/// The error returned by integer methods.
+/// The error returned by integer-parsing methods.
 #[cfg(feature = "parsing_no_proc")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -265,7 +265,7 @@ impl ParseIntError {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// The error returned by integer methods.
+/// The error returned by bool-parsing methods.
 #[cfg(feature = "parsing_no_proc")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]

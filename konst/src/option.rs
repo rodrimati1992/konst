@@ -4,11 +4,13 @@
 ///
 /// # Example
 ///
-/// ```rust
+/// This example requires Rust 1.47.0 (because of `NonZeroUsize::new`).
+///
+#[cfg_attr(feature = "rust_1_51", doc = "```rust")]
+#[cfg_attr(not(feature = "rust_1_51"), doc = "```ignore")]
 /// use konst::option::unwrap;
 ///
 /// use std::num::NonZeroUsize;
-///
 ///
 /// const TEN: NonZeroUsize = unwrap!(NonZeroUsize::new(10));
 ///

@@ -54,7 +54,7 @@ Const equivalent of [`Iterator::all`]
 ```rust
 use konst::iter;
 const fn all_digits(s: &str) -> bool {
-    iter::eval!(s.as_bytes(),all(|c| c.is_ascii_digit()))
+    iter::eval!(s.as_bytes(),all(|c| matches!(c, b'0'..=b'9')))
 }
 
 assert!(all_digits("123456"));

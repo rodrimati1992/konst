@@ -258,7 +258,7 @@ fn slice_iter_both_directions() {
     let slice_refs: Vec<&u8> = slice.iter().collect();
 
     assert_eq!(collect_const_iter!(slice), slice_refs);
-    for iter in [
+    for iter in vec![
         konst::slice::iter(slice),
         konst::slice::iter(slice).copy(),
         konst::slice::iter(slice).rev().rev(),
@@ -266,7 +266,7 @@ fn slice_iter_both_directions() {
         assert_eq!(collect_const_iter!(iter), slice_refs);
     }
 
-    for iter in [
+    for iter in vec![
         konst::slice::iter(slice).rev(),
         konst::slice::iter(slice).copy().rev(),
     ] {
@@ -281,27 +281,26 @@ fn slice_iter_both_directions() {
 fn slice_iter_mixed_directions() {
     let slice: &[u8] = &[3, 5, 8, 13, 21];
 
-    let mut iter = konst::iter::into_iter!(slice);
-    let mut elem;
+    let iter = konst::iter::into_iter!(slice);
     assert_eq!(iter.as_slice(), [3, 5, 8, 13, 21]);
 
-    (elem, iter) = iter.next_back().unwrap();
+    let (elem, iter) = iter.next_back().unwrap();
     assert_eq!(*elem, 21);
     assert_eq!(iter.as_slice(), [3, 5, 8, 13]);
 
-    (elem, iter) = iter.next().unwrap();
+    let (elem, iter) = iter.next().unwrap();
     assert_eq!(*elem, 3);
     assert_eq!(iter.as_slice(), [5, 8, 13]);
 
-    (elem, iter) = iter.next().unwrap();
+    let (elem, iter) = iter.next().unwrap();
     assert_eq!(*elem, 5);
     assert_eq!(iter.as_slice(), [8, 13]);
 
-    (elem, iter) = iter.next().unwrap();
+    let (elem, iter) = iter.next().unwrap();
     assert_eq!(*elem, 8);
     assert_eq!(iter.as_slice(), [13]);
 
-    (elem, iter) = iter.next_back().unwrap();
+    let (elem, iter) = iter.next_back().unwrap();
     assert_eq!(*elem, 13);
     assert_eq!(iter.as_slice(), []);
 

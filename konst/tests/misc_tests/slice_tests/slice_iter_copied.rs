@@ -21,7 +21,7 @@ fn slice_iter_const_callable() {
 fn slice_iter_both_directions() {
     let slice: &[u8] = &[3, 5, 8, 13, 21];
 
-    for iter in [
+    for iter in vec![
         konst::slice::iter_copied(slice),
         konst::slice::iter_copied(slice).copy(),
         konst::slice::iter_copied(slice).rev().rev(),
@@ -29,7 +29,7 @@ fn slice_iter_both_directions() {
         assert_eq!(collect_const_iter!(iter), slice);
     }
 
-    for iter in [
+    for iter in vec![
         konst::slice::iter_copied(slice).rev(),
         konst::slice::iter_copied(slice).copy().rev(),
     ] {

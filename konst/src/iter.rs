@@ -215,7 +215,10 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 /// <span id = "iter-example"></span>
 /// ### Implementing for an iterator
 ///
-/// ```rust
+/// This example requires Rust 1.47.0 (because of `u8::checked_sub`)
+///
+#[cfg_attr(feature = "rust_1_51", doc = "```rust")]
+#[cfg_attr(not(feature = "rust_1_51"), doc = "```ignore")]
 /// use konst::iter::{self, IntoIterKind};
 ///
 /// struct Countdown(u8);
