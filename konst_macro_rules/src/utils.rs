@@ -21,6 +21,19 @@ mod mut_refs {
     }
 }
 
+#[track_caller]
+pub const fn panic(msg: &str) -> ! {
+    #[cfg(feature = "rust_1_57")]
+    {
+        panic!("{}", msg)
+    }
+    #[cfg(not(feature = "rust_1_57"))]
+    #[allow(unconditional_panic)]
+    {
+        [][0]
+    }
+}
+
 macro_rules! make_parse_closure_macro {
     ($_:tt $macro_name:ident $arg_count:tt ($($pat_var:ident)*)) => {
         #[doc(hidden)]

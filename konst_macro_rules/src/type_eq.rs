@@ -55,7 +55,15 @@ impl<L, R> TypeEq<L, R> {
         if let Amb::No = Self::ARE_SAME_TYPE {
             // safety: it's impossible to have a `TypeEq<L, R>` value,
             // where `L` and `R` are not the same type
-            unsafe { core::hint::unreachable_unchecked() }
+            #[cfg(feature = "rust_1_57")]
+            unsafe {
+                core::hint::unreachable_unchecked()
+            }
+            #[cfg(not(feature = "rust_1_57"))]
+            #[allow(unreachable_code)]
+            unsafe {
+                match crate::__priv_transmute!((), core::convert::Infallible, ()) {}
+            }
         }
     }
 

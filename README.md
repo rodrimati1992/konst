@@ -275,11 +275,14 @@ and impls for arrays to use const generics instead of only supporting small arra
 `str` indexing functions,  and the `"rust_1_51"` feature.
 
 - `"rust_1_56"`:
-Enables functions that internally use raw pointer dereferences or transmutes,
+Enables items that internally use raw pointer dereferences or transmutes,
 and the `"rust_1_55"` feature.
 
+- `"rust_1_57"`: Allows `konst` to use the `panic` macro, 
+and enables the `"rust_1_56"` feature.
+
 - `"rust_1_61"`:
-Enables const fns that use trait bounds, and the `"rust_1_56"` feature.
+Enables const fns that use trait bounds, and the `"rust_1_57"` feature.
 
 - `"rust_1_64"`:<br>
 Adds slice and string iterators,
