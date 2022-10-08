@@ -1,6 +1,8 @@
 /**
 Collects an iterator constant into an array
 
+This macro requires the `"rust_1_56"` feature.
+
 # Iterator methods
 
 This macro supports emulating iterator methods by expanding to equivalent code.

@@ -274,7 +274,7 @@
 //! `str` indexing functions,  and the `"rust_1_51"` feature.
 //!
 //! - `"rust_1_56"`:
-//! Enables functions that internally use raw pointer dereferences or transmutes,
+//! Enables items that internally use raw pointer dereferences or transmutes,
 //! and the `"rust_1_55"` feature.
 //!
 //! - `"rust_1_61"`:

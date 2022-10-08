@@ -5,20 +5,11 @@ This is the changelog, summarising changes in each version(some minor changes ma
 ### 0.2.19
 
 Addeded `konst::iter` module, with const encodings of `Iterator` API:
-- `konst::iter::all` (macro)
-- `konst::iter::any` (macro)
-- `konst::iter::count` (macro)
-- `konst::iter::find` (macro)
-- `konst::iter::find_map` (macro)
-- `konst::iter::fold` (macro)
+- `konst::iter::collect_const` (macro)
+- `konst::iter::eval` (macro)
 - `konst::iter::for_each` (macro)
-- `konst::iter::for_each_zip` (macro)
 - `konst::iter::into_iter` (macro)
-- `konst::iter::nth` (macro)
-- `konst::iter::position` (macro)
-- `konst::iter::rfind` (macro)
-- `konst::iter::rfold` (macro)
-- `konst::iter::rposition` (macro)
+- `konst::iter::iterator_dsl` (documentation module)
 - `konst::iter::IntoIterWrapper` (struct)
 - `konst::iter::IsIntoIterKind` (struct)
 - `konst::iter::IsIteratorKind` (struct)
