@@ -1,5 +1,16 @@
 //! Const fn equivalents of
 //! [`MaybeUninit<T>`](https://doc.rust-lang.org/core/mem/union.MaybeUninit.html) methods.
+//!
+//! # Removed in 0.3.0
+//!
+//! These functions were removed in 0.3.0 because there is an equivalent
+//! const fn in the standard library:
+//!
+//! - `as_ptr`: [`MaybeUninit::as_ptr`]
+//! - `assume_init`: [`MaybeUninit::assume_init`]
+//! - `assume_init_ref`: [`MaybeUninit::assume_init_ref`]
+//!
+//!
 
 use core::mem::MaybeUninit;
 
@@ -82,57 +93,6 @@ declare_generic_const! {
 /// ```
 pub use konst_macro_rules::utils_1_56::uninit_array;
 
-/// Const equivalent of [`MaybeUninit::assume_init`](core::mem::MaybeUninit::assume_init)
-///
-/// # Safety
-///
-/// This has [the same safety requirements as `MaybeUninit::assume_init`
-/// ](https://doc.rust-lang.org/1.55.0/core/mem/union.MaybeUninit.html#safety)
-///
-/// # Example
-///
-/// ```rust
-/// use std::mem::MaybeUninit;
-///
-/// use konst::maybe_uninit;
-///
-/// const MU: MaybeUninit<u16> = MaybeUninit::new(12345);
-/// const INIT: u16 = unsafe{ maybe_uninit::assume_init(MU) };
-///
-/// assert_eq!(INIT, 12345);
-///
-/// ```
-#[inline(always)]
-pub const unsafe fn assume_init<T>(md: MaybeUninit<T>) -> T {
-    crate::utils_1_56::__priv_transmute! {MaybeUninit<T>, T, md}
-}
-
-/// Const equivalent of [`MaybeUninit::assume_init_ref`](core::mem::MaybeUninit::assume_init_ref)
-///
-/// # Safety
-///
-/// This has [the same safety requirements as `MaybeUninit::assume_init_ref`
-/// ](https://doc.rust-lang.org/1.55.0/core/mem/union.MaybeUninit.html#safety-3)
-///
-/// # Example
-///
-/// ```rust
-/// use std::cmp::Ordering;
-/// use std::mem::MaybeUninit;
-///
-/// use konst::maybe_uninit;
-///
-/// const MU: &MaybeUninit<Ordering> = &MaybeUninit::new(Ordering::Greater);
-/// const INIT: &Ordering = unsafe{ maybe_uninit::assume_init_ref(MU) };
-///
-/// assert_eq!(INIT, &Ordering::Greater);
-///
-/// ```
-#[inline(always)]
-pub const unsafe fn assume_init_ref<T>(md: &MaybeUninit<T>) -> &T {
-    crate::utils_1_56::__priv_transmute_ref! {MaybeUninit<T>, T, md}
-}
-
 /// Const equivalent of [`MaybeUninit::assume_init_mut`](core::mem::MaybeUninit::assume_init_mut)
 ///
 /// # Safety
@@ -213,28 +173,6 @@ pub const fn write<T>(md: &mut MaybeUninit<T>, value: T) -> &mut T {
     }
 }
 
-/// Const equivalent of [`MaybeUninit::as_ptr`](core::mem::MaybeUninit::as_ptr)
-///
-/// # Example
-///
-/// ```rust
-/// use std::mem::MaybeUninit;
-///
-/// use konst::maybe_uninit;
-///
-/// const MU: &MaybeUninit<Option<&str>> = &MaybeUninit::new(Some("foo"));
-/// const PTR: *const Option<&str> = maybe_uninit::as_ptr(MU);
-///
-/// unsafe {
-///     assert_eq!(*PTR, Some("foo"));
-/// }
-///
-/// ```
-#[inline(always)]
-pub const fn as_ptr<T>(md: &MaybeUninit<T>) -> *const T {
-    md as *const MaybeUninit<T> as *const T
-}
-
 /// Const equivalent of [`MaybeUninit::as_mut_ptr`].
 ///
 /// # Example
@@ -279,7 +217,7 @@ pub const fn as_ptr<T>(md: &MaybeUninit<T>) -> *const T {
 /// ```
 ///
 /// [`MaybeUninit::as_mut_ptr`]:
-/// https://doc.rust-lang.org/nightly/core/mem/union.MaybeUninit.html#method.as_ptr
+/// https://doc.rust-lang.org/nightly/core/mem/union.MaybeUninit.html#method.as_mut_ptr
 #[cfg(feature = "mut_refs")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
 #[inline(always)]

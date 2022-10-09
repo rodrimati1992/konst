@@ -1,10 +1,8 @@
 //! `const` equivalents of `Option` methods.
 
-/// A const equivalent of `Option::unwrap`, requires Rust 1.57.0 to invoke.
+/// A const equivalent of `Option::unwrap`.
 ///
 /// # Example
-///
-/// This example requires Rust 1.47.0 (because of `NonZeroUsize::new`).
 ///
 /// ```rust
 /// use konst::option::unwrap;

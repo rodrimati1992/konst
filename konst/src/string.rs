@@ -2,10 +2,11 @@
 //!
 //! # Removed in 0.3.0
 //!
-//! These items are`now const in the standard library in the
-//! Minimum Supported Rust Version of this crate:
-//! - [`core::str::from_utf8`]
-//! - [`core::str::FromUtf8`]
+//! These functions were removed in 0.3.0 because there is an equivalent
+//! const fn in the standard library:
+//!
+//! - `from_utf8`: [`core::str::from_utf8`]
+//! - `FromUtf8`: [`core::str::FromUtf8`]
 //!
 //!
 

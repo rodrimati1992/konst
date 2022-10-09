@@ -1,69 +1,16 @@
 //! Const equivalents of raw pointer and [`NonNull`](core::ptr::NonNull) methods.
+//!
+//! # Removed in 0.3.0
+//!
+//! These functions were removed in 0.3.0 because there is an equivalent
+//! const fn in the standard library:
+//!
+//! - `deref`: raw pointers can be dereferenced since Rust 1.58.0
+//!
+//! - `deref_mut`: it uses the same unstable features as mutable references in const.
+//!
 
 use core::ptr::NonNull;
-
-/// Const equivalent of `&*raw_pointer`.
-///
-///
-/// # Safety
-///
-/// This function has the safety requirements of
-/// [`<*const>::as_ref`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety),
-/// in addition to requiring that `ptr` is not null.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::ptr;
-///
-/// const F: &u8 = unsafe{ ptr::deref("foo".as_ptr()) };
-/// assert_eq!(F, &b'f');
-///
-/// const BAR: &[u8; 3] = unsafe{ ptr::deref("bar".as_ptr().cast::<[u8; 3]>()) };
-/// assert_eq!(BAR, b"bar");
-///
-///
-/// ```
-pub const unsafe fn deref<'a, T: ?Sized>(ptr: *const T) -> &'a T {
-    core::mem::transmute(ptr)
-}
-
-/// Const equivalent of `&mut *raw_pointer`.
-///
-///
-/// # Safety
-///
-/// This function has the safety requirements of
-/// [`<*const>::as_mut`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety-13),
-/// in addition to requiring that `ptr` is not null.
-///
-/// # Example
-///
-/// ```rust
-/// # #![feature(const_mut_refs)]
-/// use konst::ptr;
-///
-/// assert_eq!(ARR, [33, 35, 38]);
-///
-/// const ARR: [u8; 3] = unsafe {
-///     let mut arr = [3, 5, 8];
-///     mutate(&mut arr[0]);
-///     mutate(&mut arr[1]);
-///     mutate(&mut arr[2]);
-///     arr
-/// };
-///
-/// const unsafe fn mutate(x: *mut u8) {
-///     let mutt = ptr::deref_mut(x);
-///     *mutt += 30;
-/// }
-///
-/// ```
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
-pub const unsafe fn deref_mut<'a, T: ?Sized>(ptr: *mut T) -> &'a mut T {
-    core::mem::transmute(ptr)
-}
 
 /// Const equivalent of
 /// [`<*const>::as_ref`](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_ref)

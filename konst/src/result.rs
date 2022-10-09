@@ -52,16 +52,11 @@
 /// impl FooError {
 ///     pub const fn panic(&self) -> ! {
 ///         let offset = self.0;
-///         [/*Foo errored at offset*/][offset]
+///         panic!("Foo error")
 ///         
-///         // Alternatively, using the `const_panic` crate (requires Rust 1.57.0):
+///         // Alternatively, using the `const_panic` crate:
 ///         //
 ///         // const_panic::concat_panic!("Foo errored at offset: ", self.0)
-///         
-///         // Alternatively, using the panic macro (requires Rust 1.57.0).
-///         // Unfortunately, formatted `panic!`s are not supported const contexts.
-///         //
-///         // panic!("Foo error")
 ///     }
 /// }
 ///
@@ -78,24 +73,17 @@
 /// If `res` was an error instead, this is the error message you would see:
 ///
 /// ```text
-/// error: any use of this value will cause an error
+/// error[E0080]: evaluation of constant value failed
 ///   --> src/result.rs:55:9
 ///    |
-/// 6  | / const UNWRAPPED: u32 = {
-/// 7  | |     let res: Result<u32, FooError> = Err(FooError(100));
-/// 8  | |     // let res: Result<u32, FooError> = Ok(100);
-/// 9  | |     unwrap_ctx!(res)
-/// 10 | | };
-///    | |__-
+/// 9  |     unwrap_ctx!(res)
+///    |     ---------------- inside `UNWRAPPED` at result_macros_.rs:6:35
 /// ...
-/// 23 |           [/*Foo errored at offset*/][offset]
-///    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-///    |           |
-///    |           index out of bounds: the length is 0 but the index is 100
-///    |           inside `FooError::panic` at src/result.rs:23:9
-///    |           inside `UNWRAPPED` at src/result_macros_.rs:6:35
-///    |
-///    = note: `#[deny(const_err)]` on by default
+/// 23 |         panic!("Foo error")
+///    |         ^^^^^^^^^^^^^^^^^^^
+///    |         |
+///    |         the evaluated program panicked at 'Foo error', src/result.rs:23:9
+///    |         inside `FooError::panic`
 ///
 /// ```
 ///
