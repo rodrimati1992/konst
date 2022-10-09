@@ -160,7 +160,10 @@ make__cim_preprocess_methods__macro! {
 
         nth[] ($($args:tt)*)
             return($crate::__::None)
-            var($crate::__cim_assert_expr!{nth($($args)*), 0}),
+            var({
+                let x: $crate::__::usize = $crate::__cim_assert_expr!{nth($($args)*), 0usize};
+                x
+            }),
 
         next[] ($($args:tt)*)
             return($crate::__::None),

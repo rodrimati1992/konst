@@ -63,7 +63,7 @@ pub mod __ {
         mem::{transmute, ManuallyDrop, MaybeUninit},
         ops::Range,
         option::Option::{self, None, Some},
-        primitive::{str, u8, usize},
+        primitive::{bool, str, u8, usize},
         result::Result::{self, Err, Ok},
         str::from_utf8_unchecked,
         stringify,

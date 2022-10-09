@@ -174,7 +174,8 @@ macro_rules! __ie_any {
             $fixed
             {
                 let $elem = $item;
-                if $v {
+                let cond: $crate::__::bool = $v;
+                if cond {
                     $cond = true;
                     $crate::__ie_break!{$fixed}
                 }
@@ -191,7 +192,8 @@ macro_rules! __ie_all {
             $fixed
             {
                 let $elem = $item;
-                if !$v {
+                let cond: $crate::__::bool = $v;
+                if !cond {
                     $cond = false;
                     $crate::__ie_break!{$fixed}
                 }
@@ -208,7 +210,8 @@ macro_rules! __ie_position {
             $fixed
             {
                 let $elem = $item;
-                if $v {
+                let cond: $crate::__::bool = $v;
+                if cond {
                     $position = $crate::__::Some($i);
                     $crate::__ie_break!{$fixed}
                 } else {
@@ -244,7 +247,8 @@ macro_rules! __ie_find {
             $fixed
             {
                 let $elem = &$item;
-                if $v {
+                let cond: $crate::__::bool = $v;
+                if cond {
                     $ret = $crate::__::Some($item);
                     $crate::__ie_break!{$fixed}
                 }

@@ -165,10 +165,11 @@ macro_rules! __call_iter_methods {
             $item
             ( $($iters)* (
                 {}
-                if !$crate::utils::__parse_closure_1!(
+                let cond: $crate::__::bool = $crate::utils::__parse_closure_1!(
                     ($crate::__cim_filter) ($item,) (take_while),
                     $($pred)*
-                ) {
+                );
+                if !cond {
                     $crate::__cim_break!{$fixed}
                 }
             ))
@@ -230,10 +231,11 @@ macro_rules! __call_iter_methods {
             $item
             ( $($iters)* (
                 {}
-                if !$crate::utils::__parse_closure_1!(
+                let cond = $crate::utils::__parse_closure_1!(
                     ($crate::__cim_filter) ($item,) (filter),
                     $($pred)*
-                ) {
+                );
+                if !cond {
                     continue;
                 }
             ))
@@ -250,14 +252,15 @@ macro_rules! __call_iter_methods {
             $item
             ( $($iters)* (
                 {}
-                let $item =
-                    match $crate::utils::__parse_closure_1!(
-                        ($crate::__cim_map) ($item,) (filter_map),
-                        $($args)*
-                    ) {
-                        $crate::__::Some(x) => x,
-                        $crate::__::None => continue,
-                    };
+                let val: $crate::__::Option<_> = $crate::utils::__parse_closure_1!(
+                    ($crate::__cim_map) ($item,) (filter_map),
+                    $($args)*
+                );
+
+                let $item = match val {
+                    $crate::__::Some(x) => x,
+                    $crate::__::None => continue,
+                };
             ))
             $($rem)*
         }
@@ -436,7 +439,7 @@ macro_rules! __cim_filter {
     ($item:ident, |$elem:pat| $v:expr) => {{
         let $elem = &$item;
         // avoiding lifetime extension
-        let v = $v;
+        let v: $crate::__::bool = $v;
         v
     }};
 }
