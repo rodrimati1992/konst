@@ -32,8 +32,12 @@ version = "0.8.4"
 default-features = false
 features = ["small_rng"]
 
-[dev-dependencies.trybuild]
+# Can't include this crate in 1.46.0 tests(it requires Rust 1.56.0 to compile),
+# but because dev-dependencies can't have optional features,
+# this must be a non-dev dependency.
+[dependencies.trybuild]
 version = "1.0"
+optional = true
 
 [features]
 default = ["cmp", "parsing"]
@@ -62,7 +66,7 @@ __test = []
 # Enables ui tests, which are intended for the latest stable release.
 # This is not enabled in CI, because it's way too sensitive to 
 # changes in how rustc formats errors
-__ui = ["__test", "rust_latest_stable"]
+__ui = ["__test", "trybuild", "rust_latest_stable"]
 
 docsrs = []
 
