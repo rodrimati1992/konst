@@ -59,6 +59,11 @@ alloc = []
 # Using doctests to ensure that some stuff does/doesn't compile
 __test = []
 
+# Enables ui tests, which are intended for the latest stable release.
+# This is not enabled in CI, because it's way too sensitive to 
+# changes in how rustc formats errors
+__ui = ["__test", "rust_latest_stable"]
+
 docsrs = []
 
 

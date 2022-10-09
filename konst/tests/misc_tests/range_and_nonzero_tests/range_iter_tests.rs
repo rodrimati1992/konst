@@ -88,9 +88,9 @@ fn range_iter_const_callable_test() {
 
 #[test]
 fn range_iter_test() {
-    assert_eq!(collect_const_iter!(100..0), []);
-    assert_eq!(collect_const_iter!(1..0), []);
-    assert_eq!(collect_const_iter!(0..0), []);
+    assert_eq!(collect_const_iter!(100..0), [0usize; 0]);
+    assert_eq!(collect_const_iter!(1..0), [0usize; 0]);
+    assert_eq!(collect_const_iter!(0..0), [0usize; 0]);
     assert_eq!(collect_const_iter!(0..1), [0]);
     assert_eq!(collect_const_iter!(0..2), [0, 1]);
     assert_eq!(collect_const_iter!(0..3), [0, 1, 2]);
@@ -98,9 +98,18 @@ fn range_iter_test() {
 
 #[test]
 fn range_iter_rev_test() {
-    assert_eq!(collect_const_iter!(iter::into_iter!(100..0).rev()), []);
-    assert_eq!(collect_const_iter!(iter::into_iter!(1..0).rev()), []);
-    assert_eq!(collect_const_iter!(iter::into_iter!(0..0).rev()), []);
+    assert_eq!(
+        collect_const_iter!(iter::into_iter!(100..0).rev()),
+        [0usize; 0]
+    );
+    assert_eq!(
+        collect_const_iter!(iter::into_iter!(1..0).rev()),
+        [0usize; 0]
+    );
+    assert_eq!(
+        collect_const_iter!(iter::into_iter!(0..0).rev()),
+        [0usize; 0]
+    );
     assert_eq!(collect_const_iter!(iter::into_iter!(0..1).rev()), [0]);
     assert_eq!(collect_const_iter!(iter::into_iter!(0..2).rev()), [1, 0]);
     assert_eq!(collect_const_iter!(iter::into_iter!(0..3).rev()), [2, 1, 0]);
@@ -122,8 +131,8 @@ fn range_inclusive_iter_const_callable_test() {
 
 #[test]
 fn range_inclusive_iter_test() {
-    assert_eq!(collect_const_iter!(100..=0), []);
-    assert_eq!(collect_const_iter!(1..=0), []);
+    assert_eq!(collect_const_iter!(100..=0), [0usize; 0]);
+    assert_eq!(collect_const_iter!(1..=0), [0usize; 0]);
     assert_eq!(collect_const_iter!(0..=0), [0]);
     assert_eq!(collect_const_iter!(0..=1), [0, 1]);
     assert_eq!(collect_const_iter!(0..=2), [0, 1, 2]);
@@ -132,8 +141,14 @@ fn range_inclusive_iter_test() {
 
 #[test]
 fn range_inclusive_iter_rev_test() {
-    assert_eq!(collect_const_iter!(iter::into_iter!(100..=0).rev()), []);
-    assert_eq!(collect_const_iter!(iter::into_iter!(1..=0).rev()), []);
+    assert_eq!(
+        collect_const_iter!(iter::into_iter!(100..=0).rev()),
+        [0usize; 0]
+    );
+    assert_eq!(
+        collect_const_iter!(iter::into_iter!(1..=0).rev()),
+        [0usize; 0]
+    );
     assert_eq!(collect_const_iter!(iter::into_iter!(0..=0).rev()), [0]);
     assert_eq!(collect_const_iter!(iter::into_iter!(0..=1).rev()), [1, 0]);
     assert_eq!(
