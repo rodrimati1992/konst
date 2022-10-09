@@ -79,63 +79,38 @@
 //!
 //! ```
 //!
-//! ### Parsing integers
+//! ### Parsing CSV
 //!
-//! You can parse integers using the `parse_*` functions in [`primitive`],
-//! returning an `Err(ParseIntError{...})` if the string as a whole isn't a valid integer.
+//! This example demonstrates how an CSV environment variable can be parsed into integers.
 //!
-#![cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
-#![cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
+//! This requires the `"rust_1_64"` and `""parsing_no_proc""` features
+//! (the latter is enabled by default).
+//!
+#![cfg_attr(
+    all(feature = "parsing_no_proc", feature = "rust_1_64"),
+    doc = "```rust"
+)]
+#![cfg_attr(
+    not(all(feature = "parsing_no_proc", feature = "rust_1_64")),
+    doc = "```ignore"
+)]
 //! use konst::{
-//!     primitive::{ParseIntResult, parse_i128},
+//!     primitive::parse_u64,
 //!     result::unwrap_ctx,
+//!     iter, string,
 //! };
+//! # /*
+//! const CSV: &str = env!("NUMBERS");
+//! # */
+//! # const CSV: &str = "3, 8, 13, 21, 34";
 //!
-//! const N_100: ParseIntResult<i128> = parse_i128("100");
-//! assert_eq!(N_100, Ok(100));
+//! static PARSED: [u64; 5] = iter::collect_const!(u64 =>
+//!     string::split(CSV, ","),
+//!         map(string::trim),
+//!         map(|s| unwrap_ctx!(parse_u64(s))),
+//! );
 //!
-//! const N_N3: ParseIntResult<i128> = parse_i128("-3");
-//! assert_eq!(N_N3, Ok(-3));
-//!
-//!
-//! // This is how you can unwrap integers parsed from strings, at compile-time.
-//! const N_100_UNW: i128 = unwrap_ctx!(parse_i128("1337"));
-//! assert_eq!(N_100_UNW, 1337);
-//!
-//!
-//! const NONE: ParseIntResult<i128> = parse_i128("-");
-//! assert!(NONE.is_err());
-//!
-//! const PAIR: ParseIntResult<i128> = parse_i128("1,2");
-//! assert!(PAIR.is_err());
-//!
-//!
-//!
-//! ```
-//!
-//! For parsing an integer inside a larger string,
-//! you can use [`Parser::parse_u128`] method and the other `parse_*` methods
-//!
-#![cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
-#![cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
-//! use konst::{Parser, unwrap_ctx};
-//!
-//! const PAIR: (i64, u128) = {;
-//!     let parser = Parser::from_str("1365;6789");
-//!
-//!     // Parsing "1365"
-//!     let (l, parser) = unwrap_ctx!(parser.parse_i64());
-//!
-//!     // Skipping the ";"
-//!     let parser = unwrap_ctx!(parser.strip_prefix(";"));
-//!
-//!     // Parsing "6789"
-//!     let (r, parser) = unwrap_ctx!(parser.parse_u128());
-//!     
-//!     (l, r)
-//! };
-//! assert_eq!(PAIR.0, 1365);
-//! assert_eq!(PAIR.1, 6789);
+//! assert_eq!(PARSED, [3, 8, 13, 21, 34]);
 //!
 //! ```
 //!
