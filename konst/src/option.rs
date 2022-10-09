@@ -6,8 +6,7 @@
 ///
 /// This example requires Rust 1.47.0 (because of `NonZeroUsize::new`).
 ///
-#[cfg_attr(feature = "rust_1_51", doc = "```rust")]
-#[cfg_attr(not(feature = "rust_1_51"), doc = "```ignore")]
+/// ```rust
 /// use konst::option::unwrap;
 ///
 /// use std::num::NonZeroUsize;
@@ -251,10 +250,6 @@ pub use konst_macro_rules::opt_filter as filter;
 
 /// A const equivalent of the [`Option::copied`] method.
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_61"` feature.
-///
 /// # Example
 ///
 /// ```rust
@@ -270,8 +265,6 @@ pub use konst_macro_rules::opt_filter as filter;
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_61")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
 pub const fn copied<T: Copy>(opt: Option<&T>) -> Option<T> {
     match opt {
         Some(x) => Some(*x),

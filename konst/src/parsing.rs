@@ -173,14 +173,6 @@ impl<'a> Parser<'a> {
 
     /// For skipping the first `bytes` bytes.
     ///
-    /// # Performance
-    ///
-    /// If the "rust_1_64" feature is disabled,
-    /// thich takes linear time to remove the leading elements,
-    /// proportional to `bytes`.
-    ///
-    /// If the "rust_1_64" feature is enabled, it takes constant time to run.
-    ///
     pub const fn skip(mut self, bytes: usize) -> Self {
         parsing! {self, FromStart;
             self.bytes = crate::slice::slice_from(self.bytes, bytes);

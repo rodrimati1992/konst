@@ -83,13 +83,7 @@ assert!(!contains_pow2(&[13, 21, 34]));
 
 Const equivalent of [`Iterator::count`]
 
-This example requires the `"rust_1_64"` crate feature,
-because it calls `string::split`.
-
-*/
-#[cfg_attr(not(feature = "rust_1_64"), doc = "```ignore")]
-#[cfg_attr(feature = "rust_1_64", doc = "```rust")]
-/**
+```rust
 use konst::{iter, string};
 
 const fn count_csv(s: &str) -> usize {
@@ -142,13 +136,7 @@ assert_eq!(first_elem(&[3, 5]), Some(3));
 
 Const equivalent of [`Iterator::nth`]
 
-This example requires the `"rust_1_64"` crate feature,
-because it calls `string::split`.
-
-*/
-#[cfg_attr(not(feature = "rust_1_64"), doc = "```ignore")]
-#[cfg_attr(feature = "rust_1_64", doc = "```rust")]
-/**
+```rust
 use konst::{iter, string};
 
 const fn nth_csv(s: &str, nth: usize) -> Option<&str> {
@@ -310,11 +298,11 @@ assert_eq!(concat_u16s(&[3, 5, 8]), 0x0008_0005_0003);
 This example demonstrates a function that gets the second number in a CSV string,
 using iterators.
 
-This example requires both the `"parsing_no_proc"` and `"rust_1_64"` features.
+This example requires both the `"parsing_no_proc"` feature.
 
 */
-#[cfg_attr(not(all(feature = "parsing_no_proc", feature = "rust_1_64")), doc = "```ignore")]
-#[cfg_attr(all(feature = "parsing_no_proc", feature = "rust_1_64"), doc = "```rust")]
+#[cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
+#[cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
 /**
 use konst::{
     iter,

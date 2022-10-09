@@ -2,7 +2,6 @@
 #![no_std]
 #![cfg_attr(feature = "nightly_mut_refs", feature(const_mut_refs))]
 
-#[cfg(feature = "rust_1_56")]
 #[macro_use]
 mod array_macros;
 
@@ -27,22 +26,18 @@ pub mod slice_;
 pub mod utils;
 
 #[doc(hidden)]
-#[cfg(feature = "rust_1_56")]
 mod type_eq;
 
 #[doc(hidden)]
-#[cfg(feature = "rust_1_56")]
 pub mod collect_const;
 
 #[doc(hidden)]
-#[cfg(feature = "rust_1_56")]
 pub mod utils_1_56;
 
 #[doc(hidden)]
 pub mod __ {
     pub use core::panic;
 
-    #[cfg(feature = "rust_1_56")]
     pub use crate::{
         array_macros::{assert_array, uninit_array, AssumInitCopyArray},
         collect_const::{CollectorCmd, ComputedLength},

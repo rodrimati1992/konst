@@ -1,4 +1,3 @@
-#[cfg(feature = "rust_1_56")]
 #[test]
 fn array_map_test() {
     use konst::array::map;

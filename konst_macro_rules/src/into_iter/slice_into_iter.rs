@@ -2,63 +2,27 @@ use super::{IntoIterKind, IntoIterWrapper, IsIteratorKind, IsStdKind};
 
 use core::mem::ManuallyDrop;
 
-#[cfg(feature = "rust_1_51")]
-macro_rules! array_impls {
-    ($($tt:tt)*) => {
-        impl<T, const N: usize> IntoIterKind for &[T; N] {
-            type Kind = IsStdKind;
-        }
-
-        impl<T, const N: usize> IntoIterKind for &&[T; N] {
-            type Kind = IsStdKind;
-        }
-
-        impl<'a, T, const N: usize> IntoIterWrapper<&'a [T; N], IsStdKind> {
-            pub const fn const_into_iter(self) -> Iter<'a, T> {
-                Iter {
-                    slice: ManuallyDrop::into_inner(self.iter) as &[T],
-                }
-            }
-        }
-        impl<'a, T, const N: usize> IntoIterWrapper<&&'a [T; N], IsStdKind> {
-            pub const fn const_into_iter(self) -> Iter<'a, T> {
-                Iter {
-                    slice: (*ManuallyDrop::into_inner(self.iter)) as &[T],
-                }
-            }
-        }
-    };
+impl<T, const N: usize> IntoIterKind for &[T; N] {
+    type Kind = IsStdKind;
 }
 
-#[cfg(not(feature = "rust_1_51"))]
-macro_rules! array_impls {
-    ($($len:literal),* $(,)* ) => (
-        $(
-            impl<T> IntoIterKind for &[T; $len] {
-                type Kind = IsStdKind;
-            }
-            impl<T> IntoIterKind for &&[T; $len] {
-                type Kind = IsStdKind;
-            }
-
-            impl<'a, T> IntoIterWrapper<&'a [T; $len], IsStdKind> {
-                pub const fn const_into_iter(self) -> Iter<'a, T> {
-                    Iter { slice: ManuallyDrop::into_inner(self.iter) as &[T] }
-                }
-            }
-            impl<'a, T> IntoIterWrapper<&&'a [T; $len], IsStdKind> {
-                pub const fn const_into_iter(self) -> Iter<'a, T> {
-                    Iter { slice: (*ManuallyDrop::into_inner(self.iter)) as &[T] }
-                }
-            }
-        )*
-    )
+impl<T, const N: usize> IntoIterKind for &&[T; N] {
+    type Kind = IsStdKind;
 }
 
-array_impls! {
-    0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
-    16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,
-    32,
+impl<'a, T, const N: usize> IntoIterWrapper<&'a [T; N], IsStdKind> {
+    pub const fn const_into_iter(self) -> Iter<'a, T> {
+        Iter {
+            slice: ManuallyDrop::into_inner(self.iter) as &[T],
+        }
+    }
+}
+impl<'a, T, const N: usize> IntoIterWrapper<&&'a [T; N], IsStdKind> {
+    pub const fn const_into_iter(self) -> Iter<'a, T> {
+        Iter {
+            slice: (*ManuallyDrop::into_inner(self.iter)) as &[T],
+        }
+    }
 }
 
 impl<T> IntoIterKind for &[T] {
@@ -144,14 +108,11 @@ impl<'a, T> IterRev<'a, T> {
     iter_shared! {is_forward = false}
 }
 
-#[cfg(feature = "rust_1_61")]
 pub use copied::{iter_copied, IterCopied, IterCopiedRev};
 
-#[cfg(feature = "rust_1_61")]
 mod copied {
     use super::*;
 
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
     pub const fn iter_copied<T: Copy>(slice: &[T]) -> IterCopied<'_, T> {
         IterCopied { slice }
     }
@@ -189,7 +150,6 @@ mod copied {
         };
     }
 
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
     pub struct IterCopied<'a, T> {
         slice: &'a [T],
     }
@@ -197,7 +157,6 @@ mod copied {
         type Kind = IsIteratorKind;
     }
 
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
     pub struct IterCopiedRev<'a, T> {
         slice: &'a [T],
     }

@@ -3,7 +3,6 @@ use konst::maybe_uninit;
 use std::{cmp::Ordering, mem::MaybeUninit};
 
 #[test]
-#[cfg(feature = "rust_1_56")]
 fn assume_init_test() {
     let reff = MaybeUninit::new(&0u32);
     let booll = MaybeUninit::new(true);
@@ -18,7 +17,6 @@ fn assume_init_test() {
 }
 
 #[test]
-#[cfg(feature = "rust_1_56")]
 fn array_assume_init_test() {
     let reff = [MaybeUninit::new(&3u32); 5];
     let booll = [MaybeUninit::new(true); 5];
@@ -36,7 +34,6 @@ fn array_assume_init_test() {
 }
 
 #[test]
-#[cfg(feature = "rust_1_56")]
 fn uninit_array_test() {
     use konst::maybe_uninit as mu;
 
@@ -53,7 +50,6 @@ fn uninit_array_test() {
 }
 
 #[test]
-#[cfg(feature = "rust_1_56")]
 fn assume_init_ref_test() {
     let reff = MaybeUninit::new(&0u32);
     let booll = MaybeUninit::new(true);

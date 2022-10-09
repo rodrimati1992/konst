@@ -3,7 +3,6 @@ use konst::{
     slice::{self, bytes_strip_prefix, bytes_strip_suffix},
 };
 
-#[cfg(feature = "rust_1_55")]
 use konst::string;
 
 fn reverse(s: &str) -> String {
@@ -24,7 +23,6 @@ fn trim_start_end_matches_test() {
                 returned.as_bytes(),
                 "norm"
             );
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(string::trim_start_matches(string, needle), returned, "norm");
 
             {
@@ -54,7 +52,6 @@ fn trim_start_end_matches_test() {
                 "rev-"
             );
 
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(
                 string::trim_end_matches(rev_string, rev_needle),
                 rev_returned,
@@ -150,7 +147,6 @@ fn trim_start_end_test() {
                 "normal-b"
             );
 
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(string::trim_start(string), returned, "normal-c");
         }
         {
@@ -166,7 +162,6 @@ fn trim_start_end_test() {
                 "rev-b"
             );
 
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(string::trim_end(rev_string), rev_returned, "rev-c");
         }
     }
@@ -303,7 +298,6 @@ fn find_skip_test() {
                 "normal-2"
             );
 
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(string::find_skip(string, needle), returned, "normal-3");
 
             assert_eq!(
@@ -312,7 +306,6 @@ fn find_skip_test() {
                 "normal-4"
             );
 
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(
                 string::find_keep(string, needle),
                 returned_keep.as_deref(),
@@ -338,7 +331,6 @@ fn find_skip_test() {
                 "rev-2"
             );
 
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(
                 string::rfind_skip(rev_string, rev_needle),
                 rev_returned.as_deref(),
@@ -351,7 +343,6 @@ fn find_skip_test() {
                 "rev-4"
             );
 
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(
                 string::rfind_keep(rev_string, rev_needle),
                 rev_returned_keep.as_deref(),

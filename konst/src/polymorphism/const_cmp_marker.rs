@@ -294,26 +294,9 @@ impl<T: ?Sized, R: ?Sized> IsAConstCmpMarker<IsNotStdKind, T, R> {
 
 /////////////////////////////////////////////////////////////////////////////
 
-#[cfg(feature = "rust_1_51")]
-macro_rules! array_impls {
-    ($($tt:tt)*) => {
-        impl<T, const N: usize> ConstCmpMarker for [T; N] {
-            type Kind = IsArrayKind<T>;
-            type This = Self;
-        }
-    };
-}
-
-#[cfg(not(feature = "rust_1_51"))]
-macro_rules! array_impls {
-    ($($len:literal),* $(,)* ) => (
-        $(
-            impl<T> ConstCmpMarker for [T; $len] {
-                type Kind = IsArrayKind<T>;
-                type This = Self;
-            }
-        )*
-    )
+impl<T, const N: usize> ConstCmpMarker for [T; N] {
+    type Kind = IsArrayKind<T>;
+    type This = Self;
 }
 
 impl ConstCmpMarker for str {
@@ -327,12 +310,6 @@ impl<R: ?Sized> IsAConstCmpMarker<IsStdKind, str, R> {
     pub const fn coerce(self, reference: &str) -> CmpWrapper<&str> {
         CmpWrapper(reference)
     }
-}
-
-array_impls! {
-    0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
-    16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,
-    32,
 }
 
 impl<T> ConstCmpMarker for [T] {

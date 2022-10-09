@@ -78,10 +78,6 @@ pub use konst_macro_rules::into_iter::slice_into_iter::IterRev;
 
 /// A const equivalent of `slice.iter().copied()`
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_61"` feature.
-///
 /// # Example
 ///
 /// ```rust
@@ -98,20 +94,11 @@ pub use konst_macro_rules::into_iter::slice_into_iter::IterRev;
 ///
 /// ```
 ///
-#[cfg(feature = "rust_1_61")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
 pub use konst_macro_rules::into_iter::slice_into_iter::iter_copied;
 
 /// A const equivalent of `iter::Copied<slice::Iter<'a, T>>`.
 ///
 /// This const iterator can be created with [`iter_copied`].
-///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_61"` feature.
-///
-#[cfg(feature = "rust_1_61")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
 pub use konst_macro_rules::into_iter::slice_into_iter::IterCopied;
 
 /// A const equivalent of `iter::Rev<iter::Copied<slice::Iter<'a, T>>>`
@@ -123,10 +110,6 @@ pub use konst_macro_rules::into_iter::slice_into_iter::IterCopied;
 /// konst::slice::iter_copied(slice).rev()
 /// # ;
 /// ```
-///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_61"` feature.
 ///
 /// # Example
 ///
@@ -146,13 +129,10 @@ pub use konst_macro_rules::into_iter::slice_into_iter::IterCopied;
 ///
 /// ```
 ///
-#[cfg(feature = "rust_1_61")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
 pub use konst_macro_rules::into_iter::slice_into_iter::IterCopiedRev;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#[cfg(feature = "rust_1_64")]
 mod requires_rust_1_64 {
     use super::*;
 
@@ -184,7 +164,6 @@ mod requires_rust_1_64 {
     ///
     ///
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     #[track_caller]
     pub const fn windows<T>(slice: &[T], size: usize) -> Windows<'_, T> {
         assert!(size != 0, "window size must be non-zero");
@@ -232,7 +211,6 @@ mod requires_rust_1_64 {
     /// konst::slice::windows(slice, 1)
     /// # ;
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     pub struct Windows<'a, T> {
         slice: &'a [T],
         size: usize,
@@ -250,7 +228,6 @@ mod requires_rust_1_64 {
     /// konst::slice::windows(slice, 1).rev()
     /// # ;
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     pub struct WindowsRev<'a, T> {
         slice: &'a [T],
         size: usize,
@@ -294,7 +271,6 @@ mod requires_rust_1_64 {
     ///
     /// ```
     ///
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     #[track_caller]
     pub const fn chunks<T>(slice: &[T], size: usize) -> Chunks<'_, T> {
         assert!(size != 0, "chunk size must be non-zero");
@@ -341,7 +317,6 @@ mod requires_rust_1_64 {
     /// konst::slice::chunks(slice, 1)
     /// # ;
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     pub struct Chunks<'a, T> {
         slice: Option<&'a [T]>,
         size: usize,
@@ -359,7 +334,6 @@ mod requires_rust_1_64 {
     /// konst::slice::chunks(slice, 1).rev()
     /// # ;
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     pub struct ChunksRev<'a, T> {
         slice: Option<&'a [T]>,
         size: usize,
@@ -401,7 +375,6 @@ mod requires_rust_1_64 {
     ///
     /// ```
     ///
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     #[track_caller]
     pub const fn chunks_exact<T>(slice: &[T], size: usize) -> ChunksExact<'_, T> {
         assert!(size != 0, "chunk size must be non-zero");
@@ -455,7 +428,6 @@ mod requires_rust_1_64 {
     /// konst::slice::chunks_exact(slice, 1)
     /// # ;
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     pub struct ChunksExact<'a, T> {
         slice: &'a [T],
         size: usize,
@@ -473,7 +445,6 @@ mod requires_rust_1_64 {
     /// konst::slice::chunks_exact(slice, 1).rev()
     /// # ;
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     pub struct ChunksExactRev<'a, T> {
         slice: &'a [T],
         size: usize,
@@ -491,5 +462,4 @@ mod requires_rust_1_64 {
     }
 }
 
-#[cfg(feature = "rust_1_64")]
 pub use requires_rust_1_64::*;

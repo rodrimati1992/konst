@@ -11,10 +11,6 @@ use konst_macro_rules::iterator_shared;
 ///
 /// This only accepts `&str` as the delimiter.
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
-///
 /// # Example
 ///
 /// ```rust
@@ -27,7 +23,6 @@ use konst_macro_rules::iterator_shared;
 /// assert_eq!(string::split_once("foo-bar-baz", "-"), Some(("foo", "bar-baz")));
 ///
 /// ```
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub const fn split_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a str)> {
     if delim.is_empty() {
         // using split_at so that the pointer points within the string
@@ -44,10 +39,6 @@ pub const fn split_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a 
 ///
 /// This only accepts `&str` as the delimiter.
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
-///
 /// # Example
 ///
 /// ```rust
@@ -60,7 +51,6 @@ pub const fn split_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a 
 /// assert_eq!(string::rsplit_once("foo-bar-baz", "-"), Some(("foo-bar", "baz")));
 ///
 /// ```
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub const fn rsplit_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a str)> {
     if delim.is_empty() {
         // using split_at so that the pointer points within the string
@@ -77,10 +67,6 @@ pub const fn rsplit_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a
 
 /// Const equivalent of [`str::split`], which only takes a `&str` delimiter.
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
-///
 /// # Example
 ///
 /// ```rust
@@ -91,7 +77,6 @@ pub const fn rsplit_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a
 ///
 /// assert_eq!(STRS, ["foo", "bar", "baz"]);
 /// ```
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub const fn split<'a, 'b>(this: &'a str, delim: &'b str) -> Split<'a, 'b> {
     Split {
         this,
@@ -105,10 +90,6 @@ pub const fn split<'a, 'b>(this: &'a str, delim: &'b str) -> Split<'a, 'b> {
 
 /// Const equivalent of [`str::rsplit`], which only takes a `&str` delimiter.
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
-///
 /// # Example
 ///
 /// ```rust
@@ -119,7 +100,6 @@ pub const fn split<'a, 'b>(this: &'a str, delim: &'b str) -> Split<'a, 'b> {
 ///
 /// assert_eq!(STRS, ["baz", "bar", "foo"]);
 /// ```
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub const fn rsplit<'a, 'b>(this: &'a str, delim: &'b str) -> RSplit<'a, 'b> {
     split(this, delim).rev()
 }
@@ -247,11 +227,6 @@ macro_rules! split_shared {
 /// # ;
 /// ```
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
-///
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub struct Split<'a, 'b> {
     this: &'a str,
     state: State<'b>,
@@ -300,11 +275,6 @@ impl<'a, 'b> Split<'a, 'b> {
 /// # ;
 /// ```
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
-///
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub struct RSplit<'a, 'b> {
     this: &'a str,
     state: State<'b>,

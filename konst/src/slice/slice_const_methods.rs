@@ -7,21 +7,7 @@ macro_rules! slice_from_impl {
             return $on_overflow;
         }
 
-        #[cfg(feature = "rust_1_64")]
-        {
-            unsafe { crate::utils::$from_raw_parts($slice.$as_ptr().offset($start as _), rem) }
-        }
-        #[cfg(not(feature = "rust_1_64"))]
-        {
-            let mut ret = $slice;
-            let mut to_remove = $start;
-
-            slice_up_to_linear_time_impl! {
-                ret, to_remove, next,
-                () (next @ ..),
-            }
-            ret
-        }
+        unsafe { core::slice::$from_raw_parts($slice.$as_ptr().offset($start as _), rem) }
     }};
 }
 
@@ -34,67 +20,9 @@ macro_rules! slice_up_to_impl {
             return $on_overflow;
         }
 
-        #[cfg(feature = "rust_1_64")]
-        {
-            // Doing this to get a slice up to length at compile-time
-            unsafe { crate::utils::$from_raw_parts($slice.$as_ptr(), $len) }
-        }
-        #[cfg(not(feature = "rust_1_64"))]
-        {
-            let mut ret = $slice;
-            let mut to_remove = rem;
-
-            slice_up_to_linear_time_impl! {
-                ret, to_remove, next,
-                (next @ ..,) (),
-            }
-            ret
-        }
+        // Doing this to get a slice up to length at compile-time
+        unsafe { core::slice::$from_raw_parts($slice.$as_ptr(), $len) }
     }};
-}
-
-#[cfg(not(feature = "rust_1_64"))]
-macro_rules! slice_up_to_linear_time_impl{
-    (
-        $($args:tt)*
-    )=>({
-        slice_up_to_impl_inner!{
-            $($args)*
-            (64, [
-                _, _, _, _, _, _,_, _, _, _, _, _,_, _, _, _,
-                _, _, _, _, _, _, _, _,_, _, _, _, _, _,_, _,
-                _, _, _, _, _, _,_, _, _, _, _, _,_, _, _, _,
-                _, _, _, _, _, _, _, _,_, _, _, _, _, _,_, _,
-            ])
-        }
-        slice_up_to_impl_inner!{
-            $($args)*
-            (8, [_, _, _, _, _, _, _, _,])
-        }
-        slice_up_to_impl_inner!{
-            $($args)*
-            (1, [_,])
-        }
-    });
-}
-#[cfg(not(feature = "rust_1_64"))]
-macro_rules! slice_up_to_impl_inner{
-    (
-        $ret:ident, $to_remove:ident, $next:ident,
-        ($($before_ignored:tt)*) ($($after_ignored:tt)*),
-        ($ignored_len:expr, [$($ignored:tt)*])
-    )=>{
-        while $to_remove >= $ignored_len {
-            if let [
-                $($before_ignored)*
-                $($ignored)*
-                $($after_ignored)*
-            ] = $ret {
-                $ret = $next;
-            }
-            $to_remove -= $ignored_len;
-        }
-    }
 }
 
 /// A const equivalent of `slice.get(index)`
@@ -159,14 +87,6 @@ pub const fn get_mut<T>(slice: &mut [T], index: usize) -> Option<&mut T> {
 ///
 /// If `slice.len() < start`, this simply returns an empty slice.
 ///
-/// # Performance
-///
-/// If the "rust_1_64" feature is disabled,
-/// thich takes linear time to remove the leading elements,
-/// proportional to `start`.
-///
-/// If the "rust_1_64" feature is enabled, it takes constant time to run.
-///
 /// # Example
 ///
 /// ```rust
@@ -187,18 +107,10 @@ pub const fn get_mut<T>(slice: &mut [T], index: usize) -> Option<&mut T> {
 /// ```
 #[inline]
 pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
-    slice_from_impl!(slice, start, as_ptr, slice_from_raw_parts, &[])
+    slice_from_impl!(slice, start, as_ptr, from_raw_parts, &[])
 }
 
 /// A const equivalent of `slice.get(start..)`.
-///
-/// # Performance
-///
-/// If the "rust_1_64" feature is disabled,
-/// thich takes linear time to remove the leading elements,
-/// proportional to `start`.
-///
-/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -220,26 +132,12 @@ pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
 /// ```
 #[inline]
 pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
-    Some(slice_from_impl!(
-        slice,
-        start,
-        as_ptr,
-        slice_from_raw_parts,
-        None
-    ))
+    Some(slice_from_impl!(slice, start, as_ptr, from_raw_parts, None))
 }
 
 /// A const equivalent of `&mut slice[start..]`.
 ///
 /// If `slice.len() < start`, this simply returns an empty slice.
-///
-/// # Performance
-///
-/// If the "rust_1_64" feature is disabled,
-/// thich takes linear time to remove the leading elements,
-/// proportional to `start`.
-///
-/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -265,18 +163,10 @@ pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
     doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
 )]
 pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
-    slice_from_impl!(slice, start, as_mut_ptr, slice_from_raw_parts_mut, &mut [])
+    slice_from_impl!(slice, start, as_mut_ptr, from_raw_parts_mut, &mut [])
 }
 
 /// A const equivalent of `slice.get_mut(start..)`.
-///
-/// # Performance
-///
-/// If the "rust_1_64" feature is disabled,
-/// thich takes linear time to remove the leading elements,
-/// proportional to `start`.
-///
-/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -306,7 +196,7 @@ pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> 
         slice,
         start,
         as_mut_ptr,
-        slice_from_raw_parts_mut,
+        from_raw_parts_mut,
         None
     ))
 }
@@ -314,14 +204,6 @@ pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> 
 /// A const equivalent of `&slice[..len]`.
 ///
 /// If `slice.len() < len`, this simply returns `slice` back.
-///
-/// # Performance
-///
-/// If the "rust_1_64" feature is disabled,
-/// thich takes linear time to remove the trailing elements,
-/// proportional to `slice.len() - len`.
-///
-/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -343,18 +225,10 @@ pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> 
 /// ```
 #[inline]
 pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
-    slice_up_to_impl!(slice, len, as_ptr, slice_from_raw_parts, slice)
+    slice_up_to_impl!(slice, len, as_ptr, from_raw_parts, slice)
 }
 
 /// A const equivalent of `slice.get(..len)`.
-///
-/// # Performance
-///
-/// If the "rust_1_64" feature is disabled,
-/// thich takes linear time to remove the trailing elements,
-/// proportional to `slice.len() - len`.
-///
-/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -376,13 +250,7 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
 /// ```
 #[inline]
 pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
-    Some(slice_up_to_impl!(
-        slice,
-        len,
-        as_ptr,
-        slice_from_raw_parts,
-        None
-    ))
+    Some(slice_up_to_impl!(slice, len, as_ptr, from_raw_parts, None))
 }
 
 /// A const equivalent of `&mut slice[..len]`.
@@ -418,7 +286,7 @@ pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
     doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
 )]
 pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
-    slice_up_to_impl!(slice, len, as_mut_ptr, slice_from_raw_parts_mut, slice)
+    slice_up_to_impl!(slice, len, as_mut_ptr, from_raw_parts_mut, slice)
 }
 
 /// A const equivalent of `slice.get_mut(..len)`.
@@ -457,7 +325,7 @@ pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
         slice,
         len,
         as_mut_ptr,
-        slice_from_raw_parts_mut,
+        from_raw_parts_mut,
         None
     ))
 }
@@ -476,14 +344,6 @@ pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
 ///
 /// [`slice_from`]: ./fn.slice_from.html
 /// [`slice_up_to`]: ./fn.slice_up_to.html
-///
-/// # Performance
-///
-/// If the "rust_1_64" feature is disabled,
-/// thich takes linear time to remove the leading and trailing elements,
-/// proportional to `start + (slice.len() - end)`.
-///
-/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -517,14 +377,6 @@ pub const fn slice_range<T>(slice: &[T], start: usize, end: usize) -> &[T] {
 ///
 /// [`get_from`]: ./fn.get_from.html
 /// [`get_up_to`]: ./fn.get_up_to.html
-///
-/// # Performance
-///
-/// If the "rust_1_64" feature is disabled,
-/// thich takes linear time to remove the leading and trailing elements,
-/// proportional to `start + (slice.len() - end)`.
-///
-/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -567,14 +419,6 @@ pub const fn get_range<T>(slice: &[T], start: usize, end: usize) -> Option<&[T]>
 /// [`slice_from_mut`]: ./fn.slice_from_mut.html
 /// [`slice_up_to_mut`]: ./fn.slice_up_to_mut.html
 ///
-/// # Performance
-///
-/// If the "rust_1_64" feature is disabled,
-/// thich takes linear time to remove the leading and trailing elements,
-/// proportional to `start + (slice.len() - end)`.
-///
-/// If the "rust_1_64" feature is enabled, it takes constant time to run.
-///
 /// # Example
 ///
 /// ```rust
@@ -610,14 +454,6 @@ pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &m
 /// [`get_from_mut`]: ./fn.get_from_mut.html
 /// [`get_up_to_mut`]: ./fn.get_up_to_mut.html
 ///
-/// # Performance
-///
-/// If the "rust_1_64" feature is disabled,
-/// thich takes linear time to remove the leading and trailing elements,
-/// proportional to `start + (slice.len() - end)`.
-///
-/// If the "rust_1_64" feature is enabled, it takes constant time to run.
-///
 /// # Example
 ///
 /// ```rust
@@ -647,13 +483,6 @@ pub const fn get_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> Opti
 /// [`<[T]>::split_at`](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at)
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
-///
-/// # Performance
-///
-/// If the "rust_1_64" feature is disabled,
-/// thich takes linear time to split the string, proportional to its length.
-///
-/// If the "rust_1_64" feature is enabled, it takes constant time to run.
 ///
 /// # Example
 ///
@@ -715,7 +544,7 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 #[cfg(feature = "mut_refs")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
 pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T]) {
-    use crate::utils::slice_from_raw_parts_mut;
+    use core::slice::from_raw_parts_mut;
 
     if at > slice.len() {
         return (slice, &mut []);
@@ -726,8 +555,8 @@ pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T])
     unsafe {
         let ptr = slice.as_mut_ptr();
 
-        let prefix = slice_from_raw_parts_mut(ptr.offset(0), at);
-        let suffix = slice_from_raw_parts_mut(ptr.offset(at as isize), suffix_len);
+        let prefix = from_raw_parts_mut(ptr.offset(0), at);
+        let suffix = from_raw_parts_mut(ptr.offset(at as isize), suffix_len);
 
         (prefix, suffix)
     }
@@ -1223,15 +1052,6 @@ macro_rules! byte_find_then {
 ///
 /// Return `Some(this)` if `needle` is empty.
 ///
-/// # Motivation
-///
-/// This function exists because calling [`bytes_find`] + [`slice_from`]
-/// when the `"rust_1_64"` feature is disabled
-/// is slower than it could be, since the slice has to be traversed twice.
-///
-/// [`bytes_find`]: ./fn.bytes_find.html
-/// [`slice_from`]: ./fn.slice_from.html
-///
 /// # Example
 ///
 /// ```rust
@@ -1259,15 +1079,6 @@ pub const fn bytes_find_skip<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'
 /// Return `None` if no instance of `needle` is found.
 ///
 /// Return `Some(this)` if `needle` is empty.
-///
-/// # Motivation
-///
-/// This function exists because calling [`bytes_find`] + [`slice_from`]
-/// when the `"rust_1_64"` feature is disabled
-/// is slower than it could be, since the slice has to be traversed twice.
-///
-/// [`bytes_find`]: ./fn.bytes_find.html
-/// [`slice_from`]: ./fn.slice_from.html
 ///
 /// # Example
 ///
@@ -1297,15 +1108,6 @@ pub const fn bytes_find_keep<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'
 ///
 /// Return `Some(this)` if `needle` is empty.
 ///
-/// # Motivation
-///
-/// This function exists because calling [`bytes_rfind`] + [`slice_up_to`]
-/// when the `"rust_1_64"` feature is disabled
-/// is slower than it could be, since the slice has to be traversed twice.
-///
-/// [`bytes_rfind`]: ./fn.bytes_rfind.html
-/// [`slice_up_to`]: ./fn.slice_up_to.html
-///
 /// # Example
 ///
 /// ```rust
@@ -1333,15 +1135,6 @@ pub const fn bytes_rfind_skip<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&
 /// Return `None` if no instance of `needle` is found.
 ///
 /// Return `Some(this)` if `needle` is empty.
-///
-/// # Motivation
-///
-/// This function exists because calling [`bytes_rfind`] + [`slice_up_to`]
-/// when the `"rust_1_64"` feature is disabled
-/// is slower than it could be, since the slice has to be traversed twice.
-///
-/// [`bytes_rfind`]: ./fn.bytes_rfind.html
-/// [`slice_up_to`]: ./fn.slice_up_to.html
 ///
 /// # Example
 ///

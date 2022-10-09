@@ -47,7 +47,6 @@ macro_rules! slice_splitting_test {
     };
 }
 
-#[cfg(any(not(miri), feature = "rust_1_64"))]
 #[test]
 fn slice_up_to_from_test() {
     slice_splitting_test! {
@@ -59,7 +58,6 @@ fn slice_up_to_from_test() {
 }
 
 #[cfg(feature = "mut_refs")]
-#[cfg(feature = "rust_1_64")]
 #[test]
 fn slice_up_to_from_mut_test() {
     slice_splitting_test! {

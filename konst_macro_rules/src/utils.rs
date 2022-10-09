@@ -5,35 +5,6 @@ pub union Dereference<'a, T: ?Sized> {
     pub reff: &'a T,
 }
 
-#[cfg(feature = "mut_refs")]
-mod mut_refs {
-    use core::mem::ManuallyDrop;
-
-    #[doc(hidden)]
-    #[repr(C)]
-    pub(crate) union BorrowMut<'a, T: ?Sized> {
-        ptr: *mut T,
-        reff: ManuallyDrop<&'a mut T>,
-    }
-
-    pub(crate) const unsafe fn deref_raw_mut_ptr<'a, T: ?Sized>(ptr: *mut T) -> &'a mut T {
-        ManuallyDrop::into_inner(BorrowMut { ptr }.reff)
-    }
-}
-
-#[track_caller]
-pub const fn panic(msg: &str) -> ! {
-    #[cfg(feature = "rust_1_57")]
-    {
-        panic!("{}", msg)
-    }
-    #[cfg(not(feature = "rust_1_57"))]
-    #[allow(unconditional_panic)]
-    {
-        [][0]
-    }
-}
-
 macro_rules! make_parse_closure_macro {
     ($_:tt $macro_name:ident $arg_count:tt ($($pat_var:ident)*)) => {
         #[doc(hidden)]
@@ -141,6 +112,3 @@ macro_rules! __parse_closure_emit_error {
         )}
     };
 }
-
-#[cfg(feature = "mut_refs")]
-pub(crate) use mut_refs::{deref_raw_mut_ptr, BorrowMut};

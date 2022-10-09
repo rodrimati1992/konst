@@ -57,25 +57,23 @@
 //!         Direction::Right => assert_eq!(CHOICE, "right"),
 //!     }
 //! }
-//! # #[derive(Debug, PartialEq)]
-//! # pub struct ParseDirectionError;
-//! #
-//! # use std::fmt::{self, Display};
-//! #
-//! # impl Display for ParseDirectionError {
-//! #   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//! #       f.write_str("Failed to parse a Direction")
-//! #   }
-//! # }
-//! #
-//! # impl ParseDirectionError {
-//! #    #[allow(unconditional_panic)]
-//! #    const fn panic(&self) -> ! {
-//! #        [/*failed to parse a Direction*/][0]
-//! #    }
-//! # }
-//! #
-//! #
+//!
+//! #[derive(Debug, PartialEq)]
+//! pub struct ParseDirectionError;
+//!
+//! use std::fmt::{self, Display};
+//!
+//! impl Display for ParseDirectionError {
+//!     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//!         f.write_str("Failed to parse a Direction")
+//!     }
+//! }
+//!
+//! impl ParseDirectionError {
+//!     const fn panic(&self) -> ! {
+//!         panic!("failed to parse a Direction")
+//!     }
+//! }
 //!
 //! ```
 //!
@@ -83,17 +81,10 @@
 //!
 //! This example demonstrates how an CSV environment variable can be parsed into integers.
 //!
-//! This requires the `"rust_1_64"` and `""parsing_no_proc""` features
-//! (the latter is enabled by default).
+//! This requires the `"parsing_no_proc"` feature (enabled by default).
 //!
-#![cfg_attr(
-    all(feature = "parsing_no_proc", feature = "rust_1_64"),
-    doc = "```rust"
-)]
-#![cfg_attr(
-    not(all(feature = "parsing_no_proc", feature = "rust_1_64")),
-    doc = "```ignore"
-)]
+#![cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
+#![cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
 //! use konst::{
 //!     primitive::parse_u64,
 //!     result::unwrap_ctx,
@@ -241,33 +232,7 @@
 //!
 //! None of thse features are enabled by default.
 //!
-//! - `"rust_1_51"`:
-//! Enables items that require const generics,
-//! and impls for arrays to use const generics instead of only supporting small arrays.
-//!
-//! - `"rust_1_55"`: Enables the `string::from_utf8` function
-//! (the macro works in all versions),
-//! `str` indexing functions,  and the `"rust_1_51"` feature.
-//!
-//! - `"rust_1_56"`:
-//! Enables items that internally use raw pointer dereferences or transmutes,
-//! and the `"rust_1_55"` feature.
-//!
-//! - `"rust_1_57"`: Allows `konst` to use the `panic` macro,
-//! and enables the `"rust_1_56"` feature.
-//!
-//! - `"rust_1_61"`:
-//! Enables const fns that use trait bounds, and the `"rust_1_57"` feature.
-//!
-//! - `"rust_1_64"`:<br>
-//! Adds slice and string iterators,
-//! string splitting functions(`[r]split_once`),
-//! const equivalents of iterator methods(in `konst::iter`),
-//! and makes slicing functions more efficient.
-//! <br>Note that only functions which mention this feature in their documentation are affected.
-//! <br>Enables the `"rust_1_61"` feature.
-//!
-//! - `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature.
+//! - `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature(there's currently none).
 //! Only recommendable if you can update the Rust compiler every stable release.
 //!
 //! - `"mut_refs"`(disabled by default):
@@ -284,10 +249,10 @@
 //!
 //! # Minimum Supported Rust Version
 //!
-//! `konst` requires Rust 1.46.0, because it uses looping an branching in const contexts.
+//! `konst` requires Rust 1.64.0.
 //!
 //! Features that require newer versions of Rust, or the nightly compiler,
-//! need to be explicitly enabled with cargo features.
+//! need to be explicitly enabled with crate features.
 //!
 //!
 //!
@@ -317,10 +282,6 @@ extern crate alloc;
 #[macro_use]
 mod macros;
 
-///
-#[cfg(feature = "__test")]
-pub mod doctests;
-
 #[doc(hidden)]
 pub mod __for_cmp_impls;
 
@@ -348,8 +309,6 @@ pub mod range;
 
 pub mod maybe_uninit;
 
-#[cfg(feature = "rust_1_56")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 pub mod manually_drop;
 
 pub mod nonzero;
@@ -364,7 +323,6 @@ pub mod ptr;
 
 mod utils;
 
-#[cfg(feature = "rust_1_56")]
 mod utils_1_56 {
     pub(crate) use konst_macro_rules::__priv_transmute;
     pub(crate) use konst_macro_rules::__priv_transmute_ref;

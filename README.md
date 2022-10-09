@@ -74,11 +74,12 @@ impl Display for ParseDirectionError {
 }
 
 impl ParseDirectionError {
-    #[allow(unconditional_panic)]
     const fn panic(&self) -> ! {
-        [/*failed to parse a Direction*/][0]
+        panic!("failed to parse a Direction")
     }
 }
+
+
 
 
 ```
@@ -87,8 +88,7 @@ impl ParseDirectionError {
 
 This example demonstrates how an CSV environment variable can be parsed into integers.
 
-This requires the `"rust_1_64"` and `""parsing_no_proc""` features 
-(the latter is enabled by default).
+This requires the `"parsing_no_proc"` feature (enabled by default).
 
 ```rust
 use konst::{
@@ -99,7 +99,7 @@ use konst::{
 
 const CSV: &str = env!("NUMBERS");
 
-static PARSED: [u64; 5] = iter::collect_const!(u64 => 
+static PARSED: [u64; 5] = iter::collect_const!(u64 =>
     string::split(CSV, ","),
         map(string::trim),
         map(|s| unwrap_ctx!(parse_u64(s))),
@@ -234,33 +234,7 @@ Enables items that use types from the [`alloc`] crate, including `Vec` and `Stri
 
 None of thse features are enabled by default.
 
-- `"rust_1_51"`:
-Enables items that require const generics,
-and impls for arrays to use const generics instead of only supporting small arrays.
-
-- `"rust_1_55"`: Enables the `string::from_utf8` function
-(the macro works in all versions),
-`str` indexing functions,  and the `"rust_1_51"` feature.
-
-- `"rust_1_56"`:
-Enables items that internally use raw pointer dereferences or transmutes,
-and the `"rust_1_55"` feature.
-
-- `"rust_1_57"`: Allows `konst` to use the `panic` macro, 
-and enables the `"rust_1_56"` feature.
-
-- `"rust_1_61"`:
-Enables const fns that use trait bounds, and the `"rust_1_57"` feature.
-
-- `"rust_1_64"`:<br>
-Adds slice and string iterators,
-string splitting functions(`[r]split_once`),
-const equivalents of iterator methods(in `konst::iter`),
-and makes slicing functions more efficient.
-<br>Note that only functions which mention this feature in their documentation are affected.
-<br>Enables the `"rust_1_61"` feature.
-
-- `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature.
+- `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature(there's currently none).
 Only recommendable if you can update the Rust compiler every stable release.
 
 - `"mut_refs"`(disabled by default):
@@ -277,10 +251,11 @@ Enables the `"mut_refs"` feature. Requires Rust nightly.
 
 # Minimum Supported Rust Version
 
-`konst` requires Rust 1.46.0, because it uses looping an branching in const contexts.
+`konst` requires Rust 1.64.0.
 
 Features that require newer versions of Rust, or the nightly compiler,
-need to be explicitly enabled with cargo features.
+need to be explicitly enabled with crate features.
+
 
 
 [`alloc`]: https://doc.rust-lang.org/alloc/

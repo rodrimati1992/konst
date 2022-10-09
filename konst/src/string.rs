@@ -1,24 +1,20 @@
 //! `const fn` equivalents of `str` methods.
-//! 
+//!
 //! # Removed in 0.3.0
-//! 
-//! These items are`now const in the standard library in the 
+//!
+//! These items are`now const in the standard library in the
 //! Minimum Supported Rust Version of this crate:
 //! - [`core::str::from_utf8`]
 //! - [`core::str::FromUtf8`]
-//! 
-//! 
+//!
+//!
 
-#[cfg(feature = "rust_1_64")]
 mod splitting;
 
-#[cfg(feature = "rust_1_64")]
 pub use splitting::*;
 
-#[cfg(feature = "rust_1_64")]
 mod split_terminator_items;
 
-#[cfg(feature = "rust_1_64")]
 pub use split_terminator_items::*;
 
 __declare_string_cmp_fns! {
@@ -234,8 +230,6 @@ pub const fn rcontains(left: &str, right: &str, from: usize) -> bool {
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn str_up_to(string: &str, len: usize) -> &str {
     let bytes = string.as_bytes();
     if is_char_boundary(bytes, len) {
@@ -274,8 +268,6 @@ pub const fn str_up_to(string: &str, len: usize) -> &str {
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn get_up_to(string: &str, len: usize) -> Option<&str> {
     let bytes = string.as_bytes();
 
@@ -327,8 +319,6 @@ pub const fn get_up_to(string: &str, len: usize) -> Option<&str> {
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn str_from(string: &str, start: usize) -> &str {
     let bytes = string.as_bytes();
     if is_char_boundary(bytes, start) {
@@ -367,8 +357,6 @@ pub const fn str_from(string: &str, start: usize) -> &str {
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn get_from(string: &str, from: usize) -> Option<&str> {
     let bytes = string.as_bytes();
 
@@ -426,8 +414,6 @@ pub const fn get_from(string: &str, from: usize) -> Option<&str> {
 /// ```
 ///
 /// [`str::split_at`]: https://doc.rust-lang.org/std/primitive.str.html#method.split_at
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
     (str_up_to(string, at), str_from(string, at))
 }
@@ -478,8 +464,6 @@ pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
     let bytes = string.as_bytes();
     let start_inbounds = is_char_boundary(bytes, start);
@@ -530,8 +514,6 @@ pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
     let bytes = string.as_bytes();
 
@@ -570,8 +552,6 @@ pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
 /// ```
 ///
 /// [`str::strip_prefix`]: https://doc.rust-lang.org/std/primitive.str.html#method.strip_prefix
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn strip_prefix<'a>(string: &'a str, prefix: &str) -> Option<&'a str> {
     // Safety: because `prefix` is a `&str`, removing it should result in a valid `&str`
     unsafe {
@@ -605,8 +585,6 @@ pub const fn strip_prefix<'a>(string: &'a str, prefix: &str) -> Option<&'a str> 
 ///
 /// ```
 ///
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn strip_suffix<'a>(string: &'a str, suffix: &str) -> Option<&'a str> {
     // Safety: because `suffix` is a `&str`, removing it should result in a valid `&str`
     unsafe {
@@ -617,19 +595,16 @@ pub const fn strip_suffix<'a>(string: &'a str, suffix: &str) -> Option<&'a str> 
     }
 }
 
-#[cfg(feature = "rust_1_55")]
 const fn is_char_boundary(bytes: &[u8], position: usize) -> bool {
     position >= bytes.len() || (bytes[position] as i8) >= -0x40
 }
 
-#[cfg(feature = "rust_1_55")]
 const fn is_char_boundary_get(bytes: &[u8], position: usize) -> bool {
     let len = bytes.len();
 
     position == len || (bytes[position] as i8) >= -0x40
 }
 
-#[cfg(feature = "rust_1_64")]
 const fn find_next_char_boundary(bytes: &[u8], mut position: usize) -> usize {
     loop {
         position += 1;
@@ -640,7 +615,6 @@ const fn find_next_char_boundary(bytes: &[u8], mut position: usize) -> usize {
     }
 }
 
-#[cfg(feature = "rust_1_64")]
 const fn find_prev_char_boundary(bytes: &[u8], mut position: usize) -> usize {
     position = position.saturating_sub(1);
 
@@ -663,8 +637,6 @@ const fn find_prev_char_boundary(bytes: &[u8], mut position: usize) -> usize {
 /// assert_eq!(TRIMMED, "hello world");
 ///
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn trim(this: &str) -> &str {
     let trimmed = crate::slice::bytes_trim(this.as_bytes());
     // safety: bytes_trim only removes ascii bytes
@@ -683,8 +655,6 @@ pub const fn trim(this: &str) -> &str {
 /// assert_eq!(TRIMMED, "foo bar  ");
 ///
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn trim_start(this: &str) -> &str {
     let trimmed = crate::slice::bytes_trim_start(this.as_bytes());
     // safety: bytes_trim_start only removes ascii bytes
@@ -704,8 +674,6 @@ pub const fn trim_start(this: &str) -> &str {
 ///
 /// ```
 ///
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn trim_end(this: &str) -> &str {
     let trimmed = crate::slice::bytes_trim_end(this.as_bytes());
     // safety: bytes_trim_end only removes ascii bytes
@@ -724,8 +692,6 @@ pub const fn trim_end(this: &str) -> &str {
 /// assert_eq!(TRIMMED, "baz qux");
 ///
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn trim_matches<'a>(this: &'a str, needle: &str) -> &'a str {
     let trimmed = crate::slice::bytes_trim_matches(this.as_bytes(), needle.as_bytes());
     // safety:
@@ -746,8 +712,6 @@ pub const fn trim_matches<'a>(this: &'a str, needle: &str) -> &'a str {
 /// assert_eq!(TRIMMED, "#huh###");
 ///
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn trim_start_matches<'a>(this: &'a str, needle: &str) -> &'a str {
     let trimmed = crate::slice::bytes_trim_start_matches(this.as_bytes(), needle.as_bytes());
     // safety:
@@ -768,8 +732,6 @@ pub const fn trim_start_matches<'a>(this: &'a str, needle: &str) -> &'a str {
 /// assert_eq!(TRIMMED, "oowowo");
 ///
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn trim_end_matches<'a>(this: &'a str, needle: &str) -> &'a str {
     let trimmed = crate::slice::bytes_trim_end_matches(this.as_bytes(), needle.as_bytes());
     // safety:
@@ -783,13 +745,6 @@ pub const fn trim_end_matches<'a>(this: &'a str, needle: &str) -> &'a str {
 /// Return `None` if no instance of `needle` is found.
 ///
 /// Return `Some(this)` if `needle` is empty.
-///
-/// # Motivation
-///
-/// This function exists because calling
-/// [`find`](crate::string::find) + [`str_from`]
-/// when the `"rust_1_64"` feature is disabled
-/// is slower than it could be, since the slice has to be traversed twice.
 ///
 /// # Example
 ///
@@ -809,8 +764,6 @@ pub const fn trim_end_matches<'a>(this: &'a str, needle: &str) -> &'a str {
 ///     assert_eq!(EMPTY_NEEDLE, Some("foo bar baz"));
 /// }
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn find_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
     unsafe {
         crate::option::map!(
@@ -828,12 +781,6 @@ pub const fn find_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 /// Return `None` if no instance of `needle` is found.
 ///
 /// Return `Some(this)` if `needle` is empty.
-///
-/// # Motivation
-///
-/// This function exists because calling [`find`](crate::string::find) + [`str_from`]
-/// when the `"rust_1_64"` feature is disabled
-/// is slower than it could be, since the slice has to be traversed twice.
 ///
 /// # Example
 ///
@@ -853,8 +800,6 @@ pub const fn find_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 ///     assert_eq!(EMPTY_NEEDLE, Some("foo bar baz"));
 /// }
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn find_keep<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
     unsafe {
         crate::option::map!(
@@ -872,12 +817,6 @@ pub const fn find_keep<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 /// Return `None` if no instance of `needle` is found.
 ///
 /// Return `Some(this)` if `needle` is empty.
-///
-/// # Motivation
-///
-/// This function exists because calling [`rfind`](crate::string::rfind) + [`str_up_to`]
-/// when the `"rust_1_64"` feature is disabled
-/// is slower than it could be, since the slice has to be traversed twice.
 ///
 /// # Example
 ///
@@ -897,8 +836,6 @@ pub const fn find_keep<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 ///     assert_eq!(EMPTY_NEEDLE, Some("foo bar baz"));
 /// }
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn rfind_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
     unsafe {
         crate::option::map!(
@@ -916,12 +853,6 @@ pub const fn rfind_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 /// Return `None` if no instance of `needle` is found.
 ///
 /// Return `Some(this)` if `needle` is empty.
-///
-/// # Motivation
-///
-/// This function exists because calling [`rfind`](crate::string::rfind) + [`str_up_to`]
-/// when the `"rust_1_64"` feature is disabled
-/// is slower than it could be, since the slice has to be traversed twice.
 ///
 /// # Example
 ///
@@ -941,8 +872,6 @@ pub const fn rfind_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 ///     assert_eq!(EMPTY_NEEDLE, Some("foo bar baz"));
 /// }
 /// ```
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
 pub const fn rfind_keep<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
     unsafe {
         crate::option::map!(

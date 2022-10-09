@@ -3,7 +3,7 @@ macro_rules! opt_unwrap {
     ($e:expr $(,)?) => {
         match $e {
             $crate::__::Some(x) => x,
-            $crate::__::None => $crate::utils::panic("invoked `unwrap` macro on a `None` value"),
+            $crate::__::None => $crate::__::panic!("invoked `unwrap` macro on a `None` value"),
         }
     };
 }

@@ -3,7 +3,6 @@ use konst::ptr::{self, nonnull};
 use std::ptr::{null, null_mut, NonNull};
 
 #[test]
-#[cfg(feature = "rust_1_56")]
 fn deref_test() {
     let str_ptr: *const str = "hello";
     let array_ptr: *const [u8; 4] = &[3, 5, 8, 13];
@@ -30,7 +29,6 @@ fn deref_mut_test() {
 }
 
 #[test]
-#[cfg(feature = "rust_1_56")]
 fn ptr_as_ref_test() {
     let str_ptr: *const str = "hello";
     let array_ptr: *const [u8; 4] = &[3, 5, 8, 13];
@@ -59,7 +57,6 @@ fn ptr_as_mut_test() {
 }
 
 #[test]
-#[cfg(feature = "rust_1_56")]
 fn ptr_is_null() {
     let str_ptr: *const str = "hello";
     let array_ptr: *const [u8; 4] = &[3, 5, 8, 13];
@@ -70,7 +67,6 @@ fn ptr_is_null() {
 }
 
 #[test]
-#[cfg(feature = "rust_1_56")]
 fn nonnull_new_test() {
     let str_ptr: Option<NonNull<str>> = nonnull::new("hello" as *const _ as *mut _);
 
@@ -107,7 +103,6 @@ fn nonnull_new_mut_test() {
 }
 
 #[test]
-#[cfg(feature = "rust_1_56")]
 fn nonnull_as_ref_test() {
     let str_ptr: Option<NonNull<str>> = nonnull::new("hello" as *const _ as *mut _);
 
@@ -144,7 +139,6 @@ fn nonnull_as_mut_test() {
 }
 
 #[test]
-#[cfg(feature = "rust_1_56")]
 fn nonnull_from_ref_test() {
     let str_ptr: NonNull<str> = nonnull::from_ref("hello");
     let array_ptr: NonNull<[u8; 4]> = nonnull::from_ref(&[3, 5, 8, 13]);

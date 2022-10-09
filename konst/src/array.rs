@@ -22,6 +22,4 @@
 ///
 /// ```
 ///
-#[cfg(feature = "rust_1_56")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 pub use konst_macro_rules::array_map as map;

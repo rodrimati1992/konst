@@ -10,10 +10,6 @@ use konst_macro_rules::iterator_shared;
 /// The same as [`split`](crate::string::split),
 /// except that, if the string after the last delimiter is empty, it is skipped.
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
-///
 /// # Example
 ///
 /// ```rust
@@ -30,7 +26,6 @@ use konst_macro_rules::iterator_shared;
 ///
 /// assert_eq!(STRS, ["foo", "bar", "baz"]);
 /// ```
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub const fn split_terminator<'a, 'b>(this: &'a str, delim: &'b str) -> SplitTerminator<'a, 'b> {
     SplitTerminator {
         this,
@@ -46,10 +41,6 @@ pub const fn split_terminator<'a, 'b>(this: &'a str, delim: &'b str) -> SplitTer
 ///
 /// The same as [`rsplit`](crate::string::rsplit),
 /// except that, if the string before the first delimiter is empty, it is skipped.
-///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
 ///
 /// # Example
 ///
@@ -67,7 +58,6 @@ pub const fn split_terminator<'a, 'b>(this: &'a str, delim: &'b str) -> SplitTer
 ///
 /// assert_eq!(STRS, ["baz", "bar", "foo"]);
 /// ```
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub const fn rsplit_terminator<'a, 'b>(this: &'a str, delim: &'b str) -> RSplitTerminator<'a, 'b> {
     let SplitTerminator { this, state } = split_terminator(this, delim);
     RSplitTerminator { this, state }
@@ -96,11 +86,6 @@ enum EmptyState {
 /// # ;
 /// ```
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
-///
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub struct SplitTerminator<'a, 'b> {
     this: &'a str,
     state: State<'b>,
@@ -184,11 +169,6 @@ impl<'a, 'b> SplitTerminator<'a, 'b> {
 /// # ;
 /// ```
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
-///
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub struct RSplitTerminator<'a, 'b> {
     this: &'a str,
     state: State<'b>,

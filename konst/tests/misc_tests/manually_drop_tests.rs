@@ -1,10 +1,8 @@
-#[cfg(feature = "rust_1_56")]
 use konst::manually_drop;
 
 use core::{cmp::Ordering, mem::ManuallyDrop};
 
 #[test]
-#[cfg(feature = "rust_1_56")]
 fn as_inner_test() {
     let reff = ManuallyDrop::new(&0u32);
     let booll = ManuallyDrop::new(true);

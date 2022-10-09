@@ -24,8 +24,6 @@ use core::ptr::NonNull;
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_56")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 pub const unsafe fn deref<'a, T: ?Sized>(ptr: *const T) -> &'a T {
     core::mem::transmute(ptr)
 }
@@ -90,8 +88,6 @@ pub const unsafe fn deref_mut<'a, T: ?Sized>(ptr: *mut T) -> &'a mut T {
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_56")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: *const T) -> Option<&'a T> {
     core::mem::transmute(ptr)
 }
@@ -151,8 +147,6 @@ pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_56")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 pub const fn is_null<'a, T: ?Sized>(ptr: *const T) -> bool {
     unsafe {
         matches!(
@@ -183,8 +177,6 @@ pub mod nonnull {
     ///
     ///
     /// ```
-    #[cfg(feature = "rust_1_56")]
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
     pub const fn new<T: ?Sized>(ptr: *mut T) -> Option<NonNull<T>> {
         unsafe { core::mem::transmute(ptr) }
     }
@@ -216,8 +208,6 @@ pub mod nonnull {
     ///
     /// ```
     ///
-    #[cfg(feature = "rust_1_56")]
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
     pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: NonNull<T>) -> &'a T {
         core::mem::transmute(ptr)
     }

@@ -4,7 +4,6 @@
 //! const equivalents of IntoIterator and Iterator.
 //!
 
-#[cfg(any(not(doctest), feature = "rust_1_56"))]
 pub mod iterator_dsl;
 
 /// Iterates over all elements of an [iterator](crate::iter#iterator),
@@ -54,10 +53,7 @@ pub mod iterator_dsl;
 ///
 /// ### Summing pairs
 ///
-/// This example requires the `"rust_1_51"` feature, because it uses const generics.
-///
-#[cfg_attr(feature = "rust_1_51", doc = "```rust")]
-#[cfg_attr(not(feature = "rust_1_51"), doc = "```ignore")]
+/// ```rust
 /// use konst::iter::for_each;
 ///     
 /// const fn add_pairs<const N: usize>(l: [u32; N], r: [u32; N]) -> [u32; N] {
@@ -217,8 +213,7 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 ///
 /// This example requires Rust 1.47.0 (because of `u8::checked_sub`)
 ///
-#[cfg_attr(feature = "rust_1_51", doc = "```rust")]
-#[cfg_attr(not(feature = "rust_1_51"), doc = "```ignore")]
+/// ```rust
 /// use konst::iter::{self, IntoIterKind};
 ///
 /// struct Countdown(u8);

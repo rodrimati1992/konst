@@ -5,7 +5,6 @@ fn ui() {
     for dir in [
         "iter_eval_ui_tests",
         "iter_mod_ui_tests",
-        #[cfg(feature = "rust_1_56")]
         "collect_const_ui_tests",
     ] {
         t.compile_fail(format!("tests/misc_tests/{}/*err.rs", dir));
