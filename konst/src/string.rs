@@ -1,4 +1,13 @@
 //! `const fn` equivalents of `str` methods.
+//! 
+//! # Removed in 0.3.0
+//! 
+//! These items are`now const in the standard library in the 
+//! Minimum Supported Rust Version of this crate:
+//! - [`core::str::from_utf8`]
+//! - [`core::str::FromUtf8`]
+//! 
+//! 
 
 #[cfg(feature = "rust_1_64")]
 mod splitting;
@@ -34,137 +43,6 @@ __declare_fns_with_docs! {
         parameter_copyability = copy,
     ),
 }
-
-/// Reexports for `0.2.*` patch releases, will be removed in `0.3.0`
-#[deprecated(
-    since = "0.2.10",
-    note = "reexports for `0.2.*` patch releases, will be removed in `0.3.0`"
-)]
-pub mod deprecated_reexports {
-    macro_rules! declare_deprecated {
-        (
-            $deprecation:literal
-            fn $fn_name:ident($($arg:ident : $arg_ty:ty),*) -> $ret:ty {
-                $delegating_to:ident
-            }
-        ) => {
-            #[deprecated(
-                since = "0.2.10",
-                note = $deprecation,
-            )]
-            #[doc = $deprecation]
-            #[inline(always)]
-            pub const fn $fn_name($($arg: $arg_ty,)*) -> $ret {
-                super::$delegating_to($($arg),*)
-            }
-        };
-    }
-
-    declare_deprecated! {
-        "renamed to `starts_with`, full path: `konst::string::starts_with`"
-        fn str_starts_with(left: &str, right: &str) -> bool {
-            starts_with
-        }
-    }
-
-    declare_deprecated! {
-        "renamed to `ends_with`, full path: `konst::string::ends_with`"
-        fn str_ends_with(left: &str, right: &str) -> bool {
-            ends_with
-        }
-    }
-
-    declare_deprecated! {
-        "renamed to `find`, full path: `konst::string::find`"
-        fn str_find(left: &str, right: &str, from: usize) -> Option<usize> {
-            find
-        }
-    }
-
-    declare_deprecated! {
-        "renamed to `contains`, full path: `konst::string::contains`"
-        fn str_contains(left: &str, right: &str, from: usize) -> bool {
-            contains
-        }
-    }
-
-    declare_deprecated! {
-        "renamed to `rfind`, full path: `konst::string::rfind`"
-        fn str_rfind(left: &str, right: &str, from: usize) -> Option<usize> {
-            rfind
-        }
-    }
-
-    declare_deprecated! {
-         "renamed to `rcontains`, full path: `konst::string::rcontains`"
-        fn str_rcontains(left: &str, right: &str, from: usize) -> bool {
-            rcontains
-        }
-    }
-}
-
-#[allow(deprecated)]
-pub use deprecated_reexports::*;
-
-#[doc(hidden)]
-pub use konst_macro_rules::string::check_utf8 as __priv_check_utf8;
-
-/// A const equivalent of [`std::str::from_utf8`],
-/// usable *only in `const`s and `static`s.
-///
-/// \* This can be only used in `const fn`s when the
-/// `"rust_1_55"` feature is enabled.
-///
-/// For an equivalent function, which requires Rust 1.55.0
-/// (while this macro only requires Rust 1.46.0) and the `"rust_1_55"` crate feature,
-/// there is the [`from_utf8` function].
-///
-/// # Example
-///
-/// ```rust
-/// use konst::{string, unwrap_ctx};
-///
-/// const OK: &str = unwrap_ctx!(string::from_utf8!(b"foo bar"));
-/// assert_eq!(OK, "foo bar");
-///
-/// const ERR: Result<&str, string::Utf8Error> = string::from_utf8!(b"what\xFA");
-/// assert_eq!(ERR.unwrap_err().valid_up_to(), 4);
-///
-/// ```
-///
-/// [`std::str::from_utf8`]: https://doc.rust-lang.org/std/str/fn.from_utf8.html
-/// [`from_utf8` function]: ./fn.from_utf8.html
-pub use konst_macro_rules::from_utf8_macro as from_utf8;
-
-/// A const equivalent of [`std::str::from_utf8`],
-/// requires Rust 1.55 and the `"rust_1_55"` feature.
-///
-/// For an alternative that works in Rust 1.46.0,
-/// there is the [`from_utf8`](./macro.from_utf8.html) macro,
-/// but it can only be used in `const`s, not in `const fn`s .
-///
-/// # Example
-///
-/// ```rust
-/// use konst::{string, unwrap_ctx};
-///
-/// const OK: &str = unwrap_ctx!(string::from_utf8(b"hello world"));
-/// assert_eq!(OK, "hello world");
-///
-/// const ERR: Result<&str, string::Utf8Error> = string::from_utf8(&[32, 34, 255]);
-/// assert_eq!(ERR.unwrap_err().valid_up_to(), 2);
-///
-/// ```
-///
-/// [`std::str::from_utf8`]: https://doc.rust-lang.org/std/str/fn.from_utf8.html
-#[cfg(feature = "rust_1_55")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_55")))]
-pub use konst_macro_rules::string::from_utf8_fn as from_utf8;
-
-/// Error returned by the `from_utf8` [function](fn.from_utf8.html) and
-/// [macro](macro.from_utf8.html) when the
-/// input byte slice isn't valid utf8.
-pub use konst_macro_rules::string::Utf8Error;
 
 /// A const equivalent of
 /// [`str::starts_with`](https://doc.rust-lang.org/std/primitive.str.html#method.starts_with)

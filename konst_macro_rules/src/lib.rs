@@ -23,10 +23,6 @@ mod result_macros_;
 #[doc(hidden)]
 pub mod slice_;
 
-#[macro_use]
-#[doc(hidden)]
-pub mod string;
-
 #[doc(hidden)]
 pub mod utils;
 
