@@ -74,70 +74,38 @@ impl Display for ParseDirectionError {
 }
 
 impl ParseDirectionError {
+    #[allow(unconditional_panic)]
     const fn panic(&self) -> ! {
         [/*failed to parse a Direction*/][0]
     }
 }
 
 
-
 ```
 
-### Parsing integers
+### Parsing CSV
 
-You can parse integers using the `parse_*` functions in [`primitive`],
-returning an `Err(ParseIntError{...})` if the string as a whole isn't a valid integer.
+This example demonstrates how an CSV environment variable can be parsed into integers.
+
+This requires the `"rust_1_64"` and `""parsing_no_proc""` features 
+(the latter is enabled by default).
 
 ```rust
 use konst::{
-    primitive::{ParseIntResult, parse_i128},
+    primitive::parse_u64,
     result::unwrap_ctx,
+    iter, string,
 };
 
-const N_100: ParseIntResult<i128> = parse_i128("100");
-assert_eq!(N_100, Ok(100));
+const CSV: &str = env!("NUMBERS");
 
-const N_N3: ParseIntResult<i128> = parse_i128("-3");
-assert_eq!(N_N3, Ok(-3));
+static PARSED: [u64; 5] = iter::collect_const!(u64 => 
+    string::split(CSV, ","),
+        map(string::trim),
+        map(|s| unwrap_ctx!(parse_u64(s))),
+);
 
-
-// This is how you can unwrap integers parsed from strings, at compile-time.
-const N_100_UNW: i128 = unwrap_ctx!(parse_i128("1337"));
-assert_eq!(N_100_UNW, 1337);
-
-
-const NONE: ParseIntResult<i128> = parse_i128("-");
-assert!(NONE.is_err());
-
-const PAIR: ParseIntResult<i128> = parse_i128("1,2");
-assert!(PAIR.is_err());
-
-
-
-```
-
-For parsing an integer inside a larger string,
-you can use [`Parser::parse_u128`] method and the other `parse_*` methods
-
-```rust
-use konst::{Parser, unwrap_ctx};
-
-const PAIR: (i64, u128) = {;
-    let parser = Parser::from_str("1365;6789");
-
-    // Parsing "1365"
-    let (l, parser) = unwrap_ctx!(parser.parse_i64());
-
-    // Skipping the ";"
-    let parser = unwrap_ctx!(parser.strip_prefix(";"));
-
-    // Parsing "6789"
-    let (r, parser) = unwrap_ctx!(parser.parse_u128());
-    
-    (l, r)
-};
-assert_eq!(PAIR.0, 1365);
-assert_eq!(PAIR.1, 6789);
+assert_eq!(PARSED, [3, 8, 13, 21, 34]);
 
 ```
 
@@ -264,29 +232,41 @@ Enables items that use types from the [`alloc`] crate, including `Vec` and `Stri
 
 ### Rust release related
 
-- `"const_generics"` (disabled by default):
-Requires Rust 1.51.0.
+None of thse features are enabled by default.
+
+- `"rust_1_51"`:
 Enables items that require const generics,
 and impls for arrays to use const generics instead of only supporting small arrays.
 
 - `"rust_1_55"`: Enables the `string::from_utf8` function
 (the macro works in all versions),
-`str` indexing functions,  and the `"const_generics"` feature.
+`str` indexing functions,  and the `"rust_1_51"` feature.
 
 - `"rust_1_56"`:
-Enables functions that internally use raw pointer dereferences or transmutes,
+Enables items that internally use raw pointer dereferences or transmutes,
 and the `"rust_1_55"` feature.
 
+- `"rust_1_57"`: Allows `konst` to use the `panic` macro, 
+and enables the `"rust_1_56"` feature.
+
+- `"rust_1_61"`:
+Enables const fns that use trait bounds, and the `"rust_1_57"` feature.
+
 - `"rust_1_64"`:<br>
-Improves the performance of slice functions that split slices,
-from taking linear time to taking constant time.
+Adds slice and string iterators,
+string splitting functions(`[r]split_once`),
+const equivalents of iterator methods(in `konst::iter`),
+and makes slicing functions more efficient.
 <br>Note that only functions which mention this feature in their documentation are affected.
-<br>Enables the `"rust_1_56"` feature.
+<br>Enables the `"rust_1_61"` feature.
+
+- `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature.
+Only recommendable if you can update the Rust compiler every stable release.
 
 - `"mut_refs"`(disabled by default):
 Enables const functions that take mutable references.
 Use this whenever mutable references in const contexts are stabilized.
-Also enables the `"rust_1_64"` feature.
+Also enables the `"rust_latest_stable"` feature.
 
 - `"nightly_mut_refs"`(disabled by default):
 Enables the `"mut_refs"` feature. Requires Rust nightly.

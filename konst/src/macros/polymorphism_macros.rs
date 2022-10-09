@@ -173,21 +173,22 @@ macro_rules! __priv_std_kind_impl {
         impl[$($impl:tt)*] $self:ty
         $(where[ $($where_:tt)* ])?
     )=>{
-        impl<$($impl)*> crate::__::ConstCmpMarker for $self
+        impl<$($impl)*> $crate::__::ConstCmpMarker for $self
         where
             $($($where_)*)?
         {
-            type Kind = crate::__::IsStdKind;
+            type Kind = $crate::__::IsStdKind;
             type This = Self;
         }
 
-        impl<$($impl)* __T> crate::__::IsAConstCmpMarker<crate::__::IsStdKind, $self, __T>
+        impl<$($impl)* __T> $crate::__::IsAConstCmpMarker<$crate::__::IsStdKind, $self, __T>
         where
             $($($where_)*)?
         {
+            ///
             #[inline(always)]
-            pub const fn coerce(self, reference: &$self) -> crate::__::CmpWrapper<$self> {
-                crate::__::CmpWrapper(*reference)
+            pub const fn coerce(self, reference: &$self) -> $crate::__::CmpWrapper<$self> {
+                $crate::__::CmpWrapper(*reference)
             }
         }
     };
@@ -209,7 +210,7 @@ macro_rules! __priv_std_kind_impl {
 ///
 /// # Limitations
 ///
-/// The argument(s) must be concrete types, and have a fully inferred type.
+/// The parameter(s) must be concrete types, and have a fully inferred type.
 /// eg: if you pass an integer literal it must have a suffix to indicate its type.
 ///
 /// # Example

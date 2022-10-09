@@ -15,7 +15,7 @@
 /// };
 /// ```
 ///
-#[cfg(not(feature = "const_generics"))]
+#[cfg(not(feature = "rust_1_51"))]
 pub struct SliceIntoArrayNoConstGenerics;
 
 ///

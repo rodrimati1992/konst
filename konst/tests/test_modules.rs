@@ -7,6 +7,8 @@ mod misc_tests {
 
     mod array_tests;
 
+    mod iter_mod;
+
     mod manually_drop_tests;
 
     mod maybe_uninit_tests;
@@ -32,4 +34,6 @@ mod misc_tests {
 
     #[cfg(feature = "cmp")]
     mod primitive_tests;
+
+    mod ui_tests;
 }

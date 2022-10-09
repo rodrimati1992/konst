@@ -1,0 +1,51 @@
+error: unexpected end of macro invocation
+ --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:1:15
+  |
+1 | const _: () = konst::iter::for_each!{};
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+
+error: unexpected end of macro invocation
+ --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:3:39
+  |
+3 | const _: () = konst::iter::for_each!{_};
+  |                                       ^ missing tokens in macro arguments
+
+error: expected iterator argument
+ --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:5:15
+  |
+5 | const _: () = konst::iter::for_each!{_ in};
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__process_iter_args` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unsupported iterator method: foobar
+ --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:8:13
+  |
+8 |     let _ = konst::iter::for_each!{_ in 0..10,foobar() => };
+  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__cim_preprocess_methods` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: the `all` method cannot be called in this macro
+  --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:12:13
+   |
+12 |     let _ = konst::iter::for_each!{_ in 0..10,all(|_|false) => };
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::iter::__cim_method_not_found_err` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: the `find` method cannot be called in this macro
+  --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:13:13
+   |
+13 |     let _ = konst::iter::for_each!{_ in 0..10,find(|_|false) => };
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::iter::__cim_method_not_found_err` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: the `count` method cannot be called in this macro
+  --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:14:13
+   |
+14 |     let _ = konst::iter::for_each!{_ in 0..10,count() => };
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::iter::__cim_method_not_found_err` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -134,7 +134,9 @@ impl<'a> Display for ParseError<'a> {
 /// The direction that a parser was parsing from when an error happened.
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum ParseDirection {
+    /// Parsing was attempted from the start of the string
     FromStart = 0,
+    /// Parsing was attempted from the end of the string
     FromEnd = 1,
 }
 

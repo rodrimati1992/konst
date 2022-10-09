@@ -1,5 +1,17 @@
 //! `const fn` equivalents of `str` methods.
 
+#[cfg(feature = "rust_1_64")]
+mod splitting;
+
+#[cfg(feature = "rust_1_64")]
+pub use splitting::*;
+
+#[cfg(feature = "rust_1_64")]
+mod split_terminator_items;
+
+#[cfg(feature = "rust_1_64")]
+pub use split_terminator_items::*;
+
 __declare_string_cmp_fns! {
     import_path = "konst",
     equality_fn = eq_str,
@@ -317,7 +329,7 @@ pub const fn rcontains(left: &str, right: &str, from: usize) -> bool {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
+/// [`konst::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
 ///
 /// # Panics
 ///
@@ -361,7 +373,7 @@ pub const fn str_up_to(string: &str, len: usize) -> &str {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
+/// [`konst::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
 ///
 /// # Example
 ///
@@ -402,12 +414,12 @@ pub const fn get_up_to(string: &str, len: usize) -> Option<&str> {
 
 /// A const equivalent of `&string[start..]`.
 ///
-/// If `string.len() < start`, this simply returns `string` back.
+/// If `string.len() < start`, this simply returns an empty string` back.
 ///
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_from`](../slice/fn.slice_from.html#performance)
+/// [`konst::slice::slice_from`](../slice/fn.slice_from.html#performance)
 ///
 /// # Panics
 ///
@@ -454,7 +466,7 @@ pub const fn str_from(string: &str, start: usize) -> &str {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_from`](../slice/fn.slice_from.html#performance)
+/// [`konst::slice::slice_from`](../slice/fn.slice_from.html#performance)
 ///
 /// # Example
 ///
@@ -544,7 +556,9 @@ pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
 
 /// A const equivalent of `&string[start..end]`.
 ///
-/// If `string.len() < start` or `string.len() < end`, this simply returns `string` back.
+/// If `start >= end ` or `string.len() < start `, this returns an empty string.
+///
+/// If `string.len() < end`, this returns the string from `start`.
 ///
 /// # Alternatives
 ///
@@ -558,7 +572,7 @@ pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_range`](../slice/fn.slice_range.html#performance)
+/// [`konst::slice::slice_range`](../slice/fn.slice_range.html#performance)
 ///
 /// # Panics
 ///
@@ -615,7 +629,7 @@ pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
 /// # Performance
 ///
 /// This has the same performance as
-/// [`crate::slice::slice_range`](../slice/fn.slice_range.html#performance)
+/// [`konst::slice::slice_range`](../slice/fn.slice_range.html#performance)
 ///
 /// # Example
 ///
@@ -735,6 +749,28 @@ const fn is_char_boundary_get(bytes: &[u8], position: usize) -> bool {
     let len = bytes.len();
 
     position == len || (bytes[position] as i8) >= -0x40
+}
+
+#[cfg(feature = "rust_1_64")]
+const fn find_next_char_boundary(bytes: &[u8], mut position: usize) -> usize {
+    loop {
+        position += 1;
+
+        if is_char_boundary(bytes, position) {
+            break position;
+        }
+    }
+}
+
+#[cfg(feature = "rust_1_64")]
+const fn find_prev_char_boundary(bytes: &[u8], mut position: usize) -> usize {
+    position = position.saturating_sub(1);
+
+    while !is_char_boundary(bytes, position) {
+        position -= 1;
+    }
+
+    position
 }
 
 /// A const subset of [`str::trim`] which only removes ascii whitespace.

@@ -1,0 +1,45 @@
+error: the `all` method cannot be called in this macro
+ --> tests/misc_tests/collect_const_ui_tests/collect_const_syntax_err.rs:2:5
+  |
+2 |     konst::iter::collect_const!{() => 0..10,all(|_|false)};
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__cim_method_not_found_err` which comes from the expansion of the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected iterator argument
+ --> tests/misc_tests/collect_const_ui_tests/collect_const_syntax_err.rs:6:5
+  |
+6 |     konst::iter::collect_const!{() =>};
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__process_iter_args` which comes from the expansion of the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/collect_const_ui_tests/collect_const_syntax_err.rs:10:5
+   |
+10 |     konst::iter::collect_const!{};
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/collect_const_ui_tests/collect_const_syntax_err.rs:2:5
+  |
+2 |     konst::iter::collect_const!{() => 0..10,all(|_|false)};
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
+  |
+  = note: this error originates in the macro `$crate::iter::__cim_preprocess_methods` which comes from the expansion of the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0080]: evaluation of constant value failed
+ --> tests/misc_tests/collect_const_ui_tests/collect_const_syntax_err.rs:2:5
+  |
+2 |     konst::iter::collect_const!{() => 0..10,all(|_|false)};
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ referenced constant has errors
+  |
+  = note: this error originates in the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0080]: evaluation of constant value failed
+ --> tests/misc_tests/collect_const_ui_tests/collect_const_syntax_err.rs:6:5
+  |
+6 |     konst::iter::collect_const!{() =>};
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ referenced constant has errors
+  |
+  = note: this error originates in the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)

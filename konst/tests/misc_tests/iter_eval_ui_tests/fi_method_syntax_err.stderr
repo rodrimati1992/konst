@@ -1,0 +1,143 @@
+error: `filter` expects to be passed a 1-parameter closure
+ --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:5:5
+  |
+5 |     konst::iter::eval!(R, filter());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `filter` expects to be passed a 1-parameter closure
+ --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:6:5
+  |
+6 |     konst::iter::eval!(R, filter(||false));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `filter` expects valid closure syntax, passed closure without return value
+ --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:7:5
+  |
+7 |     konst::iter::eval!(R, filter(|_|));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `filter` expects no arguments after closure argument
+ --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:8:5
+  |
+8 |     konst::iter::eval!(R, filter(|_| false, 100));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `filter` expects to be passed a 1-parameter closure
+ --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:9:5
+  |
+9 |     konst::iter::eval!(R, filter(|a, b|false));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `find` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:13:5
+   |
+13 |     konst::iter::eval!(R, find());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `find` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:14:5
+   |
+14 |     konst::iter::eval!(R, find(||false));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `find` expects no arguments after closure argument
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:15:5
+   |
+15 |     konst::iter::eval!(R, find(|_| false, 100));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `find` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:16:5
+   |
+16 |     konst::iter::eval!(R, find(|a, b|false));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `filter_map` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:20:5
+   |
+20 |     konst::iter::eval!(R, filter_map());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `filter_map` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:21:5
+   |
+21 |     konst::iter::eval!(R, filter_map(||None));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `filter_map` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:22:5
+   |
+22 |     konst::iter::eval!(R, filter_map(|_|));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `filter_map` expects no arguments after closure argument
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:23:5
+   |
+23 |     konst::iter::eval!(R, filter_map(|_| None, 100));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `filter_map` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:24:5
+   |
+24 |     konst::iter::eval!(R, filter_map(|a, b|None));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `find_map` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:28:5
+   |
+28 |     konst::iter::eval!(R, find_map());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `find_map` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:29:5
+   |
+29 |     konst::iter::eval!(R, find_map(||None));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `find_map` expects no arguments after closure argument
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:30:5
+   |
+30 |     konst::iter::eval!(R, find_map(|_| None, 100));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `find_map` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:31:5
+   |
+31 |     konst::iter::eval!(R, find_map(|a, b|None));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

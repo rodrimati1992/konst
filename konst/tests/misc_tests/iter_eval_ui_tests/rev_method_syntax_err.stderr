@@ -1,0 +1,39 @@
+error: `rev` does not take arguments, passed: 10
+ --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:4:5
+  |
+4 |     konst::iter::eval!(R, rev(10));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__cim_error_on_args` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: cannot call two iterator-reversing methods in `konst::iter` macros, called: rev
+ --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:8:5
+  |
+8 |     konst::iter::eval!(R, rev(),rev());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__assert_first_rev` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: cannot call two iterator-reversing methods in `konst::iter` macros, called: rfind
+ --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:9:5
+  |
+9 |     konst::iter::eval!(R, rev(),rfind(|_| false));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__assert_first_rev` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: cannot call two iterator-reversing methods in `konst::iter` macros, called: rposition
+  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:10:5
+   |
+10 |     konst::iter::eval!(R, rev(),rposition(|_| false));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__assert_first_rev` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: cannot call two iterator-reversing methods in `konst::iter` macros, called: rfold
+  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:11:5
+   |
+11 |     konst::iter::eval!(R, rev(),rfold(0, |_, _| 10));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__assert_first_rev` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -80,17 +80,27 @@ pub trait ParserFor: Sized {
 ///
 pub struct StdParser<StdType>(PhantomData<StdType>);
 
+macro_rules! impl_std_parser_one {
+    ($method:ident, $type:ty, $parse_with_docs:expr) => {
+        impl ParserFor for $type {
+            type Parser = StdParser<$type>;
+        }
+
+        impl StdParser<$type> {
+            #[doc = $parse_with_docs]
+            pub const fn parse_with(parser: Parser<'_>) -> ParseValueResult<'_, $type> {
+                parser.$method()
+            }
+        }
+    };
+}
 macro_rules! impl_std_parser {
     ($($method:ident -> $type:ty;)*) => (
         $(
-            impl ParserFor for $type {
-                type Parser = StdParser<$type>;
-            }
-
-            impl StdParser<$type> {
-                pub const fn parse_with(parser: Parser<'_>) -> ParseValueResult<'_, $type> {
-                    parser.$method()
-                }
+            impl_std_parser_one!{
+                $method,
+                $type,
+                concat!("Atempts to parse `", stringify!($type), "`")
             }
         )*
     )

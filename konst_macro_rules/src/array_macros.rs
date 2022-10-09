@@ -1,4 +1,4 @@
-use core::{marker::PhantomData, mem::MaybeUninit};
+use core::mem::MaybeUninit;
 
 #[macro_export]
 macro_rules! array_map {
@@ -48,6 +48,6 @@ pub union AssumInitCopyArray<T: Copy, const N: usize> {
 }
 
 #[inline(always)]
-pub const fn uninit_array<T, U, const N: usize>(input: &[T; N]) -> [MaybeUninit<U>; N] {
+pub const fn uninit_array<T, U, const N: usize>(_input: &[T; N]) -> [MaybeUninit<U>; N] {
     [UNINIT::V; N]
 }

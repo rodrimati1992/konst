@@ -6,6 +6,8 @@ use konst::{
     range::cmp::{eq_range_char, eq_range_u8, eq_rangeinc_char, eq_rangeinc_u8},
 };
 
+mod range_iter_tests;
+
 #[test]
 #[cfg(feature = "cmp")]
 fn eq_range_test() {

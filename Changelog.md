@@ -2,6 +2,75 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.2
 
+### 0.2.19
+
+Addeded `konst::iter` module, with const encodings of `Iterator` API:
+- `konst::iter::collect_const` (macro)
+- `konst::iter::eval` (macro)
+- `konst::iter::for_each` (macro)
+- `konst::iter::into_iter` (macro)
+- `konst::iter::iterator_dsl` (documentation module)
+- `konst::iter::IntoIterWrapper` (struct)
+- `konst::iter::IsIntoIterKind` (struct)
+- `konst::iter::IsIteratorKind` (struct)
+- `konst::iter::IsNonIteratorKind` (struct)
+- `konst::iter::IsStdKind` (struct)
+- `konst::iter::IntoIterKind`(trait)
+
+
+Added these const fn (enabled by the `"rust_1_64"` feature):
+- `konst::string::split`
+- `konst::string::rsplit`
+- `konst::string::split_terminator`
+- `konst::string::rsplit_terminator`
+- `konst::string::split_once`
+- `konst::string::rsplit_once`
+
+Added these const string iterators (enabled by the `"rust_1_64"` feature):
+- `konst::string::Split`
+- `konst::string::RSplit`
+- `konst::string::SplitTerminator`
+- `konst::string::RSplitTerminator`
+
+Added these slice functions:
+- `konst::slice::chunks`(requires the `"rust_1_64"` feature)
+- `konst::slice::chunks_exact`(requires the `"rust_1_64"` feature)
+- `konst::slice::iter`
+- `konst::slice::iter_copied`(requires the `"rust_1_61"` feature)
+- `konst::slice::windows` (requires the `"rust_1_64"` feature)
+
+Added these slice iterator types:
+- `konst::slice::Chunks` (requires the `"rust_1_64"` feature)
+- `konst::slice::ChunksRev` (requires the `"rust_1_64"` feature)
+- `konst::slice::ChunksExact` (requires the `"rust_1_64"` feature)
+- `konst::slice::ChunksExactRev` (requires the `"rust_1_64"` feature)
+- `konst::slice::Iter`
+- `konst::slice::IterRev`
+- `konst::slice::IterCopied` (requires the `"rust_1_61"` feature)
+- `konst::slice::IterCopiedRev` (requires the `"rust_1_61"` feature)
+- `konst::slice::Windows` (requires the `"rust_1_64"` feature)
+- `konst::slice::WindowsRev` (requires the `"rust_1_64"` feature)
+
+Added range iterator types:
+- `konst::range::RangeIter`
+- `konst::range::RangeIterRev`
+- `konst::range::RangeInclusiveIter`
+- `konst::range::RangeInclusiveIterRev`
+- `konst::range::RangeFromIter`
+
+Added `konst::option::copied` function (requires the `"rust_1_61"` feature)
+
+
+Added `"rust_1_51"` feature, made `"const_generics"` feature delegate to it.
+
+Added `"rust_1_57"` feature, which enables the `"rust_1_56"` feature.
+
+Added `"rust_1_61"` feature, which enables the `"rust_1_57"` feature.
+
+Changed `"rust_1_64"` feature: now it enables `"rust_1_61"` feature.
+
+Added `"rust_latest_stable"` feature that enables the latest `"rust_*"` feature.
+
 ### 0.2.16
 
 Added `"rust_1_64"` crate feature, to make slice indexing take constant time from Rust 1.64.0 onwards.

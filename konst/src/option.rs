@@ -1,5 +1,24 @@
 //! `const` equivalents of `Option` methods.
 
+/// A const equivalent of `Option::unwrap`, requires Rust 1.57.0 to invoke.
+///
+/// # Example
+///
+/// This example requires Rust 1.47.0 (because of `NonZeroUsize::new`).
+///
+#[cfg_attr(feature = "rust_1_51", doc = "```rust")]
+#[cfg_attr(not(feature = "rust_1_51"), doc = "```ignore")]
+/// use konst::option::unwrap;
+///
+/// use std::num::NonZeroUsize;
+///
+/// const TEN: NonZeroUsize = unwrap!(NonZeroUsize::new(10));
+///
+/// assert_eq!(TEN.get(), 10);
+/// ```
+#[doc(inline)]
+pub use konst_macro_rules::opt_unwrap as unwrap;
+
 /// A const equivalent of `Option::unwrap_or`
 ///
 /// # Example
@@ -229,6 +248,36 @@ pub use konst_macro_rules::opt_flatten as flatten;
 /// ```
 #[doc(inline)]
 pub use konst_macro_rules::opt_filter as filter;
+
+/// A const equivalent of the [`Option::copied`] method.
+///
+/// # Version compatibility
+///
+/// This requires the `"rust_1_61"` feature.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::option;
+///
+/// const fn get_last(slice: &[u64]) -> Option<u64> {
+///     option::copied(slice.last())
+/// }
+///
+/// assert_eq!(get_last(&[]), None);
+/// assert_eq!(get_last(&[16]), Some(16));
+/// assert_eq!(get_last(&[3, 5, 8, 13]), Some(13));
+///
+///
+/// ```
+#[cfg(feature = "rust_1_61")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
+pub const fn copied<T: Copy>(opt: Option<&T>) -> Option<T> {
+    match opt {
+        Some(x) => Some(*x),
+        None => None,
+    }
+}
 
 declare_generic_const! {
     /// Usable to do `[None::<T>; LEN]` when `T` is non-`Copy`.

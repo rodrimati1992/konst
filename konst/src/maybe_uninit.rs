@@ -35,13 +35,13 @@ declare_generic_const! {
     pub const UNINIT[T]: MaybeUninit<T> = MaybeUninit::uninit();
 }
 
-#[cfg(feature = "const_generics")]
+#[cfg(feature = "rust_1_51")]
 declare_generic_const! {
     /// Generic constant for an uninitialized `[MaybeUninit<T>; N]`. Requires Rust 1.51.0.
     ///
     /// # Features
     ///
-    /// This requires the "const_generics" feature, which requires Rust 1.51.0.
+    /// This requires the "rust_1_51" feature, which requires Rust 1.51.0.
     ///
     /// # Example
     ///
@@ -61,7 +61,7 @@ declare_generic_const! {
     ///
     /// assert_eq!(INITS, [[3, 5], [8, 13]]);
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "const_generics")))]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_51")))]
     for[T, const N: usize]
     pub const UNINIT_ARRAY[T; N]: [MaybeUninit<T>; N] = [UNINIT::V; N];
 }
@@ -88,15 +88,7 @@ declare_generic_const! {
 /// ```
 #[cfg(feature = "rust_1_56")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
-#[inline(always)]
-pub const fn uninit_array<T, const LEN: usize>() -> [MaybeUninit<T>; LEN] {
-    union MakeMUArray<T, const LEN: usize> {
-        unit: (),
-        array: core::mem::ManuallyDrop<[MaybeUninit<T>; LEN]>,
-    }
-
-    unsafe { core::mem::ManuallyDrop::into_inner(MakeMUArray { unit: () }.array) }
-}
+pub use konst_macro_rules::utils_1_56::uninit_array;
 
 /// Const equivalent of [`MaybeUninit::assume_init`](core::mem::MaybeUninit::assume_init)
 ///
@@ -122,7 +114,7 @@ pub const fn uninit_array<T, const LEN: usize>() -> [MaybeUninit<T>; LEN] {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 #[inline(always)]
 pub const unsafe fn assume_init<T>(md: MaybeUninit<T>) -> T {
-    crate::utils_156::__priv_transmute! {MaybeUninit<T>, T, md}
+    crate::utils_1_56::__priv_transmute! {MaybeUninit<T>, T, md}
 }
 
 /// Const equivalent of [`MaybeUninit::assume_init_ref`](core::mem::MaybeUninit::assume_init_ref)
@@ -150,7 +142,7 @@ pub const unsafe fn assume_init<T>(md: MaybeUninit<T>) -> T {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 #[inline(always)]
 pub const unsafe fn assume_init_ref<T>(md: &MaybeUninit<T>) -> &T {
-    crate::utils_156::__priv_transmute_ref! {MaybeUninit<T>, T, md}
+    crate::utils_1_56::__priv_transmute_ref! {MaybeUninit<T>, T, md}
 }
 
 /// Const equivalent of [`MaybeUninit::assume_init_mut`](core::mem::MaybeUninit::assume_init_mut)
@@ -340,7 +332,4 @@ pub const fn as_mut_ptr<T>(md: &mut MaybeUninit<T>) -> *mut T {
 /// ```
 #[cfg(feature = "rust_1_56")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
-#[inline(always)]
-pub const unsafe fn array_assume_init<T, const N: usize>(md: [MaybeUninit<T>; N]) -> [T; N] {
-    crate::utils_156::__priv_transmute! {[MaybeUninit<T>; N], [T; N], md}
-}
+pub use konst_macro_rules::utils_1_56::array_assume_init;

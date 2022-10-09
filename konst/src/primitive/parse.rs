@@ -237,7 +237,7 @@ pub type ParseBoolResult = Result<bool, ParseBoolError>;
 
 use core::fmt::{self, Display};
 
-/// The error returned by integer methods.
+/// The error returned by integer-parsing methods.
 #[cfg(feature = "parsing_no_proc")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -252,6 +252,7 @@ impl Display for ParseIntError {
 }
 
 impl ParseIntError {
+    /// Panics with this error as the message
     pub const fn panic(&self) -> ! {
         let x = self.something();
         [/*could not parse an integer*/][x]
@@ -264,7 +265,7 @@ impl ParseIntError {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// The error returned by integer methods.
+/// The error returned by bool-parsing methods.
 #[cfg(feature = "parsing_no_proc")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -279,6 +280,7 @@ impl Display for ParseBoolError {
 }
 
 impl ParseBoolError {
+    /// Panics with this error as the message
     pub const fn panic(&self) -> ! {
         let x = self.something();
         [/*could not parse a bool*/][x]

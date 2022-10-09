@@ -3,6 +3,9 @@ use konst::string;
 #[cfg(feature = "rust_1_55")]
 use super::test_utils::must_panic;
 
+#[cfg(feature = "rust_1_64")]
+mod string_splitting;
+
 // 0..1: 'f'
 // 1..2: 'o'
 // 2..3: 'o'

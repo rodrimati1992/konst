@@ -1,0 +1,17 @@
+error[E0308]: mismatched types
+ --> tests/misc_tests/collect_const_ui_tests/collect_const_misc_1_err.rs:2:5
+  |
+2 |     konst::iter::collect_const!{usize => 0usize..10}
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `u8`, found `usize`
+  |
+  = note: expected array `[u8; 10]`
+             found array `[usize; 10]`
+  = note: this error originates in the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/collect_const_ui_tests/collect_const_misc_1_err.rs:6:5
+  |
+6 |     konst::iter::collect_const!{usize => 0usize..10}
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected an array with a fixed size of 9 elements, found one with 10 elements
+  |
+  = note: this error originates in the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)
