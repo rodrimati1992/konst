@@ -18,7 +18,7 @@ Addeded `konst::iter` module, with const encodings of `Iterator` API:
 - `konst::iter::IntoIterKind`(trait)
 
 
-Add these items (conditional on the `"rust_1_64"` feature):
+Added these const fn (enabled by the `"rust_1_64"` feature):
 - `konst::string::split`
 - `konst::string::rsplit`
 - `konst::string::split_terminator`
@@ -26,7 +26,7 @@ Add these items (conditional on the `"rust_1_64"` feature):
 - `konst::string::split_once`
 - `konst::string::rsplit_once`
 
-Add these const iterators to the `string` module(conditional on the `"rust_1_64"` feature):
+Added these const string iterators (enabled by the `"rust_1_64"` feature):
 - `konst::string::Split`
 - `konst::string::RSplit`
 - `konst::string::SplitTerminator`
@@ -48,8 +48,8 @@ Added these slice iterator types:
 - `konst::slice::IterRev`
 - `konst::slice::IterCopied` (requires the `"rust_1_61"` feature)
 - `konst::slice::IterCopiedRev` (requires the `"rust_1_61"` feature)
-- `konst::slice::Windows`
-- `konst::slice::WindowsRev`
+- `konst::slice::Windows` (requires the `"rust_1_64"` feature)
+- `konst::slice::WindowsRev` (requires the `"rust_1_64"` feature)
 
 Added range iterator types:
 - `konst::range::RangeIter`
@@ -63,7 +63,11 @@ Added `konst::option::copied` function (requires the `"rust_1_61"` feature)
 
 Added `"rust_1_51"` feature, made `"const_generics"` feature delegate to it.
 
-Added `"rust_1_61"` feature
+Added `"rust_1_57"` feature, which enables the `"rust_1_56"` feature.
+
+Added `"rust_1_61"` feature, which enables the `"rust_1_57"` feature.
+
+Changed `"rust_1_64"` feature: now it enables `"rust_1_61"` feature.
 
 Added `"rust_latest_stable"` feature that enables the latest `"rust_*"` feature.
 
