@@ -56,6 +56,25 @@ macro_rules! make__cim_preprocess_methods__macro {
     ) => {
         #[doc(hidden)]
         #[macro_export]
+        macro_rules! __cim_method_not_found_err {
+            ($func:ident $($_($fn)?)* $($($_($st_func)?)*)*) => {
+                $crate::__::compile_error! {$crate::__::concat!{
+                    "the `",
+                    $crate::__::stringify!($func),
+                    "` method cannot be called in this macro",
+                }}
+            };
+            ($func:ident $func2:ident) => {
+                $crate::__::compile_error!{$crate::__::concat!(
+                    "Unsupported iterator method: `",
+                    $crate::__::stringify!($func),
+                    "`",
+                )}
+            };
+        }
+
+        #[doc(hidden)]
+        #[macro_export]
         macro_rules! __cim_preprocess_methods {
             $($finished_arm)*
 
@@ -117,6 +136,9 @@ macro_rules! make__cim_preprocess_methods__macro {
 
         #[doc(hidden)]
         pub use __cim_preprocess_methods;
+
+        #[doc(hidden)]
+        pub use __cim_method_not_found_err;
     };
 }
 

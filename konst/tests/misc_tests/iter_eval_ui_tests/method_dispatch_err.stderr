@@ -45,3 +45,11 @@ error: iterator methods in this macro are comma-separated
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__process_iter_args` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unsupported iterator method: bar
+  --> tests/misc_tests/iter_eval_ui_tests/method_dispatch_err.rs:22:5
+   |
+22 |     konst::iter::eval!(0usize..10, enumerate(),nth(3),bar());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::iter::__cim_preprocess_methods` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

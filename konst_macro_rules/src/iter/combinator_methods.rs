@@ -5,6 +5,13 @@ macro_rules! __process_iter_args {
         $callback_macro:tt
         $fixed_arguments:tt
         $other_args:tt
+    ) => (
+        $crate::__::compile_error!{"expected iterator argument"}
+    );
+    (
+        $callback_macro:tt
+        $fixed_arguments:tt
+        $other_args:tt
         $iter:expr $(, $method:ident $(($($args:tt)*))? )* $(,)*
         $( => $($rem:tt)*)?
     ) => ({
@@ -345,11 +352,7 @@ macro_rules! __call_iter_methods {
         $item:tt $iters:tt
         $comb:ident ($($args:tt)*), $($rem:tt)*
     ) => {
-        $crate::__::compile_error!{$crate::__::concat!(
-            "Unsupported iterator combinator: `",
-            $crate::__::stringify!($comb),
-            "`",
-        )}
+        $crate::iter::__cim_method_not_found_err!{$comb $comb}
     };
     (
         $fixed:tt

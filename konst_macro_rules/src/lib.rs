@@ -36,7 +36,7 @@ mod type_eq;
 
 #[doc(hidden)]
 #[cfg(feature = "rust_1_56")]
-mod collect_const;
+pub mod collect_const;
 
 #[doc(hidden)]
 #[cfg(feature = "rust_1_56")]

@@ -23,7 +23,7 @@ macro_rules! iter_collect_const {
         const fn __func_zxe7hgbnjs<Ret_KO9Y329U2U, const CAP_KO9Y329U2U: usize>(
             cmd: $crate::__::CollectorCmd<$Item, Ret_KO9Y329U2U, CAP_KO9Y329U2U>,
         ) -> Ret_KO9Y329U2U {
-            let mut array = $crate::utils_1_56::uninit_array::<$Item, CAP_KO9Y329U2U>();
+            let mut array = $crate::utils_1_56::uninit_array::<_, CAP_KO9Y329U2U>();
             let mut length = 0usize;
 
             $crate::__process_iter_args!{
@@ -34,7 +34,7 @@ macro_rules! iter_collect_const {
                     'zxe7hgbnjs,
                     adapter,
                 )
-                $($rem)*,
+                $($rem)*
             }
 
             match cmd {
@@ -77,6 +77,7 @@ macro_rules! __iter_collect_const {
     ) => {
         if let $crate::__::CollectorCmd::BuildArray(teq) = $cmd {
             teq.reachability_hint();
+
             $array[$length] = $crate::__::MaybeUninit::new($item);
         }
 
