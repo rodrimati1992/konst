@@ -1,4 +1,4 @@
-use konst::slice::{self, bytes_find, bytes_rfind};
+use konst::slice::{self, bytes_find, bytes_rfind, slice_from, slice_up_to};
 
 macro_rules! slice_splitting_test {
     (
@@ -193,7 +193,7 @@ fn find_test() {
     ) {
         for (offset, opt) in finds.iter().copied() {
             assert_eq!(
-                bytes_find(left, right, offset),
+                bytes_find(slice_from(left, offset), right).map(|i| i + offset),
                 opt,
                 "in find, offset: {}",
                 offset
@@ -201,7 +201,7 @@ fn find_test() {
 
             if !right.is_empty() {
                 assert_eq!(
-                    bytes_find(b"", right, offset),
+                    bytes_find(slice_from(b"", offset), right).map(|i| i + offset),
                     None,
                     "in find empty left, offset: {}",
                     offset
@@ -209,7 +209,7 @@ fn find_test() {
             }
             if offset < left.len() {
                 assert_eq!(
-                    bytes_find(left, b"", offset),
+                    bytes_find(slice_from(left, offset), b"").map(|i| i + offset),
                     Some(offset),
                     "in find empty right, offset: {}",
                     offset
@@ -218,7 +218,7 @@ fn find_test() {
         }
         for (offset, opt) in rfinds.iter().copied() {
             assert_eq!(
-                bytes_rfind(left, right, offset),
+                bytes_rfind(slice_up_to(left, offset.saturating_add(1)), right),
                 opt,
                 "in rfind, offset: {}",
                 offset
@@ -226,7 +226,7 @@ fn find_test() {
 
             if !right.is_empty() {
                 assert_eq!(
-                    bytes_rfind(b"", right, offset),
+                    bytes_rfind(slice_up_to(b"", offset.saturating_add(1)), right),
                     None,
                     "in rfind empty left, offset: {}",
                     offset
@@ -234,7 +234,7 @@ fn find_test() {
             }
             if offset < left.len() {
                 assert_eq!(
-                    bytes_rfind(left, b"", offset),
+                    bytes_rfind(slice_up_to(left, offset.saturating_add(1)), b""),
                     Some(offset),
                     "in rfind empty right, offset: {}",
                     offset

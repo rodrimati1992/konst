@@ -183,14 +183,14 @@ pub const fn write<T>(md: &mut MaybeUninit<T>, value: T) -> &mut T {
 /// # #![feature(const_mut_refs)]
 /// use std::mem::MaybeUninit;
 ///
-/// use konst::{maybe_uninit as mu, ptr};
+/// use konst::maybe_uninit as mu;
 ///
 /// const ENUM: Enum = {
 ///     let mut mu = MaybeUninit::<Enum>::uninit();
 ///     
 ///     let ptr = mu::as_mut_ptr(&mut mu).cast::<MaybeUninit<Discr>>();
 ///     unsafe{
-///         *ptr::deref_mut(ptr) = MaybeUninit::new(Discr::Bar);
+///         *ptr = MaybeUninit::new(Discr::Bar);
 ///         mu::assume_init(mu)
 ///     }
 /// };

@@ -3,20 +3,6 @@ use konst::maybe_uninit;
 use std::{cmp::Ordering, mem::MaybeUninit};
 
 #[test]
-fn assume_init_test() {
-    let reff = MaybeUninit::new(&0u32);
-    let booll = MaybeUninit::new(true);
-    let ordering = MaybeUninit::new(Ordering::Greater);
-    let string = MaybeUninit::new("wowow");
-    unsafe {
-        assert_eq!(maybe_uninit::assume_init(reff), &0u32);
-        assert_eq!(maybe_uninit::assume_init(booll), true);
-        assert_eq!(maybe_uninit::assume_init(ordering), Ordering::Greater);
-        assert_eq!(maybe_uninit::assume_init(string), "wowow");
-    }
-}
-
-#[test]
 fn array_assume_init_test() {
     let reff = [MaybeUninit::new(&3u32); 5];
     let booll = [MaybeUninit::new(true); 5];
@@ -46,20 +32,6 @@ fn uninit_array_test() {
 
     unsafe {
         assert_eq!(maybe_uninit::array_assume_init(reffs), [&10u8, &20u8]);
-    }
-}
-
-#[test]
-fn assume_init_ref_test() {
-    let reff = MaybeUninit::new(&0u32);
-    let booll = MaybeUninit::new(true);
-    let ordering = MaybeUninit::new(Ordering::Greater);
-    let string = MaybeUninit::new("wowow");
-    unsafe {
-        assert_eq!(maybe_uninit::assume_init_ref(&reff), &&0u32);
-        assert_eq!(maybe_uninit::assume_init_ref(&booll), &true);
-        assert_eq!(maybe_uninit::assume_init_ref(&ordering), &Ordering::Greater);
-        assert_eq!(maybe_uninit::assume_init_ref(&string), &"wowow");
     }
 }
 
@@ -105,20 +77,6 @@ fn write_test() {
             &mut Ordering::Less
         );
         assert_eq!(maybe_uninit::assume_init_mut(&mut string), &mut "why");
-    }
-}
-
-#[test]
-fn as_ptr_test() {
-    let reff = MaybeUninit::new(&0u32);
-    let booll = MaybeUninit::new(true);
-    let ordering = MaybeUninit::new(Ordering::Greater);
-    let string = MaybeUninit::new("wowow");
-    unsafe {
-        assert_eq!(*maybe_uninit::as_ptr(&reff), &0u32);
-        assert_eq!(*maybe_uninit::as_ptr(&booll), true);
-        assert_eq!(*maybe_uninit::as_ptr(&ordering), Ordering::Greater);
-        assert_eq!(*maybe_uninit::as_ptr(&string), "wowow");
     }
 }
 

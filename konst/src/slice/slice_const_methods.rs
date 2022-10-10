@@ -662,29 +662,25 @@ pub const fn bytes_strip_suffix<'a>(mut left: &'a [u8], mut suffix: &[u8]) -> Op
 
 /// Finds the byte offset of `right` in `left`, starting from the `from` index.
 ///
-/// Returns `None` if `right` isn't inside `&left[from..]`
+/// Returns `None` if `right` isn't inside `left`
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::slice::bytes_find;
 ///
-/// assert_eq!(bytes_find(b"foo-bar-baz-foo", b"foo", 0), Some(0));
-/// assert_eq!(bytes_find(b"foo-bar-baz-foo", b"foo", 4), Some(12));
-///
-/// assert_eq!(bytes_find(b"foo-bar-baz-foo-bar", b"bar", 0), Some(4));
-/// assert_eq!(bytes_find(b"foo-bar-baz-foo-bar", b"bar", 4), Some(4));
-/// assert_eq!(bytes_find(b"foo-bar-baz-foo-bar", b"bar", 5), Some(16));
-/// assert_eq!(bytes_find(b"foo-bar-baz-foo-bar", b"bar", 16), Some(16));
-/// assert_eq!(bytes_find(b"foo-bar-baz-foo-bar", b"bar", 17), None);
+/// assert_eq!(bytes_find(b"foo-bar-baz", b"qux"), None);
+/// assert_eq!(bytes_find(b"foo-bar-baz", b"foo"), Some(0));
+/// assert_eq!(bytes_find(b"foo-bar-baz", b"bar"), Some(4));
+/// assert_eq!(bytes_find(b"foo-bar-baz", b"baz"), Some(8));
 ///
 /// ```
 ///
 #[inline]
-pub const fn bytes_find(left: &[u8], right: &[u8], from: usize) -> Option<usize> {
+pub const fn bytes_find(left: &[u8], right: &[u8]) -> Option<usize> {
     let mut matching = right;
 
-    for_range! {i in from..left.len() =>
+    for_range! {i in 0..left.len() =>
         match matching {
             [mb, m_rem @ ..] => {
                 let b = left[i];
@@ -712,57 +708,48 @@ pub const fn bytes_find(left: &[u8], right: &[u8], from: usize) -> Option<usize>
     }
 }
 
-/// Whether `right` is inside `&left[from..]`.
+/// Whether `right` is inside `left`.
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::slice::bytes_contain;
 ///
-/// assert!(bytes_contain(b"foo-bar-baz-foo", b"foo", 0));
-/// assert!(bytes_contain(b"foo-bar-baz-foo", b"foo", 4));
+/// assert!(bytes_contain(b"foo-bar", b"foo"));
+/// assert!(bytes_contain(b"bar-foo", b"foo"));
 ///
-/// assert!( bytes_contain(b"foo-bar-baz-foo-bar", b"bar", 0));
-/// assert!( bytes_contain(b"foo-bar-baz-foo-bar", b"bar", 4));
-/// assert!( bytes_contain(b"foo-bar-baz-foo-bar", b"bar", 5));
-/// assert!( bytes_contain(b"foo-bar-baz-foo-bar", b"bar", 16));
-/// assert!(!bytes_contain(b"foo-bar-baz-foo-bar", b"bar", 17));
+/// assert!(!bytes_contain(b"foo-bar-baz", b"qux"));
 ///
 /// ```
 ///
 #[inline(always)]
-pub const fn bytes_contain(left: &[u8], right: &[u8], from: usize) -> bool {
-    matches!(bytes_find(left, right, from), Some(_))
+pub const fn bytes_contain(left: &[u8], right: &[u8]) -> bool {
+    matches!(bytes_find(left, right), Some(_))
 }
 
-/// Finds the byte offset of `right` inside `&left[..=from]`, searching in reverse.
+/// Finds the byte offset of `right` inside `left`, searching in reverse.
 ///
-/// Returns `None` if `right` isn't inside `&left[..=from]`.
+/// Returns `None` if `right` isn't inside `left`.
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::slice::bytes_rfind;
 ///
-/// assert_eq!(bytes_rfind(b"foo-bar-baz-foo", b"foo", 0), None);
-/// assert_eq!(bytes_rfind(b"foo-bar-baz-foo", b"foo", 1), None);
-///
-/// assert_eq!(bytes_rfind(b"foo-bar-baz-foo", b"foo", 2), Some(0));
-/// assert_eq!(bytes_rfind(b"foo-bar-baz-foo", b"foo", 3), Some(0));
-/// assert_eq!(bytes_rfind(b"foo-bar-baz-foo", b"foo", 4), Some(0));
-///
-/// assert_eq!(bytes_rfind(b"foo-bar-baz-foo", b"foo", 15), Some(12));
-/// assert_eq!(bytes_rfind(b"foo-bar-baz-foo", b"foo", 20000), Some(12));
+/// assert_eq!(bytes_rfind(b"foo-bar-baz", b"qux"), None);
+/// assert_eq!(bytes_rfind(b"foo-bar-baz", b"foo"), Some(0));
+/// assert_eq!(bytes_rfind(b"foo-bar-baz", b"bar"), Some(4));
+/// assert_eq!(bytes_rfind(b"foo-bar-baz", b"baz"), Some(8));
 ///
 /// ```
 ///
 #[inline]
-pub const fn bytes_rfind(left: &[u8], right: &[u8], from: usize) -> Option<usize> {
+pub const fn bytes_rfind(left: &[u8], right: &[u8]) -> Option<usize> {
     let mut matching = right;
 
     let llen = left.len();
 
-    let mut i = if from >= llen { llen } else { from + 1 };
+    let mut i = llen;
 
     while i != 0 {
         i -= 1;
@@ -792,28 +779,23 @@ pub const fn bytes_rfind(left: &[u8], right: &[u8], from: usize) -> Option<usize
     }
 }
 
-/// Returns whether `right` is contained inside `&left[..=from]` searching in reverse.
+/// Returns whether `right` is contained inside `left` searching in reverse.
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::slice::bytes_rcontain;
 ///
-/// assert!(!bytes_rcontain(b"foo-bar-baz-foo", b"foo", 0));
-/// assert!(!bytes_rcontain(b"foo-bar-baz-foo", b"foo", 1));
+/// assert!(bytes_rcontain(b"foo-bar", b"foo"));
+/// assert!(bytes_rcontain(b"bar-foo", b"foo"));
 ///
-/// assert!(bytes_rcontain(b"foo-bar-baz-foo", b"foo", 2));
-/// assert!(bytes_rcontain(b"foo-bar-baz-foo", b"foo", 3));
-/// assert!(bytes_rcontain(b"foo-bar-baz-foo", b"foo", 4));
-///
-/// assert!(bytes_rcontain(b"foo-bar-baz-foo", b"foo", 15));
-/// assert!(bytes_rcontain(b"foo-bar-baz-foo", b"foo", 20000));
+/// assert!(!bytes_rcontain(b"foo-bar-baz", b"qux"));
 ///
 /// ```
 ///
 #[inline(always)]
-pub const fn bytes_rcontain(left: &[u8], right: &[u8], from: usize) -> bool {
-    matches!(bytes_rfind(left, right, from), Some(_))
+pub const fn bytes_rcontain(left: &[u8], right: &[u8]) -> bool {
+    matches!(bytes_rfind(left, right), Some(_))
 }
 
 macro_rules! matches_space {

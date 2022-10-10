@@ -114,7 +114,7 @@ impl<'a, 'b> SplitTerminator<'a, 'b> {
                     None
                 }
                 State::Normal{delim} => {
-                    let (next, ret) = match string::find(this, delim, 0) {
+                    let (next, ret) = match string::find(this, delim) {
                         Some(pos) => (pos + delim.len(), pos),
                         None => (this.len(), this.len()),
                     };
@@ -197,7 +197,7 @@ impl<'a, 'b> RSplitTerminator<'a, 'b> {
                     None
                 }
                 State::Normal{delim} => {
-                    let (next, ret) = match string::rfind(this, delim, this.len()) {
+                    let (next, ret) = match string::rfind(this, delim) {
                         Some(pos) => (pos, pos + delim.len()),
                         None => (0, 0),
                     };

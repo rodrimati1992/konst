@@ -29,7 +29,7 @@ pub const fn split_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a 
         Some(string::split_at(this, 0))
     } else {
         crate::option::map! {
-            string::find(this, delim, 0),
+            string::find(this, delim),
             |pos| (str_up_to(this, pos), str_from(this, pos + delim.len()))
         }
     }
@@ -57,7 +57,7 @@ pub const fn rsplit_once<'a>(this: &'a str, delim: &str) -> Option<(&'a str, &'a
         Some(string::split_at(this, this.len()))
     } else {
         crate::option::map! {
-            string::rfind(this, delim, this.len()),
+            string::rfind(this, delim),
             |pos| (str_up_to(this, pos), str_from(this, pos + delim.len()))
         }
     }
@@ -172,7 +172,7 @@ macro_rules! split_shared {
 
                 match state {
                     State::Normal{delim} => {
-                        match string::find(this, delim, 0) {
+                        match string::find(this, delim) {
                             Some(pos) => {
                                 self.this = str_from(this, pos + delim.len());
                                 Some((str_up_to(this, pos), self))
@@ -195,7 +195,7 @@ macro_rules! split_shared {
                 } = self;
                 match state {
                     State::Normal{delim} => {
-                        match string::rfind(this, delim, this.len()) {
+                        match string::rfind(this, delim) {
                             Some(pos) => {
                                 self.this = str_up_to(this, pos);
                                 Some((str_from(this, pos + delim.len()), self))

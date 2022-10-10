@@ -3,17 +3,6 @@ use konst::ptr::{self, nonnull};
 use std::ptr::{null, null_mut, NonNull};
 
 #[test]
-fn deref_test() {
-    let str_ptr: *const str = "hello";
-    let array_ptr: *const [u8; 4] = &[3, 5, 8, 13];
-
-    unsafe {
-        assert_eq!(ptr::deref(str_ptr), "hello");
-        assert_eq!(ptr::deref(array_ptr), &[3, 5, 8, 13]);
-    }
-}
-
-#[test]
 #[cfg(feature = "mut_refs")]
 fn deref_mut_test() {
     let slice_ptr: *mut [u8] = &mut [3, 5, 8];
