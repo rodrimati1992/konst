@@ -293,6 +293,8 @@ pub mod alloc_type;
 
 pub mod array;
 
+pub mod chr;
+
 pub mod iter;
 
 #[cfg(feature = "cmp")]

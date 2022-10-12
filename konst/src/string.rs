@@ -10,6 +10,12 @@
 //!
 //!
 
+pub(crate) mod pattern;
+
+pub use self::pattern::Pattern;
+
+use self::pattern::PatternNorm;
+
 mod splitting;
 
 pub use splitting::*;
@@ -43,7 +49,7 @@ __declare_fns_with_docs! {
 
 /// A const equivalent of
 /// [`str::starts_with`](https://doc.rust-lang.org/std/primitive.str.html#method.starts_with)
-/// , taking a `&str` parameter.
+/// , taking a [`Pattern`] parameter.
 ///
 /// # Example
 ///
@@ -58,13 +64,17 @@ __declare_fns_with_docs! {
 /// ```
 ///
 #[inline(always)]
-pub const fn starts_with(left: &str, right: &str) -> bool {
-    crate::slice::bytes_start_with(left.as_bytes(), right.as_bytes())
+pub const fn starts_with<'a, P>(left: &str, pat: P) -> bool
+where
+    P: Pattern<'a>,
+{
+    let pat = PatternNorm::new(pat);
+    crate::slice::bytes_start_with(left.as_bytes(), pat.as_bytes())
 }
 
 /// A const equivalent of
 /// [`str::ends_with`](https://doc.rust-lang.org/std/primitive.str.html#method.ends_with)
-/// , taking a `&str` parameter.
+/// , taking a [`Pattern`] parameter.
 ///
 /// # Example
 ///
@@ -72,15 +82,21 @@ pub const fn starts_with(left: &str, right: &str) -> bool {
 /// use konst::string;
 ///
 /// assert!( string::ends_with("foo,bar,baz", ",baz"));
+/// assert!( string::ends_with("abc...z", 'z'));
 ///
 /// assert!(!string::ends_with("foo,bar,baz", "bar"));
 /// assert!(!string::ends_with("foo,bar,baz", "foo"));
+/// assert!(!string::ends_with("abc", 'z'));
 ///
 /// ```
 ///
 #[inline(always)]
-pub const fn ends_with(left: &str, right: &str) -> bool {
-    crate::slice::bytes_end_with(left.as_bytes(), right.as_bytes())
+pub const fn ends_with<'a, P>(left: &str, pat: P) -> bool
+where
+    P: Pattern<'a>,
+{
+    let pat = PatternNorm::new(pat);
+    crate::slice::bytes_end_with(left.as_bytes(), pat.as_bytes())
 }
 
 /// A const equivalent of

@@ -4,6 +4,23 @@ use super::test_utils::must_panic;
 
 mod string_splitting;
 
+#[test]
+fn starts_with_char() {
+    assert!(!string::starts_with("foo", '个'));
+    assert!(!string::starts_with("foo个", '个'));
+    assert!(string::starts_with("个 foo", '个'));
+    assert!(string::starts_with("a foo", 'a'));
+}
+
+#[test]
+fn ends_with_char() {
+    assert!(string::ends_with("fooñ", 'ñ'));
+    assert!(string::ends_with("foo个", '个'));
+    assert!(!string::ends_with("foo", '个'));
+    assert!(!string::ends_with("个 foo", '个'));
+    assert!(!string::ends_with("a foo", 'a'));
+}
+
 // 0..1: 'f'
 // 1..2: 'o'
 // 2..3: 'o'
