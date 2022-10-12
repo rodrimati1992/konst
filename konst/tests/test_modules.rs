@@ -7,6 +7,8 @@ mod misc_tests {
 
     mod array_tests;
 
+    mod char_tests;
+
     mod iter_mod;
 
     mod manually_drop_tests;

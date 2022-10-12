@@ -8,6 +8,7 @@
 
 mod cmp_wrapper;
 mod const_cmp_marker;
+include! {"polymorphism/type_eq_.rs"}
 
 pub use self::{
     cmp_wrapper::CmpWrapper,
