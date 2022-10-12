@@ -268,7 +268,7 @@ macro_rules! __priv_pa_normalize_branches {
         ($place:expr, $parse_direction:ident, $method_macro:ident, $call_place:tt)
         ()
 
-        $($pattern:pat)|*
+        $($pattern:pat_param)|*
     ) => {
         $crate::$method_macro!{
             ($place, $parse_direction, $call_place)
@@ -299,7 +299,7 @@ macro_rules! __priv_pa_normalize_branches {
         $fixed_params:tt
         ( $($prev_branch:tt)* )
 
-        $($pattern:pat)|* => $expr:expr,
+        $($pattern:pat_param)|* => $expr:expr,
         $($rem:tt)*
     ) => {{
         $crate::__priv_tokens_after_middle_branch!{$($rem)*}
@@ -318,7 +318,7 @@ macro_rules! __priv_pa_normalize_branches {
         $fixed_params:tt
         ( $($prev_branch:tt)* )
 
-        $($pattern:pat)|* => $expr:block
+        $($pattern:pat_param)|* => $expr:block
         $($rem:tt)*
     ) => {{
         $crate::__priv_tokens_after_middle_branch!{$($rem)*}
@@ -366,13 +366,13 @@ macro_rules! __priv_pa_rfind_skip {
 macro_rules! __priv_pa_find_skip_either {
     (
         $brem:ident,
-        $split_first_pat:pat,
+        $split_first_pat:pat_param,
         $pat_proc_macro:ident,
 
         $accessor_args:tt
 
         $(
-            ($($pattern:pat)|*)=>($e:expr)
+            ($($pattern:pat_param)|*)=>($e:expr)
         )*
         default => ($default:expr)
     ) => {{
@@ -407,7 +407,7 @@ macro_rules! __priv_pa_strip_prefix {
         $accessor_args:tt
 
         $(
-            ($($pattern:pat)|*)=>($e:expr)
+            ($($pattern:pat_param)|*)=>($e:expr)
         )*
         default => $default:expr
     ) => {
@@ -430,7 +430,7 @@ macro_rules! __priv_pa_strip_suffix {
         $accessor_args:tt
 
         $(
-            ($($pattern:pat)|*)=>($e:expr)
+            ($($pattern:pat_param)|*)=>($e:expr)
         )*
         default => ($default:expr)
     ) => {
@@ -471,7 +471,7 @@ macro_rules!  __priv_pa_trim_matches_inner{
         $pat_proc_macro:ident
 
         $accessor_args:tt
-        $($pattern:pat)|*
+        $($pattern:pat_param)|*
     ) => {{
         let mut bytes = $crate::__priv_pa_bytes_accessor!(get, $accessor_args);
 

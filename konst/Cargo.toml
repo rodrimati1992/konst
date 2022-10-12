@@ -1,8 +1,9 @@
 [package]
 name = "konst"
-version = "0.2.19"
+version = "0.3.0"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
-edition = "2018"
+rust-version = "1.64.0"
+edition = "2021"
 license = "Zlib"
 description = "Const equivalents of std functions, compile-time comparison, and parsing"
 documentation = "https://docs.rs/konst/"
@@ -19,12 +20,12 @@ include = [
 
 
 [dependencies.konst_proc_macros]
-version = "=0.2.11"
+version = "=0.3.0"
 path = "../konst_proc_macros"
 optional = true
 
 [dependencies.konst_macro_rules]
-version = "=0.2.19"
+version = "=0.3.0"
 path = "../konst_macro_rules"
 
 [dev-dependencies.rand]
@@ -32,12 +33,14 @@ version = "0.8.4"
 default-features = false
 features = ["small_rng"]
 
-# Can't include this crate in 1.46.0 tests(it requires Rust 1.56.0 to compile),
-# but because dev-dependencies can't have optional features,
-# this must be a non-dev dependency.
+# dev-dependencies can't be optional
 [dependencies.trybuild]
 version = "1.0"
 optional = true
+
+[dependencies.const_panic]
+version = "0.2.6"
+default-features = false
 
 [features]
 default = ["cmp", "parsing"]
@@ -51,13 +54,10 @@ nightly_mut_refs = ["mut_refs", "konst_macro_rules/nightly_mut_refs"]
 
 alloc = []
 
-# Using doctests to ensure that some stuff does/doesn't compile
-__test = []
-
 # Enables ui tests, which are intended for the latest stable release.
 # This is not enabled in CI, because it's way too sensitive to 
 # changes in how rustc formats errors
-__ui = ["__test", "trybuild", "rust_latest_stable"]
+__ui = ["trybuild", "rust_latest_stable"]
 
 docsrs = []
 

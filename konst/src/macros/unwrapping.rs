@@ -5,7 +5,7 @@
 )]
 #[macro_export]
 macro_rules! unwrap_res_or {
-    ($e:expr, |$($pati:pat)?| $v:expr) => {
+    ($e:expr, |$($pati:pat_param)?| $v:expr) => {
         match $e {
             $crate::__::Ok(x) => x,
             $crate::__::Err{$(0: $pati,)? ..} => $v,
@@ -151,7 +151,7 @@ macro_rules! unwrap_opt_or {
 ///
 #[macro_export]
 macro_rules! try_ {
-    ($e:expr, map_err = |$($pati:pat)?| $v:expr $(,)*) => {
+    ($e:expr, map_err = |$($pati:pat_param)?| $v:expr $(,)*) => {
         match $e {
             $crate::__::Ok(x) => x,
             $crate::__::Err{$(0: $pati,)? ..} => return $crate::__::Err($v),

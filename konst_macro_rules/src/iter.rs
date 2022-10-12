@@ -3,7 +3,7 @@ mod iter_eval_macro;
 
 #[macro_export]
 macro_rules! for_each {
-    ($pattern:pat in $($rem:tt)*) => ({
+    ($pattern:pat_param in $($rem:tt)*) => ({
         $crate::__process_iter_args!{
             ($crate::__for_each)
             (($pattern),)
@@ -22,7 +22,7 @@ macro_rules! for_each {
 macro_rules! __for_each {
     (
         @each
-        ($pattern:pat),
+        ($pattern:pat_param),
         ($item:ident adapter),
         $(,)? => $($code:tt)*
     ) => ({

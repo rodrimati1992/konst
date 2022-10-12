@@ -439,7 +439,7 @@ macro_rules! __cim_output_layer {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __cim_filter {
-    ($item:ident, |$elem:pat| $v:expr) => {{
+    ($item:ident, |$elem:pat_param| $v:expr) => {{
         let $elem = &$item;
         // avoiding lifetime extension
         let v: $crate::__::bool = $v;
@@ -450,7 +450,7 @@ macro_rules! __cim_filter {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __cim_map {
-    ($item:ident, |$elem:pat| $v:expr) => {{
+    ($item:ident, |$elem:pat_param| $v:expr) => {{
         let $elem = $item;
         // allowing for lifetime extension of temporaries
         $v
@@ -486,7 +486,7 @@ macro_rules! __cim_flat_map {
         )
         $item:ident
         ($($rem:tt)*)
-        |$elem:pat| $v:expr
+        |$elem:pat_param| $v:expr
     ) => ({
         let $elem = $item;
         $crate::__call_iter_methods!{

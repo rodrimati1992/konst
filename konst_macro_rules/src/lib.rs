@@ -25,8 +25,7 @@ pub mod slice_;
 #[doc(hidden)]
 pub mod utils;
 
-#[doc(hidden)]
-mod type_eq;
+pub mod type_eq;
 
 #[doc(hidden)]
 pub mod collect_const;

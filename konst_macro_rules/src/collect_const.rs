@@ -76,7 +76,7 @@ macro_rules! __iter_collect_const {
         $(,)*
     ) => {
         if let $crate::__::CollectorCmd::BuildArray(teq) = $cmd {
-            teq.reachability_hint();
+            teq.reachability_hint(());
 
             $array[$length] = $crate::__::MaybeUninit::new($item);
         }

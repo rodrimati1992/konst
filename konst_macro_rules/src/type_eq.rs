@@ -1,13 +1,11 @@
-use core::marker::PhantomData;
+// documented in konst::polymorphism::type_eq;
+pub trait InTypeSet<Set> {
+    const SET: Set;
+}
 
-mod __ {
-    use super::*;
+pub mod type_eq {
+    use core::marker::PhantomData;
 
-    /// Value-level proof that `L` is the same type as `R`
-    ///
-    /// Type type can be used to prove that `L` and `R` are the same type,
-    /// because it can only be constructed with `TypeEq::<L, L>::NEW`,
-    /// where both type arguments are the same type.
     pub struct TypeEq<L: ?Sized, R: ?Sized>(
         PhantomData<(
             fn(PhantomData<L>) -> PhantomData<L>,
@@ -20,7 +18,7 @@ mod __ {
         pub const NEW: Self = TypeEq(PhantomData);
     }
 }
-pub use __::TypeEq;
+pub use type_eq::TypeEq;
 
 impl<L: ?Sized, R: ?Sized> Copy for TypeEq<L, R> {}
 
@@ -51,19 +49,21 @@ impl<L, R> TypeEq<L, R> {
 
     /// Hints to the compiler that holding a `TypeEq<L, R>` where `L != R` is impossible.
     #[inline(always)]
-    pub const fn reachability_hint(self) {
+    pub const fn reachability_hint<T>(self, val: T) -> T {
         if let Amb::No = Self::ARE_SAME_TYPE {
             // safety: it's impossible to have a `TypeEq<L, R>` value,
             // where `L` and `R` are not the same type
             unsafe { core::hint::unreachable_unchecked() }
         }
+
+        val
     }
 
     /// Transforms `L` to `R` given a `TypeEq<L, R>`
     /// (the `TypeEq` value proves that `L` and `R` are the same type)
     #[inline(always)]
     pub const fn to_right(self, from: L) -> R {
-        self.reachability_hint();
+        self.reachability_hint(());
 
         unsafe { crate::__priv_transmute!(L, R, from) }
     }

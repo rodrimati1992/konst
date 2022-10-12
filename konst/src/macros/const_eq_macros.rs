@@ -420,7 +420,7 @@ macro_rules! __priv_const_eq_for {
     ($left:expr, $right:expr, ) => {
         $crate::coerce_to_cmp!($left).const_eq(&$right)
     };
-    ($left:expr, $right:expr, |$l: pat| $key_expr:expr $(,)*) => {
+    ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
         $crate::coerce_to_cmp!({
             let $l = &$left;
             $key_expr
@@ -430,7 +430,7 @@ macro_rules! __priv_const_eq_for {
             $key_expr
         })
     };
-    ($left:expr, $right:expr, |$l: pat, $r: pat| $eq_expr:expr $(,)*) => {{
+    ($left:expr, $right:expr, |$l:pat_param, $r:pat_param| $eq_expr:expr $(,)*) => {{
         let $l = &$left;
         let $r = &$right;
         $eq_expr

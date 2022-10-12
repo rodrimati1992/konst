@@ -20,7 +20,7 @@ macro_rules! res_unwrap_or {
 
 #[macro_export]
 macro_rules! res_unwrap_or_else {
-    ($res:expr, |$param:pat| $expr:expr $(,)?) => {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
         match $res {
             $crate::__::Ok(x) => x,
             $crate::__::Err($param) => $expr,
@@ -39,7 +39,7 @@ macro_rules! res_unwrap_or_else {
 
 #[macro_export]
 macro_rules! res_unwrap_err_or_else {
-    ($res:expr, |$param:pat| $expr:expr $(,)?) => {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
         match $res {
             $crate::__::Ok($param) => $expr,
             $crate::__::Err(x) => x,
@@ -78,7 +78,7 @@ macro_rules! res_err {
 
 #[macro_export]
 macro_rules! res_and_then {
-    ($res:expr, |$param:pat| $expr:expr $(,)?) => {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
         match $res {
             $crate::__::Ok($param) => $expr,
             $crate::__::Err(x) => $crate::__::Err(x),
@@ -97,7 +97,7 @@ macro_rules! res_and_then {
 
 #[macro_export]
 macro_rules! res_map {
-    ($res:expr, |$param:pat| $expr:expr $(,)?) => {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
         match $res {
             $crate::__::Ok($param) => $crate::__::Ok($expr),
             $crate::__::Err(x) => $crate::__::Err(x),
@@ -116,7 +116,7 @@ macro_rules! res_map {
 
 #[macro_export]
 macro_rules! res_map_err {
-    ($res:expr, |$param:pat| $expr:expr $(,)?) => {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
         match $res {
             $crate::__::Ok(x) => $crate::__::Ok(x),
             $crate::__::Err($param) => $crate::__::Err($expr),
@@ -135,7 +135,7 @@ macro_rules! res_map_err {
 
 #[macro_export]
 macro_rules! res_or_else {
-    ($res:expr, |$param:pat| $expr:expr $(,)?) => {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
         match $res {
             $crate::__::Ok(x) => $crate::__::Ok(x),
             $crate::__::Err($param) => $expr,

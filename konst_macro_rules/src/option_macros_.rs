@@ -68,7 +68,7 @@ macro_rules! opt_ok_or_else {
 
 #[macro_export]
 macro_rules! opt_map {
-    ($opt:expr, |$param:pat| $mapper:expr $(,)? ) => {
+    ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
         match $opt {
             $crate::__::Some($param) => $crate::__::Some($mapper),
             $crate::__::None => $crate::__::None,
@@ -87,7 +87,7 @@ macro_rules! opt_map {
 
 #[macro_export]
 macro_rules! opt_and_then {
-    ($opt:expr, |$param:pat| $mapper:expr $(,)? ) => {
+    ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
         match $opt {
             $crate::__::Some($param) => $mapper,
             $crate::__::None => $crate::__::None,
@@ -135,7 +135,7 @@ macro_rules! opt_or_else {
 
 #[macro_export]
 macro_rules! opt_filter {
-    ($e:expr, |$param:pat| $v:expr $(,)?) => {
+    ($e:expr, |$param:pat_param| $v:expr $(,)?) => {
         match $e {
             $crate::__::Some(x)
                 if {

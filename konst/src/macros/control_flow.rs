@@ -19,7 +19,7 @@
 /// ```
 #[macro_export]
 macro_rules! for_range {
-    ($pat:pat in $range:expr => $($code:tt)*) => {
+    ($pat:pat_param in $range:expr => $($code:tt)*) => {
         let $crate::__::Range{mut start, end} = $range;
 
         while start < end {

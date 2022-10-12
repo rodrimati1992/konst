@@ -158,7 +158,7 @@ macro_rules! __iter_eval {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_for_each {
-    ($fixed:tt $item:ident, |$elem:pat| $value:expr) => {
+    ($fixed:tt $item:ident, |$elem:pat_param| $value:expr) => {
         $crate::__ie_output! {
             $fixed
             {let $elem = $item; $value;}
@@ -169,7 +169,7 @@ macro_rules! __ie_for_each {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_any {
-    ($fixed:tt ($cond:ident) $item:ident, |$elem:pat| $v:expr) => {
+    ($fixed:tt ($cond:ident) $item:ident, |$elem:pat_param| $v:expr) => {
         $crate::__ie_output! {
             $fixed
             {
@@ -187,7 +187,7 @@ macro_rules! __ie_any {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_all {
-    ($fixed:tt ($cond:ident) $item:ident, |$elem:pat| $v:expr) => {
+    ($fixed:tt ($cond:ident) $item:ident, |$elem:pat_param| $v:expr) => {
         $crate::__ie_output! {
             $fixed
             {
@@ -205,7 +205,7 @@ macro_rules! __ie_all {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_position {
-    ($fixed:tt ($i:ident $position:ident) $item:ident, |$elem:pat| $v:expr) => {
+    ($fixed:tt ($i:ident $position:ident) $item:ident, |$elem:pat_param| $v:expr) => {
         $crate::__ie_output! {
             $fixed
             {
@@ -225,7 +225,7 @@ macro_rules! __ie_position {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_find_map {
-    ($fixed:tt ($ret:ident) $item:ident, |$elem:pat| $v:expr) => {
+    ($fixed:tt ($ret:ident) $item:ident, |$elem:pat_param| $v:expr) => {
         $crate::__ie_output! {
             $fixed
             {
@@ -242,7 +242,7 @@ macro_rules! __ie_find_map {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_find {
-    ($fixed:tt ($ret:ident) $item:ident, |$elem:pat| $v:expr) => {
+    ($fixed:tt ($ret:ident) $item:ident, |$elem:pat_param| $v:expr) => {
         $crate::__ie_output! {
             $fixed
             {
@@ -260,7 +260,7 @@ macro_rules! __ie_find {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_fold {
-    ($fixed:tt ($accum:ident) $item:ident, |$accum_pat:pat, $elem:pat| $v:expr) => {
+    ($fixed:tt ($accum:ident) $item:ident, |$accum_pat:pat_param, $elem:pat_param| $v:expr) => {
         $crate::__ie_output! {
             $fixed
             {

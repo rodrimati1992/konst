@@ -108,7 +108,7 @@ macro_rules! __priv_assign_tuple {
             (let $pat: $ty) $var, $fields, $($($rem)*)?
         )
     };
-    ($var:ident, $fields:tt, let $pat:pat $(, $($rem:tt)*)?) => {
+    ($var:ident, $fields:tt, let $pat:pat_param $(, $($rem:tt)*)?) => {
         $crate::__priv_next_ai_access!(
             (let $pat) $var, $fields, $($($rem)*)?
         )
@@ -225,7 +225,7 @@ macro_rules! try_rebind {
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __priv_try_map_err {
-    ($error:ident, map_err = |$pat:pat| $map_err:expr ) => {{
+    ($error:ident, map_err = |$pat:pat_param| $map_err:expr ) => {{
         let $pat = $error;
         $map_err
     }};

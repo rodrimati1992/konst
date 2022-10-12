@@ -12,14 +12,14 @@ macro_rules! make_parse_closure_macro {
         macro_rules! $macro_name {
             (
                 $macro:tt $args:tt $usage_site:tt,
-                |$_($pat_var_:pat),* $_(,)?|  $_(,)?
+                |$_($pat_var_:pat_param),* $_(,)?|  $_(,)?
             ) => {
                 $crate::__parse_closure_no_expr_error!{$usage_site}
             };
             (
                 ($_($macro:tt)*) ($_($args:tt)*)
                 $usage_site:tt,
-                |$($_$pat_var:pat),* $_(,)?| $v:expr $_(,)*
+                |$($_$pat_var:pat_param),* $_(,)?| $v:expr $_(,)*
             ) => {
                 $_($macro)* ! {
                     $_($args)*
@@ -28,7 +28,7 @@ macro_rules! make_parse_closure_macro {
             };
             (
                 $macro:tt $args:tt $usage_site:tt,
-                |$_($pat_var_:pat),* $_(,)?| $v:expr,
+                |$_($pat_var_:pat_param),* $_(,)?| $v:expr,
                 $trailing_expr:expr $_(, $_($rem:tt)*)?
             ) => {
                 $crate::__parse_closure_trailing_expr_error!{$usage_site}
