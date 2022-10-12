@@ -7,18 +7,18 @@ use crate::{
 ///
 /// Types that implement this trait can be used to search into a string.
 ///
-pub trait Pattern<'a>: InTypeSet<PatternInput<'a, Self>> + Sized {}
+pub trait Pattern<'a>: InTypeSet<PatternInput<'a, Self>> + Copy {}
 
 macro_rules! declare_patterns {
     ($((
         $variant:ident, $ty:ty, $normalized:ty, $index:expr,
         |$param:tt| $normalizer:expr
     ),)*) => (
-        pub struct PatternInput<'a, T: Pattern<'a>>(PatternInputInner<'a, T>);
+        pub struct PatternInput<'a, P: Pattern<'a>>(PatternInputInner<'a, P>);
 
-        enum PatternInputInner<'a, T: Pattern<'a>> {
+        enum PatternInputInner<'a, P: Pattern<'a>> {
             $(
-                $variant {te: TypeEq<T, $ty>},
+                $variant {te: TypeEq<P, $ty>},
             )*
         }
 
@@ -33,21 +33,22 @@ macro_rules! declare_patterns {
             impl<'a> Pattern<'a> for $ty {}
         )*
 
-        pub(crate) enum PatternNorm<'a, T> {
+        #[derive(Copy, Clone)]
+        pub(crate) enum PatternNorm<'a, P: Pattern<'a>> {
             $(
                 $variant{
                     val: $normalized,
-                    te: TypeEq<T, $ty>,
+                    te: TypeEq<P, $ty>,
                 },
             )*
         }
 
-        impl<'a, T> PatternNorm<'a, T> {
-            pub(crate) const fn new(pattern: T) -> Self
+        impl<'a, P: Pattern<'a>> PatternNorm<'a, P> {
+            pub(crate) const fn new(pattern: P) -> Self
             where
-                T: Pattern<'a>
+                P: Pattern<'a>
             {
-                match T::SET.0 {
+                match P::SET.0 {
                     $(
                         PatternInputInner::$variant{te} => {
                             let $param = te.to_right(pattern);

@@ -6,7 +6,7 @@
 //! const fn in the standard library:
 //!
 //! - `from_utf8`: [`core::str::from_utf8`]
-//! - `FromUtf8`: [`core::str::FromUtf8`]
+//! - `Utf8Error`: [`core::str::Utf8Error`]
 //!
 //!
 
@@ -592,7 +592,9 @@ where
     }
 }
 
-/// A const subset of [`str::strip_suffix`], this only takes a `&str` pattern.
+/// A const subset of [`str::strip_suffix`].
+///
+/// This takes [`Pattern`] implementors as the pattern.
 ///
 /// # Example
 ///

@@ -17,6 +17,7 @@ use const_panic::fmt::char_formatting::{self, FmtChar};
 /// assert_eq!(ENC_STR, "û");
 ///
 /// ```
+#[derive(Copy, Clone)]
 pub struct Utf8Encoded(FmtChar);
 
 impl Utf8Encoded {
