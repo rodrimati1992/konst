@@ -42,15 +42,15 @@ macro_rules! iter_collect_const {
                     teq.to_right($crate::__::ComputedLength { length })
                 }
                 $crate::__::CollectorCmd::BuildArray(teq) => {
-                    if length == CAP_KO9Y329U2U {
-                        // SAFETY: The above condition ensures that
-                        // all of the array is initialized
-                        let array = unsafe{ $crate::utils_1_56::array_assume_init(array) };
-                        teq.to_right(array)
-                    } else {
-                        let _: () = [/*initialization was skipped somehow*/][length];
-                        loop{}
-                    }
+                    $crate::__::assert!(
+                        length == CAP_KO9Y329U2U,
+                        "initialization was skipped somehow",
+                    )
+
+                    // SAFETY: The above assert ensures that
+                    // all of the array is initialized
+                    let array = unsafe{ $crate::utils_1_56::array_assume_init(array) };
+                    teq.to_right(array)
                 }
             }
         }

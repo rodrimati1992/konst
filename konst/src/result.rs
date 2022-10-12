@@ -51,7 +51,6 @@
 ///
 /// impl FooError {
 ///     pub const fn panic(&self) -> ! {
-///         let offset = self.0;
 ///         panic!("Foo error")
 ///         
 ///         // Alternatively, using the `const_panic` crate:

@@ -71,61 +71,40 @@ impl<'a> ParseError<'a> {
     /// [`unwrap_ctx`]: ../result/macro.unwrap_ctx.html
     #[track_caller]
     pub const fn panic(&self) -> ! {
-        match self.kind {
-            ErrorKind::ParseInteger => match self.direction {
-                ParseDirection::FromStart => {
-                    [/*integer parsing errored from start offset*/][self.offset()]
-                }
-                ParseDirection::FromEnd => {
-                    [/*integer parsing errored from end offset*/][self.offset()]
-                }
-            },
-            ErrorKind::ParseBool => match self.direction {
-                ParseDirection::FromStart => {
-                    [/*bool parsing errored from start offset*/][self.offset()]
-                }
-                ParseDirection::FromEnd => {
-                    [/*bool parsing errored from end offset*/][self.offset()]
-                }
-            },
-            ErrorKind::Find => match self.direction {
-                ParseDirection::FromStart => {
-                    [/*Error finding pattern from start offset*/][self.offset()]
-                }
-                ParseDirection::FromEnd => {
-                    [/*Error finding pattern from end offset*/][self.offset()]
-                }
-            },
-            ErrorKind::Strip => match self.direction {
-                ParseDirection::FromStart => [/*Error stripping from start offset*/][self.offset()],
-                ParseDirection::FromEnd => [/*Error stripping from end offset*/][self.offset()],
-            },
-            ErrorKind::SkipByte => [/*Error skipping byte at offset*/][self.offset()],
-            ErrorKind::Other => match self.direction {
-                ParseDirection::FromStart => [/*parse error from start offset*/][self.offset()],
-                ParseDirection::FromEnd => [/*parse error from end offset*/][self.offset()],
-            },
-        }
-    }
-}
+        use const_panic::{FmtArg, PanicVal};
 
-impl<'a> Display for ParseError<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(match self.direction {
+        const_panic::concat_panic(&[&[
+            PanicVal::write_str(self.error_for_direction()),
+            PanicVal::from_usize(self.offset(), FmtArg::DEBUG),
+            PanicVal::write_str(" byte offset"),
+            PanicVal::write_str(self.error_suffix()),
+        ]])
+    }
+
+    const fn error_for_direction(&self) -> &'static str {
+        match self.direction {
             ParseDirection::FromStart => "error from the start at the ",
             ParseDirection::FromEnd => "error from the end at the ",
-        })?;
-        Display::fmt(&self.offset(), f)?;
-        f.write_str(" byte offset")?;
-
-        f.write_str(match self.kind {
+        }
+    }
+    const fn error_suffix(&self) -> &'static str {
+        match self.kind {
             ErrorKind::ParseInteger => " while parsing an integer",
             ErrorKind::ParseBool => " while parsing a bool",
             ErrorKind::Find => " while trying to find and skip a pattern",
             ErrorKind::Strip => " while trying to strip a pattern",
             ErrorKind::SkipByte => " while trying to skip a byte",
             ErrorKind::Other => " (a parsing error)",
-        })
+        }
+    }
+}
+
+impl<'a> Display for ParseError<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.error_for_direction())?;
+        Display::fmt(&self.offset(), f)?;
+        f.write_str(" byte offset")?;
+        f.write_str(self.error_suffix())
     }
 }
 

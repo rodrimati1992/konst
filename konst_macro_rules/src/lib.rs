@@ -35,7 +35,7 @@ pub mod utils_1_56;
 
 #[doc(hidden)]
 pub mod __ {
-    pub use core::panic;
+    pub use core::{assert, panic};
 
     pub use crate::{
         array_macros::{assert_array, uninit_array, AssumInitCopyArray},

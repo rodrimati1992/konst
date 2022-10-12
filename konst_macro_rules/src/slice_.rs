@@ -10,7 +10,10 @@ pub const fn try_into_array_func<T, const N: usize>(
         let ptr = slice.as_ptr() as *const [T; N];
         unsafe { Ok(crate::utils::Dereference { ptr }.reff) }
     } else {
-        Err(TryIntoArrayError { _priv: () })
+        Err(TryIntoArrayError {
+            slice_len: slice.len(),
+            array_len: N,
+        })
     }
 }
 
@@ -24,7 +27,10 @@ pub const fn try_into_array_mut_func<T, const N: usize>(
     if slice.len() == N {
         unsafe { Ok(&mut *(slice as *mut [T] as *mut [T; N])) }
     } else {
-        Err(TryIntoArrayError { _priv: () })
+        Err(TryIntoArrayError {
+            slice_len: slice.len(),
+            array_len: N,
+        })
     }
 }
 
@@ -32,13 +38,22 @@ pub const fn try_into_array_mut_func<T, const N: usize>(
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct TryIntoArrayError {
-    _priv: (),
+    slice_len: usize,
+    array_len: usize,
 }
 
 impl TryIntoArrayError {
     /// For erroring with an error message.
     pub const fn panic(&self) -> ! {
-        panic!("Could not cast &[T] to &[T; N]")
+        use const_panic::{FmtArg, PanicVal};
+
+        const_panic::concat_panic(&[&[
+            PanicVal::write_str("could not convert slice of length `"),
+            PanicVal::from_usize(self.slice_len, FmtArg::DEBUG),
+            PanicVal::write_str("` to array of length`"),
+            PanicVal::from_usize(self.array_len, FmtArg::DEBUG),
+            PanicVal::write_str("`"),
+        ]])
     }
 }
 

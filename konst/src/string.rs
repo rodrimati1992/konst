@@ -254,7 +254,7 @@ pub const fn str_up_to(string: &str, len: usize) -> &str {
         // Safety: is_char_boundary checks that `len` falls on a char boundary.
         unsafe { core::str::from_utf8_unchecked(crate::slice::slice_up_to(bytes, len)) }
     } else {
-        [/* len is not on a char boundary */][len]
+        non_char_boundary_panic("index", len)
     }
 }
 
@@ -343,7 +343,7 @@ pub const fn str_from(string: &str, start: usize) -> &str {
         // Safety: is_char_boundary checks that `start` falls on a char boundary.
         unsafe { core::str::from_utf8_unchecked(crate::slice::slice_from(bytes, start)) }
     } else {
-        [/* start is not on a char boundary */][start]
+        non_char_boundary_panic("start", start)
     }
 }
 
@@ -489,9 +489,9 @@ pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
         // Safety: is_char_boundary checks that `start` and `end` fall on a char boundaries.
         unsafe { core::str::from_utf8_unchecked(crate::slice::slice_range(bytes, start, end)) }
     } else if start_inbounds {
-        [/* end is not on a char boundary */][end]
+        non_char_boundary_panic("end", end)
     } else {
-        [/* start is not on a char boundary */][start]
+        non_char_boundary_panic("start", start)
     }
 }
 
@@ -976,4 +976,17 @@ where
             core::str::from_utf8_unchecked,
         )
     }
+}
+
+#[cold]
+#[track_caller]
+const fn non_char_boundary_panic(extreme: &str, index: usize) -> ! {
+    use const_panic::{FmtArg, PanicVal};
+
+    const_panic::concat_panic(&[&[
+        PanicVal::write_str(extreme),
+        PanicVal::write_str(" `"),
+        PanicVal::from_usize(index, FmtArg::DEBUG),
+        PanicVal::write_str("` is not on a char boundary"),
+    ]])
 }
