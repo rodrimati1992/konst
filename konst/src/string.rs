@@ -101,12 +101,15 @@ where
 
 /// A const equivalent of
 /// [`str::find`](https://doc.rust-lang.org/std/primitive.str.html#method.find)
-/// , taking a `&str` parameter.
+/// , taking a [`Pattern`] parameter.
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
+///
+/// assert_eq!(string::find("foo-bar-baz", 'q'), None);
+/// assert_eq!(string::find("foo-bar-baz", '-'), Some(3));
 ///
 /// assert_eq!(string::find("foo-bar-baz-foo", "qux"), None);
 /// assert_eq!(string::find("foo-bar-baz-foo", "foo"), Some(0));
@@ -116,18 +119,25 @@ where
 /// ```
 ///
 #[inline]
-pub const fn find(left: &str, right: &str) -> Option<usize> {
-    crate::slice::bytes_find(left.as_bytes(), right.as_bytes())
+pub const fn find<'a, P>(left: &str, pat: P) -> Option<usize>
+where
+    P: Pattern<'a>,
+{
+    let pat = PatternNorm::new(pat);
+    crate::slice::bytes_find(left.as_bytes(), pat.as_bytes())
 }
 
 /// A const equivalent of
 /// [`str::contains`](https://doc.rust-lang.org/std/primitive.str.html#method.contains)
-/// , taking a `&str` parameter.
+/// , taking a [`Pattern`] parameter.
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
+///
+/// assert!(string::contains("foo-bar-baz", '-'));
+/// assert!(!string::contains("foo-bar-baz", 'q'));
 ///
 /// assert!(string::contains("foo-bar-baz-foo", "foo"));
 ///
@@ -136,22 +146,29 @@ pub const fn find(left: &str, right: &str) -> Option<usize> {
 ///
 /// ```
 ///
-#[inline(always)]
-pub const fn contains(left: &str, right: &str) -> bool {
+#[inline]
+pub const fn contains<'a, P>(left: &str, pat: P) -> bool
+where
+    P: Pattern<'a>,
+{
+    let pat = PatternNorm::new(pat);
     matches!(
-        crate::slice::bytes_find(left.as_bytes(), right.as_bytes()),
+        crate::slice::bytes_find(left.as_bytes(), pat.as_bytes()),
         Some(_)
     )
 }
 
 /// A const equivalent of
 /// [`str::rfind`](https://doc.rust-lang.org/std/primitive.str.html#method.rfind)
-/// , taking a `&str` parameter.
+/// , taking a [`Pattern`] parameter.
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
+///
+/// assert_eq!(string::rfind("bar-baz-baz", 'q'), None);
+/// assert_eq!(string::rfind("bar-baz-baz", '-'), Some(7));
 ///
 /// assert_eq!(string::rfind("bar-baz", "foo"), None);
 /// assert_eq!(string::rfind("bar-baz-foo", "foo"), Some(8));
@@ -160,18 +177,25 @@ pub const fn contains(left: &str, right: &str) -> bool {
 /// ```
 ///
 #[inline]
-pub const fn rfind(left: &str, right: &str) -> Option<usize> {
-    crate::slice::bytes_rfind(left.as_bytes(), right.as_bytes())
+pub const fn rfind<'a, P>(left: &str, pat: P) -> Option<usize>
+where
+    P: Pattern<'a>,
+{
+    let pat = PatternNorm::new(pat);
+    crate::slice::bytes_rfind(left.as_bytes(), pat.as_bytes())
 }
 
 /// A const equivalent of
 /// [`str::contains`](https://doc.rust-lang.org/std/primitive.str.html#method.contains)
-/// , taking a `&str` parameter.
+/// , taking a [`Pattern`] parameter.
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
+///
+/// assert!(string::rcontains("foo-bar-baz", '-'));
+/// assert!(!string::rcontains("foo-bar-baz", 'q'));
 ///
 /// assert!(!string::rcontains("bar-baz", "foo"));
 /// assert!(string::rcontains("foo-bar", "foo"));
@@ -179,9 +203,13 @@ pub const fn rfind(left: &str, right: &str) -> Option<usize> {
 /// ```
 ///
 #[inline(always)]
-pub const fn rcontains(left: &str, right: &str) -> bool {
+pub const fn rcontains<'a, P>(left: &str, pat: P) -> bool
+where
+    P: Pattern<'a>,
+{
+    let pat = PatternNorm::new(pat);
     matches!(
-        crate::slice::bytes_rfind(left.as_bytes(), right.as_bytes()),
+        crate::slice::bytes_rfind(left.as_bytes(), pat.as_bytes()),
         Some(_)
     )
 }
@@ -518,7 +546,9 @@ pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
     )
 }
 
-/// A const subset of [`str::strip_prefix`], this only takes a `&str` pattern.
+/// A const subset of [`str::strip_prefix`].
+///
+/// This takes [`Pattern`] implementors as the pattern.
 ///
 /// # Example
 ///
@@ -526,12 +556,17 @@ pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
 /// use konst::string;
 ///
 /// {
-///     const STRIP: Option<&str> = string::strip_prefix("3 5 8", "3");
-///     assert_eq!(STRIP, Some(" 5 8"));
+///     const STRIP: Option<&str> = string::strip_prefix("--5 8", '-');
+///     assert_eq!(STRIP, Some("-5 8"));
 /// }
 /// {
-///     const STRIP: Option<&str> = string::strip_prefix("3 5 8", "3 5 ");
-///     assert_eq!(STRIP, Some("8"));
+///     const STRIP: Option<&str> = string::strip_prefix("--5 8", '_');
+///     assert_eq!(STRIP, None);
+/// }
+///
+/// {
+///     const STRIP: Option<&str> = string::strip_prefix("33 5 8", "3");
+///     assert_eq!(STRIP, Some("3 5 8"));
 /// }
 /// {
 ///     const STRIP: Option<&str> = string::strip_prefix("3 5 8", "hello");
@@ -542,11 +577,16 @@ pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
 /// ```
 ///
 /// [`str::strip_prefix`]: https://doc.rust-lang.org/std/primitive.str.html#method.strip_prefix
-pub const fn strip_prefix<'a>(string: &'a str, prefix: &str) -> Option<&'a str> {
-    // Safety: because `prefix` is a `&str`, removing it should result in a valid `&str`
+pub const fn strip_prefix<'a, 'p, P>(string: &'a str, pattern: P) -> Option<&'a str>
+where
+    P: Pattern<'p>,
+{
+    let pat = PatternNorm::new(pattern);
+
+    // Safety: because `pat` is a `Pattern`, removing it should result in a valid `&str`
     unsafe {
         crate::option::map!(
-            crate::slice::bytes_strip_prefix(string.as_bytes(), prefix.as_bytes()),
+            crate::slice::bytes_strip_prefix(string.as_bytes(), pat.as_bytes()),
             core::str::from_utf8_unchecked,
         )
     }
@@ -560,12 +600,17 @@ pub const fn strip_prefix<'a>(string: &'a str, prefix: &str) -> Option<&'a str> 
 /// use konst::string;
 ///
 /// {
-///     const STRIP: Option<&str> = string::strip_suffix("3 5 8", "8");
-///     assert_eq!(STRIP, Some("3 5 "));
+///     const STRIP: Option<&str> = string::strip_suffix("3 5 8--", '-');
+///     assert_eq!(STRIP, Some("3 5 8-"));
 /// }
 /// {
-///     const STRIP: Option<&str> = string::strip_suffix("3 5 8", " 5 8");
-///     assert_eq!(STRIP, Some("3"));
+///     const STRIP: Option<&str> = string::strip_suffix("3 5 8", '_');
+///     assert_eq!(STRIP, None);
+/// }
+///
+/// {
+///     const STRIP: Option<&str> = string::strip_suffix("3 5 6868", "68");
+///     assert_eq!(STRIP, Some("3 5 68"));
 /// }
 /// {
 ///     const STRIP: Option<&str> = string::strip_suffix("3 5 8", "hello");
@@ -575,11 +620,16 @@ pub const fn strip_prefix<'a>(string: &'a str, prefix: &str) -> Option<&'a str> 
 ///
 /// ```
 ///
-pub const fn strip_suffix<'a>(string: &'a str, suffix: &str) -> Option<&'a str> {
+pub const fn strip_suffix<'a, 'p, P>(string: &'a str, pattern: P) -> Option<&'a str>
+where
+    P: Pattern<'p>,
+{
+    let pat = PatternNorm::new(pattern);
+
     // Safety: because `suffix` is a `&str`, removing it should result in a valid `&str`
     unsafe {
         crate::option::map!(
-            crate::slice::bytes_strip_suffix(string.as_bytes(), suffix.as_bytes()),
+            crate::slice::bytes_strip_suffix(string.as_bytes(), pat.as_bytes()),
             core::str::from_utf8_unchecked,
         )
     }
@@ -670,19 +720,27 @@ pub const fn trim_end(this: &str) -> &str {
     unsafe { core::str::from_utf8_unchecked(trimmed) }
 }
 
-/// A const subset of [`str::trim_matches`] which only takes a `&str` pattern.
+/// A const subset of [`str::trim_matches`].
+///
+/// This takes [`Pattern`] implementors as the needle.
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
 ///
-/// const TRIMMED: &str = string::trim_matches("<>baz qux<><><>", "<>");
+/// const CHAR_TRIMMED: &str = string::trim_matches("---baz qux---", '-');
+/// const STR_TRIMMED: &str = string::trim_matches("<>baz qux<><><>", "<>");
 ///
-/// assert_eq!(TRIMMED, "baz qux");
+/// assert_eq!(CHAR_TRIMMED, "baz qux");
+/// assert_eq!(STR_TRIMMED, "baz qux");
 ///
 /// ```
-pub const fn trim_matches<'a>(this: &'a str, needle: &str) -> &'a str {
+pub const fn trim_matches<'a, 'p, P>(this: &'a str, needle: P) -> &'a str
+where
+    P: Pattern<'p>,
+{
+    let needle = PatternNorm::new(needle);
     let trimmed = crate::slice::bytes_trim_matches(this.as_bytes(), needle.as_bytes());
     // safety:
     // because bytes_trim_matches was passed `&str`s casted to `&[u8]`s,
@@ -690,19 +748,27 @@ pub const fn trim_matches<'a>(this: &'a str, needle: &str) -> &'a str {
     unsafe { core::str::from_utf8_unchecked(trimmed) }
 }
 
-/// A const subset of [`str::trim_start_matches`] which only takes a `&str` pattern.
+/// A const subset of [`str::trim_start_matches`].
+///
+/// This takes [`Pattern`] implementors as the needle.
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
 ///
-/// const TRIMMED: &str = string::trim_start_matches("#####huh###", "##");
+/// const CHAR_TRIMMED: &str = string::trim_start_matches("#####huh###", '#');
+/// const STR_TRIMMED: &str = string::trim_start_matches("#####huh###", "##");
 ///
-/// assert_eq!(TRIMMED, "#huh###");
+/// assert_eq!(CHAR_TRIMMED, "huh###");
+/// assert_eq!(STR_TRIMMED, "#huh###");
 ///
 /// ```
-pub const fn trim_start_matches<'a>(this: &'a str, needle: &str) -> &'a str {
+pub const fn trim_start_matches<'a, 'p, P>(this: &'a str, needle: P) -> &'a str
+where
+    P: Pattern<'p>,
+{
+    let needle = PatternNorm::new(needle);
     let trimmed = crate::slice::bytes_trim_start_matches(this.as_bytes(), needle.as_bytes());
     // safety:
     // because bytes_trim_start_matches was passed `&str`s casted to `&[u8]`s,
@@ -710,19 +776,27 @@ pub const fn trim_start_matches<'a>(this: &'a str, needle: &str) -> &'a str {
     unsafe { core::str::from_utf8_unchecked(trimmed) }
 }
 
-/// A const subset of [`str::trim_end_matches`] which only takes a `&str` pattern.
+/// A const subset of [`str::trim_end_matches`].
+///
+/// This takes [`Pattern`] implementors as the needle.
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
 ///
-/// const TRIMMED: &str = string::trim_end_matches("oowowooooo", "oo");
+/// const CHAR_TRIMMED: &str = string::trim_end_matches("oowowooooo", 'o');
+/// const STR_TRIMMED: &str = string::trim_end_matches("oowowooooo", "oo");
 ///
-/// assert_eq!(TRIMMED, "oowowo");
+/// assert_eq!(CHAR_TRIMMED, "oowow");
+/// assert_eq!(STR_TRIMMED, "oowowo");
 ///
 /// ```
-pub const fn trim_end_matches<'a>(this: &'a str, needle: &str) -> &'a str {
+pub const fn trim_end_matches<'a, 'p, P>(this: &'a str, needle: P) -> &'a str
+where
+    P: Pattern<'p>,
+{
+    let needle = PatternNorm::new(needle);
     let trimmed = crate::slice::bytes_trim_end_matches(this.as_bytes(), needle.as_bytes());
     // safety:
     // because bytes_trim_end_matches was passed `&str`s casted to `&[u8]`s,
@@ -736,10 +810,17 @@ pub const fn trim_end_matches<'a>(this: &'a str, needle: &str) -> &'a str {
 ///
 /// Return `Some(this)` if `needle` is empty.
 ///
+/// This takes [`Pattern`] implementors as the needle.
+///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
+///
+/// {
+///     const FOUND: Option<&str> = string::find_skip("foo bar baz", ' ');
+///     assert_eq!(FOUND, Some("bar baz"));
+/// }
 ///
 /// {
 ///     const FOUND: Option<&str> = string::find_skip("foo bar baz", "bar");
@@ -749,12 +830,12 @@ pub const fn trim_end_matches<'a>(this: &'a str, needle: &str) -> &'a str {
 ///     const NOT_FOUND: Option<&str> = string::find_skip("foo bar baz", "qux");
 ///     assert_eq!(NOT_FOUND, None);
 /// }
-/// {
-///     const EMPTY_NEEDLE: Option<&str> = string::find_skip("foo bar baz", "");
-///     assert_eq!(EMPTY_NEEDLE, Some("foo bar baz"));
-/// }
 /// ```
-pub const fn find_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
+pub const fn find_skip<'a, 'p, P>(this: &'a str, needle: P) -> Option<&'a str>
+where
+    P: Pattern<'p>,
+{
+    let needle = PatternNorm::new(needle);
     unsafe {
         crate::option::map!(
             crate::slice::bytes_find_skip(this.as_bytes(), needle.as_bytes()),
@@ -772,10 +853,17 @@ pub const fn find_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 ///
 /// Return `Some(this)` if `needle` is empty.
 ///
+/// This takes [`Pattern`] implementors as the needle.
+///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
+///
+/// {
+///     const FOUND: Option<&str> = string::find_keep("foo-bar-baz", '-');
+///     assert_eq!(FOUND, Some("-bar-baz"));
+/// }
 ///
 /// {
 ///     const FOUND: Option<&str> = string::find_keep("foo bar baz", "bar");
@@ -785,12 +873,12 @@ pub const fn find_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 ///     const NOT_FOUND: Option<&str> = string::find_keep("foo bar baz", "qux");
 ///     assert_eq!(NOT_FOUND, None);
 /// }
-/// {
-///     const EMPTY_NEEDLE: Option<&str> = string::find_keep("foo bar baz", "");
-///     assert_eq!(EMPTY_NEEDLE, Some("foo bar baz"));
-/// }
 /// ```
-pub const fn find_keep<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
+pub const fn find_keep<'a, 'p, P>(this: &'a str, needle: P) -> Option<&'a str>
+where
+    P: Pattern<'p>,
+{
+    let needle = PatternNorm::new(needle);
     unsafe {
         crate::option::map!(
             crate::slice::bytes_find_keep(this.as_bytes(), needle.as_bytes()),
@@ -808,10 +896,17 @@ pub const fn find_keep<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 ///
 /// Return `Some(this)` if `needle` is empty.
 ///
+/// This takes [`Pattern`] implementors as the needle.
+///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
+///
+/// {
+///     const FOUND: Option<&str> = string::rfind_skip("foo bar _ bar baz", '_');
+///     assert_eq!(FOUND, Some("foo bar "));
+/// }
 ///
 /// {
 ///     const FOUND: Option<&str> = string::rfind_skip("foo bar _ bar baz", "bar");
@@ -821,12 +916,12 @@ pub const fn find_keep<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 ///     const NOT_FOUND: Option<&str> = string::rfind_skip("foo bar baz", "qux");
 ///     assert_eq!(NOT_FOUND, None);
 /// }
-/// {
-///     const EMPTY_NEEDLE: Option<&str> = string::rfind_skip("foo bar baz", "");
-///     assert_eq!(EMPTY_NEEDLE, Some("foo bar baz"));
-/// }
 /// ```
-pub const fn rfind_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
+pub const fn rfind_skip<'a, 'p, P>(this: &'a str, needle: P) -> Option<&'a str>
+where
+    P: Pattern<'p>,
+{
+    let needle = PatternNorm::new(needle);
     unsafe {
         crate::option::map!(
             crate::slice::bytes_rfind_skip(this.as_bytes(), needle.as_bytes()),
@@ -844,10 +939,17 @@ pub const fn rfind_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 ///
 /// Return `Some(this)` if `needle` is empty.
 ///
+/// This takes [`Pattern`] implementors as the needle.
+///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
+///
+/// {
+///     const FOUND: Option<&str> = string::rfind_keep("foo bar _ bar baz", '_');
+///     assert_eq!(FOUND, Some("foo bar _"));
+/// }
 ///
 /// {
 ///     const FOUND: Option<&str> = string::rfind_keep("foo bar _ bar baz", "bar");
@@ -857,12 +959,12 @@ pub const fn rfind_skip<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
 ///     const NOT_FOUND: Option<&str> = string::rfind_keep("foo bar baz", "qux");
 ///     assert_eq!(NOT_FOUND, None);
 /// }
-/// {
-///     const EMPTY_NEEDLE: Option<&str> = string::rfind_keep("foo bar baz", "");
-///     assert_eq!(EMPTY_NEEDLE, Some("foo bar baz"));
-/// }
 /// ```
-pub const fn rfind_keep<'a>(this: &'a str, needle: &str) -> Option<&'a str> {
+pub const fn rfind_keep<'a, 'p, P>(this: &'a str, needle: P) -> Option<&'a str>
+where
+    P: Pattern<'p>,
+{
+    let needle = PatternNorm::new(needle);
     unsafe {
         crate::option::map!(
             crate::slice::bytes_rfind_keep(this.as_bytes(), needle.as_bytes()),
