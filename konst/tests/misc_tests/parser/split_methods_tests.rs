@@ -3,13 +3,19 @@ use konst::parsing::{ErrorKind, ParseDirection, Parser};
 #[test]
 fn test_split() {
     for (string, expecteds) in [
-        ("foo,bar,baz", vec!["foo", "bar", "baz"]),
-        ("foo,bar,baz,", vec!["foo", "bar", "baz", ""]),
+        ("foo,bar,baz", vec![("foo", 4), ("bar", 8), ("baz", 11)]),
+        (
+            "foo,bar,baz,",
+            vec![("foo", 4), ("bar", 8), ("baz", 12), ("", 12)],
+        ),
     ] {
         let mut item;
-        let mut parser = Parser::new(string);
-        for expected in expecteds {
+        let mut parser = Parser::new(string).skip_back(0);
+        assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
+        for (expected, start_offset) in expecteds {
             (item, parser) = parser.split(',').unwrap();
+            assert_eq!(parser.start_offset(), start_offset);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
             assert_eq!(item, expected);
         }
 
@@ -27,9 +33,13 @@ fn test_rsplit() {
         (",foo,bar,baz", vec!["baz", "bar", "foo", ""]),
     ] {
         let mut item;
-        let mut parser = Parser::new(string);
+        let mut parser = Parser::new(string).skip(0);
+        assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
+
         for expected in expecteds {
             (item, parser) = parser.rsplit(',').unwrap();
+            assert_eq!(parser.start_offset(), 0);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
             assert_eq!(item, expected);
         }
 
@@ -42,11 +52,14 @@ fn test_rsplit() {
 
 #[test]
 fn test_split_terminator() {
-    for (string, expecteds) in [("foo,bar,baz,", ["foo", "bar", "baz"])] {
+    for (string, expecteds) in [("foo,bar,baz,", [("foo", 4), ("bar", 8), ("baz", 12)])] {
         let mut item;
-        let mut parser = Parser::new(string);
-        for expected in expecteds {
+        let mut parser = Parser::new(string).skip_back(0);
+        assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
+        for (expected, start_offset) in expecteds {
             (item, parser) = parser.split_terminator(',').unwrap();
+            assert_eq!(parser.start_offset(), start_offset);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
             assert_eq!(item, expected);
         }
 
@@ -86,9 +99,13 @@ fn test_split_terminator() {
 fn test_rsplit_terminator() {
     for (string, expecteds) in [(",foo,bar,baz", vec!["baz", "bar", "foo"])] {
         let mut item;
-        let mut parser = Parser::new(string);
+        let mut parser = Parser::new(string).skip(0);
+        assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
+
         for expected in expecteds {
             (item, parser) = parser.rsplit_terminator(',').unwrap();
+            assert_eq!(parser.start_offset(), 0);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
             assert_eq!(item, expected);
         }
 

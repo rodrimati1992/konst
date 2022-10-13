@@ -20,9 +20,15 @@ impl<'a> Parser<'a> {
     /// as well as however many bytes are required to be on a char boundary.
     pub const fn skip(mut self, mut byte_count: usize) -> Self {
         let bytes = self.str.as_bytes();
-        while !string::is_char_boundary(bytes, byte_count) {
-            byte_count += 1;
+        if byte_count > bytes.len() {
+            byte_count = bytes.len();
+        } else {
+            while !string::is_char_boundary(bytes, byte_count) {
+                byte_count += 1;
+            }
         }
+        self.parse_direction = ParseDirection::FromStart;
+        self.start_offset += byte_count as u32;
         self.str = string::str_from(self.str, byte_count);
         self
     }
@@ -31,10 +37,11 @@ impl<'a> Parser<'a> {
     /// as well as however many bytes are required to be on a char boundary.
     pub const fn skip_back(mut self, byte_count: usize) -> Self {
         let bytes = self.str.as_bytes();
-        let mut pos = self.str.len() - byte_count;
-        while !string::is_char_boundary(bytes, byte_count) {
+        let mut pos = self.str.len().saturating_sub(byte_count);
+        while !string::is_char_boundary(bytes, pos) {
             pos -= 1;
         }
+        self.parse_direction = ParseDirection::FromEnd;
         self.str = string::str_up_to(self.str, pos);
         self
     }

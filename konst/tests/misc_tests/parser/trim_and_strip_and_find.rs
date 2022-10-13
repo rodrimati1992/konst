@@ -1,4 +1,4 @@
-use konst::parsing::{ParseDirection, Parser};
+use konst::parsing::{ErrorKind, ParseDirection, ParseError, Parser};
 
 use konst::string;
 
@@ -11,9 +11,20 @@ fn trim_start_end_matches_test() {
     #[track_caller]
     fn assertion(string: &str, needle: &str, returned: &str) {
         {
-            let parser = Parser::new(string);
+            let parser = Parser::new(string).skip_back(0);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
             let trimmed = parser.trim_start_matches(needle);
             assert_eq!(trimmed.remainder(), returned, "normal");
+            assert_eq!(
+                trimmed.start_offset(),
+                string.len() - returned.len(),
+                "normal-sa"
+            );
+            assert_eq!(
+                trimmed.parse_direction(),
+                ParseDirection::FromStart,
+                "normal-sa"
+            );
 
             assert_eq!(string::trim_start_matches(string, needle), returned, "norm");
 
@@ -31,12 +42,15 @@ fn trim_start_end_matches_test() {
         }
         {
             let rev_string = &*reverse(string);
-            let parser = Parser::new(&rev_string);
+            let parser = Parser::new(&rev_string).skip(0);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
             let rev_needle = &*reverse(needle);
             let rev_returned = &*reverse(returned);
             let trimmed = parser.trim_end_matches(rev_needle);
 
             assert_eq!(trimmed.remainder(), rev_returned, "rev");
+            assert_eq!(trimmed.start_offset(), 0, "rev-sa");
+            assert_eq!(trimmed.parse_direction(), ParseDirection::FromEnd, "rev-sa");
 
             assert_eq!(
                 string::trim_end_matches(rev_string, rev_needle),
@@ -83,6 +97,14 @@ fn trim_start_end_matches_test() {
     assertion("", "e", "");
 
     assertion("", "ello", "");
+
+    // making sure that trim_end_matched doesn't set start_offset to 0
+    {
+        let parser = Parser::new("foobarbaz").skip(3).trim_end_matches("baz");
+
+        assert_eq!(parser.start_offset(), 3);
+        assert_eq!(parser.remainder(), "bar");
+    }
 }
 
 #[test]
@@ -90,17 +112,34 @@ fn trim_start_end_test() {
     #[track_caller]
     fn assertion(string: &str, returned: &str) {
         {
-            let parser = Parser::new(string);
-            assert_eq!(parser.trim_start().remainder(), returned, "normal");
+            let parser = Parser::new(string).skip_back(0);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
+            let trimmed = parser.trim_start();
+            assert_eq!(trimmed.remainder(), returned, "normal");
+            assert_eq!(
+                trimmed.start_offset(),
+                string.len() - returned.len(),
+                "rev-sa"
+            );
+            assert_eq!(
+                trimmed.parse_direction(),
+                ParseDirection::FromStart,
+                "rev-sa"
+            );
 
             assert_eq!(string::trim_start(string), returned, "normal-c");
         }
         {
             let rev_string = &*reverse(string);
-            let parser = Parser::new(&rev_string);
+            let parser = Parser::new(&rev_string).skip(0);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
             let rev_returned = &*reverse(returned);
 
-            assert_eq!(parser.trim_end().remainder(), rev_returned, "rev");
+            let trimmed = parser.trim_end();
+
+            assert_eq!(trimmed.remainder(), rev_returned, "rev");
+            assert_eq!(trimmed.start_offset(), 0, "rev-sa");
+            assert_eq!(trimmed.parse_direction(), ParseDirection::FromEnd, "rev-sa");
 
             assert_eq!(string::trim_end(rev_string), rev_returned, "rev-c");
         }
@@ -119,9 +158,43 @@ fn trim_start_end_test() {
     assertion("\r\rfooo bar\r\r", "fooo bar\r\r");
 
     assertion("\r\n \t-FOO BAR     ", "-FOO BAR     ");
+
+    // making sure that trim_end_matched doesn't set start_offset to 0
+    {
+        let parser = Parser::new("fobar ").skip(2).trim_end();
+
+        assert_eq!(parser.start_offset(), 2);
+        assert_eq!(parser.remainder(), "bar");
+    }
 }
 
 ////////////////////////////////////////////
+
+#[test]
+fn strip_prefix_err_test() {
+    let parser = Parser::new("fobar");
+    let err = parser
+        .strip_prefix("fo")
+        .unwrap()
+        .strip_prefix("foo")
+        .unwrap_err();
+    assert_eq!(err.offset(), 2);
+    assert_eq!(err.error_direction(), ParseDirection::FromStart);
+    assert_eq!(err.kind(), ErrorKind::Strip);
+}
+
+#[test]
+fn strip_suffix_err_test() {
+    let parser = Parser::new("foosuffix");
+    let err = parser
+        .strip_suffix("suffix")
+        .unwrap()
+        .strip_suffix("suffix")
+        .unwrap_err();
+    assert_eq!(err.offset(), 3);
+    assert_eq!(err.error_direction(), ParseDirection::FromEnd);
+    assert_eq!(err.kind(), ErrorKind::Strip);
+}
 
 #[test]
 fn strip_prefix_suffix_test() {
@@ -174,9 +247,46 @@ fn strip_prefix_suffix_test() {
     assertion("a", "a", Some(""));
     assertion("aa", "a", Some("a"));
     assertion("aaa", "a", Some("aa"));
+
+    // making sure that rfind_skip doesn't set start_offset to 0
+    {
+        let parser = Parser::new("foobarbazhello")
+            .skip(3)
+            .strip_suffix("hello")
+            .unwrap();
+
+        assert_eq!(parser.start_offset(), 3);
+        assert_eq!(parser.remainder(), "barbaz");
+    }
 }
 
 ////////////////////////////////////////////
+
+#[test]
+fn find_skip_err_test() {
+    let parser = Parser::new("fobar");
+    let err = parser
+        .strip_prefix("fo")
+        .unwrap()
+        .find_skip("z")
+        .unwrap_err();
+    assert_eq!(err.offset(), 2);
+    assert_eq!(err.error_direction(), ParseDirection::FromStart);
+    assert_eq!(err.kind(), ErrorKind::Find);
+}
+
+#[test]
+fn rfind_skip_err_test() {
+    let parser = Parser::new("foosuffix");
+    let err = parser
+        .strip_suffix("suffix")
+        .unwrap()
+        .rfind_skip("bar")
+        .unwrap_err();
+    assert_eq!(err.offset(), 3);
+    assert_eq!(err.error_direction(), ParseDirection::FromEnd);
+    assert_eq!(err.kind(), ErrorKind::Find);
+}
 
 #[test]
 fn find_skip_test() {
@@ -273,4 +383,15 @@ fn find_skip_test() {
     assertion("ell", "ella", None, None);
 
     assertion("woowooa-that-", "wooa", Some("-that-"), Some("wooa-that-"));
+
+    // making sure that rfind_skip doesn't set start_offset to 0
+    {
+        let parser = Parser::new("foobarbazhello")
+            .skip(3)
+            .rfind_skip("hello")
+            .unwrap();
+
+        assert_eq!(parser.start_offset(), 3);
+        assert_eq!(parser.remainder(), "barbaz");
+    }
 }

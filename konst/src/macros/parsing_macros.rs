@@ -283,7 +283,10 @@ macro_rules! try_parsing {
             };
         };
 
-        update_offset!($parser, copy, $parse_direction);
+        enable_if_start!{$parse_direction,
+            $parser.start_offset += (copy.str.len() - $parser.str.len()) as u32;
+        }
+
         Ok(($($ret,)* $parser))
     })
 }
@@ -303,7 +306,10 @@ macro_rules! parsing {
             };
         };
 
-        update_offset!($parser, copy, $parse_direction);
+        enable_if_start!{$parse_direction,
+            $parser.start_offset += (copy.str.len() - $parser.str.len()) as u32;
+        }
+
         ($($ret,)* $parser)
     })
 }
@@ -321,12 +327,7 @@ macro_rules! return_ {
         break $ret $($val)?
     }};
 }
-macro_rules! update_offset {
-    ($parser:ident, $copy:ident, FromStart) => {
-        $parser.start_offset += ($copy.str.len() - $parser.str.len()) as u32;
-    };
-    ($parser:ident, $copy:ident, FromEnd) => {};
-}
+
 macro_rules! enable_if_start{
     (FromEnd, $($tokens:tt)*) => { };
     (FromStart, $($tokens:tt)*) => {

@@ -1,4 +1,4 @@
-use konst::parsing::{ParseError, Parser};
+use konst::parsing::{ErrorKind, ParseDirection, ParseError, Parser};
 
 use std::{
     cmp::PartialEq,
@@ -15,11 +15,13 @@ where
         let mut string = num.to_string();
         string.push_str(suffix);
 
-        let parser = Parser::new(&string);
+        let parser = Parser::new(&string).skip_back(0);
+        assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
         let (parsed_num, parser) = method(parser).unwrap();
 
         assert_eq!(num, parsed_num);
         assert_eq!(parser.remainder(), suffix);
+        assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
     }
 }
 
@@ -38,12 +40,18 @@ where
         string.push(add_one);
 
         let parser = Parser::new(&string);
-        assert!(method(parser).is_err());
+        let err = method(parser).unwrap_err();
+        assert_eq!(err.offset(), 0);
+        assert_eq!(err.error_direction(), ParseDirection::FromStart);
+        assert_eq!(err.kind(), ErrorKind::ParseInteger);
     }
 
     for notnum in ["", "-", "#", " "].iter().copied() {
         let parser = Parser::new(notnum);
-        assert!(method(parser).is_err());
+        let err = method(parser).unwrap_err();
+        assert_eq!(err.offset(), 0);
+        assert_eq!(err.error_direction(), ParseDirection::FromStart);
+        assert_eq!(err.kind(), ErrorKind::ParseInteger);
     }
 }
 
@@ -215,4 +223,29 @@ fn ensure_correct_delegation() {
     check_unsigned_parser! {i64, parse_i64}
     check_unsigned_parser! {i128, parse_i128}
     check_unsigned_parser! {isize, parse_isize}
+}
+
+#[test]
+fn parse_bool_test() {
+    for (value, string, rem) in [
+        (true, "true", ""),
+        (true, "true100", "100"),
+        (false, "false", ""),
+        (false, "false-this-", "-this-"),
+    ] {
+        let boolean;
+        let mut parser = Parser::new(string).skip_back(0);
+        assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
+        (boolean, parser) = parser.parse_bool().unwrap();
+        assert_eq!(boolean, value);
+        assert_eq!(parser.remainder(), rem);
+        assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
+    }
+
+    for (string, offset) in [("footruwwww", 3), ("hellofalsE", 5)] {
+        let err = Parser::new(string).skip(offset).parse_bool().unwrap_err();
+        assert_eq!(err.offset(), offset);
+        assert_eq!(err.error_direction(), ParseDirection::FromStart);
+        assert_eq!(err.kind(), ErrorKind::ParseBool);
+    }
 }
