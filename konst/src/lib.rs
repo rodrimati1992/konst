@@ -323,6 +323,7 @@ pub mod ptr;
 
 mod utils;
 
+#[allow(unused_imports)]
 mod utils_1_56 {
     pub(crate) use konst_macro_rules::__priv_transmute;
     pub(crate) use konst_macro_rules::__priv_transmute_ref;

@@ -11,6 +11,7 @@ impl<'a> Parser<'a> {
         Self {
             parse_direction: ParseDirection::FromStart,
             start_offset: 0,
+            yielded_last_split: false,
             str: string,
         }
     }

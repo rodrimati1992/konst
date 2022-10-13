@@ -27,7 +27,7 @@ pub use self::{
     parse_errors::{ErrorKind, ParseDirection, ParseError, ParseValueResult, ParserResult},
 };
 
-use crate::string::{self, Pattern};
+use crate::string::{self, Pattern, PatternNorm};
 
 /// For parsing and traversing over strings in const contexts.
 ///
@@ -154,12 +154,267 @@ use crate::string::{self, Pattern};
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Parser<'a> {
     parse_direction: ParseDirection,
+    // this allows split methods to return the empty string after
+    // the last delimiter, but only once.
+    yielded_last_split: bool,
     /// The offset of `str` in the string that this was created from.
     start_offset: u32,
     str: &'a str,
 }
 
 impl<'a> Parser<'a> {
+    /// Gets the string up to (but not including) `delimiter`.
+    ///
+    /// This is like [`Parser::split`],
+    /// except that it always requires that the delimiter can be found.
+    ///
+    /// # Return value
+    ///
+    /// If either the string is empty or the delimiter can't be found,
+    /// this return an error.
+    ///
+    /// If the delimiter can be found and the string is non-empty.
+    /// this returns the string before the delimiter,
+    /// moving the parser to after the delimiter.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{
+    ///     result::unwrap_ctx,
+    ///     Parser,
+    /// };
+    ///
+    /// assert_eq!(VARS, ["foo", "bar", "baz"]);
+    ///
+    /// const VARS: [&str; 3] = {
+    ///     let parser = Parser::new("foo,bar,baz");
+    ///     
+    ///     let (foo, parser) = unwrap_ctx!(parser.split_terminator(','));
+    ///     let (bar, parser) = unwrap_ctx!(parser.split_terminator(','));
+    ///     
+    ///     // `.split_terminator(',')` errors here
+    ///     // because there's no `,` in the remainder of the string,
+    ///     assert!(parser.split_terminator(',').is_err());
+    ///     
+    ///     [foo, bar, parser.remainder()]
+    /// };
+    ///
+    /// ```
+    pub const fn split_terminator<'p, P>(
+        mut self,
+        delimiter: P,
+    ) -> Result<(&'a str, Self), ParseError<'a>>
+    where
+        P: Pattern<'p>,
+    {
+        try_parsing! {self, FromStart, ret;
+            if self.str.is_empty() || self.yielded_last_split {
+                throw!(if self.yielded_last_split {
+                    ErrorKind::SplitExhausted
+                } else {
+                    ErrorKind::DelimiterNotFound
+                })
+            }
+
+            match string::split_once(self.str, delimiter) {
+                Some((before, after)) => {
+                    self.yielded_last_split = after.is_empty();
+                    self.str = after;
+                    before
+                }
+                None => throw!(ErrorKind::DelimiterNotFound),
+            }
+        }
+    }
+
+    /// Gets the string after `delimiter`.
+    ///
+    /// This is like [`Parser::rsplit`],
+    /// except that it always requires that the delimiter can be found.
+    ///
+    /// # Return value
+    ///
+    /// If either the string is empty or the delimiter can't be found,
+    /// this return an error.
+    ///
+    /// If the delimiter can be found and the string is non-empty.
+    /// this returns the string after the delimiter,
+    /// moving the parser to before the delimiter.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{
+    ///     result::unwrap_ctx,
+    ///     Parser,
+    /// };
+    ///
+    /// assert_eq!(VARS, ["baz", "bar", "foo"]);
+    ///
+    /// const VARS: [&str; 3] = {
+    ///     let parser = Parser::new("foo,bar,baz");
+    ///     
+    ///     let (baz, parser) = unwrap_ctx!(parser.rsplit_terminator(','));
+    ///     let (bar, parser) = unwrap_ctx!(parser.rsplit_terminator(','));
+    ///     
+    ///     // `.rsplit_terminator(',')` errors here
+    ///     // because there's no `,` in the remainder of the string,
+    ///     assert!(parser.rsplit_terminator(',').is_err());
+    ///     
+    ///     [baz, bar, parser.remainder()]
+    /// };
+    ///
+    /// ```
+    pub const fn rsplit_terminator<'p, P>(
+        mut self,
+        delimiter: P,
+    ) -> Result<(&'a str, Self), ParseError<'a>>
+    where
+        P: Pattern<'p>,
+    {
+        try_parsing! {self, FromEnd, ret;
+            if self.str.is_empty() || self.yielded_last_split {
+                throw!(if self.yielded_last_split {
+                    ErrorKind::SplitExhausted
+                } else {
+                    ErrorKind::DelimiterNotFound
+                })
+            }
+
+            match string::rsplit_once(self.str, delimiter) {
+                Some((after, before)) => {
+                    self.yielded_last_split = after.is_empty();
+                    self.str = after;
+                    before
+                }
+                None => throw!(ErrorKind::DelimiterNotFound),
+            }
+        }
+    }
+
+    /// Gets the string up to (but not including) `delimiter`.
+    ///
+    /// # Return value
+    ///
+    /// If the last delimiter-separated string has already been returned,
+    /// this return an error.
+    ///
+    /// If the delimiter can't be found.
+    /// this returns the remainder of the string.
+    ///
+    /// If the delimiter can be found.
+    /// this returns the string before the delimiter,
+    /// moving the parser to after the delimiter.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{
+    ///     result::unwrap_ctx,
+    ///     Parser,
+    /// };
+    ///
+    /// assert_eq!(VARS, ["foo", "bar", ""]);
+    ///
+    /// const VARS: [&str; 3] = {
+    ///     let parser = Parser::new("foo,bar,");
+    ///     
+    ///     let (foo, parser) = unwrap_ctx!(parser.split(','));
+    ///     let (bar, parser) = unwrap_ctx!(parser.split(','));
+    ///     let (empty, parser) = unwrap_ctx!(parser.split(','));
+    ///     
+    ///     assert!(parser.split(',').is_err());
+    ///     assert!(parser.remainder().is_empty());
+    ///     
+    ///     [foo, bar, empty]
+    /// };
+    ///
+    /// ```
+    pub const fn split<'p, P>(mut self, delimiter: P) -> Result<(&'a str, Self), ParseError<'a>>
+    where
+        P: Pattern<'p>,
+    {
+        try_parsing! {self, FromStart, ret;
+            if self.yielded_last_split {
+                throw!(ErrorKind::SplitExhausted)
+            }
+
+            let (before, after) = match string::split_once(self.str, delimiter) {
+                Some(pair) => pair,
+                None => {
+                    self.yielded_last_split = true;
+                    (self.str, string::str_from(self.str, self.str.len()))
+                }
+            };
+
+            self.str = after;
+
+            before
+        }
+    }
+
+    /// Gets the string after `delimiter`.
+    ///
+    /// # Return value
+    ///
+    /// If the last delimiter-separated string has already been returned,
+    /// this return an error.
+    ///
+    /// If the delimiter can't be found.
+    /// this returns the remainder of the string.
+    ///
+    /// If the delimiter can be found.
+    /// this returns the string before the delimiter,
+    /// moving the parser to after the delimiter.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{
+    ///     result::unwrap_ctx,
+    ///     Parser,
+    /// };
+    ///
+    /// assert_eq!(VARS, ["baz", "bar", ""]);
+    ///
+    /// const VARS: [&str; 3] = {
+    ///     let parser = Parser::new(",bar,baz");
+    ///     
+    ///     let (baz, parser) = unwrap_ctx!(parser.rsplit(','));
+    ///     let (bar, parser) = unwrap_ctx!(parser.rsplit(','));
+    ///     let (empty, parser) = unwrap_ctx!(parser.rsplit(','));
+    ///     
+    ///     assert!(parser.rsplit(',').is_err());
+    ///     assert!(parser.remainder().is_empty());
+    ///     
+    ///     [baz, bar, empty]
+    /// };
+    ///
+    /// ```
+    pub const fn rsplit<'p, P>(mut self, delimiter: P) -> Result<(&'a str, Self), ParseError<'a>>
+    where
+        P: Pattern<'p>,
+    {
+        try_parsing! {self, FromEnd, ret;
+            if self.yielded_last_split {
+                throw!(ErrorKind::SplitExhausted)
+            }
+
+            let (after, before) = match string::rsplit_once(self.str, delimiter) {
+                Some(pair) => pair,
+                None => {
+                    self.yielded_last_split = true;
+                    (string::str_up_to(self.str, 0), self.str)
+                }
+            };
+
+            self.str = after;
+
+            before
+        }
+    }
+
     /// Checks that the parsed str start with `matched`,
     /// returning the remainder of the str.
     ///

@@ -93,7 +93,8 @@ impl<'a> ParseError<'a> {
             ErrorKind::ParseBool => " while parsing a bool",
             ErrorKind::Find => " while trying to find and skip a pattern",
             ErrorKind::Strip => " while trying to strip a pattern",
-            ErrorKind::SkipByte => " while trying to skip a byte",
+            ErrorKind::SplitExhausted => ": called split on empty parser",
+            ErrorKind::DelimiterNotFound => ": delimiter (for splitting) could not be found",
             ErrorKind::Other => " (a parsing error)",
         }
     }
@@ -133,8 +134,11 @@ pub enum ErrorKind {
     Find,
     /// Returned from `strip_*` methods
     Strip,
-    /// Returned from `skip_byte`
-    SkipByte,
+    /// Returned from `split` when the last delimiter-separated/terminated string
+    /// has already been returned
+    SplitExhausted,
+    /// Returned from `split_terminator` when the delimiter could not be found
+    DelimiterNotFound,
     /// For user-defined types
     Other,
 }

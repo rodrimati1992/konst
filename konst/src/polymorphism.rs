@@ -6,10 +6,15 @@
 //!
 //! [`ConstCmpMarker`]: trait.ConstCmpMarker.html
 
+#[cfg(feature = "cmp")]
 mod cmp_wrapper;
+
+#[cfg(feature = "cmp")]
 mod const_cmp_marker;
+
 include! {"polymorphism/type_eq_.rs"}
 
+#[cfg(feature = "cmp")]
 pub use self::{
     cmp_wrapper::CmpWrapper,
     const_cmp_marker::{ConstCmpMarker, IsAConstCmpMarker, IsArrayKind, IsNotStdKind, IsStdKind},

@@ -10,11 +10,11 @@
 //!
 //!
 
-pub(crate) mod pattern;
+mod pattern;
 
 pub use self::pattern::Pattern;
 
-use self::pattern::PatternNorm;
+pub(crate) use self::pattern::PatternNorm;
 
 mod splitting;
 

@@ -56,6 +56,7 @@ where
 /// assert_eq!(string::rsplit_once("", "-"), None);
 /// assert_eq!(string::rsplit_once("foo", "-"), None);
 /// assert_eq!(string::rsplit_once("foo-", "-"), Some(("foo", "")));
+/// assert_eq!(string::rsplit_once("-foo", "-"), Some(("","foo")));
 /// assert_eq!(string::rsplit_once("foo-bar", "-"), Some(("foo", "bar")));
 /// assert_eq!(string::rsplit_once("foo-bar-baz", "-"), Some(("foo-bar", "baz")));
 ///
