@@ -6,7 +6,7 @@
 /// # Syntax
 ///
 /// The general syntax for this macro is
-/// `parse_any!{ <parser_expression> , <method_name> => <branches> }`
+/// `parser_method!{ <parser_expression> , <method_name> => <branches> }`
 ///
 /// Where `<parser_expression>` is an expression (of [`Parser`] type) that can be assigned into.
 ///
@@ -53,7 +53,7 @@
 /// ```rust
 /// use konst::{
 ///     parsing::{Parser, ParseValueResult},
-///     parse_any, unwrap_ctx,
+///     parser_method, unwrap_ctx,
 /// };
 ///
 /// #[derive(Debug, PartialEq)]
@@ -65,7 +65,7 @@
 ///
 /// impl Color {
 ///     pub const fn try_parse(mut parser: Parser<'_>) -> ParseValueResult<'_, Color> {
-///         parse_any!{parser, strip_prefix;
+///         parser_method!{parser, strip_prefix;
 ///             "Red"|"red" => Ok((Color::Red, parser)),
 ///             "Blue"|"blue" => Ok((Color::Blue, parser)),
 ///             "Green"|"green" => Ok((Color::Green, parser)),
@@ -95,7 +95,7 @@
 /// ```rust
 /// use konst::{
 ///     parsing::{Parser, ParseValueResult},
-///     parse_any, unwrap_ctx,
+///     parser_method, unwrap_ctx,
 /// };
 ///
 /// {
@@ -103,7 +103,7 @@
 ///
 ///     fn find(parser: &mut Parser<'_>) -> u32 {
 ///         let before = parser.remainder();
-///         parse_any!{*parser, find_skip;
+///         parser_method!{*parser, find_skip;
 ///             "foo" => 0,
 ///             "bar" => 1,
 ///             "baz" => 2,
@@ -133,7 +133,7 @@
 ///     let mut parser = Parser::new("foo_bar_foo_baz");
 ///
 ///     fn rfind(parser: &mut Parser<'_>) -> u32 {
-///         parse_any!{*parser, rfind_skip;
+///         parser_method!{*parser, rfind_skip;
 ///             "foo" => 0,
 ///             "bar" => 1,
 ///             "baz" => 2,
@@ -167,33 +167,33 @@
 /// ```rust
 /// use konst::{
 ///     parsing::{Parser, ParseValueResult},
-///     parse_any, unwrap_ctx,
+///     parser_method, unwrap_ctx,
 /// };
 ///
 /// {
 ///     let mut parser = Parser::new("foobarhellofoobar");
-///     parse_any!{parser, trim_start_matches; "foo" | "bar" }
+///     parser_method!{parser, trim_start_matches; "foo" | "bar" }
 ///     assert_eq!(parser.remainder(), "hellofoobar");
 /// }
 /// {
 ///     let mut parser = Parser::new("foobarhellofoobar");
-///     parse_any!{parser, trim_end_matches; "foo" | "bar" }
+///     parser_method!{parser, trim_end_matches; "foo" | "bar" }
 ///     assert_eq!(parser.remainder(), "foobarhello");
 /// }
 /// {
 ///     let mut parser = Parser::new("foobar");
 ///     // Empty string literals make trimming finish when the previous patterns didn't match,
 ///     // so the "bar" pattern doesn't do anything here
-///     parse_any!{parser, trim_start_matches; "foo" | "" | "bar" }
+///     parser_method!{parser, trim_start_matches; "foo" | "" | "bar" }
 ///     assert_eq!(parser.remainder(), "bar");
 /// }
 /// ```
 ///
 /// [`Parser`]: parsing/struct.Parser.html
-#[cfg(feature = "parsing")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
+#[cfg(feature = "parsing_proc")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_proc")))]
 #[macro_export]
-macro_rules! parse_any {
+macro_rules! parser_method {
     ($place:expr, find_skip; $($branches:tt)* ) => {
         $crate::__priv_pa_normalize_branches!{
             ($place, FromStart, __priv_pa_find_skip, outside_konst)

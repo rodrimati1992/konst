@@ -6,7 +6,7 @@
 //!
 //! - Const fn equivalents of standard library functions and methods.
 //!
-//! - Compile-time parsing through the [`Parser`] type, and [`parse_any`] macro.
+//! - Compile-time parsing through the [`Parser`] type, and [`parser_method`] macro.
 //!
 //! - Functions for comparing many standard library types,
 //! with the [`const_eq`]/[`const_eq_for`]/[`const_cmp`]/[`const_cmp_for`] macros
@@ -81,10 +81,10 @@
 //!
 //! This example demonstrates how an CSV environment variable can be parsed into integers.
 //!
-//! This requires the `"parsing_no_proc"` feature (enabled by default).
+//! This requires the `"parsing"` feature (enabled by default).
 //!
-#![cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
-#![cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
+#![cfg_attr(feature = "parsing", doc = "```rust")]
+#![cfg_attr(not(feature = "parsing"), doc = "```ignore")]
 //! use konst::{
 //!     primitive::parse_u64,
 //!     result::unwrap_ctx,
@@ -110,11 +110,11 @@
 //!
 //! This example demonstrates how you can use [`Parser`] to parse a struct at compile-time.
 //!
-#![cfg_attr(feature = "parsing", doc = "```rust")]
-#![cfg_attr(not(feature = "parsing"), doc = "```ignore")]
+#![cfg_attr(feature = "parsing_proc", doc = "```rust")]
+#![cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
 //! use konst::{
 //!     parsing::{Parser, ParseValueResult},
-//!     for_range, parse_any, try_rebind, unwrap_ctx,
+//!     for_range, parser_method, try_rebind, unwrap_ctx,
 //! };
 //!
 //! const PARSED: Struct = {
@@ -173,7 +173,7 @@
 //! }
 //!
 //! pub const fn parse_shape(mut parser: Parser<'_>) -> ParseValueResult<'_, Shape> {
-//!     let shape = parse_any!{parser, strip_prefix;
+//!     let shape = parser_method!{parser, strip_prefix;
 //!         "circle" => Shape::Circle,
 //!         "square" => Shape::Square,
 //!         "line" => Shape::Line,
@@ -194,7 +194,7 @@
 //! }
 //!
 //! pub const fn parse_color(mut parser: Parser<'_>) -> ParseValueResult<'_, Color> {
-//!     let color = parse_any!{parser, strip_prefix;
+//!     let color = parser_method!{parser, strip_prefix;
 //!         "red" => Color::Red,
 //!         "blue" => Color::Blue,
 //!         "green" => Color::Green,
@@ -215,13 +215,13 @@
 //! Enables all comparison functions and macros,
 //! the string equality and ordering comparison functions don't require this feature.
 //!
-//! - `"parsing"`(enabled by default):
-//! Enables the `"parsing_no_proc"` feature, compiles the `konst_proc_macros` dependency,
-//! and enables the [`parse_any`] macro.
-//! You can use this feature instead of `"parsing_no_proc"` if the slightly longer
+//! - `"parsing_proc"`(enabled by default):
+//! Enables the `"parsing"` feature, compiles the `konst_proc_macros` dependency,
+//! and enables the [`parser_method`] macro.
+//! You can use this feature instead of `"parsing"` if the slightly longer
 //! compile times aren't a problem.
 //!
-//! - `"parsing_no_proc"`(enabled by default):
+//! - `"parsing"`(enabled by default):
 //! Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
 //! the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
 //!
@@ -264,7 +264,7 @@
 //! [`polymorphism`]: ./polymorphism/index.html
 //! [`parsing`]: ./parsing/index.html
 //! [`primitive`]: ./primitive/index.html
-//! [`parse_any`]: macro.parse_any.html
+//! [`parser_method`]: macro.parser_method.html
 //! [`Parser`]: ./parsing/struct.Parser.html
 //! [`Parser::parse_u128`]: ./parsing/struct.Parser.html#method.parse_u128
 //!
@@ -315,8 +315,8 @@ pub mod nonzero;
 
 pub mod other;
 
-#[cfg(feature = "parsing_no_proc")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
+#[cfg(feature = "parsing")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
 pub mod parsing;
 
 pub mod ptr;
@@ -331,11 +331,11 @@ mod utils_1_56 {
 #[cfg(feature = "mut_refs")]
 mod utils_mut;
 
-#[cfg(feature = "parsing_no_proc")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
+#[cfg(feature = "parsing")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
 pub use crate::parsing::Parser;
 
-#[cfg(feature = "parsing")]
+#[cfg(feature = "parsing_proc")]
 #[doc(hidden)]
 pub use konst_proc_macros::{__priv_bstr_end, __priv_bstr_start};
 

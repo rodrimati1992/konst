@@ -37,7 +37,7 @@
 ///
 /// impl Foo {
 ///     const fn parse_with(parser: Parser<'_>) -> ParseValueResult<'_, Self> {
-///         // You can use the `parse_any` macro instead of this chain of if elses
+///         // You can use the `parser_method` macro instead of this chain of if elses
 ///         if let Ok(parser) = parser.strip_prefix("Bar") {
 ///             Ok((Foo::Bar, parser))
 ///         } else if let Ok(parser) = parser.strip_prefix("Baz") {

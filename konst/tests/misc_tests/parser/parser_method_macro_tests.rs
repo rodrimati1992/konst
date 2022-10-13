@@ -1,4 +1,4 @@
-use konst::{parse_any, Parser};
+use konst::{parser_method, Parser};
 
 fn reverse(s: &str) -> String {
     s.chars().rev().collect()
@@ -18,7 +18,7 @@ macro_rules! match_any_test {
         #[allow(unused_mut)]
         {
             let mut $parser = Parser::new($string);
-            let val = parse_any!{$parser, $method;
+            let val = parser_method!{$parser, $method;
                 $(
                     $($normal_pat)* $( => $code )?
                 )*
@@ -32,7 +32,7 @@ macro_rules! match_any_test {
             let $expected = &*reverse($expected);
 
             let mut $parser = Parser::new($string);
-            let val = parse_any!{$parser, $method_rev;
+            let val = parser_method!{$parser, $method_rev;
                 $(
                     $($rev_pat)* $( => $code )?
                 )*

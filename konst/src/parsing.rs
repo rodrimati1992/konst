@@ -53,12 +53,12 @@ use crate::string::{self, Pattern};
 /// Like an `if let Ok`,
 /// but also reassigns variables with the value in the `Ok` variant.
 ///
-/// - [`parse_any`]:
+/// - [`parser_method`]:
 /// Parses any of the string literal patterns using a supported `Parser` method.
 ///
 /// [`try_rebind`]: ../macro.try_rebind.html
 /// [`rebind_if_ok`]: ../macro.rebind_if_ok.html
-/// [`parse_any`]: ../macro.parse_any.html
+/// [`parser_method`]: ../macro.parser_method.html
 ///
 /// # Examples
 ///
@@ -66,14 +66,14 @@ use crate::string::{self, Pattern};
 ///
 /// Parses a variable-length array, requires the length to appear before the array.
 ///
-/// This example requires the "parsing" feature (enabled by default)
-/// because it uses the  [`parse_any`] macro.
+/// This example requires the "parsing_proc" feature (enabled by default)
+/// because it uses the  [`parser_method`] macro.
 ///
-#[cfg_attr(feature = "parsing", doc = "```rust")]
-#[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
+#[cfg_attr(feature = "parsing_proc", doc = "```rust")]
+#[cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
 /// use konst::{
 ///     parsing::{Parser, ParseValueResult},
-///     for_range, parse_any, try_rebind, unwrap_ctx,
+///     for_range, parser_method, try_rebind, unwrap_ctx,
 /// };
 ///
 /// // We need to parse the length into a separate const to use it as the length of the array.
@@ -137,7 +137,7 @@ use crate::string::{self, Pattern};
 ///             return Ok((Self::new(angle), parser))
 ///         }
 ///         
-///         let angle = parse_any!{parser, strip_prefix;
+///         let angle = parser_method!{parser, strip_prefix;
 ///             "up" => Self::UP,
 ///             "right" => Self::RIGHT,
 ///             "down" => Self::DOWN,
@@ -150,7 +150,7 @@ use crate::string::{self, Pattern};
 ///
 ///
 /// ```
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Parser<'a> {
     parse_direction: ParseDirection,
@@ -164,8 +164,8 @@ impl<'a> Parser<'a> {
     /// returning the remainder of the str.
     ///
     /// For calling `strip_prefix` with multiple alternative `matched` string literals,
-    /// you can use the [`parse_any`] macro,
-    /// [example](../macro.parse_any.html#parsing-enum-example)
+    /// you can use the [`parser_method`] macro,
+    /// [example](../macro.parser_method.html#parsing-enum-example)
     ///
     /// # Examples
     ///
@@ -225,7 +225,7 @@ impl<'a> Parser<'a> {
     /// returning the remainder of the string.
     ///
     /// For calling `strip_suffix` with multiple alternative `matched` string literals,
-    /// you can use the [`parse_any`] macro.
+    /// you can use the [`parser_method`] macro.
     ///
     /// # Examples
     ///
@@ -326,8 +326,8 @@ impl<'a> Parser<'a> {
 
     /// Repeatedly removes all instances of `needle` from the start of the parsed string.
     ///
-    /// For trimming with multiple `needle`s, you can use the [`parse_any`] macro,
-    /// [example](../macro.parse_any.html#trimming-example)
+    /// For trimming with multiple `needle`s, you can use the [`parser_method`] macro,
+    /// [example](../macro.parser_method.html#trimming-example)
     ///
     /// # Example
     ///
@@ -383,8 +383,8 @@ impl<'a> Parser<'a> {
 
     /// Repeatedly removes all instances of `needle` from the start of the parsed string.
     ///
-    /// For trimming with multiple `needle`s, you can use the [`parse_any`] macro,
-    /// [example](../macro.parse_any.html#trimming-example)
+    /// For trimming with multiple `needle`s, you can use the [`parser_method`] macro,
+    /// [example](../macro.parser_method.html#trimming-example)
     ///
     /// # Example
     ///
@@ -441,8 +441,8 @@ impl<'a> Parser<'a> {
     /// Skips the parser after the first instance of `needle`.
     ///
     /// For calling `find_skip` with multiple alternative `ǹeedle` string literals,
-    /// you can use the [`parse_any`] macro,
-    /// [example](../macro.parse_any.html#find-example)
+    /// you can use the [`parser_method`] macro,
+    /// [example](../macro.parser_method.html#find-example)
     ///
     /// # Example
     ///
@@ -496,8 +496,8 @@ impl<'a> Parser<'a> {
     /// Truncates the parsed string to before the last instance of `needle`.
     ///
     /// For calling `find_skip` with multiple alternative `ǹeedle` string literals,
-    /// you can use the [`parse_any`] macro,
-    /// [example](../macro.parse_any.html#find-example)
+    /// you can use the [`parser_method`] macro,
+    /// [example](../macro.parser_method.html#find-example)
     ///
     /// # Example
     ///

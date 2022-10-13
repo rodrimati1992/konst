@@ -211,11 +211,11 @@ assert_eq!(find_odd(&[8, 12, 13], 3), Some(&13));
 
 Const equivalent of [`Iterator::find_map`]
 
-This example requires the `"parsing_no_proc"` feature.
+This example requires the `"parsing"` feature.
 
 */
-#[cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
-#[cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
+#[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
+#[cfg_attr(feature = "parsing", doc = "```rust")]
 /**
 use konst::{iter, result};
 use konst::primitive::parse_u64;
@@ -298,11 +298,11 @@ assert_eq!(concat_u16s(&[3, 5, 8]), 0x0008_0005_0003);
 This example demonstrates a function that gets the second number in a CSV string,
 using iterators.
 
-This example requires both the `"parsing_no_proc"` feature.
+This example requires both the `"parsing"` feature.
 
 */
-#[cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
-#[cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
+#[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
+#[cfg_attr(feature = "parsing", doc = "```rust")]
 /**
 use konst::{
     iter,

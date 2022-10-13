@@ -19,8 +19,8 @@
 ///
 /// ### Basic
 ///
-#[cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
-#[cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
+#[cfg_attr(feature = "parsing", doc = "```rust")]
+#[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
 /// use konst::{Parser, unwrap_ctx};
 ///
 /// let mut parser = Parser::new("hello world");

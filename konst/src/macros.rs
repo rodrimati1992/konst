@@ -19,15 +19,15 @@ mod declare_generic_const;
 #[macro_use]
 mod polymorphism_macros;
 
-#[cfg(feature = "parsing")]
+#[cfg(feature = "parsing_proc")]
 #[macro_use]
-mod parse_any;
+mod parser_method;
 
-#[cfg(feature = "parsing_no_proc")]
+#[cfg(feature = "parsing")]
 #[macro_use]
 mod parsing_macros;
 
-#[cfg(feature = "parsing_no_proc")]
+#[cfg(feature = "parsing")]
 #[macro_use]
 mod parsing_polymorphism_macros;
 
