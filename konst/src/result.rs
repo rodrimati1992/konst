@@ -23,11 +23,11 @@
 #[cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
 /// use konst::{Parser, unwrap_ctx};
 ///
-/// let mut parser = Parser::from_str("hello world");
+/// let mut parser = Parser::new("hello world");
 ///
 /// parser = unwrap_ctx!(parser.strip_prefix("hello "));
 ///
-/// assert_eq!(parser.bytes(), "world".as_bytes());
+/// assert_eq!(parser.remainder(), "world");
 ///
 /// ```
 ///

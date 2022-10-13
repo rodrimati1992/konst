@@ -125,7 +125,7 @@
 //!         red, blue, green, blue,
 //!     ";
 //!     
-//!     unwrap_ctx!(parse_struct(Parser::from_str(input))).0
+//!     unwrap_ctx!(parse_struct(Parser::new(input))).0
 //! };
 //!
 //! fn main(){
@@ -297,8 +297,6 @@ pub mod chr;
 
 pub mod iter;
 
-#[cfg(feature = "cmp")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub mod polymorphism;
 
 pub mod primitive;

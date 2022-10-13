@@ -8,7 +8,7 @@ use core::{
 /// Error returned by all parsing methods that return Result.
 ///
 /// This error type knows [`where`](#method.offset) the error happened,
-/// in what [`direction`](#method.error_direction) the bytes were being parsed,
+/// in what [`direction`](#method.error_direction) the string was being parsed,
 /// and the [`kind`](#method.kind) of error that happened.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ParseError<'a> {
@@ -26,7 +26,7 @@ impl<'a> ParseError<'a> {
     pub const fn new(parser: Parser<'a>, kind: ErrorKind) -> Self {
         Self {
             start_offset: parser.start_offset,
-            end_offset: parser.start_offset + parser.bytes.len() as u32,
+            end_offset: parser.start_offset + parser.str.len() as u32,
             direction: parser.parse_direction,
             kind,
             _lifetime: PhantomData,
@@ -44,7 +44,7 @@ impl<'a> ParseError<'a> {
         }
     }
 
-    /// Gets the byte offset of this error in the parsed bytes that the
+    /// Gets the byte offset of this error in the parsed string that the
     /// [`Parser`] was constructed from.
     #[inline(always)]
     pub const fn offset(&self) -> usize {

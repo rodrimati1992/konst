@@ -75,7 +75,7 @@
 /// }
 ///
 /// const COLORS: [Color; 4] = {
-///     let parser = Parser::from_str("BlueRedGreenGreen");
+///     let parser = Parser::new("BlueRedGreenGreen");
 ///     let (c0, parser) = unwrap_ctx!(Color::try_parse(parser));
 ///     let (c1, parser) = unwrap_ctx!(Color::try_parse(parser));
 ///     let (c2, parser) = unwrap_ctx!(Color::try_parse(parser));
@@ -99,38 +99,38 @@
 /// };
 ///
 /// {
-///     let mut parser = Parser::from_str("baz_foo_bar_foo");
+///     let mut parser = Parser::new("baz_foo_bar_foo");
 ///
 ///     fn find(parser: &mut Parser<'_>) -> u32 {
-///         let before = parser.bytes();
+///         let before = parser.remainder();
 ///         parse_any!{*parser, find_skip;
 ///             "foo" => 0,
 ///             "bar" => 1,
 ///             "baz" => 2,
 ///             _ => {
-///                 assert_eq!(before, parser.bytes());
+///                 assert_eq!(before, parser.remainder());
 ///                 3
 ///             }
 ///         }
 ///     }
 ///
 ///     assert_eq!(find(&mut parser), 2);
-///     assert_eq!(parser.bytes(), "_foo_bar_foo".as_bytes());
+///     assert_eq!(parser.remainder(), "_foo_bar_foo");
 ///     
 ///     assert_eq!(find(&mut parser), 0);
-///     assert_eq!(parser.bytes(), "_bar_foo".as_bytes());
+///     assert_eq!(parser.remainder(), "_bar_foo");
 ///     
 ///     assert_eq!(find(&mut parser), 1);
-///     assert_eq!(parser.bytes(), "_foo".as_bytes());
+///     assert_eq!(parser.remainder(), "_foo");
 ///     
 ///     assert_eq!(find(&mut parser), 0);
-///     assert_eq!(parser.bytes(), "".as_bytes());
+///     assert_eq!(parser.remainder(), "");
 ///     
 ///     assert_eq!(find(&mut parser), 3);
-///     assert_eq!(parser.bytes(), "".as_bytes());
+///     assert_eq!(parser.remainder(), "");
 /// }
 /// {
-///     let mut parser = Parser::from_str("foo_bar_foo_baz");
+///     let mut parser = Parser::new("foo_bar_foo_baz");
 ///
 ///     fn rfind(parser: &mut Parser<'_>) -> u32 {
 ///         parse_any!{*parser, rfind_skip;
@@ -142,19 +142,19 @@
 ///     }
 ///
 ///     assert_eq!(rfind(&mut parser), 2);
-///     assert_eq!(parser.bytes(), "foo_bar_foo_".as_bytes());
+///     assert_eq!(parser.remainder(), "foo_bar_foo_");
 ///     
 ///     assert_eq!(rfind(&mut parser), 0);
-///     assert_eq!(parser.bytes(), "foo_bar_".as_bytes());
+///     assert_eq!(parser.remainder(), "foo_bar_");
 ///     
 ///     assert_eq!(rfind(&mut parser), 1);
-///     assert_eq!(parser.bytes(), "foo_".as_bytes());
+///     assert_eq!(parser.remainder(), "foo_");
 ///     
 ///     assert_eq!(rfind(&mut parser), 0);
-///     assert_eq!(parser.bytes(), "".as_bytes());
+///     assert_eq!(parser.remainder(), "");
 ///     
 ///     assert_eq!(rfind(&mut parser), 3);
-///     assert_eq!(parser.bytes(), "".as_bytes());
+///     assert_eq!(parser.remainder(), "");
 /// }
 ///
 ///
@@ -171,21 +171,21 @@
 /// };
 ///
 /// {
-///     let mut parser = Parser::from_str("foobarhellofoobar");
+///     let mut parser = Parser::new("foobarhellofoobar");
 ///     parse_any!{parser, trim_start_matches; "foo" | "bar" }
-///     assert_eq!(parser.bytes(), "hellofoobar".as_bytes());
+///     assert_eq!(parser.remainder(), "hellofoobar");
 /// }
 /// {
-///     let mut parser = Parser::from_str("foobarhellofoobar");
+///     let mut parser = Parser::new("foobarhellofoobar");
 ///     parse_any!{parser, trim_end_matches; "foo" | "bar" }
-///     assert_eq!(parser.bytes(), "foobarhello".as_bytes());
+///     assert_eq!(parser.remainder(), "foobarhello");
 /// }
 /// {
-///     let mut parser = Parser::from_str("foobar");
+///     let mut parser = Parser::new("foobar");
 ///     // Empty string literals make trimming finish when the previous patterns didn't match,
 ///     // so the "bar" pattern doesn't do anything here
 ///     parse_any!{parser, trim_start_matches; "foo" | "" | "bar" }
-///     assert_eq!(parser.bytes(), "bar".as_bytes());
+///     assert_eq!(parser.remainder(), "bar");
 /// }
 /// ```
 ///
@@ -246,17 +246,6 @@ macro_rules! parse_any {
                 - trim_start_matches \n\
                 - trim_end_matches \n\
         "}
-    };
-}
-
-#[allow(unused_macros)]
-macro_rules! parse_any_priv {
-    ($place:expr, $parse_direction:ident,$method_macro:ident; $($branches:tt)* ) => {
-        $crate::__priv_pa_normalize_branches!{
-            ($place, $parse_direction, $method_macro, inside_konst)
-            ()
-            $($branches)*
-        }
     };
 }
 
@@ -492,38 +481,19 @@ macro_rules!  __priv_pa_trim_matches_inner{
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_pa_bytes_accessor {
-    (get, ($place:expr, $parse_direction:ident, inside_konst)) => {{
-        $place.parse_direction = $crate::parsing::ParseDirection::$parse_direction;
-        $place.bytes
-    }};
     (get, ($place:expr, $parse_direction:ident, outside_konst)) => {
-        $place.bytes()
+        $place.remainder().as_bytes()
     };
-    (set, ($place:expr, FromStart, inside_konst), $rem:expr) => {
-        #[allow(unused_assignments)]
-        {
-            let before = $place.bytes.len();
-            $place.bytes = $rem;
-            $place.start_offset += (before - $place.bytes.len()) as u32;
-        }
-    };
-    (set, ($place:expr, FromEnd, inside_konst), $rem:expr) => {
-        #[allow(unused_assignments)]
-        {
-            $place.bytes = $rem;
-        }
-    };
-
     (set, ($place:expr, FromStart, outside_konst), $rem:expr) => {
         #[allow(unused_assignments)]
         {
-            $place = $place.advance_to_remainder_from_start($rem);
+            $place = $place.skip($place.remainder().len() - $rem.len());
         }
     };
     (set, ($place:expr, FromEnd, outside_konst), $rem:expr) => {
         #[allow(unused_assignments)]
         {
-            $place = $place.advance_to_remainder_from_end($rem);
+            $place = $place.skip_back($place.remainder().len() - $rem.len());
         }
     };
 }

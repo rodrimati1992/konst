@@ -1,6 +1,6 @@
 //! Parsing using `const fn` methods.
 //!
-//! You can use the [`Parser`] type to parse from string slices, and byte slices,
+//! You can use the [`Parser`] type to parse from string,
 //! more information in its documentation.
 //!
 //! If you're looking for functions to parse some type from an entire string
@@ -27,7 +27,9 @@ pub use self::{
     parse_errors::{ErrorKind, ParseDirection, ParseError, ParseValueResult, ParserResult},
 };
 
-/// For parsing and traversing over byte strings in const contexts.
+use crate::string::{self, Pattern};
+
+/// For parsing and traversing over strings in const contexts.
 ///
 /// If you're looking for functions to parse some type from an entire string
 /// (instead of only part of it),
@@ -81,9 +83,9 @@ pub use self::{
 ///         up, 0, 90, down, left, right,
 ///     ";
 ///     
-///     let parser = Parser::from_str(input);
+///     let parser = Parser::new(input);
 ///     let (len, parser) = unwrap_ctx!(parser.parse_usize());
-///     (len, unwrap_ctx!(parser.strip_prefix_u8(b';')))
+///     (len, unwrap_ctx!(parser.strip_prefix(';')))
 /// };
 ///
 /// const LEN: usize = LEN_AND_PARSER.0;
@@ -122,7 +124,7 @@ pub use self::{
 ///             
 ///             parser = parser.trim_start();
 ///             if !parser.is_empty() {
-///                 try_rebind!{parser = parser.strip_prefix_u8(b',')}
+///                 try_rebind!{parser = parser.strip_prefix(',')}
 ///             }
 ///         }
 ///         Ok((ret, parser))
@@ -152,35 +154,14 @@ pub use self::{
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Parser<'a> {
     parse_direction: ParseDirection,
-    /// The offset of `bytes` in the string that this was created from.
+    /// The offset of `str` in the string that this was created from.
     start_offset: u32,
-    bytes: &'a [u8],
+    str: &'a str,
 }
 
 impl<'a> Parser<'a> {
-    /// Gets the next unparsed byte.
-    #[inline]
-    pub const fn next_byte(mut self) -> ParseValueResult<'a, u8> {
-        try_parsing! {self, FromStart, ret;
-            if let [byte, rem @ ..] = self.bytes {
-                self.bytes = rem;
-                *byte
-            } else {
-                throw!(ErrorKind::SkipByte)
-            }
-        }
-    }
-
-    /// For skipping the first `bytes` bytes.
-    ///
-    pub const fn skip(mut self, bytes: usize) -> Self {
-        parsing! {self, FromStart;
-            self.bytes = crate::slice::slice_from(self.bytes, bytes);
-        }
-    }
-
-    /// Checks that the parsed bytes start with `matched`,
-    /// returning the remainder of the bytes.
+    /// Checks that the parsed str start with `matched`,
+    /// returning the remainder of the str.
     ///
     /// For calling `strip_prefix` with multiple alternative `matched` string literals,
     /// you can use the [`parse_any`] macro,
@@ -193,390 +174,269 @@ impl<'a> Parser<'a> {
     /// ```
     /// use konst::{Parser, rebind_if_ok};
     ///
-    /// let mut parser = Parser::from_str("foo;bar;baz;");
+    /// let mut parser = Parser::new("foo;bar;baz;");
     ///
     /// assert!(parser.strip_prefix("aaa").is_err());
     ///
     /// rebind_if_ok!{parser = parser.strip_prefix("foo;")}
-    /// assert_eq!(parser.bytes(), "bar;baz;".as_bytes());
+    /// assert_eq!(parser.remainder(), "bar;baz;");
     ///
     /// rebind_if_ok!{parser = parser.strip_prefix("bar;")}
-    /// assert_eq!(parser.bytes(), "baz;".as_bytes());
+    /// assert_eq!(parser.remainder(), "baz;");
     ///
     /// rebind_if_ok!{parser = parser.strip_prefix("baz;")}
-    /// assert_eq!(parser.bytes(), "".as_bytes());
+    /// assert_eq!(parser.remainder(), "");
     ///
     ///
     /// ```
     ///
-    /// ### Use case
+    /// ### `char` argument
     ///
     /// ```rust
     /// use konst::{Parser, rebind_if_ok};
     ///
-    /// #[derive(Debug, PartialEq)]
-    /// struct Flags {
-    ///     foo: bool,
-    ///     bar: bool,
-    /// }
+    /// let mut parser = Parser::new("abcde");
     ///
-    /// const fn parse_flags(mut parser: Parser<'_>) -> (Flags, Parser<'_>) {
-    ///     let mut flags = Flags{foo: false, bar: false};
-    ///     rebind_if_ok!{parser = parser.strip_prefix("foo;") =>
-    ///         flags.foo = true;
-    ///     }
-    ///     rebind_if_ok!{parser = parser.strip_prefix("bar;") =>
-    ///         flags.bar = true;
-    ///     }
-    ///     (flags, parser)
-    /// }
+    /// rebind_if_ok!{parser = parser.strip_prefix('a')}
+    /// assert_eq!(parser.remainder(), "bcde");
     ///
-    /// const VALUES: &[Flags] = &[
-    ///     parse_flags(Parser::from_str("")).0,
-    ///     parse_flags(Parser::from_str("foo;")).0,
-    ///     parse_flags(Parser::from_str("bar;")).0,
-    ///     parse_flags(Parser::from_str("foo;bar;")).0,
-    /// ];
+    /// rebind_if_ok!{parser = parser.strip_prefix('b')}
+    /// assert_eq!(parser.remainder(), "cde");
     ///
-    /// assert_eq!(VALUES[0], Flags{foo: false, bar: false});
-    /// assert_eq!(VALUES[1], Flags{foo: true, bar: false});
-    /// assert_eq!(VALUES[2], Flags{foo: false, bar: true});
-    /// assert_eq!(VALUES[3], Flags{foo: true, bar: true});
+    /// rebind_if_ok!{parser = parser.strip_prefix('c')}
+    /// assert_eq!(parser.remainder(), "de");
     ///
     /// ```
+    ///
     #[inline]
-    pub const fn strip_prefix(self, matched: &str) -> Result<Self, ParseError<'a>> {
-        self.strip_prefix_b(matched.as_bytes())
-    }
-
-    /// Equivalent to [`strip_prefix`], but takes a byte slice.
-    ///
-    /// [`strip_prefix`]: #method.strip_prefix
-    pub const fn strip_prefix_b(mut self, mut matched: &[u8]) -> Result<Self, ParseError<'a>> {
+    pub const fn strip_prefix<'p, P>(mut self, matched: P) -> Result<Self, ParseError<'a>>
+    where
+        P: Pattern<'p>,
+    {
         try_parsing! {self, FromStart;
-            impl_bytes_function!{
-                strip_prefix;
-                left = self.bytes;
-                right = matched;
-                on_error = throw!(ErrorKind::Strip),
+            match string::strip_prefix(self.str, matched) {
+                Some(x) => self.str = x,
+                None => throw!(ErrorKind::Strip),
             }
         }
     }
 
-    /// Equivalent to [`strip_prefix`], but takes a single byte.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use konst::{Parser, rebind_if_ok};
-    ///
-    /// let mut parser = Parser::from_str("abcde");
-    ///
-    /// assert!(parser.strip_prefix_u8(1).is_err());
-    ///
-    /// rebind_if_ok!{parser = parser.strip_prefix_u8(b'a')}
-    /// assert_eq!(parser.bytes(), "bcde".as_bytes());
-    ///
-    /// rebind_if_ok!{parser = parser.strip_prefix_u8(b'b')}
-    /// assert_eq!(parser.bytes(), "cde".as_bytes());
-    ///
-    /// rebind_if_ok!{parser = parser.strip_prefix_u8(b'c')}
-    /// assert_eq!(parser.bytes(), "de".as_bytes());
-    ///
-    /// ```
-    ///
-    /// [`strip_prefix`]: #method.strip_prefix
-    pub const fn strip_prefix_u8(mut self, matched: u8) -> Result<Self, ParseError<'a>> {
-        try_parsing! {self, FromStart;
-            match self.bytes {
-                [byte, rem @ ..] if *byte == matched => {
-                    self.bytes = rem;
-                }
-                _ => throw!(ErrorKind::Strip),
-            }
-        }
-    }
-
-    /// Checks that the parsed bytes end with `matched`,
-    /// returning the remainder of the bytes.
+    /// Checks that the parsed string ends with `matched`,
+    /// returning the remainder of the string.
     ///
     /// For calling `strip_suffix` with multiple alternative `matched` string literals,
     /// you can use the [`parse_any`] macro.
     ///
     /// # Examples
     ///
-    /// ### Basic
+    /// ### `&str` argument
     ///
     /// ```
     /// use konst::{Parser, rebind_if_ok};
     ///
-    /// let mut parser = Parser::from_str("foo;bar;baz;");
+    /// let mut parser = Parser::new("foo;bar;baz;");
     ///
     /// assert!(parser.strip_suffix("aaa").is_err());
     ///
     /// rebind_if_ok!{parser = parser.strip_suffix("baz;")}
-    /// assert_eq!(parser.bytes(), "foo;bar;".as_bytes());
+    /// assert_eq!(parser.remainder(), "foo;bar;");
     ///
     /// rebind_if_ok!{parser = parser.strip_suffix("bar;")}
-    /// assert_eq!(parser.bytes(), "foo;".as_bytes());
+    /// assert_eq!(parser.remainder(), "foo;");
     ///
     /// rebind_if_ok!{parser = parser.strip_suffix("foo;")}
-    /// assert_eq!(parser.bytes(), "".as_bytes());
+    /// assert_eq!(parser.remainder(), "");
     ///
     /// ```
     ///
-    #[inline]
-    pub const fn strip_suffix(self, matched: &str) -> Result<Self, ParseError<'a>> {
-        self.strip_suffix_b(matched.as_bytes())
-    }
-
-    /// Equivalent to [`strip_suffix`], but takes a byte slice.
-    ///
-    /// [`strip_suffix`]: #method.strip_suffix
-    pub const fn strip_suffix_b(mut self, mut matched: &[u8]) -> Result<Self, ParseError<'a>> {
-        try_parsing! {self, FromEnd;
-            impl_bytes_function!{
-                strip_suffix;
-                left = self.bytes;
-                right = matched;
-                on_error = throw!(ErrorKind::Strip),
-            }
-        }
-    }
-
-    /// Equivalent to [`strip_suffix`], but takes a single byte.
-    ///
-    /// # Example
+    /// ### `char` argument
     ///
     /// ```rust
     /// use konst::{Parser, rebind_if_ok};
     ///
-    /// let mut parser = Parser::from_str("edcba");
+    /// let mut parser = Parser::new("edcba");
     ///
-    /// assert!(parser.strip_suffix_u8(1).is_err());
+    /// rebind_if_ok!{parser = parser.strip_suffix('a')}
+    /// assert_eq!(parser.remainder(), "edcb");
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix_u8(b'a')}
-    /// assert_eq!(parser.bytes(), "edcb".as_bytes());
+    /// rebind_if_ok!{parser = parser.strip_suffix('b')}
+    /// assert_eq!(parser.remainder(), "edc");
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix_u8(b'b')}
-    /// assert_eq!(parser.bytes(), "edc".as_bytes());
-    ///
-    /// rebind_if_ok!{parser = parser.strip_suffix_u8(b'c')}
-    /// assert_eq!(parser.bytes(), "ed".as_bytes());
+    /// rebind_if_ok!{parser = parser.strip_suffix('c')}
+    /// assert_eq!(parser.remainder(), "ed");
     ///
     /// ```
     ///
-    /// [`strip_suffix`]: #method.strip_suffix
-    pub const fn strip_suffix_u8(mut self, matched: u8) -> Result<Self, ParseError<'a>> {
-        try_parsing! {self,  FromEnd;
-            match self.bytes {
-                [rem @ .., byte] if *byte == matched => {
-                    self.bytes = rem;
-                }
-                _ => throw!(ErrorKind::Strip),
+    #[inline]
+    pub const fn strip_suffix<'p, P>(mut self, matched: P) -> Result<Self, ParseError<'a>>
+    where
+        P: Pattern<'p>,
+    {
+        try_parsing! {self, FromEnd;
+            match string::strip_suffix(self.str, matched) {
+                Some(x) => self.str = x,
+                None => throw!(ErrorKind::Strip),
             }
         }
     }
 
-    /////////////////////////////////////////
-    //           *trim* methods            //
-    /////////////////////////////////////////
-
-    /// Removes whitespace from the start of the parsed bytes.
+    /// Removes whitespace from the start of the parsed string.
     ///
     /// # Example
     ///
     /// ```rust
     /// use konst::{Parser, unwrap_ctx};
     ///
-    /// let mut parser = Parser::from_str("    foo\n\t bar");
+    /// let mut parser = Parser::new("    foo\n\t bar");
     ///
     /// parser = parser.trim_start();
-    /// assert_eq!(parser.bytes(), "foo\n\t bar".as_bytes());
+    /// assert_eq!(parser.remainder(), "foo\n\t bar");
     ///
     /// parser = unwrap_ctx!(parser.strip_prefix("foo")).trim_start();
-    /// assert_eq!(parser.bytes(), "bar".as_bytes());
+    /// assert_eq!(parser.remainder(), "bar");
     ///
     /// ```
     pub const fn trim_start(mut self) -> Self {
         parsing! {self, FromStart;
-            self.bytes = crate::slice::bytes_trim_start(self.bytes);
+            self.str = crate::string::trim_start(self.str);
         }
     }
 
-    /// Removes whitespace from the end of the parsed bytes.
+    /// Removes whitespace from the end of the parsed string.
     ///
     /// # Example
     ///
     /// ```rust
     /// use konst::{Parser, unwrap_ctx};
     ///
-    /// let mut parser = Parser::from_str("foo,\n    bar,\n    ");
+    /// let mut parser = Parser::new("foo,\n    bar,\n    ");
     ///
     /// parser = parser.trim_end();
-    /// assert_eq!(parser.bytes(), "foo,\n    bar,".as_bytes());
+    /// assert_eq!(parser.remainder(), "foo,\n    bar,");
     ///
     /// parser = unwrap_ctx!(parser.strip_suffix("bar,")).trim_end();
-    /// assert_eq!(parser.bytes(), "foo,".as_bytes());
+    /// assert_eq!(parser.remainder(), "foo,");
     ///
     /// ```
     pub const fn trim_end(mut self) -> Self {
         parsing! {self, FromEnd;
-            self.bytes = crate::slice::bytes_trim_end(self.bytes);
+            self.str = crate::string::trim_end(self.str);
         }
     }
 
-    /// Repeatedly removes all instances of `needle` from the start of the parsed bytes.
+    /// Repeatedly removes all instances of `needle` from the start of the parsed string.
     ///
     /// For trimming with multiple `needle`s, you can use the [`parse_any`] macro,
     /// [example](../macro.parse_any.html#trimming-example)
     ///
     /// # Example
     ///
+    /// ### `&str`
+    ///
     /// ```rust
     /// use konst::Parser;
     ///
     /// {
-    ///     let mut parser = Parser::from_str("HelloHelloHello world!");
+    ///     let mut parser = Parser::new("HelloHelloHello world!");
     ///     parser = parser.trim_start_matches("Hello");
-    ///     assert_eq!(parser.bytes(), " world!".as_bytes());
+    ///     assert_eq!(parser.remainder(), " world!");
     /// }
     /// {
-    ///     let mut parser = Parser::from_str("        Hi!");
+    ///     let mut parser = Parser::new("        Hi!");
     ///     parser = parser.trim_start_matches("    ");
-    ///     assert_eq!(parser.bytes(), "Hi!".as_bytes());
+    ///     assert_eq!(parser.remainder(), "Hi!");
     /// }
     /// {
-    ///     let mut parser = Parser::from_str("------Bye!");
+    ///     let mut parser = Parser::new("------Bye!");
     ///     parser = parser.trim_start_matches("----");
-    ///     assert_eq!(parser.bytes(), "--Bye!".as_bytes());
+    ///     assert_eq!(parser.remainder(), "--Bye!");
     /// }
     ///
     /// ```
     ///
-    pub const fn trim_start_matches(self, needle: &str) -> Self {
-        self.trim_start_matches_b(needle.as_bytes())
-    }
-
-    /// Equivalent to [`trim_start_matches`], but takes a byte slice.
-    ///
-    /// [`trim_start_matches`]: #method.trim_start_matches
-    pub const fn trim_start_matches_b(mut self, needle: &[u8]) -> Self {
-        parsing! {self, FromStart;
-            self.bytes = crate::slice::bytes_trim_start_matches(self.bytes, needle);
-        }
-    }
-
-    /// Equivalent to [`trim_start_matches`], but takes a single byte.
-    ///
-    /// # Example
+    /// ### `char` argument
     ///
     /// ```rust
     /// use konst::Parser;
     ///
-    /// let mut parser = Parser::from_str("    ----world");
+    /// let mut parser = Parser::new("    ----world");
     ///
-    /// parser = parser.trim_start_matches_u8(b' ');
-    /// assert_eq!(parser.bytes(), "----world".as_bytes());
+    /// parser = parser.trim_start_matches(' ');
+    /// assert_eq!(parser.remainder(), "----world");
     ///
-    /// parser = parser.trim_start_matches_u8(b'-');
-    /// assert_eq!(parser.bytes(), "world".as_bytes());
+    /// parser = parser.trim_start_matches('-');
+    /// assert_eq!(parser.remainder(), "world");
     ///
-    /// parser = parser.trim_start_matches_u8(b'-');
-    /// assert_eq!(parser.bytes(), "world".as_bytes());
+    /// parser = parser.trim_start_matches('-');
+    /// assert_eq!(parser.remainder(), "world");
     ///
     /// ```
     ///
-    /// [`trim_start_matches`]: #method.trim_start_matches
-    pub const fn trim_start_matches_u8(mut self, needle: u8) -> Self {
+    pub const fn trim_start_matches<'p, P>(mut self, needle: P) -> Self
+    where
+        P: Pattern<'p>,
+    {
         parsing! {self, FromStart;
-            while let [b, rem @ ..] = self.bytes {
-                if *b == needle {
-                    self.bytes = rem;
-                } else {
-                    break;
-                }
-            }
+            self.str = crate::string::trim_start_matches(self.str, needle);
         }
     }
 
-    /// Repeatedly removes all instances of `needle` from the start of the parsed bytes.
+    /// Repeatedly removes all instances of `needle` from the start of the parsed string.
     ///
     /// For trimming with multiple `needle`s, you can use the [`parse_any`] macro,
     /// [example](../macro.parse_any.html#trimming-example)
     ///
     /// # Example
     ///
+    /// ### `&str`
+    ///
     /// ```rust
     /// use konst::Parser;
     ///
     /// {
-    ///     let mut parser = Parser::from_str("Hello world!world!world!");
+    ///     let mut parser = Parser::new("Hello world!world!world!");
     ///     parser = parser.trim_end_matches("world!");
-    ///     assert_eq!(parser.bytes(), "Hello ".as_bytes());
+    ///     assert_eq!(parser.remainder(), "Hello ");
     /// }
     /// {
-    ///     let mut parser = Parser::from_str("Hi!        ");
+    ///     let mut parser = Parser::new("Hi!        ");
     ///     parser = parser.trim_end_matches("    ");
-    ///     assert_eq!(parser.bytes(), "Hi!".as_bytes());
+    ///     assert_eq!(parser.remainder(), "Hi!");
     /// }
     /// {
-    ///     let mut parser = Parser::from_str("Bye!------");
+    ///     let mut parser = Parser::new("Bye!------");
     ///     parser = parser.trim_end_matches("----");
-    ///     assert_eq!(parser.bytes(), "Bye!--".as_bytes());
+    ///     assert_eq!(parser.remainder(), "Bye!--");
     /// }
     ///
     /// ```
     ///
-    pub const fn trim_end_matches(self, needle: &str) -> Self {
-        self.trim_end_matches_b(needle.as_bytes())
-    }
-
-    /// Equivalent to [`trim_end_matches`], but takes a byte slice.
-    ///
-    /// [`trim_end_matches`]: #method.trim_end_matches
-    pub const fn trim_end_matches_b(mut self, needle: &[u8]) -> Self {
-        parsing! {self, FromEnd;
-            self.bytes = crate::slice::bytes_trim_end_matches(self.bytes, needle);
-        }
-    }
-
-    /// Equivalent to [`trim_end_matches`], but takes a single byte.
-    ///
-    /// # Example
+    /// ### `char` argument
     ///
     /// ```rust
     /// use konst::Parser;
     ///
-    /// let mut parser = Parser::from_str("world----    ");
+    /// let mut parser = Parser::new("world----    ");
     ///
-    /// parser = parser.trim_end_matches_u8(b' ');
-    /// assert_eq!(parser.bytes(), "world----".as_bytes());
+    /// parser = parser.trim_end_matches(' ');
+    /// assert_eq!(parser.remainder(), "world----");
     ///
-    /// parser = parser.trim_end_matches_u8(b'-');
-    /// assert_eq!(parser.bytes(), "world".as_bytes());
+    /// parser = parser.trim_end_matches('-');
+    /// assert_eq!(parser.remainder(), "world");
     ///
-    /// parser = parser.trim_end_matches_u8(b'-');
-    /// assert_eq!(parser.bytes(), "world".as_bytes());
+    /// parser = parser.trim_end_matches('-');
+    /// assert_eq!(parser.remainder(), "world");
     ///
     /// ```
     ///
-    /// [`trim_end_matches`]: #method.trim_end_matches
-    pub const fn trim_end_matches_u8(mut self, needle: u8) -> Self {
+    pub const fn trim_end_matches<'p, P>(mut self, needle: P) -> Self
+    where
+        P: Pattern<'p>,
+    {
         parsing! {self, FromEnd;
-            while let [rem @ .., b] = self.bytes {
-                if *b == needle {
-                    self.bytes = rem;
-                } else {
-                    break;
-                }
-            }
+            self.str = crate::string::trim_end_matches(self.str, needle);
         }
     }
-
-    //////////////////////////////////////////////
-    //           *find_skip* methods            //
-    //////////////////////////////////////////////
 
     /// Skips the parser after the first instance of `needle`.
     ///
@@ -586,71 +446,54 @@ impl<'a> Parser<'a> {
     ///
     /// # Example
     ///
+    /// ### `&str` argument
+    ///
     /// ```rust
     /// use konst::{Parser, unwrap_ctx};
     ///
-    /// let mut parser = Parser::from_str("foo--bar,baz--qux");
+    /// let mut parser = Parser::new("foo--bar,baz--qux");
     ///
     /// parser = unwrap_ctx!(parser.find_skip("--"));
-    /// assert_eq!(parser.bytes(), "bar,baz--qux".as_bytes());
+    /// assert_eq!(parser.remainder(), "bar,baz--qux");
     ///
     /// parser = unwrap_ctx!(parser.find_skip("bar,"));
-    /// assert_eq!(parser.bytes(), "baz--qux".as_bytes());
+    /// assert_eq!(parser.remainder(), "baz--qux");
     ///
     /// parser = unwrap_ctx!(parser.find_skip("--"));
-    /// assert_eq!(parser.bytes(), "qux".as_bytes());
+    /// assert_eq!(parser.remainder(), "qux");
     ///
     /// assert!(parser.find_skip("--").is_err());
     ///
     /// ```
-    pub const fn find_skip(self, needle: &str) -> Result<Self, ParseError<'a>> {
-        self.find_skip_b(needle.as_bytes())
-    }
-
-    /// Equivalent to [`find_skip`], but takes a byte slice.
     ///
-    /// [`find_skip`]: #method.find_skip
-    pub const fn find_skip_b(mut self, needle: &[u8]) -> Result<Self, ParseError<'a>> {
+    /// ### `char` argument
+    ///
+    /// ```rust
+    /// use konst::{Parser, unwrap_ctx};
+    ///
+    /// let mut parser = Parser::new("foo-bar,baz");
+    ///
+    /// parser = unwrap_ctx!(parser.find_skip('-'));
+    /// assert_eq!(parser.remainder(), "bar,baz");
+    ///
+    /// parser = unwrap_ctx!(parser.find_skip(','));
+    /// assert_eq!(parser.remainder(), "baz");
+    ///
+    /// ```
+    ///
+    pub const fn find_skip<'p, P>(mut self, needle: P) -> Result<Self, ParseError<'a>>
+    where
+        P: Pattern<'p>,
+    {
         try_parsing! {self, FromStart;
-            self.bytes = match crate::slice::bytes_find_skip(self.bytes, needle) {
+            self.str = match crate::string::find_skip(self.str, needle) {
                 Some(x) => x,
                 None => throw!(ErrorKind::Find),
             };
         }
     }
 
-    /// Equivalent to [`find_skip`], but takes a single byte.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
-    ///
-    /// let mut parser = Parser::from_str("foo-bar,baz");
-    ///
-    /// parser = unwrap_ctx!(parser.find_skip_u8(b'-'));
-    /// assert_eq!(parser.bytes(), "bar,baz".as_bytes());
-    ///
-    /// parser = unwrap_ctx!(parser.find_skip_u8(b','));
-    /// assert_eq!(parser.bytes(), "baz".as_bytes());
-    ///
-    /// ```
-    ///
-    /// [`find_skip`]: #method.find_skip
-    pub const fn find_skip_u8(mut self, needle: u8) -> Result<Self, ParseError<'a>> {
-        try_parsing! {self, FromStart;
-            while let [byte, rem @ ..] = self.bytes {
-                self.bytes = rem;
-
-                if *byte == needle {
-                    ret_!();
-                }
-            }
-            throw!(ErrorKind::Find)
-        }
-    }
-
-    /// Truncates the parsed bytes to before the last instance of `needle`.
+    /// Truncates the parsed string to before the last instance of `needle`.
     ///
     /// For calling `find_skip` with multiple alternative `ǹeedle` string literals,
     /// you can use the [`parse_any`] macro,
@@ -658,67 +501,50 @@ impl<'a> Parser<'a> {
     ///
     /// # Example
     ///
+    /// ### `&str` argument
+    ///
     /// ```rust
     /// use konst::{Parser, unwrap_ctx};
     ///
-    /// let mut parser = Parser::from_str("foo--bar,baz--qux");
+    /// let mut parser = Parser::new("foo--bar,baz--qux");
     ///
     /// parser = unwrap_ctx!(parser.rfind_skip("--"));
-    /// assert_eq!(parser.bytes(), "foo--bar,baz".as_bytes());
+    /// assert_eq!(parser.remainder(), "foo--bar,baz");
     ///
     /// parser = unwrap_ctx!(parser.rfind_skip(",baz"));
-    /// assert_eq!(parser.bytes(), "foo--bar".as_bytes());
+    /// assert_eq!(parser.remainder(), "foo--bar");
     ///
     /// parser = unwrap_ctx!(parser.rfind_skip("--"));
-    /// assert_eq!(parser.bytes(), "foo".as_bytes());
+    /// assert_eq!(parser.remainder(), "foo");
     ///
     /// assert!(parser.rfind_skip("--").is_err());
     ///
     /// ```
-    pub const fn rfind_skip(self, needle: &str) -> Result<Self, ParseError<'a>> {
-        self.rfind_skip_b(needle.as_bytes())
-    }
-
-    /// Equivalent to [`find_skip`], but takes a byte slice.
     ///
-    /// [`find_skip`]: #method.find_skip
-    pub const fn rfind_skip_b(mut self, needle: &[u8]) -> Result<Self, ParseError<'a>> {
-        try_parsing! {self, FromEnd;
-            self.bytes = match crate::slice::bytes_rfind_skip(self.bytes, needle) {
-                Some(x) => x,
-                None => throw!(ErrorKind::Find),
-            };
-        }
-    }
-
-    /// Equivalent to [`find_skip`], but takes a single byte.
-    ///
-    /// # Example
+    /// ### `char` argument
     ///
     /// ```rust
     /// use konst::{Parser, unwrap_ctx};
     ///
-    /// let mut parser = Parser::from_str("foo,bar-baz");
+    /// let mut parser = Parser::new("foo,bar-baz");
     ///
-    /// parser = unwrap_ctx!(parser.rfind_skip_u8(b'-'));
-    /// assert_eq!(parser.bytes(), "foo,bar".as_bytes());
+    /// parser = unwrap_ctx!(parser.rfind_skip('-'));
+    /// assert_eq!(parser.remainder(), "foo,bar");
     ///
-    /// parser = unwrap_ctx!(parser.rfind_skip_u8(b','));
-    /// assert_eq!(parser.bytes(), "foo".as_bytes());
+    /// parser = unwrap_ctx!(parser.rfind_skip(','));
+    /// assert_eq!(parser.remainder(), "foo");
     ///
     /// ```
     ///
-    /// [`find_skip`]: #method.find_skip
-    pub const fn rfind_skip_u8(mut self, needle: u8) -> Result<Self, ParseError<'a>> {
+    pub const fn rfind_skip<'p, P>(mut self, needle: P) -> Result<Self, ParseError<'a>>
+    where
+        P: Pattern<'p>,
+    {
         try_parsing! {self, FromEnd;
-            while let [rem @ .., byte] = self.bytes {
-                self.bytes = rem;
-
-                if *byte == needle {
-                    ret_!();
-                }
-            }
-            throw!(ErrorKind::Find)
+            self.str = match crate::string::rfind_skip(self.str, needle) {
+                Some(x) => x,
+                None => throw!(ErrorKind::Find),
+            };
         }
     }
 }

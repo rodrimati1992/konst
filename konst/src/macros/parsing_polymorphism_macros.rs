@@ -10,14 +10,14 @@
 ///
 /// use konst::parsing::{ParserFor, Parser, ParseValueResult};
 ///
-/// const PAIR: (u32, Foo) = unwrap_ctx!(parse_pair(Parser::from_str("100,Baz"))).0;
+/// const PAIR: (u32, Foo) = unwrap_ctx!(parse_pair(Parser::new("100,Baz"))).0;
 ///
 /// assert_eq!(PAIR.0, 100);
 /// assert_eq!(PAIR.1, Foo::Baz);
 ///
 /// const fn parse_pair(mut parser: Parser<'_>) -> ParseValueResult<'_, (u32, Foo)> {
 ///     try_rebind!{(let left, parser) = parse_with!(parser, u32)}
-///     try_rebind!{parser = parser.strip_prefix_u8(b',')}
+///     try_rebind!{parser = parser.strip_prefix(',')}
 ///     try_rebind!{(let right, parser) = parse_with!(parser, Foo)}
 ///     
 ///     Ok(((left, right), parser))

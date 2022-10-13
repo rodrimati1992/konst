@@ -42,10 +42,10 @@ macro_rules! iter_collect_const {
                     teq.to_right($crate::__::ComputedLength { length })
                 }
                 $crate::__::CollectorCmd::BuildArray(teq) => {
-                    $crate::__::assert!(
+                    $crate::__::assert!{
                         length == CAP_KO9Y329U2U,
                         "initialization was skipped somehow",
-                    )
+                    }
 
                     // SAFETY: The above assert ensures that
                     // all of the array is initialized

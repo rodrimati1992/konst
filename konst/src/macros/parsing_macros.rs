@@ -61,8 +61,8 @@
 ///
 /// const XX: [Struct; 2] = {
 ///     [
-///         parse_struct(Parser::from_str("foo,1000")).0,
-///         parse_struct(Parser::from_str("bar,")).0,
+///         parse_struct(Parser::new("foo,1000")).0,
+///         parse_struct(Parser::new("bar,")).0,
 ///     ]
 /// };
 ///
@@ -190,7 +190,7 @@ macro_rules! __priv_next_ai_access {
 ///     // (this also happens in every other invocation of `try_rebind` in this example)
 ///     try_rebind!{(let aa, parser) = parser.parse_u64()}
 ///
-///     try_rebind!{parser = parser.strip_prefix_u8(b',')}
+///     try_rebind!{parser = parser.strip_prefix(',')}
 ///
 ///     try_rebind!{(let bb, parser) = parser.parse_u64()}
 ///
@@ -198,7 +198,7 @@ macro_rules! __priv_next_ai_access {
 /// }
 ///
 /// const PAIR: (u64, u64) = {
-///     let parser = Parser::from_str("100,200");
+///     let parser = Parser::new("100,200");
 ///     unwrap_ctx!(parse_int_pair(parser)).0
 /// };
 ///
@@ -323,7 +323,7 @@ macro_rules! return_ {
 }
 macro_rules! update_offset {
     ($parser:ident, $copy:ident, FromStart) => {
-        $parser.start_offset += ($copy.bytes.len() - $parser.bytes.len()) as u32;
+        $parser.start_offset += ($copy.str.len() - $parser.str.len()) as u32;
     };
     ($parser:ident, $copy:ident, FromEnd) => {};
 }

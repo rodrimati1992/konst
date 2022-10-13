@@ -16,7 +16,9 @@ include = [
     "LICENSE-ZLIB.md", 
 ]
 
-[dependencies]
+[dependencies.const_panic]
+version = "0.2.6"
+default-features = false
 
 [features]
 nightly_mut_refs = []

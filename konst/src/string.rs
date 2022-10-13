@@ -637,7 +637,7 @@ where
     }
 }
 
-const fn is_char_boundary(bytes: &[u8], position: usize) -> bool {
+pub(crate) const fn is_char_boundary(bytes: &[u8], position: usize) -> bool {
     position >= bytes.len() || (bytes[position] as i8) >= -0x40
 }
 

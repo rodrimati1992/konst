@@ -15,11 +15,11 @@ where
         let mut string = num.to_string();
         string.push_str(suffix);
 
-        let parser = Parser::from_str(&string);
+        let parser = Parser::new(&string);
         let (parsed_num, parser) = method(parser).unwrap();
 
         assert_eq!(num, parsed_num);
-        assert_eq!(parser.bytes(), suffix.as_bytes());
+        assert_eq!(parser.remainder(), suffix);
     }
 }
 
@@ -37,12 +37,12 @@ where
         assert!(add_one.is_ascii_digit());
         string.push(add_one);
 
-        let parser = Parser::from_str(&string);
+        let parser = Parser::new(&string);
         assert!(method(parser).is_err());
     }
 
     for notnum in ["", "-", "#", " "].iter().copied() {
-        let parser = Parser::from_str(notnum);
+        let parser = Parser::new(notnum);
         assert!(method(parser).is_err());
     }
 }
@@ -142,7 +142,6 @@ fn ensure_correct_delegation() {
 
         for (input, output) in arr.iter().copied() {
             assert_eq!(primitive::parse_u8(input).ok(), output);
-            assert_eq!(primitive::parse_u8_b(input.as_bytes()).ok(), output);
         }
     }
     {
@@ -160,13 +159,12 @@ fn ensure_correct_delegation() {
 
         for (input, output) in arr.iter().copied() {
             assert_eq!(primitive::parse_i8(input).ok(), output);
-            assert_eq!(primitive::parse_i8_b(input.as_bytes()).ok(), output);
         }
     }
 
     macro_rules! check_unsigned_parser {
         (
-            $type:ty, $str_fn:ident, $byte_fn:ident
+            $type:ty, $str_fn:ident
         ) => {{
             let arr: &[(&str, Option<$type>)] = &[
                 ("0", Some(0)),
@@ -178,20 +176,19 @@ fn ensure_correct_delegation() {
 
             for (input, output) in arr.iter().copied() {
                 assert_eq!(primitive::$str_fn(input).ok(), output);
-                assert_eq!(primitive::$byte_fn(input.as_bytes()).ok(), output);
             }
         }};
     }
 
-    check_unsigned_parser! {u16, parse_u16, parse_u16_b}
-    check_unsigned_parser! {u32, parse_u32, parse_u32_b}
-    check_unsigned_parser! {u64, parse_u64, parse_u64_b}
-    check_unsigned_parser! {u128, parse_u128, parse_u128_b}
-    check_unsigned_parser! {usize, parse_usize, parse_usize_b}
+    check_unsigned_parser! {u16, parse_u16}
+    check_unsigned_parser! {u32, parse_u32}
+    check_unsigned_parser! {u64, parse_u64}
+    check_unsigned_parser! {u128, parse_u128}
+    check_unsigned_parser! {usize, parse_usize}
 
     macro_rules! check_unsigned_parser {
         (
-            $type:ty, $str_fn:ident, $byte_fn:ident
+            $type:ty, $str_fn:ident
         ) => {{
             let arr: &[(&str, Option<$type>)] = &[
                 ("A", None),
@@ -209,14 +206,13 @@ fn ensure_correct_delegation() {
 
             for (input, output) in arr.iter().copied() {
                 assert_eq!(primitive::$str_fn(input).ok(), output);
-                assert_eq!(primitive::$byte_fn(input.as_bytes()).ok(), output);
             }
         }};
     }
 
-    check_unsigned_parser! {i16, parse_i16, parse_i16_b}
-    check_unsigned_parser! {i32, parse_i32, parse_i32_b}
-    check_unsigned_parser! {i64, parse_i64, parse_i64_b}
-    check_unsigned_parser! {i128, parse_i128, parse_i128_b}
-    check_unsigned_parser! {isize, parse_isize, parse_isize_b}
+    check_unsigned_parser! {i16, parse_i16}
+    check_unsigned_parser! {i32, parse_i32}
+    check_unsigned_parser! {i64, parse_i64}
+    check_unsigned_parser! {i128, parse_i128}
+    check_unsigned_parser! {isize, parse_isize}
 }

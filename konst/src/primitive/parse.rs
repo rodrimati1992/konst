@@ -5,7 +5,6 @@ macro_rules! define_parse_methods {
         $((
             $(#[$attr:meta])*
             fn $fn_name:ident,
-            fn $fn_name_bytes:ident,
             $parsing:ty,
             $err:ident
             $(,)?
@@ -33,7 +32,6 @@ macro_rules! define_parse_methods {
                 ),
                 $(#[$attr])*,
                 $fn_name,
-                $fn_name_bytes,
                 $parsing,
                 $err,
             }
@@ -46,7 +44,6 @@ macro_rules! define_parse_methods_inner{
         $b_docs:expr,
         $(#[$attr:meta])*,
         $fn_name:ident,
-        $fn_name_bytes:ident,
         $parsing:ty,
         $err:ident,
     ) => {
@@ -56,14 +53,7 @@ macro_rules! define_parse_methods_inner{
         #[cfg(feature = "parsing_no_proc")]
         #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
         pub const fn $fn_name(s: &str) -> Result<$parsing, $err> {
-            $fn_name_bytes(s.as_bytes())
-        }
-
-        #[doc = $b_docs]
-        #[cfg(feature = "parsing_no_proc")]
-        #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
-        pub const fn $fn_name_bytes(bytes: &[u8]) -> Result<$parsing, $err> {
-            match Parser::from_bytes(bytes).$fn_name() {
+            match Parser::new(s).$fn_name() {
                 Ok((num, parser)) if parser.is_empty() => Ok(num),
                 _ => Err($err {
                     _priv: (),
@@ -99,7 +89,7 @@ define_parse_methods! {
         ///
         /// ```
         ///
-        fn parse_u128, fn parse_u128_b, u128, ParseIntError
+        fn parse_u128, u128, ParseIntError
     )
     (
         /// # Example
@@ -127,67 +117,67 @@ define_parse_methods! {
         ///
         /// ```
         ///
-        fn parse_i128, fn parse_i128_b, i128, ParseIntError
+        fn parse_i128, i128, ParseIntError
     )
     (
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `u128`](./fn.parse_u128.html).
-        fn parse_u64, fn parse_u64_b, u64, ParseIntError
+        fn parse_u64, u64, ParseIntError
     )
     (
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `i128`](./fn.parse_i128.html).
-        fn parse_i64, fn parse_i64_b, i64, ParseIntError
+        fn parse_i64, i64, ParseIntError
     )
     (
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `u128`](./fn.parse_u128.html).
-        fn parse_u32, fn parse_u32_b, u32, ParseIntError
+        fn parse_u32, u32, ParseIntError
     )
     (
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `i128`](./fn.parse_i128.html).
-        fn parse_i32, fn parse_i32_b, i32, ParseIntError
+        fn parse_i32, i32, ParseIntError
     )
     (
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `u128`](./fn.parse_u128.html).
-        fn parse_u16, fn parse_u16_b, u16, ParseIntError
+        fn parse_u16, u16, ParseIntError
     )
     (
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `i128`](./fn.parse_i128.html).
-        fn parse_i16, fn parse_i16_b, i16, ParseIntError
+        fn parse_i16, i16, ParseIntError
     )
     (
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `u128`](./fn.parse_u128.html).
-        fn parse_u8, fn parse_u8_b, u8, ParseIntError
+        fn parse_u8, u8, ParseIntError
     )
     (
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `i128`](./fn.parse_i128.html).
-        fn parse_i8, fn parse_i8_b, i8, ParseIntError
+        fn parse_i8, i8, ParseIntError
     )
     (
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `u128`](./fn.parse_u128.html).
-        fn parse_usize, fn parse_usize_b, usize, ParseIntError
+        fn parse_usize, usize, ParseIntError
     )
     (
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `i128`](./fn.parse_i128.html).
-        fn parse_isize, fn parse_isize_b, isize, ParseIntError
+        fn parse_isize, isize, ParseIntError
     )
     (
         /// # Example
@@ -217,7 +207,7 @@ define_parse_methods! {
         ///
         /// ```
         ///
-        fn parse_bool, fn parse_bool_b, bool, ParseBoolError
+        fn parse_bool, bool, ParseBoolError
     )
 }
 

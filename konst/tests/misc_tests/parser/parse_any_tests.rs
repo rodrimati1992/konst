@@ -17,28 +17,28 @@ macro_rules! match_any_test {
 
         #[allow(unused_mut)]
         {
-            let mut $parser = Parser::from_str($string);
+            let mut $parser = Parser::new($string);
             let val = parse_any!{$parser, $method;
                 $(
                     $($normal_pat)* $( => $code )?
                 )*
             };
             assert_eq!(val, $expected_val);
-            assert_eq!($parser.bytes(), $expected.as_bytes());
+            assert_eq!($parser.remainder(), $expected);
         }
         #[allow(unused_mut)]
         {
             let $string = &*reverse($string);
             let $expected = &*reverse($expected);
 
-            let mut $parser = Parser::from_str($string);
+            let mut $parser = Parser::new($string);
             let val = parse_any!{$parser, $method_rev;
                 $(
                     $($rev_pat)* $( => $code )?
                 )*
             };
             assert_eq!(val, $expected_val);
-            assert_eq!($parser.bytes(), $expected.as_bytes());
+            assert_eq!($parser.remainder(), $expected);
         }
     });
 }
@@ -52,7 +52,7 @@ fn strip_prefix_suffix_test() {
             s, expected, (), parser, strip_prefix <-> strip_suffix;
 
             ("") <-> ("") => {
-                assert_eq!(parser.bytes(), s.as_bytes());
+                assert_eq!(parser.remainder(), s);
             }
             (_) <-> (_) => { unreachable!() }
         }
@@ -60,7 +60,7 @@ fn strip_prefix_suffix_test() {
             s, expected, (), parser, strip_prefix <-> strip_suffix;
 
             (_) <-> (_) => {
-                assert_eq!(parser.bytes(), s.as_bytes());
+                assert_eq!(parser.remainder(), s);
             }
         }
     }
@@ -159,7 +159,7 @@ fn find_skip_test() {
             s, expected, (), parser, find_skip <-> rfind_skip;
 
             ("") <-> ("") => {
-                assert_eq!(parser.bytes(), s.as_bytes());
+                assert_eq!(parser.remainder(), s);
             }
             (_) <-> (_) => { unreachable!() }
         }
@@ -167,7 +167,7 @@ fn find_skip_test() {
             s, expected, (), parser, find_skip <-> rfind_skip;
 
             (_) <-> (_) => {
-                assert_eq!(parser.bytes(), s.as_bytes());
+                assert_eq!(parser.remainder(), s);
             }
         }
     }
