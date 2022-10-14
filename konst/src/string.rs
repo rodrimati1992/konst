@@ -10,6 +10,9 @@
 //!
 //!
 
+#[cfg(test)]
+mod priv_string_tests;
+
 mod pattern;
 
 use core::fmt::{self, Debug, Display};
@@ -331,7 +334,7 @@ pub const fn str_up_to(string: &str, len: usize) -> &str {
     let bytes = string.as_bytes();
     if is_char_boundary(bytes, len) {
         // Safety: is_char_boundary checks that `len` falls on a char boundary.
-        unsafe { core::str::from_utf8_unchecked(crate::slice::slice_up_to(bytes, len)) }
+        unsafe { from_truncated_debug_checked(crate::slice::slice_up_to(bytes, len)) }
     } else {
         non_char_boundary_panic("index", len)
     }
@@ -372,7 +375,7 @@ pub const fn get_up_to(string: &str, len: usize) -> Option<&str> {
         crate::slice::get_up_to(bytes, len),
         |x| if is_char_boundary_get(bytes, len) {
             // Safety: is_char_boundary_get checks that `len` falls on a char boundary.
-            unsafe { Some(core::str::from_utf8_unchecked(x)) }
+            unsafe { Some(from_truncated_debug_checked(x)) }
         } else {
             None
         }
@@ -420,7 +423,7 @@ pub const fn str_from(string: &str, start: usize) -> &str {
     let bytes = string.as_bytes();
     if is_char_boundary(bytes, start) {
         // Safety: is_char_boundary checks that `start` falls on a char boundary.
-        unsafe { core::str::from_utf8_unchecked(crate::slice::slice_from(bytes, start)) }
+        unsafe { from_truncated_debug_checked(crate::slice::slice_from(bytes, start)) }
     } else {
         non_char_boundary_panic("start", start)
     }
@@ -461,7 +464,7 @@ pub const fn get_from(string: &str, from: usize) -> Option<&str> {
         crate::slice::get_from(bytes, from),
         |x| if is_char_boundary_get(bytes, from) {
             // Safety: is_char_boundary_get checks that `from` falls on a char boundary.
-            unsafe { Some(core::str::from_utf8_unchecked(x)) }
+            unsafe { Some(from_truncated_debug_checked(x)) }
         } else {
             None
         }
@@ -566,7 +569,7 @@ pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
     let start_inbounds = is_char_boundary(bytes, start);
     if start_inbounds && is_char_boundary(bytes, end) {
         // Safety: is_char_boundary checks that `start` and `end` fall on a char boundaries.
-        unsafe { core::str::from_utf8_unchecked(crate::slice::slice_range(bytes, start, end)) }
+        unsafe { from_truncated_debug_checked(crate::slice::slice_range(bytes, start, end)) }
     } else if start_inbounds {
         non_char_boundary_panic("end", end)
     } else {
@@ -618,7 +621,7 @@ pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
         crate::slice::get_range(bytes, start, end),
         |x| if is_char_boundary_get(bytes, start) && is_char_boundary_get(bytes, end) {
             // Safety: is_char_boundary_get checks that `start` and `end` fall on a char boundary.
-            unsafe { Some(core::str::from_utf8_unchecked(x)) }
+            unsafe { Some(from_truncated_debug_checked(x)) }
         } else {
             None
         }
@@ -666,7 +669,7 @@ where
     unsafe {
         crate::option::map!(
             crate::slice::bytes_strip_prefix(string.as_bytes(), pat.as_bytes()),
-            core::str::from_utf8_unchecked,
+            from_truncated_debug_checked,
         )
     }
 }
@@ -711,19 +714,25 @@ where
     unsafe {
         crate::option::map!(
             crate::slice::bytes_strip_suffix(string.as_bytes(), pat.as_bytes()),
-            core::str::from_utf8_unchecked,
+            from_truncated_debug_checked,
         )
     }
 }
 
+macro_rules! byte_is_char_boundary {
+    ($b:expr) => {
+        ($b as i8) >= -0x40
+    };
+}
+
 pub(crate) const fn is_char_boundary(bytes: &[u8], position: usize) -> bool {
-    position >= bytes.len() || (bytes[position] as i8) >= -0x40
+    position >= bytes.len() || byte_is_char_boundary!(bytes[position])
 }
 
 const fn is_char_boundary_get(bytes: &[u8], position: usize) -> bool {
     let len = bytes.len();
 
-    position == len || (bytes[position] as i8) >= -0x40
+    position == len || byte_is_char_boundary!(bytes[position])
 }
 
 const fn find_next_char_boundary(bytes: &[u8], mut position: usize) -> usize {
@@ -761,7 +770,7 @@ const fn find_prev_char_boundary(bytes: &[u8], mut position: usize) -> usize {
 pub const fn trim(this: &str) -> &str {
     let trimmed = crate::slice::bytes_trim(this.as_bytes());
     // safety: bytes_trim only removes ascii bytes
-    unsafe { core::str::from_utf8_unchecked(trimmed) }
+    unsafe { from_truncated_debug_checked(trimmed) }
 }
 
 /// A const subset of [`str::trim_start`] which only removes ascii whitespace.
@@ -779,7 +788,7 @@ pub const fn trim(this: &str) -> &str {
 pub const fn trim_start(this: &str) -> &str {
     let trimmed = crate::slice::bytes_trim_start(this.as_bytes());
     // safety: bytes_trim_start only removes ascii bytes
-    unsafe { core::str::from_utf8_unchecked(trimmed) }
+    unsafe { from_truncated_debug_checked(trimmed) }
 }
 
 /// A const subset of [`str::trim_end`] which only removes ascii whitespace.
@@ -798,7 +807,7 @@ pub const fn trim_start(this: &str) -> &str {
 pub const fn trim_end(this: &str) -> &str {
     let trimmed = crate::slice::bytes_trim_end(this.as_bytes());
     // safety: bytes_trim_end only removes ascii bytes
-    unsafe { core::str::from_utf8_unchecked(trimmed) }
+    unsafe { from_truncated_debug_checked(trimmed) }
 }
 
 /// A const subset of [`str::trim_matches`].
@@ -826,7 +835,7 @@ where
     // safety:
     // because bytes_trim_matches was passed `&str`s casted to `&[u8]`s,
     // it returns a valid utf8 sequence.
-    unsafe { core::str::from_utf8_unchecked(trimmed) }
+    unsafe { from_truncated_debug_checked(trimmed) }
 }
 
 /// A const subset of [`str::trim_start_matches`].
@@ -854,7 +863,7 @@ where
     // safety:
     // because bytes_trim_start_matches was passed `&str`s casted to `&[u8]`s,
     // it returns a valid utf8 sequence.
-    unsafe { core::str::from_utf8_unchecked(trimmed) }
+    unsafe { from_truncated_debug_checked(trimmed) }
 }
 
 /// A const subset of [`str::trim_end_matches`].
@@ -882,7 +891,7 @@ where
     // safety:
     // because bytes_trim_end_matches was passed `&str`s casted to `&[u8]`s,
     // it returns a valid utf8 sequence.
-    unsafe { core::str::from_utf8_unchecked(trimmed) }
+    unsafe { from_truncated_debug_checked(trimmed) }
 }
 
 /// Advances `this` past the first instance of `needle`.
@@ -923,7 +932,7 @@ where
             // safety:
             // because bytes_find_skip was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
-            core::str::from_utf8_unchecked,
+            from_truncated_debug_checked,
         )
     }
 }
@@ -966,7 +975,7 @@ where
             // safety:
             // because bytes_find_keep was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
-            core::str::from_utf8_unchecked,
+            from_truncated_debug_checked,
         )
     }
 }
@@ -1009,7 +1018,7 @@ where
             // safety:
             // because bytes_rfind_skip was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
-            core::str::from_utf8_unchecked,
+            from_truncated_debug_checked,
         )
     }
 }
@@ -1052,9 +1061,28 @@ where
             // safety:
             // because bytes_rfind_keep was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
-            core::str::from_utf8_unchecked,
+            from_truncated_debug_checked,
         )
     }
+}
+
+// # Safety
+// For use only when truncating a string
+#[track_caller]
+pub(crate) const unsafe fn from_truncated_debug_checked(s: &[u8]) -> &str {
+    #[cfg(any(feature = "debug", test))]
+    if !s.is_empty() {
+        if !byte_is_char_boundary!(s[0]) {
+            panic!("string doesn't start at a byte boundary")
+        }
+
+        let cb = find_prev_char_boundary(s, s.len() - 1);
+        if let Err(_) = from_utf8(crate::slice::slice_from(s, cb)) {
+            panic!("string doesn't end at a byte boundary")
+        }
+    }
+
+    core::str::from_utf8_unchecked(s)
 }
 
 #[cold]

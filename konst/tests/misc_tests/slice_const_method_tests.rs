@@ -13,10 +13,6 @@ macro_rules! slice_splitting_test {
         let $($mut)* listb = list.clone();
 
         for &pow in [1usize, 8, 64, 128].iter() {
-            #[cfg(miri)]
-            let lengths = [pow - 1, pow, pow + 1];
-
-            #[cfg(not(miri))]
             let lengths = [pow.saturating_sub(2), pow - 1, pow, pow + 1, pow + 2];
 
             for &length in lengths.iter() {

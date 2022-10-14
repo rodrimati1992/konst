@@ -55,7 +55,6 @@ pub mod __ {
         option::Option::{self, None, Some},
         primitive::{bool, str, u8, usize},
         result::Result::{self, Err, Ok},
-        str::from_utf8_unchecked,
         stringify,
     };
 }

@@ -46,6 +46,8 @@ default-features = false
 [features]
 default = ["cmp", "parsing_proc"]
 
+# Enables extra checks for debug
+debug = []
 cmp = []
 parsing_proc = ["parsing", "konst_proc_macros"]
 parsing = []

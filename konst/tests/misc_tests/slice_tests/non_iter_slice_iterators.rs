@@ -101,6 +101,8 @@ fn windows_basic() {
     }
 }
 
+// expensive, and doesn't use unsafe, so no need for miri checking
+#[cfg(not(miri))]
 #[test]
 fn windows_mixed_direction() {
     compare_with_std!(windows)
@@ -149,6 +151,8 @@ fn chunks_basic() {
     }
 }
 
+// expensive, and doesn't use unsafe, so no need for miri checking
+#[cfg(not(miri))]
 #[test]
 fn chunks_mixed_direction() {
     compare_with_std!(chunks)
@@ -197,6 +201,8 @@ fn chunks_exact_basic() {
     }
 }
 
+// expensive, and doesn't use unsafe, so no need for miri checking
+#[cfg(not(miri))]
 #[test]
 fn chunks_exact_mixed_direction() {
     compare_with_std!(chunks_exact)

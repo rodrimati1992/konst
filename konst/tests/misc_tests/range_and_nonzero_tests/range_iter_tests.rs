@@ -9,12 +9,13 @@ macro_rules! compare_with_std {
 
         let mut rng = SmallRng::seed_from_u64(6249204433781597762);
 
+        let mut history = Vec::new();
         for start in 0..=6 {
             for end in 0..=6 {
+                history.clear();
                 let mut std_iter = start $($range_op)* end;
                 let mut iter = iter::into_iter!(start $($range_op)* end);
 
-                let mut history = Vec::new();
                 for _ in 0..=20 {
                     let pair = if rng.gen() {
                         history.push("next");
