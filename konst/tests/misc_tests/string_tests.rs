@@ -183,3 +183,19 @@ fn test_split_at() {
         assert_eq!(r, &CHAR_LENS[j..]);
     }
 }
+
+const fn bytes_to_string(s: &[u8]) -> &str {
+    konst::result::unwrap_ctx!(string::from_utf8(s))
+}
+
+// this only needs to test that errors can be unwrapped in const contexts
+#[test]
+fn from_utf8_test() {
+    const _: &str = bytes_to_string(b"foo bar");
+}
+
+#[test]
+#[should_panic]
+fn from_utf8_panics() {
+    let _ = bytes_to_string(&[255, 255, 255]);
+}

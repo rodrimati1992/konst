@@ -40,6 +40,7 @@ optional = true
 
 [dependencies.const_panic]
 version = "0.2.6"
+features = ["rust_1_64"]
 default-features = false
 
 [features]
