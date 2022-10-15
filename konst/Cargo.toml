@@ -46,6 +46,7 @@ default-features = false
 [features]
 default = ["cmp", "parsing_proc"]
 
+
 # Enables extra checks for debug
 debug = []
 cmp = []
@@ -61,6 +62,7 @@ alloc = []
 # This is not enabled in CI, because it's way too sensitive to 
 # changes in how rustc formats errors
 __ui = ["trybuild", "rust_latest_stable"]
+__cp_derive = ["const_panic/derive", "const_panic/non_basic"]
 
 docsrs = []
 

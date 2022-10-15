@@ -25,9 +25,9 @@ macro_rules! for_range {
         while start < end {
             let $pat = start;
 
-            $($code)*
-
             start+=1;
+
+            $($code)*
         }
     };
 }

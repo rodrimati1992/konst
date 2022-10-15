@@ -1,3 +1,5 @@
+mod assert_macros;
+
 #[macro_use]
 mod const_eq_macros;
 

@@ -344,6 +344,8 @@ pub mod slice;
 
 pub mod string;
 
+pub use ::const_panic;
+
 pub use crate::string::{cmp_str, eq_str};
 
 #[doc(no_inline)]
@@ -377,4 +379,6 @@ pub mod __ {
     pub use crate::polymorphism::{
         CmpWrapper, ConstCmpMarker, IsAConstCmpMarker, IsNotStdKind, IsStdKind,
     };
+
+    pub use const_panic::concat_panic;
 }
