@@ -1,29 +1,4 @@
-macro_rules! slice_from_impl {
-    ($slice:ident, $start:ident, $as_ptr:ident, $from_raw_parts:ident, $on_overflow:expr) => {{
-        #[allow(unused_variables)]
-        let (rem, overflowed) = $slice.len().overflowing_sub($start);
-
-        if overflowed {
-            return $on_overflow;
-        }
-
-        unsafe { core::slice::$from_raw_parts($slice.$as_ptr().offset($start as _), rem) }
-    }};
-}
-
-macro_rules! slice_up_to_impl {
-    ($slice:ident, $len:ident, $as_ptr:ident, $from_raw_parts:ident, $on_overflow:expr) => {{
-        #[allow(unused_variables)]
-        let (rem, overflowed) = $slice.len().overflowing_sub($len);
-
-        if overflowed {
-            return $on_overflow;
-        }
-
-        // Doing this to get a slice up to length at compile-time
-        unsafe { core::slice::$from_raw_parts($slice.$as_ptr(), $len) }
-    }};
-}
+use konst_kernel::{__slice_from_impl, __slice_up_to_impl};
 
 /// A const equivalent of `slice.get(index)`
 ///
@@ -83,31 +58,22 @@ pub const fn get_mut<T>(slice: &mut [T], index: usize) -> Option<&mut T> {
     }
 }
 
-/// A const equivalent of `&slice[start..]`.
-///
-/// If `slice.len() < start`, this simply returns an empty slice.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice::slice_from;
-///
-/// const FIBB: &[u16] = &[3, 5, 8, 13, 21, 34, 55, 89];
-///
-/// const TWO: &[u16] = slice_from(FIBB, 2);
-/// const FOUR: &[u16] = slice_from(FIBB, 4);
-/// const ALL: &[u16] = slice_from(FIBB, 0);
-/// const NONE: &[u16] = slice_from(FIBB, 1000);
-///
-/// assert_eq!(TWO, &[8, 13, 21, 34, 55, 89]);
-/// assert_eq!(FOUR, &[21, 34, 55, 89]);
-/// assert_eq!(ALL, FIBB);
-/// assert_eq!(NONE, &[]);
-///
-/// ```
-#[inline]
-pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
-    slice_from_impl!(slice, start, as_ptr, from_raw_parts, &[])
+konst_kernel::__slice_from_docs! {
+    "konst::slice" =>
+    #[doc(inline)]
+    pub use konst_kernel::slice::items::slice_from;
+}
+
+konst_kernel::__slice_up_to_docs! {
+    "konst::slice" =>
+    #[doc(inline)]
+    pub use konst_kernel::slice::items::slice_up_to;
+}
+
+konst_kernel::__slice_range_docs! {
+    "konst::slice" =>
+    #[doc(inline)]
+    pub use konst_kernel::slice::items::slice_range;
 }
 
 /// A const equivalent of `slice.get(start..)`.
@@ -132,7 +98,13 @@ pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
 /// ```
 #[inline]
 pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
-    Some(slice_from_impl!(slice, start, as_ptr, from_raw_parts, None))
+    Some(__slice_from_impl!(
+        slice,
+        start,
+        as_ptr,
+        from_raw_parts,
+        None
+    ))
 }
 
 /// A const equivalent of `&mut slice[start..]`.
@@ -163,7 +135,7 @@ pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
     doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
 )]
 pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
-    slice_from_impl!(slice, start, as_mut_ptr, from_raw_parts_mut, &mut [])
+    __slice_from_impl!(slice, start, as_mut_ptr, from_raw_parts_mut, &mut [])
 }
 
 /// A const equivalent of `slice.get_mut(start..)`.
@@ -192,40 +164,13 @@ pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
     doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
 )]
 pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> {
-    Some(slice_from_impl!(
+    Some(__slice_from_impl!(
         slice,
         start,
         as_mut_ptr,
         from_raw_parts_mut,
         None
     ))
-}
-
-/// A const equivalent of `&slice[..len]`.
-///
-/// If `slice.len() < len`, this simply returns `slice` back.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice::slice_up_to;
-///
-/// const FIBB: &[u16] = &[3, 5, 8, 13, 21, 34, 55, 89];
-///
-/// const TWO: &[u16] = slice_up_to(FIBB, 2);
-/// const FOUR: &[u16] = slice_up_to(FIBB, 4);
-/// const NONE: &[u16] = slice_up_to(FIBB, 0);
-/// const ALL: &[u16] = slice_up_to(FIBB, 1000);
-///
-/// assert_eq!(TWO, &[3, 5]);
-/// assert_eq!(FOUR, &[3, 5, 8, 13]);
-/// assert_eq!(NONE, &[]);
-/// assert_eq!(ALL, FIBB);
-///
-/// ```
-#[inline]
-pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
-    slice_up_to_impl!(slice, len, as_ptr, from_raw_parts, slice)
 }
 
 /// A const equivalent of `slice.get(..len)`.
@@ -250,7 +195,13 @@ pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
 /// ```
 #[inline]
 pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
-    Some(slice_up_to_impl!(slice, len, as_ptr, from_raw_parts, None))
+    Some(__slice_up_to_impl!(
+        slice,
+        len,
+        as_ptr,
+        from_raw_parts,
+        None
+    ))
 }
 
 /// A const equivalent of `&mut slice[..len]`.
@@ -286,7 +237,7 @@ pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
     doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
 )]
 pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
-    slice_up_to_impl!(slice, len, as_mut_ptr, from_raw_parts_mut, slice)
+    __slice_up_to_impl!(slice, len, as_mut_ptr, from_raw_parts_mut, slice)
 }
 
 /// A const equivalent of `slice.get_mut(..len)`.
@@ -321,50 +272,13 @@ pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
 )]
 #[inline]
 pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
-    Some(slice_up_to_impl!(
+    Some(__slice_up_to_impl!(
         slice,
         len,
         as_mut_ptr,
         from_raw_parts_mut,
         None
     ))
-}
-
-/// A const equivalent of `&slice[start..end]`.
-///
-/// If `start >= end ` or `slice.len() < start `, this returns an empty slice.
-///
-/// If `slice.len() < end`, this returns the slice from `start`.
-///
-/// # Alternatives
-///
-/// For a const equivalent of `&slice[start..]` there's [`slice_from`].
-///
-/// For a const equivalent of `&slice[..end]` there's [`slice_up_to`].
-///
-/// [`slice_from`]: ./fn.slice_from.html
-/// [`slice_up_to`]: ./fn.slice_up_to.html
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice::slice_range;
-///
-/// const FIBB: &[u16] = &[3, 5, 8, 13, 21, 34, 55, 89];
-///
-/// const TWO: &[u16] = slice_range(FIBB, 2, 4);
-/// const FOUR: &[u16] = slice_range(FIBB, 4, 7);
-/// const NONE: &[u16] = slice_range(FIBB, 0, 0);
-/// const ALL: &[u16] = slice_range(FIBB, 0, 1000);
-///
-/// assert_eq!(TWO, &[8, 13]);
-/// assert_eq!(FOUR, &[21, 34, 55]);
-/// assert_eq!(NONE, &[]);
-/// assert_eq!(ALL, FIBB);
-///
-/// ```
-pub const fn slice_range<T>(slice: &[T], start: usize, end: usize) -> &[T] {
-    slice_from(slice_up_to(slice, end), start)
 }
 
 /// A const equivalent of `slice.get(start..end)`.
@@ -680,7 +594,7 @@ pub const fn bytes_strip_suffix<'a>(mut left: &'a [u8], mut suffix: &[u8]) -> Op
 pub const fn bytes_find(left: &[u8], right: &[u8]) -> Option<usize> {
     let mut matching = right;
 
-    for_range! {i in 0..left.len() =>
+    crate::for_range! {i in 0..left.len() =>
         match matching {
             [mb, m_rem @ ..] => {
                 let b = left[i];

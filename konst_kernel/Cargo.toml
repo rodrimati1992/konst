@@ -1,0 +1,26 @@
+[package]
+name = "konst_kernel"
+version = "0.3.0"
+authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
+rust-version = "1.64.0"
+edition = "2021"
+license = "Zlib"
+description = "Foundational const functionality shared between konst and const_panic"
+documentation = "https://docs.rs/konst/"
+keywords = ["no-std", "const_fn"]
+categories = ["no-std"]
+repository = "https://github.com/rodrimati1992/konst/"
+include = [
+    "Cargo.toml", 
+    "src/**/*.rs", 
+    "LICENSE-ZLIB.md", 
+]
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[dev-dependencies.arrayvec]
+default-features = false
+version = "0.7"

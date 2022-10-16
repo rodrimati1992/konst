@@ -8,8 +8,8 @@ license = "Zlib"
 description = "Const equivalents of std functions, compile-time comparison, and parsing"
 documentation = "https://docs.rs/konst/"
 readme="../README.md"
-keywords = ["no-std", "const_fn", "parsing_proc"]
-categories = ["no-std", "parsing_proc"]
+keywords = ["no-std", "const_fn", "parsing"]
+categories = ["no-std", "parsing"]
 repository = "https://github.com/rodrimati1992/konst/"
 include = [
     "Cargo.toml", 
@@ -27,6 +27,10 @@ optional = true
 [dependencies.konst_macro_rules]
 version = "=0.3.0"
 path = "../konst_macro_rules"
+
+[dependencies.konst_kernel]
+version = "=0.3.0"
+path = "../konst_kernel"
 
 [dev-dependencies.rand]
 version = "0.8.4"
