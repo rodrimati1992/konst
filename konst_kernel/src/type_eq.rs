@@ -1,6 +1,6 @@
 // documented in konst::polymorphism::type_eq;
-pub trait InTypeSet<Set> {
-    const SET: Set;
+pub trait InTypeEqEnum<Te> {
+    const TEQ_ENUM: Te;
 }
 
 pub mod type_eq {

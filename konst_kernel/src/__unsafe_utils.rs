@@ -17,7 +17,7 @@ pub union PtrToRef<'a, P: ?Sized> {
 macro_rules! __priv_transmute {
     ($from:ty, $to:ty, $value:expr) => {{
         $crate::__::ManuallyDrop::into_inner(
-            $crate::utils_1_56::Transmuter::<$from, $to> {
+            $crate::__unsafe_utils::Transmuter::<$from, $to> {
                 from: $crate::__::ManuallyDrop::new($value),
             }
             .to,
@@ -32,7 +32,7 @@ macro_rules! __priv_transmute_ref {
         match $reference {
             ptr => {
                 let ptr: *const $from = ptr;
-                $crate::utils_1_56::PtrToRef::<$to> {
+                $crate::__unsafe_utils::PtrToRef::<$to> {
                     ptr: ptr as *const $to,
                 }
                 .reff
