@@ -58,23 +58,85 @@ pub const fn get_mut<T>(slice: &mut [T], index: usize) -> Option<&mut T> {
     }
 }
 
-konst_kernel::__slice_from_docs! {
-    "konst::slice" =>
-    #[doc(inline)]
-    pub use konst_kernel::slice::items::slice_from;
-}
+/// A const equivalent of `&slice[start..]`.
+///
+/// If `slice.len() < start`, this simply returns an empty slice.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::slice_from;
+///
+/// const FIBB: &[u16] = &[3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// const TWO: &[u16] = slice_from(FIBB, 2);
+/// const FOUR: &[u16] = slice_from(FIBB, 4);
+/// const ALL: &[u16] = slice_from(FIBB, 0);
+/// const NONE: &[u16] = slice_from(FIBB, 1000);
+///
+/// assert_eq!(TWO, &[8, 13, 21, 34, 55, 89]);
+/// assert_eq!(FOUR, &[21, 34, 55, 89]);
+/// assert_eq!(ALL, FIBB);
+/// assert_eq!(NONE, &[]);
+///
+/// ```
+pub use konst_kernel::slice::slice_from;
 
-konst_kernel::__slice_up_to_docs! {
-    "konst::slice" =>
-    #[doc(inline)]
-    pub use konst_kernel::slice::items::slice_up_to;
-}
+/// A const equivalent of `&slice[..len]`.
+///
+/// If `slice.len() < len`, this simply returns `slice` back.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::slice_up_to;
+///
+/// const FIBB: &[u16] = &[3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// const TWO: &[u16] = slice_up_to(FIBB, 2);
+/// const FOUR: &[u16] = slice_up_to(FIBB, 4);
+/// const NONE: &[u16] = slice_up_to(FIBB, 0);
+/// const ALL: &[u16] = slice_up_to(FIBB, 1000);
+///
+/// assert_eq!(TWO, &[3, 5]);
+/// assert_eq!(FOUR, &[3, 5, 8, 13]);
+/// assert_eq!(NONE, &[]);
+/// assert_eq!(ALL, FIBB);
+///
+/// ```
+pub use konst_kernel::slice::slice_up_to;
 
-konst_kernel::__slice_range_docs! {
-    "konst::slice" =>
-    #[doc(inline)]
-    pub use konst_kernel::slice::items::slice_range;
-}
+/// A const equivalent of `&slice[start..end]`.
+///
+/// If `start >= end ` or `slice.len() < start `, this returns an empty slice.
+///
+/// If `slice.len() < end`, this returns the slice from `start`.
+///
+/// # Alternatives
+///
+/// For a const equivalent of `&slice[start..]` there's [`slice_from`].
+///
+/// For a const equivalent of `&slice[..end]` there's [`slice_up_to`].
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice::slice_range;
+///
+/// const FIBB: &[u16] = &[3, 5, 8, 13, 21, 34, 55, 89];
+///
+/// const TWO: &[u16] = slice_range(FIBB, 2, 4);
+/// const FOUR: &[u16] = slice_range(FIBB, 4, 7);
+/// const NONE: &[u16] = slice_range(FIBB, 0, 0);
+/// const ALL: &[u16] = slice_range(FIBB, 0, 1000);
+///
+/// assert_eq!(TWO, &[8, 13]);
+/// assert_eq!(FOUR, &[21, 34, 55]);
+/// assert_eq!(NONE, &[]);
+/// assert_eq!(ALL, FIBB);
+///
+/// ```
+pub use konst_kernel::slice::slice_range;
 
 /// A const equivalent of `slice.get(start..)`.
 ///

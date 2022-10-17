@@ -21,6 +21,11 @@ jobs:
         set -x
         rustup override set ${{ matrix.rust }}
         cargo update
+
+        cd "${{github.workspace}}/konst_kernel/"
+        cargo test --no-default-features 
+        cargo test --no-default-features --features "debug"
+        cargo test --no-default-features --features "debug rust_1_64"
           
         cd "${{github.workspace}}/konst_proc_macros/"
         cargo build

@@ -2,7 +2,7 @@
 name = "konst_kernel"
 version = "0.3.0"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
-rust-version = "1.64.0"
+rust-version = "1.57.0"
 edition = "2021"
 license = "Zlib"
 description = "Foundational const functionality shared between konst and const_panic"
@@ -21,6 +21,17 @@ include = [
 
 [dependencies]
 
+
 [dev-dependencies.arrayvec]
 default-features = false
 version = "0.7"
+
+
+[features]
+debug = []
+rust_1_64 = []
+docsrs = []
+
+[package.metadata.docs.rs]
+features = ["debug", "rust_1_64"]
+

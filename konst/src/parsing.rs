@@ -27,7 +27,7 @@ pub use self::{
     parse_errors::{ErrorKind, ParseDirection, ParseError, ParseValueResult, ParserResult},
 };
 
-use crate::string::{self, Pattern, PatternNorm};
+use crate::string::{self, Pattern};
 
 /// For parsing and traversing over strings in const contexts.
 ///

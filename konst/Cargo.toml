@@ -31,6 +31,7 @@ path = "../konst_macro_rules"
 [dependencies.konst_kernel]
 version = "=0.3.0"
 path = "../konst_kernel"
+features = ["rust_1_64"]
 
 [dev-dependencies.rand]
 version = "0.8.4"
@@ -52,7 +53,7 @@ default = ["cmp", "parsing_proc"]
 
 
 # Enables extra checks for debug
-debug = []
+debug = ["konst_kernel/debug"]
 cmp = []
 parsing_proc = ["parsing", "konst_proc_macros"]
 parsing = []

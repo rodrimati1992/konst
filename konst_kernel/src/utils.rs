@@ -56,7 +56,7 @@ pub(crate) const fn fmt_conc(slice: &[PanikVal<'_>]) -> [u8; CAP] {
 
 #[cold]
 #[track_caller]
-pub(crate) const fn basic_panic(slice: &[PanikVal<'_>]) {
+pub(crate) const fn basic_panic(slice: &[PanikVal<'_>]) -> ! {
     let arr = fmt_conc(slice);
     match core::str::from_utf8(&arr) {
         Ok(x) => panic!("{}", x),

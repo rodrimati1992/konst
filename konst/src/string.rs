@@ -29,6 +29,8 @@ mod split_terminator_items;
 
 pub use split_terminator_items::*;
 
+use konst_kernel::string::__is_char_boundary_bytes;
+
 __declare_string_cmp_fns! {
     import_path = "konst",
     equality_fn = eq_str,
@@ -300,14 +302,9 @@ where
 ///
 /// If `string.len() < len`, this simply returns `string` back.
 ///
-/// # Performance
-///
-/// This has the same performance as
-/// [`konst::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
-///
 /// # Panics
 ///
-/// This function panics if `len` is inside the string and doesn't fall on a char boundary.
+/// This function panics if `len` is inside the string or doesn't fall on a char boundary.
 ///
 /// # Example
 ///
@@ -330,70 +327,16 @@ where
 ///
 ///
 /// ```
-pub const fn str_up_to(string: &str, len: usize) -> &str {
-    let bytes = string.as_bytes();
-    if is_char_boundary(bytes, len) {
-        // Safety: is_char_boundary checks that `len` falls on a char boundary.
-        unsafe { from_truncated_debug_checked(crate::slice::slice_up_to(bytes, len)) }
-    } else {
-        non_char_boundary_panic("index", len)
-    }
-}
-
-/// A const equivalent of `string.get(..len)`.
-///
-/// # Performance
-///
-/// This has the same performance as
-/// [`konst::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
-///
-/// # Example
-///
-/// ```
-/// use konst::string;
-///
-/// const STR: &str = "foo bar baz";
-///
-/// const SUB0: Option<&str> = string::get_up_to(STR, 3);
-/// assert_eq!(SUB0, Some("foo"));
-///
-/// const SUB1: Option<&str> = string::get_up_to(STR, 7);
-/// assert_eq!(SUB1, Some("foo bar"));
-///
-/// const SUB2: Option<&str> = string::get_up_to(STR, 11);
-/// assert_eq!(SUB2, Some(STR));
-///
-/// const SUB3: Option<&str> = string::get_up_to(STR, 100);
-/// assert_eq!(SUB3, None);
-///
-///
-/// ```
-pub const fn get_up_to(string: &str, len: usize) -> Option<&str> {
-    let bytes = string.as_bytes();
-
-    crate::option::and_then!(
-        crate::slice::get_up_to(bytes, len),
-        |x| if is_char_boundary_get(bytes, len) {
-            // Safety: is_char_boundary_get checks that `len` falls on a char boundary.
-            unsafe { Some(from_truncated_debug_checked(x)) }
-        } else {
-            None
-        }
-    )
-}
+#[doc(inline)]
+pub use konst_kernel::string::str_up_to;
 
 /// A const equivalent of `&string[start..]`.
 ///
 /// If `string.len() < start`, this simply returns an empty string` back.
 ///
-/// # Performance
-///
-/// This has the same performance as
-/// [`konst::slice::slice_from`](../slice/fn.slice_from.html#performance)
-///
 /// # Panics
 ///
-/// This function panics if `start` is inside the string and doesn't fall on a char boundary.
+/// This function panics if `start` is inside the string or doesn't fall on a char boundary.
 ///
 /// # Example
 ///
@@ -419,104 +362,8 @@ pub const fn get_up_to(string: &str, len: usize) -> Option<&str> {
 ///
 ///
 /// ```
-pub const fn str_from(string: &str, start: usize) -> &str {
-    let bytes = string.as_bytes();
-    if is_char_boundary(bytes, start) {
-        // Safety: is_char_boundary checks that `start` falls on a char boundary.
-        unsafe { from_truncated_debug_checked(crate::slice::slice_from(bytes, start)) }
-    } else {
-        non_char_boundary_panic("start", start)
-    }
-}
-
-/// A const equivalent of `string.get(from..)`.
-///
-/// # Performance
-///
-/// This has the same performance as
-/// [`konst::slice::slice_from`](../slice/fn.slice_from.html#performance)
-///
-/// # Example
-///
-/// ```
-/// use konst::string;
-///
-/// const STR: &str = "foo bar baz";
-///
-/// const SUB0: Option<&str> = string::get_from(STR, 0);
-/// assert_eq!(SUB0, Some(STR));
-///
-/// const SUB1: Option<&str> = string::get_from(STR, 4);
-/// assert_eq!(SUB1, Some("bar baz"));
-///
-/// const SUB2: Option<&str> = string::get_from(STR, 8);
-/// assert_eq!(SUB2, Some("baz"));
-///
-/// const SUB3: Option<&str> = string::get_from(STR, 100);
-/// assert_eq!(SUB3, None);
-///
-///
-/// ```
-pub const fn get_from(string: &str, from: usize) -> Option<&str> {
-    let bytes = string.as_bytes();
-
-    crate::option::and_then!(
-        crate::slice::get_from(bytes, from),
-        |x| if is_char_boundary_get(bytes, from) {
-            // Safety: is_char_boundary_get checks that `from` falls on a char boundary.
-            unsafe { Some(from_truncated_debug_checked(x)) }
-        } else {
-            None
-        }
-    )
-}
-
-/// A const equivalent of [`str::split_at`]
-///
-/// If `at > string.len()` this returns `(string, "")`.
-///
-/// # Performance
-///
-/// This has the same performance as [`konst::slice::split_at`](crate::slice::split_at)
-///
-/// # Panics
-///
-/// This function panics if `at` is inside the string and doesn't fall on a char boundary.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::string;
-///
-/// const IN: &str = "foo bar baz";
-///
-/// {
-///     const SPLIT0: (&str, &str) = string::split_at(IN, 0);
-///     assert_eq!(SPLIT0, ("", "foo bar baz"));
-/// }
-/// {
-///     const SPLIT1: (&str, &str) = string::split_at(IN, 4);
-///     assert_eq!(SPLIT1, ("foo ", "bar baz"));
-/// }
-/// {
-///     const SPLIT2: (&str, &str) = string::split_at(IN, 8);
-///     assert_eq!(SPLIT2, ("foo bar ", "baz"));
-/// }
-/// {
-///     const SPLIT3: (&str, &str) = string::split_at(IN, 11);
-///     assert_eq!(SPLIT3, ("foo bar baz", ""));
-/// }
-/// {
-///     const SPLIT4: (&str, &str) = string::split_at(IN, 13);
-///     assert_eq!(SPLIT4, ("foo bar baz", ""));
-/// }
-///
-/// ```
-///
-/// [`str::split_at`]: https://doc.rust-lang.org/std/primitive.str.html#method.split_at
-pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
-    (str_up_to(string, at), str_from(string, at))
-}
+#[doc(inline)]
+pub use konst_kernel::string::str_from;
 
 /// A const equivalent of `&string[start..end]`.
 ///
@@ -564,17 +411,183 @@ pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
 ///
 ///
 /// ```
-pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
+#[doc(inline)]
+pub use konst_kernel::string::str_range;
+
+/// Const equivalent of [`str::is_char_boundary`].
+///
+/// # Example
+///
+/// ```
+/// use konst::string::is_char_boundary;
+///
+/// let string =  "锈 is 🧠";
+///
+/// // Start of "锈"
+/// assert!(is_char_boundary(string, 0));
+/// assert!(!is_char_boundary(string, 1));
+/// assert!(!is_char_boundary(string, 2));
+///
+/// // start of " "
+/// assert!(is_char_boundary(string, 3));
+///
+/// // start of "🧠"
+/// assert!(is_char_boundary(string, 7));
+/// assert!(!is_char_boundary(string, 8));
+///
+/// // end of string
+/// assert!(is_char_boundary(string, string.len()));
+///
+/// // after end of string
+/// assert!(!is_char_boundary(string, string.len() + 1));
+///
+///
+/// ```
+#[doc(inline)]
+pub use konst_kernel::string::is_char_boundary;
+
+/// Checks that the start and end are valid utf8 char boundaries
+/// when the `"debug"` feature is enabled.
+///
+/// When the `"debug"` feature is disabled,
+/// this is equivalent to calling `core::str::from_utf8_unchecled`
+///
+/// # Safety
+///
+/// The input byte slice must be a subslice of a `&str`,
+/// so that only the start and end need to be checked.
+#[doc(inline)]
+pub use konst_kernel::string::from_u8_subslice_of_str;
+
+/// A const equivalent of `string.get(..len)`.
+///
+/// # Performance
+///
+/// This has the same performance as
+/// [`konst::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
+///
+/// # Example
+///
+/// ```
+/// use konst::string;
+///
+/// const STR: &str = "foo bar baz";
+///
+/// const SUB0: Option<&str> = string::get_up_to(STR, 3);
+/// assert_eq!(SUB0, Some("foo"));
+///
+/// const SUB1: Option<&str> = string::get_up_to(STR, 7);
+/// assert_eq!(SUB1, Some("foo bar"));
+///
+/// const SUB2: Option<&str> = string::get_up_to(STR, 11);
+/// assert_eq!(SUB2, Some(STR));
+///
+/// const SUB3: Option<&str> = string::get_up_to(STR, 100);
+/// assert_eq!(SUB3, None);
+///
+///
+/// ```
+pub const fn get_up_to(string: &str, len: usize) -> Option<&str> {
     let bytes = string.as_bytes();
-    let start_inbounds = is_char_boundary(bytes, start);
-    if start_inbounds && is_char_boundary(bytes, end) {
-        // Safety: is_char_boundary checks that `start` and `end` fall on a char boundaries.
-        unsafe { from_truncated_debug_checked(crate::slice::slice_range(bytes, start, end)) }
-    } else if start_inbounds {
-        non_char_boundary_panic("end", end)
-    } else {
-        non_char_boundary_panic("start", start)
-    }
+
+    crate::option::and_then!(
+        crate::slice::get_up_to(bytes, len),
+        |x| if __is_char_boundary_bytes(bytes, len) {
+            // Safety: __is_char_boundary_bytes checks that `len` falls on a char boundary.
+            unsafe { Some(from_u8_subslice_of_str(x)) }
+        } else {
+            None
+        }
+    )
+}
+
+/// A const equivalent of `string.get(from..)`.
+///
+/// # Performance
+///
+/// This has the same performance as
+/// [`konst::slice::slice_from`](../slice/fn.slice_from.html#performance)
+///
+/// # Example
+///
+/// ```
+/// use konst::string;
+///
+/// const STR: &str = "foo bar baz";
+///
+/// const SUB0: Option<&str> = string::get_from(STR, 0);
+/// assert_eq!(SUB0, Some(STR));
+///
+/// const SUB1: Option<&str> = string::get_from(STR, 4);
+/// assert_eq!(SUB1, Some("bar baz"));
+///
+/// const SUB2: Option<&str> = string::get_from(STR, 8);
+/// assert_eq!(SUB2, Some("baz"));
+///
+/// const SUB3: Option<&str> = string::get_from(STR, 100);
+/// assert_eq!(SUB3, None);
+///
+///
+/// ```
+pub const fn get_from(string: &str, from: usize) -> Option<&str> {
+    let bytes = string.as_bytes();
+
+    crate::option::and_then!(
+        crate::slice::get_from(bytes, from),
+        |x| if __is_char_boundary_bytes(bytes, from) {
+            // Safety: __is_char_boundary_bytes checks that `from` falls on a char boundary.
+            unsafe { Some(from_u8_subslice_of_str(x)) }
+        } else {
+            None
+        }
+    )
+}
+
+/// A const equivalent of [`str::split_at`]
+///
+/// If `at > string.len()` this returns `(string, "")`.
+///
+/// # Performance
+///
+/// This has the same performance as [`konst::slice::split_at`](crate::slice::split_at)
+///
+/// # Panics
+///
+/// This function panics if `at` is inside the string or doesn't fall on a char boundary.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// const IN: &str = "foo bar baz";
+///
+/// {
+///     const SPLIT0: (&str, &str) = string::split_at(IN, 0);
+///     assert_eq!(SPLIT0, ("", "foo bar baz"));
+/// }
+/// {
+///     const SPLIT1: (&str, &str) = string::split_at(IN, 4);
+///     assert_eq!(SPLIT1, ("foo ", "bar baz"));
+/// }
+/// {
+///     const SPLIT2: (&str, &str) = string::split_at(IN, 8);
+///     assert_eq!(SPLIT2, ("foo bar ", "baz"));
+/// }
+/// {
+///     const SPLIT3: (&str, &str) = string::split_at(IN, 11);
+///     assert_eq!(SPLIT3, ("foo bar baz", ""));
+/// }
+/// {
+///     const SPLIT4: (&str, &str) = string::split_at(IN, 13);
+///     assert_eq!(SPLIT4, ("foo bar baz", ""));
+/// }
+///
+/// ```
+///
+/// [`str::split_at`]: https://doc.rust-lang.org/std/primitive.str.html#method.split_at
+pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
+    (str_up_to(string, at), str_from(string, at))
 }
 
 /// A const equivalent of `string.get(start..end)`.
@@ -617,15 +630,14 @@ pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
 pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
     let bytes = string.as_bytes();
 
-    crate::option::and_then!(
-        crate::slice::get_range(bytes, start, end),
-        |x| if is_char_boundary_get(bytes, start) && is_char_boundary_get(bytes, end) {
-            // Safety: is_char_boundary_get checks that `start` and `end` fall on a char boundary.
-            unsafe { Some(from_truncated_debug_checked(x)) }
+    crate::option::and_then!(crate::slice::get_range(bytes, start, end), |x| {
+        if __is_char_boundary_bytes(bytes, start) && __is_char_boundary_bytes(bytes, end) {
+            // Safety: __is_char_boundary_bytes checks that `start` and `end` fall on a char boundary.
+            unsafe { Some(from_u8_subslice_of_str(x)) }
         } else {
             None
         }
-    )
+    })
 }
 
 /// A const subset of [`str::strip_prefix`].
@@ -669,7 +681,7 @@ where
     unsafe {
         crate::option::map!(
             crate::slice::bytes_strip_prefix(string.as_bytes(), pat.as_bytes()),
-            from_truncated_debug_checked,
+            from_u8_subslice_of_str,
         )
     }
 }
@@ -714,45 +726,9 @@ where
     unsafe {
         crate::option::map!(
             crate::slice::bytes_strip_suffix(string.as_bytes(), pat.as_bytes()),
-            from_truncated_debug_checked,
+            from_u8_subslice_of_str,
         )
     }
-}
-
-macro_rules! byte_is_char_boundary {
-    ($b:expr) => {
-        ($b as i8) >= -0x40
-    };
-}
-
-pub(crate) const fn is_char_boundary(bytes: &[u8], position: usize) -> bool {
-    position >= bytes.len() || byte_is_char_boundary!(bytes[position])
-}
-
-const fn is_char_boundary_get(bytes: &[u8], position: usize) -> bool {
-    let len = bytes.len();
-
-    position == len || byte_is_char_boundary!(bytes[position])
-}
-
-const fn find_next_char_boundary(bytes: &[u8], mut position: usize) -> usize {
-    loop {
-        position += 1;
-
-        if is_char_boundary(bytes, position) {
-            break position;
-        }
-    }
-}
-
-const fn find_prev_char_boundary(bytes: &[u8], mut position: usize) -> usize {
-    position = position.saturating_sub(1);
-
-    while !is_char_boundary(bytes, position) {
-        position -= 1;
-    }
-
-    position
 }
 
 /// A const subset of [`str::trim`] which only removes ascii whitespace.
@@ -770,7 +746,7 @@ const fn find_prev_char_boundary(bytes: &[u8], mut position: usize) -> usize {
 pub const fn trim(this: &str) -> &str {
     let trimmed = crate::slice::bytes_trim(this.as_bytes());
     // safety: bytes_trim only removes ascii bytes
-    unsafe { from_truncated_debug_checked(trimmed) }
+    unsafe { from_u8_subslice_of_str(trimmed) }
 }
 
 /// A const subset of [`str::trim_start`] which only removes ascii whitespace.
@@ -788,7 +764,7 @@ pub const fn trim(this: &str) -> &str {
 pub const fn trim_start(this: &str) -> &str {
     let trimmed = crate::slice::bytes_trim_start(this.as_bytes());
     // safety: bytes_trim_start only removes ascii bytes
-    unsafe { from_truncated_debug_checked(trimmed) }
+    unsafe { from_u8_subslice_of_str(trimmed) }
 }
 
 /// A const subset of [`str::trim_end`] which only removes ascii whitespace.
@@ -807,7 +783,7 @@ pub const fn trim_start(this: &str) -> &str {
 pub const fn trim_end(this: &str) -> &str {
     let trimmed = crate::slice::bytes_trim_end(this.as_bytes());
     // safety: bytes_trim_end only removes ascii bytes
-    unsafe { from_truncated_debug_checked(trimmed) }
+    unsafe { from_u8_subslice_of_str(trimmed) }
 }
 
 /// A const subset of [`str::trim_matches`].
@@ -835,7 +811,7 @@ where
     // safety:
     // because bytes_trim_matches was passed `&str`s casted to `&[u8]`s,
     // it returns a valid utf8 sequence.
-    unsafe { from_truncated_debug_checked(trimmed) }
+    unsafe { from_u8_subslice_of_str(trimmed) }
 }
 
 /// A const subset of [`str::trim_start_matches`].
@@ -863,7 +839,7 @@ where
     // safety:
     // because bytes_trim_start_matches was passed `&str`s casted to `&[u8]`s,
     // it returns a valid utf8 sequence.
-    unsafe { from_truncated_debug_checked(trimmed) }
+    unsafe { from_u8_subslice_of_str(trimmed) }
 }
 
 /// A const subset of [`str::trim_end_matches`].
@@ -891,7 +867,7 @@ where
     // safety:
     // because bytes_trim_end_matches was passed `&str`s casted to `&[u8]`s,
     // it returns a valid utf8 sequence.
-    unsafe { from_truncated_debug_checked(trimmed) }
+    unsafe { from_u8_subslice_of_str(trimmed) }
 }
 
 /// Advances `this` past the first instance of `needle`.
@@ -932,7 +908,7 @@ where
             // safety:
             // because bytes_find_skip was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
-            from_truncated_debug_checked,
+            from_u8_subslice_of_str,
         )
     }
 }
@@ -975,7 +951,7 @@ where
             // safety:
             // because bytes_find_keep was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
-            from_truncated_debug_checked,
+            from_u8_subslice_of_str,
         )
     }
 }
@@ -1018,7 +994,7 @@ where
             // safety:
             // because bytes_rfind_skip was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
-            from_truncated_debug_checked,
+            from_u8_subslice_of_str,
         )
     }
 }
@@ -1061,39 +1037,7 @@ where
             // safety:
             // because bytes_rfind_keep was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
-            from_truncated_debug_checked,
+            from_u8_subslice_of_str,
         )
     }
-}
-
-// # Safety
-// For use only when truncating a string
-#[track_caller]
-pub(crate) const unsafe fn from_truncated_debug_checked(s: &[u8]) -> &str {
-    #[cfg(any(feature = "debug", test))]
-    if !s.is_empty() {
-        if !byte_is_char_boundary!(s[0]) {
-            panic!("string doesn't start at a byte boundary")
-        }
-
-        let cb = find_prev_char_boundary(s, s.len() - 1);
-        if let Err(_) = from_utf8(crate::slice::slice_from(s, cb)) {
-            panic!("string doesn't end at a byte boundary")
-        }
-    }
-
-    core::str::from_utf8_unchecked(s)
-}
-
-#[cold]
-#[track_caller]
-const fn non_char_boundary_panic(extreme: &str, index: usize) -> ! {
-    use const_panic::{FmtArg, PanicVal};
-
-    const_panic::concat_panic(&[&[
-        PanicVal::write_str(extreme),
-        PanicVal::write_str(" `"),
-        PanicVal::from_usize(index, FmtArg::DEBUG),
-        PanicVal::write_str("` is not on a char boundary"),
-    ]])
 }

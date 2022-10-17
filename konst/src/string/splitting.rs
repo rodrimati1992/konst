@@ -160,12 +160,15 @@ macro_rules! split_shared {
                     Some(("", self))
                 }
                 EmptyState::Continue => {
+                    use konst_kernel::string::__find_next_char_boundary;
+
                     let this = self.this;
 
                     if this.is_empty() {
                         self.state = State::Finished;
                     }
-                    let next_char = string::find_next_char_boundary(this.as_bytes(), 0);
+
+                    let next_char = __find_next_char_boundary(this.as_bytes(), 0);
                     let (next_char, rem) = string::split_at(this, next_char);
                     self.this = rem;
                     Some((next_char, self))
@@ -180,12 +183,14 @@ macro_rules! split_shared {
                     Some(("", self))
                 }
                 EmptyState::Continue => {
+                    use konst_kernel::string::__find_prev_char_boundary;
+
                     let this = self.this;
 
                     if self.this.is_empty() {
                         self.state = State::Finished;
                     }
-                    let next_char = string::find_prev_char_boundary(this.as_bytes(), this.len());
+                    let next_char = __find_prev_char_boundary(this.as_bytes(), this.len());
                     let (rem, next_char) = string::split_at(this, next_char);
                     self.this = rem;
                     Some((next_char, self))

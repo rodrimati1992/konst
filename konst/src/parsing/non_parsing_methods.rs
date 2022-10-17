@@ -21,12 +21,13 @@ impl<'a> Parser<'a> {
     pub const fn skip(mut self, mut byte_count: usize) -> Self {
         let bytes = self.str.as_bytes();
         if byte_count > bytes.len() {
-            byte_count = bytes.len();
+            byte_count = bytes.len()
         } else {
-            while !string::is_char_boundary(bytes, byte_count) {
+            use konst_kernel::string::__is_char_boundary_bytes;
+            while !__is_char_boundary_bytes(bytes, byte_count) {
                 byte_count += 1;
             }
-        }
+        };
         self.parse_direction = ParseDirection::FromStart;
         self.start_offset += byte_count as u32;
         self.str = string::str_from(self.str, byte_count);
@@ -36,9 +37,11 @@ impl<'a> Parser<'a> {
     /// Skips `byte_count` bytes from the back of the parsed string,
     /// as well as however many bytes are required to be on a char boundary.
     pub const fn skip_back(mut self, byte_count: usize) -> Self {
+        use konst_kernel::string::__is_char_boundary_bytes;
+
         let bytes = self.str.as_bytes();
         let mut pos = self.str.len().saturating_sub(byte_count);
-        while !string::is_char_boundary(bytes, pos) {
+        while !__is_char_boundary_bytes(bytes, pos) {
             pos -= 1;
         }
         self.parse_direction = ParseDirection::FromEnd;
