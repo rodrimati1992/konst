@@ -15,6 +15,7 @@ fn test_split() {
         for (expected, start_offset) in expecteds {
             (item, parser) = parser.split(',').unwrap();
             assert_eq!(parser.start_offset(), start_offset);
+            assert_eq!(parser.remainder(), &string[start_offset..]);
             assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
             assert_eq!(item, expected);
         }
@@ -46,6 +47,37 @@ fn test_rsplit() {
         let err = parser.rsplit(",").unwrap_err();
         assert_eq!(err.offset(), 0);
         assert_eq!(err.error_direction(), ParseDirection::FromEnd);
+        assert_eq!(err.kind(), ErrorKind::SplitExhausted);
+    }
+}
+
+#[test]
+fn test_split_keep() {
+    for (string, expecteds) in [
+        ("foo,bar,baz", vec![("foo", 3), ("bar", 7), ("baz", 11)]),
+        (
+            "foo,bar,baz,",
+            vec![("foo", 3), ("bar", 7), ("baz", 11), ("", 12)],
+        ),
+    ] {
+        let mut item;
+        let mut parser = Parser::new(string).skip_back(0);
+        assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
+        for (expected, start_offset) in expecteds {
+            (item, parser) = parser.split_keep(',').unwrap();
+            assert_eq!(parser.start_offset(), start_offset);
+            assert_eq!(parser.remainder(), &string[start_offset..]);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
+            assert_eq!(item, expected);
+
+            if !parser.is_empty() {
+                parser = parser.strip_prefix(',').unwrap();
+            }
+        }
+
+        let err = parser.split_keep(",").unwrap_err();
+        assert_eq!(err.offset(), string.len());
+        assert_eq!(err.error_direction(), ParseDirection::FromStart);
         assert_eq!(err.kind(), ErrorKind::SplitExhausted);
     }
 }
