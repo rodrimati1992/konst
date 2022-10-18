@@ -8,6 +8,11 @@
 
 mod macros;
 
+pub mod type_eq;
+
+#[doc(hidden)]
+pub mod __unsafe_utils;
+
 #[cfg(feature = "rust_1_64")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub mod slice;
@@ -22,6 +27,7 @@ mod utils;
 #[doc(hidden)]
 pub mod __ {
     pub use core::{
+        mem::ManuallyDrop,
         ops::Range,
         option::Option::{self, None, Some},
         result::Result::{self, Err, Ok},

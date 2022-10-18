@@ -142,7 +142,7 @@ use crate::string::{self, Pattern};
 ///             "right" => Self::RIGHT,
 ///             "down" => Self::DOWN,
 ///             "left" => Self::LEFT,
-///             _ => return Err(parser.into_other_error())
+///             _ => return Err(parser.into_other_error(&"could not parse Direction"))
 ///         };
 ///         Ok((angle, parser))
 ///     }
@@ -406,6 +406,97 @@ impl<'a> Parser<'a> {
                 None => {
                     self.yielded_last_split = true;
                     (string::str_up_to(self.str, 0), self.str)
+                }
+            };
+
+            self.str = after;
+
+            before
+        }
+    }
+
+    /// Gets the string up to (but not including) `delimiter`.
+    ///
+    /// # Return value
+    ///
+    /// This behaves the same as [`Parser::split`],
+    /// except that it keeps the delimiter in the parser,
+    /// rather than skip it.
+    ///
+    /// # Example
+    ///
+    /// This example requires the `"parser"` feature.
+    ///
+    #[cfg_attr(feature = "parsing", doc = "```rust")]
+    #[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
+    ///
+    /// use konst::{
+    ///     parsing::{Parser, ParseValueResult},
+    ///     eq_str,
+    ///     for_range, parser_method, try_rebind, unwrap_ctx,
+    /// };
+    ///
+    /// assert_eq!(VALS, [
+    ///     Value::Str("hello"),
+    ///     Value::U64(3),
+    ///     Value::U64(5),
+    ///     Value::Str("world"),
+    /// ]);
+    ///
+    /// const VALS: [Value<'_>; 4] = {
+    ///     let mut arr = [Value::Str(""); 4];
+    ///     let mut parser = Parser::new("shello,i3,i5,sworld");
+    ///     
+    ///     for_range!{i in 0..arr.len() =>
+    ///         (arr[i], parser) = unwrap_ctx!(parse_value(parser));
+    ///         if !parser.is_empty() {
+    ///             parser = unwrap_ctx!(parser.strip_prefix(','))
+    ///         }
+    ///     }
+    ///     
+    ///     arr
+    /// };
+    ///
+    ///
+    /// #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    /// enum Value<'a> {
+    ///     Str(&'a str),
+    ///     U64(u64),
+    /// }
+    ///
+    /// pub const fn parse_value(mut parser: Parser<'_>) -> ParseValueResult<'_, Value<'_>> {
+    ///     let val = parser_method!{parser, strip_prefix;
+    ///         "s" => {
+    ///             try_rebind!{(let string, parser) = parser.split_keep(',')}
+    ///             Value::Str(string)
+    ///         }
+    ///         "i" => {
+    ///             try_rebind!{(let integer, parser) = parser.parse_u64()}
+    ///             Value::U64(integer)
+    ///         }
+    ///         _ => return Err(parser.into_other_error(&"expected either `s` or `ì`"))
+    ///     };
+    ///     Ok((val, parser))
+    /// }
+    /// ```
+    ///
+    pub const fn split_keep<'p, P>(
+        mut self,
+        delimiter: P,
+    ) -> Result<(&'a str, Self), ParseError<'a>>
+    where
+        P: Pattern<'p>,
+    {
+        try_parsing! {self, FromStart, ret;
+            if self.yielded_last_split {
+                throw!(ErrorKind::SplitExhausted)
+            }
+
+            let (before, after) = match string::find(self.str, delimiter) {
+                Some(pos) => string::split_at(self.str, pos),
+                None => {
+                    self.yielded_last_split = true;
+                    (self.str, string::str_from(self.str, self.str.len()))
                 }
             };
 

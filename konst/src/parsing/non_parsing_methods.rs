@@ -86,8 +86,8 @@ impl<'a> Parser<'a> {
     ///
     /// [`ParseError`]: struct.ParseError.html
     /// [`ErrorKind::Other`]: ./enum.ErrorKind.html#variant.Other
-    pub const fn into_other_error(self) -> ParseError<'a> {
-        ParseError::new(self, ErrorKind::Other)
+    pub const fn into_other_error(self, string: &'static &'static str) -> ParseError<'a> {
+        ParseError::other_error(self, string)
     }
 
     /// The amount of unparsed bytes.

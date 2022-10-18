@@ -69,7 +69,7 @@
 ///             "Red"|"red" => Ok((Color::Red, parser)),
 ///             "Blue"|"blue" => Ok((Color::Blue, parser)),
 ///             "Green"|"green" => Ok((Color::Green, parser)),
-///             _ => Err(parser.into_other_error()),
+///             _ => Err(parser.into_other_error(&"could not parse Color")),
 ///         }
 ///     }
 /// }

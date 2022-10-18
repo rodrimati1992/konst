@@ -16,6 +16,7 @@ pub struct ParseError<'a> {
     end_offset: u32,
     direction: ParseDirection,
     kind: ErrorKind,
+    extra_message: &'static &'static str,
     // Just in case that it goes back to storing the parser
     _lifetime: PhantomData<&'a [u8]>,
 }
@@ -29,6 +30,20 @@ impl<'a> ParseError<'a> {
             end_offset: parser.start_offset + parser.str.len() as u32,
             direction: parser.parse_direction,
             kind,
+            extra_message: &"",
+            _lifetime: PhantomData,
+        }
+    }
+
+    /// Constructs a `ParseError`  for an `ErrorKind::Other` error with
+    /// a customized error message.
+    pub const fn other_error(parser: Parser<'a>, extra_message: &'static &'static str) -> Self {
+        Self {
+            start_offset: parser.start_offset,
+            end_offset: parser.start_offset + parser.str.len() as u32,
+            direction: parser.parse_direction,
+            kind: ErrorKind::Other,
+            extra_message,
             _lifetime: PhantomData,
         }
     }
@@ -40,6 +55,7 @@ impl<'a> ParseError<'a> {
             end_offset: self.end_offset,
             direction: self.direction,
             kind: self.kind,
+            extra_message: self.extra_message,
             _lifetime: PhantomData,
         }
     }
@@ -65,6 +81,10 @@ impl<'a> ParseError<'a> {
         self.kind
     }
 
+    const fn extra_message(&self) -> &str {
+        self.extra_message
+    }
+
     /// For erroring with an error message,
     /// this is called by the [`unwrap_ctx`] macro.
     ///
@@ -78,6 +98,7 @@ impl<'a> ParseError<'a> {
             PanicVal::from_usize(self.offset(), FmtArg::DEBUG),
             PanicVal::write_str(" byte offset"),
             PanicVal::write_str(self.error_suffix()),
+            PanicVal::write_str(self.extra_message()),
         ]])
     }
 
@@ -95,7 +116,13 @@ impl<'a> ParseError<'a> {
             ErrorKind::Strip => " while trying to strip a pattern",
             ErrorKind::SplitExhausted => ": called split on empty parser",
             ErrorKind::DelimiterNotFound => ": delimiter (for splitting) could not be found",
-            ErrorKind::Other => " (a parsing error)",
+            ErrorKind::Other => {
+                if self.extra_message.is_empty() {
+                    " other error"
+                } else {
+                    ": "
+                }
+            }
         }
     }
 }
@@ -105,7 +132,9 @@ impl<'a> Display for ParseError<'a> {
         f.write_str(self.error_for_direction())?;
         Display::fmt(&self.offset(), f)?;
         f.write_str(" byte offset")?;
-        f.write_str(self.error_suffix())
+        f.write_str(self.error_suffix())?;
+        f.write_str(self.extra_message())?;
+        Ok(())
     }
 }
 

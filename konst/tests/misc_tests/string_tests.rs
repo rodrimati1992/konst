@@ -43,6 +43,22 @@ const INVALID_INDICES: &[usize] = &[4, 6, 7, 9, 10, 15, 16, 17];
 const OOB_INDICES: &[usize] = &[LEN + 1, LEN + 10, !0 - 1, !0];
 
 #[test]
+fn is_char_boundary_test() {
+    for i in 0..=CHAR_LENS.len() + 10 {
+        assert_eq!(
+            CHAR_LENS.is_char_boundary(i),
+            string::is_char_boundary(CHAR_LENS, i),
+            "i: {i}",
+        );
+    }
+
+    assert_eq!(
+        CHAR_LENS.is_char_boundary(usize::MAX),
+        string::is_char_boundary(CHAR_LENS, usize::MAX),
+    );
+}
+
+#[test]
 fn test_char_boundary_inside() {
     for start in 0..=CHAR_LENS.len() {
         for end in 0..=CHAR_LENS.len() {

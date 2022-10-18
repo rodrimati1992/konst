@@ -16,6 +16,10 @@ include = [
     "LICENSE-ZLIB.md", 
 ]
 
+[dependencies.konst_kernel]
+version = "=0.3.0"
+path = "../konst_kernel"
+
 [dependencies.const_panic]
 version = "0.2.6"
 default-features = false

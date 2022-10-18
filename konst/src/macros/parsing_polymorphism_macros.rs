@@ -45,7 +45,7 @@
 ///         } else if let Ok(parser) = parser.strip_prefix("Qux") {
 ///             Ok((Foo::Qux, parser))
 ///         } else {
-///             Err(parser.into_other_error())
+///             Err(parser.into_other_error(&"expected one of `Bar`, `Baz`, or `Qux`"))
 ///         }
 ///     }
 /// }

@@ -86,9 +86,7 @@ impl ParseDirectionError {
 
 ### Parsing CSV
 
-This example demonstrates how an CSV environment variable can be parsed into integers.
-
-This requires the `"parsing_no_proc"` feature (enabled by default).
+This example demonstrates how CSV can be parsed into integers.
 
 ```rust
 use konst::{
@@ -111,29 +109,34 @@ assert_eq!(PARSED, [3, 8, 13, 21, 34]);
 
 ### Parsing a struct
 
-This example demonstrates how you can use [`Parser`] to parse a struct at compile-time.
+This example demonstrates how a key-value pair format can be parsed into a struct.
+
+This requires the `"parsing"` feature (enabled by default).
 
 ```rust
 use konst::{
     parsing::{Parser, ParseValueResult},
-    for_range, parse_any, try_rebind, unwrap_ctx,
+    eq_str,
+    for_range, parser_method, try_, unwrap_ctx,
 };
 
 const PARSED: Struct = {
     // You can also parse strings from environment variables, or from an `include_str!(....)`
     let input = "\
-        1000,
-        circle,
-        red, blue, green, blue,
+        colors = red, blue, green, blue
+        amount = 1000
+        repeating = circle
+        name = bob smith
     ";
     
-    unwrap_ctx!(parse_struct(Parser::from_str(input))).0
+    unwrap_ctx!(parse_struct(Parser::new(input))).0
 };
 
 fn main(){
     assert_eq!(
         PARSED,
         Struct{
+            name: "bob smith",
             amount: 1000,
             repeating: Shape::Circle,
             colors: [Color::Red, Color::Blue, Color::Green, Color::Blue],
@@ -142,7 +145,8 @@ fn main(){
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Struct {
+pub struct Struct<'a> {
+    pub name: &'a str,
     pub amount: usize,
     pub repeating: Shape,
     pub colors: [Color; 4],
@@ -162,45 +166,74 @@ pub enum Color {
     Green,
 }
 
-pub const fn parse_struct(mut parser: Parser<'_>) -> ParseValueResult<'_, Struct> {
-    try_rebind!{(let amount, parser) = parser.trim_start().parse_usize()}
-    try_rebind!{parser = parser.strip_prefix(",")}
+pub const fn parse_struct(mut parser: Parser<'_>) -> ParseValueResult<'_, Struct<'_>> {
+    let mut name = "<none>";
+    let mut amount = 0;
+    let mut repeating = Shape::Circle;
+    let mut colors = [Color::Red; 4];
+    
+    parser = parser.trim_end();
+    if !parser.is_empty() {
+        loop {
+            let mut prev_parser = parser.trim_start();
 
-    try_rebind!{(let repeating, parser) = parse_shape(parser.trim_start())}
-    try_rebind!{parser = parser.strip_prefix(",")}
+            parser = try_!(parser.find_skip('='));
 
-    try_rebind!{(let colors, parser) = parse_colors(parser.trim_start())}
+            parser_method!{prev_parser, strip_prefix;
+                "name" => (name, parser) = try_!(parser.trim_start().split_keep('\n')),
+                "amount" => (amount, parser) = try_!(parser.trim_start().parse_usize()),
+                "repeating" => (repeating, parser) = try_!(parse_shape(parser.trim_start())),
+                "colors" => (colors, parser) = try_!(parse_colors(parser.trim_start())),
+                _ => {
+                    let err = &"could not parse Struct field name";
+                    return Err(prev_parser.into_other_error(err));
+                }
+            }
 
-    Ok((Struct{amount, repeating, colors}, parser))
+            if parser.is_empty() {
+                break
+            }
+            parser = try_!(parser.strip_prefix("\n"));
+        }
+    }
+
+    Ok((Struct{name, amount, repeating, colors}, parser))
 }
 
 pub const fn parse_shape(mut parser: Parser<'_>) -> ParseValueResult<'_, Shape> {
-    let shape = parse_any!{parser, strip_prefix;
+    let shape = parser_method!{parser, strip_prefix;
         "circle" => Shape::Circle,
         "square" => Shape::Square,
         "line" => Shape::Line,
-        _ => return Err(parser.into_other_error())
+        _ => return Err(parser.into_other_error(&"could not parse Shape"))
     };
     Ok((shape, parser))
 }
 
-pub const fn parse_colors(mut parser: Parser<'_>) -> ParseValueResult<'_, [Color; 4]> {
-    let mut colors = [Color::Red; 4];
+pub const fn parse_colors<const LEN: usize>(
+    mut parser: Parser<'_>,
+) -> ParseValueResult<'_, [Color; LEN]> {
+    let mut colors = [Color::Red; LEN];
 
-    for_range!{i in 0..4 =>
-        try_rebind!{(colors[i], parser) = parse_color(parser.trim_start())}
-        try_rebind!{parser = parser.strip_prefix(",")}
+    for_range!{i in 0..LEN =>
+        (colors[i], parser) = try_!(parse_color(parser.trim_start()));
+        
+        match parser.strip_prefix(",") {
+            Ok(next) => parser = next,
+            Err(_) if i == LEN - 1 => {}
+            Err(e) => return Err(e),
+        }
     }
 
     Ok((colors, parser))
 }
 
 pub const fn parse_color(mut parser: Parser<'_>) -> ParseValueResult<'_, Color> {
-    let color = parse_any!{parser, strip_prefix;
+    let color = parser_method!{parser, strip_prefix;
         "red" => Color::Red,
         "blue" => Color::Blue,
         "green" => Color::Green,
-        _ => return Err(parser.into_other_error())
+        _ => return Err(parser.into_other_error(&"could not parse Color"))
     };
     Ok((color, parser))
 }

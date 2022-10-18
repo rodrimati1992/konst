@@ -25,13 +25,10 @@ pub mod slice_;
 #[doc(hidden)]
 pub mod utils;
 
-pub mod type_eq;
-
 #[doc(hidden)]
 pub mod collect_const;
 
-#[doc(hidden)]
-pub mod utils_1_56;
+pub use konst_kernel::__unsafe_utils;
 
 #[doc(hidden)]
 pub mod __ {
@@ -40,7 +37,6 @@ pub mod __ {
     pub use crate::{
         array_macros::{assert_array, uninit_array, AssumInitCopyArray},
         collect_const::{CollectorCmd, ComputedLength},
-        type_eq::TypeEq,
     };
 
     pub use crate::into_iter::{EmptyIter, IntoIterWrapper, IsIntoIterKind};

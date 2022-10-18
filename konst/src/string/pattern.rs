@@ -1,13 +1,13 @@
 use crate::{
     chr,
-    polymorphism::{InTypeSet, TypeEq},
+    polymorphism::{InTypeEqEnum, TypeEq},
 };
 
 /// A string pattern.
 ///
 /// Types that implement this trait can be used to search into a string.
 ///
-pub trait Pattern<'a>: InTypeSet<PatternInput<'a, Self>> + Copy {}
+pub trait Pattern<'a>: InTypeEqEnum<PatternInput<'a, Self>> + Copy {}
 
 macro_rules! declare_patterns {
     ($((
@@ -23,8 +23,8 @@ macro_rules! declare_patterns {
         }
 
         $(
-            impl<'a> InTypeSet<PatternInput<'a, Self>> for $ty {
-                const SET: PatternInput<'a, Self> =
+            impl<'a> InTypeEqEnum<PatternInput<'a, Self>> for $ty {
+                const TEQ_ENUM: PatternInput<'a, Self> =
                     PatternInput(PatternInputInner::$variant{
                         te: TypeEq::NEW,
                     });
@@ -48,7 +48,7 @@ macro_rules! declare_patterns {
             where
                 P: Pattern<'a>
             {
-                match P::SET.0 {
+                match P::TEQ_ENUM.0 {
                     $(
                         PatternInputInner::$variant{te} => {
                             let $param = te.to_right(pattern);

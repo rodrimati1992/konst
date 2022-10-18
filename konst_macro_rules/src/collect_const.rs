@@ -1,4 +1,4 @@
-use crate::type_eq::TypeEq;
+use konst_kernel::type_eq::TypeEq;
 
 pub enum CollectorCmd<T, Ret, const CAP: usize> {
     ComputeLength(TypeEq<ComputedLength, Ret>),
@@ -23,7 +23,7 @@ macro_rules! iter_collect_const {
         const fn __func_zxe7hgbnjs<Ret_KO9Y329U2U, const CAP_KO9Y329U2U: usize>(
             cmd: $crate::__::CollectorCmd<$Item, Ret_KO9Y329U2U, CAP_KO9Y329U2U>,
         ) -> Ret_KO9Y329U2U {
-            let mut array = $crate::utils_1_56::uninit_array::<_, CAP_KO9Y329U2U>();
+            let mut array = $crate::__unsafe_utils::uninit_array::<_, CAP_KO9Y329U2U>();
             let mut length = 0usize;
 
             $crate::__process_iter_args!{
@@ -49,7 +49,7 @@ macro_rules! iter_collect_const {
 
                     // SAFETY: The above assert ensures that
                     // all of the array is initialized
-                    let array = unsafe{ $crate::utils_1_56::array_assume_init(array) };
+                    let array = unsafe{ $crate::__unsafe_utils::array_assume_init(array) };
                     teq.to_right(array)
                 }
             }
