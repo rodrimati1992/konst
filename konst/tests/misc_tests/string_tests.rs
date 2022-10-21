@@ -2,6 +2,8 @@ use konst::string;
 
 use super::test_utils::must_panic;
 
+mod string_concatenation;
+
 mod string_splitting;
 
 #[test]

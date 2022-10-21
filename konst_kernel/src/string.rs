@@ -1,3 +1,9 @@
+#[cfg(feature = "__for_konst")]
+pub mod string_for_konst;
+
+#[cfg(feature = "__for_konst")]
+pub use self::string_for_konst::*;
+
 #[inline]
 pub const fn str_up_to(string: &str, len: usize) -> &str {
     let bytes = string.as_bytes();

@@ -10,6 +10,10 @@
 //!
 //!
 
+mod concatenation;
+
+pub use concatenation::*;
+
 #[cfg(test)]
 mod priv_string_tests;
 
