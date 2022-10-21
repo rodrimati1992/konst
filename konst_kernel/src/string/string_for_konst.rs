@@ -1,6 +1,6 @@
 #[macro_export]
 macro_rules! string_concat {
-    ($slice:expr) => {{
+    ($slice:expr $(,)*) => {{
         const __ARGS_81608BFNA5: &[&$crate::__::str] = $slice;
         {
             const LEN: $crate::__::usize = $crate::string::concat_sum_lengths(__ARGS_81608BFNA5);
@@ -37,6 +37,73 @@ pub const fn concat_strs<const N: usize>(slices: &[&str]) -> ArrayStr<N> {
 
     ArrayStr(out)
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[macro_export]
+macro_rules! string_join {
+    ($sep:expr, $slice:expr $(,)*) => {{
+        const __ARGS_81608BFNA5: $crate::string::StrJoinArgs = $crate::string::StrJoinArgs {
+            sep: $sep,
+            slice: $slice,
+        };
+
+        {
+            const LEN: $crate::__::usize = $crate::string::join_sum_lengths(__ARGS_81608BFNA5);
+
+            const CONC: &$crate::string::ArrayStr<LEN> =
+                &$crate::string::join_strs(__ARGS_81608BFNA5);
+
+            const STR: &$crate::__::str = CONC.as_str();
+
+            STR
+        }
+    }};
+}
+
+#[derive(Copy, Clone)]
+pub struct StrJoinArgs {
+    pub sep: &'static str,
+    pub slice: &'static [&'static str],
+}
+
+pub const fn join_sum_lengths(StrJoinArgs { sep, slice }: StrJoinArgs) -> usize {
+    if slice.is_empty() {
+        0
+    } else {
+        concat_sum_lengths(slice) + sep.len() * (slice.len() - 1)
+    }
+}
+
+pub const fn join_strs<const N: usize>(
+    StrJoinArgs { sep, slice: slices }: StrJoinArgs,
+) -> ArrayStr<N> {
+    let mut out = [0u8; N];
+    let mut out_i = 0usize;
+
+    macro_rules! write_str {
+        ($str:expr) => {{
+            let slice = $str.as_bytes();
+            crate::for_range! {i in 0..slice.len() =>
+                out[out_i] = slice[i];
+                out_i += 1;
+            }
+        }};
+    }
+
+    if let [first, rem_slices @ ..] = slices {
+        write_str! {first}
+
+        crate::for_range! {si in 0..rem_slices.len() =>
+            write_str!{sep}
+            write_str!{rem_slices[si]}
+        }
+    }
+
+    ArrayStr(out)
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 pub struct ArrayStr<const N: usize>([u8; N]);
 
