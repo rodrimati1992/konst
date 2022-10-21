@@ -30,6 +30,8 @@ macro_rules! array_map {
     };
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 #[inline(always)]
 pub const fn assert_array<T, const N: usize>(array: &[T; N]) -> &[T; N] {
     array

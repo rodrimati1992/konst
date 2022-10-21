@@ -16,6 +16,38 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Constructs a Parser from `string` which is at `start_offset`
+    /// inside some other string.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::Parser;
+    ///
+    /// // indices
+    /// // 0    4   8
+    /// // |    |   |
+    /// // "foo bar baz"
+    /// let substr = konst::string::str_from("foo bar baz", 4);
+    /// let parser = Parser::with_start_offset(substr, 4);
+    ///
+    /// let (bar, parser) = parser.split(' ').unwrap();
+    /// let err = parser.split_terminator(' ').unwrap_err();
+    ///
+    /// assert_eq!(bar, "bar");
+    /// assert_eq!(err.offset(), 8);
+    ///
+    /// ```
+    #[inline]
+    pub const fn with_start_offset(string: &'a str, start_offset: usize) -> Self {
+        Self {
+            parse_direction: ParseDirection::FromStart,
+            start_offset: start_offset as u32,
+            yielded_last_split: false,
+            str: string,
+        }
+    }
+
     /// Skips `byte_count` bytes from the parsed string,
     /// as well as however many bytes are required to be on a char boundary.
     pub const fn skip(mut self, mut byte_count: usize) -> Self {

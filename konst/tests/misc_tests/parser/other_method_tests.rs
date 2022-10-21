@@ -81,3 +81,17 @@ fn test_skip_back() {
         assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
     }
 }
+
+#[test]
+fn test_with_start_offset() {
+    let mut item;
+    let mut parser = Parser::with_start_offset("bar baz qux", 10);
+
+    assert_eq!(parser.start_offset(), 10);
+
+    for (exp_str, exp_so) in [("bar", 14), ("baz", 18), ("qux", 21)] {
+        (item, parser) = parser.split(' ').unwrap();
+        assert_eq!(item, exp_str);
+        assert_eq!(parser.start_offset(), exp_so);
+    }
+}
