@@ -91,7 +91,7 @@ declare_generic_const! {
 ///
 /// assert_eq!(INITS, [21, 34]);
 /// ```
-pub use konst_kernel::__unsafe_utils::uninit_array;
+pub use konst_kernel::maybe_uninit::uninit_array;
 
 /// Const equivalent of [`MaybeUninit::assume_init_mut`](core::mem::MaybeUninit::assume_init_mut)
 ///
@@ -256,4 +256,4 @@ pub const fn as_mut_ptr<T>(md: &mut MaybeUninit<T>) -> *mut T {
 /// assert_eq!(INIT, [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]);
 ///
 /// ```
-pub use konst_kernel::__unsafe_utils::array_assume_init;
+pub use konst_kernel::maybe_uninit::array_assume_init;

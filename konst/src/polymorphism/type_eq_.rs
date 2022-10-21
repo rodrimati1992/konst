@@ -66,4 +66,4 @@ pub use konst_kernel::type_eq::InTypeEqEnum;
 /// because it can only be constructed with `TypeEq::<L, L>::NEW`,
 /// where both type arguments are the same type.
 #[doc(inline)]
-pub use konst_kernel::type_eq::type_eq::TypeEq;
+pub use konst_kernel::type_eq::TypeEq;

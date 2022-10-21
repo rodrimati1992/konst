@@ -1,1 +1,1 @@
-//! Implementation detail of the `konst` crate.
+//! keeping this crate in the repository just in case.

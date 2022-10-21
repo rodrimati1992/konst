@@ -2,7 +2,7 @@ use core::mem::MaybeUninit;
 
 #[macro_export]
 macro_rules! array_map {
-    ($array:expr, |$param:tt $(: $type:ty)?| $mapper:expr $(,)? ) => (
+    ($array:expr, |$param:tt $(: $type:ty)? $(,)?| $mapper:expr $(,)? ) => (
         match $array {
             ref array => {
                 let array = $crate::__::assert_array(array);

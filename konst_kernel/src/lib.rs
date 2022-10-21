@@ -12,6 +12,7 @@
 mod macros;
 
 #[doc(hidden)]
+#[cfg(feature = "__for_konst")]
 pub mod collect_const;
 
 #[doc(hidden)]
@@ -23,6 +24,10 @@ pub mod into_iter;
 pub mod iter;
 
 pub mod type_eq;
+
+#[doc(hidden)]
+#[cfg(feature = "__for_konst")]
+pub mod maybe_uninit;
 
 #[cfg(feature = "rust_1_64")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
@@ -49,12 +54,13 @@ pub mod __ {
     };
 
     pub use core::{
-        assert,
+        assert, compile_error, concat,
         mem::{ManuallyDrop, MaybeUninit},
         ops::Range,
         option::Option::{self, None, Some},
         panic,
         primitive::{bool, usize},
         result::Result::{self, Err, Ok},
+        stringify,
     };
 }

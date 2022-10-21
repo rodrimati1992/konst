@@ -23,7 +23,7 @@ macro_rules! iter_collect_const {
         const fn __func_zxe7hgbnjs<Ret_KO9Y329U2U, const CAP_KO9Y329U2U: usize>(
             cmd: $crate::__::CollectorCmd<$Item, Ret_KO9Y329U2U, CAP_KO9Y329U2U>,
         ) -> Ret_KO9Y329U2U {
-            let mut array = $crate::__unsafe_utils::uninit_array::<_, CAP_KO9Y329U2U>();
+            let mut array = $crate::maybe_uninit::uninit_array::<_, CAP_KO9Y329U2U>();
             let mut length = 0usize;
 
             $crate::__process_iter_args!{
@@ -49,7 +49,7 @@ macro_rules! iter_collect_const {
 
                     // SAFETY: The above assert ensures that
                     // all of the array is initialized
-                    let array = unsafe{ $crate::__unsafe_utils::array_assume_init(array) };
+                    let array = unsafe{ $crate::maybe_uninit::array_assume_init(array) };
                     teq.to_right(array)
                 }
             }

@@ -3,7 +3,7 @@ pub trait InTypeEqEnum<Te> {
     const TEQ_ENUM: Te;
 }
 
-pub mod type_eq {
+mod type_eq {
     use core::marker::PhantomData;
 
     pub struct TypeEq<L: ?Sized, R: ?Sized>(
