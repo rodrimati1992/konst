@@ -26,6 +26,7 @@ jobs:
         cargo test --no-default-features 
         cargo test --no-default-features --features "debug"
         cargo test --no-default-features --features "debug rust_1_64"
+        cargo test --no-default-features --features "debug __for_konst rust_1_64"
           
         cd "${{github.workspace}}/konst_proc_macros/"
         cargo build

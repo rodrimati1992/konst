@@ -14,7 +14,7 @@
 /// assert_eq!(TEN.get(), 10);
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_unwrap as unwrap;
+pub use konst_kernel::opt_unwrap as unwrap;
 
 /// A const equivalent of `Option::unwrap_or`
 ///
@@ -33,7 +33,7 @@ pub use konst_macro_rules::opt_unwrap as unwrap;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::opt_unwrap_or as unwrap_or;
+pub use konst_kernel::opt_unwrap_or as unwrap_or;
 
 /// A const equivalent of `Option::unwrap_or_else`
 ///
@@ -61,7 +61,7 @@ pub use konst_macro_rules::opt_unwrap_or as unwrap_or;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::opt_unwrap_or_else as unwrap_or_else;
+pub use konst_kernel::opt_unwrap_or_else as unwrap_or_else;
 
 /// A const equivalent of `Option::ok_or`
 ///
@@ -79,7 +79,7 @@ pub use konst_macro_rules::opt_unwrap_or_else as unwrap_or_else;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_ok_or as ok_or;
+pub use konst_kernel::opt_ok_or as ok_or;
 
 /// A const equivalent of `Option::ok_or_else`
 ///
@@ -106,7 +106,7 @@ pub use konst_macro_rules::opt_ok_or as ok_or;
 /// }
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_ok_or_else as ok_or_else;
+pub use konst_kernel::opt_ok_or_else as ok_or_else;
 
 /// A const equivalent of `Option::map`
 ///
@@ -134,7 +134,7 @@ pub use konst_macro_rules::opt_ok_or_else as ok_or_else;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_map as map;
+pub use konst_kernel::opt_map as map;
 
 /// A const equivalent of `Option::and_then`
 ///
@@ -168,7 +168,7 @@ pub use konst_macro_rules::opt_map as map;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_and_then as and_then;
+pub use konst_kernel::opt_and_then as and_then;
 
 /// A const equivalent of `Option::or_else`
 ///
@@ -196,7 +196,7 @@ pub use konst_macro_rules::opt_and_then as and_then;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_or_else as or_else;
+pub use konst_kernel::opt_or_else as or_else;
 
 /// A const equivalent of `Option::flatten`
 ///
@@ -214,7 +214,7 @@ pub use konst_macro_rules::opt_or_else as or_else;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_flatten as flatten;
+pub use konst_kernel::opt_flatten as flatten;
 
 /// A const equivalent of `Option::filter`
 ///
@@ -244,7 +244,7 @@ pub use konst_macro_rules::opt_flatten as flatten;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_filter as filter;
+pub use konst_kernel::opt_filter as filter;
 
 /// A const equivalent of the [`Option::copied`] method.
 ///

@@ -13,7 +13,7 @@ pub mod cmp;
 /// konst::iter::into_iter!(0..10)
 /// # ;
 /// ```
-pub use konst_macro_rules::into_iter::range_into_iter::RangeIter;
+pub use konst_kernel::into_iter::range_into_iter::RangeIter;
 
 /// Reversed const-iterator for [`Range`](core::ops::Range)
 ///
@@ -24,7 +24,7 @@ pub use konst_macro_rules::into_iter::range_into_iter::RangeIter;
 /// konst::iter::into_iter!(0..10).rev()
 /// # ;
 /// ```
-pub use konst_macro_rules::into_iter::range_into_iter::RangeIterRev;
+pub use konst_kernel::into_iter::range_into_iter::RangeIterRev;
 
 /// Const-iterator for [`RangeInclusive`](core::ops::RangeInclusive)
 ///
@@ -34,7 +34,7 @@ pub use konst_macro_rules::into_iter::range_into_iter::RangeIterRev;
 /// konst::iter::into_iter!(0..=10)
 /// # ;
 /// ```
-pub use konst_macro_rules::into_iter::range_into_iter::RangeInclusiveIter;
+pub use konst_kernel::into_iter::range_into_iter::RangeInclusiveIter;
 
 /// Reversed const-iterator for [`RangeInclusive`](core::ops::RangeInclusive)
 ///
@@ -44,7 +44,7 @@ pub use konst_macro_rules::into_iter::range_into_iter::RangeInclusiveIter;
 /// konst::iter::into_iter!(0..=10).rev()
 /// # ;
 /// ```
-pub use konst_macro_rules::into_iter::range_into_iter::RangeInclusiveIterRev;
+pub use konst_kernel::into_iter::range_into_iter::RangeInclusiveIterRev;
 
 /// Const-iterator for [`RangeFrom`](core::ops::RangeFrom)
 ///
@@ -54,4 +54,4 @@ pub use konst_macro_rules::into_iter::range_into_iter::RangeInclusiveIterRev;
 /// konst::iter::into_iter!(0..)
 /// # ;
 /// ```
-pub use konst_macro_rules::into_iter::range_into_iter::RangeFromIter;
+pub use konst_kernel::into_iter::range_into_iter::RangeFromIter;

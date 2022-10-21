@@ -69,4 +69,4 @@ assert_eq!(ARR, [9, 11, 19, 21, 29, 31]);
 
 [`iterator_dsl`]: crate::iter::iterator_dsl
 */
-pub use konst_macro_rules::iter_collect_const as collect_const;
+pub use konst_kernel::iter_collect_const as collect_const;

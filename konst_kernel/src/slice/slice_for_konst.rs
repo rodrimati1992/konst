@@ -45,15 +45,15 @@ pub struct TryIntoArrayError {
 impl TryIntoArrayError {
     /// For erroring with an error message.
     pub const fn panic(&self) -> ! {
-        use const_panic::{FmtArg, PanicVal};
+        use crate::utils::PanikVal;
 
-        const_panic::concat_panic(&[&[
-            PanicVal::write_str("could not convert slice of length `"),
-            PanicVal::from_usize(self.slice_len, FmtArg::DEBUG),
-            PanicVal::write_str("` to array of length`"),
-            PanicVal::from_usize(self.array_len, FmtArg::DEBUG),
-            PanicVal::write_str("`"),
-        ]])
+        crate::utils::basic_panic(&[
+            PanikVal::Str("could not convert slice of length `"),
+            PanikVal::Usize(self.slice_len),
+            PanikVal::Str("` to array of length`"),
+            PanikVal::Usize(self.array_len),
+            PanikVal::Str("`"),
+        ])
     }
 }
 

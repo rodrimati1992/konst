@@ -3,7 +3,7 @@ use crate::{
     option, slice,
 };
 
-use konst_macro_rules::iterator_shared;
+use konst_kernel::iterator_shared;
 
 /// Gets a const iterator over `slice`, const equivalent of
 /// [`<[T]>::iter`
@@ -48,7 +48,7 @@ use konst_macro_rules::iterator_shared;
 /// assert_eq!(ARR, [8, 5, 3]);
 ///
 /// ```
-pub use konst_macro_rules::into_iter::slice_into_iter::iter;
+pub use konst_kernel::into_iter::slice_into_iter::iter;
 
 /// Const equivalent of [`core::slice::Iter`].
 ///
@@ -61,7 +61,7 @@ pub use konst_macro_rules::into_iter::slice_into_iter::iter;
 /// konst::iter::into_iter!(a_slice)
 /// # );
 /// ```
-pub use konst_macro_rules::into_iter::slice_into_iter::Iter;
+pub use konst_kernel::into_iter::slice_into_iter::Iter;
 
 /// Const equivalent of `core::iter::Rev<core::slice::Iter<_>>`
 ///
@@ -74,7 +74,7 @@ pub use konst_macro_rules::into_iter::slice_into_iter::Iter;
 /// konst::iter::into_iter!(a_slice).rev()
 /// # );
 /// ```
-pub use konst_macro_rules::into_iter::slice_into_iter::IterRev;
+pub use konst_kernel::into_iter::slice_into_iter::IterRev;
 
 /// A const equivalent of `slice.iter().copied()`
 ///
@@ -94,12 +94,12 @@ pub use konst_macro_rules::into_iter::slice_into_iter::IterRev;
 ///
 /// ```
 ///
-pub use konst_macro_rules::into_iter::slice_into_iter::iter_copied;
+pub use konst_kernel::into_iter::slice_into_iter::iter_copied;
 
 /// A const equivalent of `iter::Copied<slice::Iter<'a, T>>`.
 ///
 /// This const iterator can be created with [`iter_copied`].
-pub use konst_macro_rules::into_iter::slice_into_iter::IterCopied;
+pub use konst_kernel::into_iter::slice_into_iter::IterCopied;
 
 /// A const equivalent of `iter::Rev<iter::Copied<slice::Iter<'a, T>>>`
 ///
@@ -129,7 +129,7 @@ pub use konst_macro_rules::into_iter::slice_into_iter::IterCopied;
 ///
 /// ```
 ///
-pub use konst_macro_rules::into_iter::slice_into_iter::IterCopiedRev;
+pub use konst_kernel::into_iter::slice_into_iter::IterCopiedRev;
 
 ///////////////////////////////////////////////////////////////////////////////
 

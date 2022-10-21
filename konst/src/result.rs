@@ -88,7 +88,7 @@
 ///
 /// [`Parser`]: ../parsing/struct.Parser.html
 #[doc(inline)]
-pub use konst_macro_rules::unwrap_ctx;
+pub use konst_kernel::unwrap_ctx;
 
 /// A const equivalent of `Result::unwrap_or`
 ///
@@ -110,7 +110,7 @@ pub use konst_macro_rules::unwrap_ctx;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_unwrap_or as unwrap_or;
+pub use konst_kernel::res_unwrap_or as unwrap_or;
 
 /// A const equivalent of `Result::unwrap_or_else`
 ///
@@ -141,7 +141,7 @@ pub use konst_macro_rules::res_unwrap_or as unwrap_or;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_unwrap_or_else as unwrap_or_else;
+pub use konst_kernel::res_unwrap_or_else as unwrap_or_else;
 
 /// Returns the error in the `Err` variant,
 /// otherwise runs a closure/function with the value in the `Ok` variant.
@@ -173,7 +173,7 @@ pub use konst_macro_rules::res_unwrap_or_else as unwrap_or_else;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_unwrap_err_or_else as unwrap_err_or_else;
+pub use konst_kernel::res_unwrap_err_or_else as unwrap_err_or_else;
 
 /// A const equivalent of `Result::ok`
 ///
@@ -195,7 +195,7 @@ pub use konst_macro_rules::res_unwrap_err_or_else as unwrap_err_or_else;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_ok as ok;
+pub use konst_kernel::res_ok as ok;
 
 /// A const equivalent of `Result::err`
 ///
@@ -217,7 +217,7 @@ pub use konst_macro_rules::res_ok as ok;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_err as err;
+pub use konst_kernel::res_err as err;
 
 /// A const equivalent of `Result::map`
 ///
@@ -248,7 +248,7 @@ pub use konst_macro_rules::res_err as err;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_map as map;
+pub use konst_kernel::res_map as map;
 
 /// A const equivalent of `Result::map_err`
 ///
@@ -279,7 +279,7 @@ pub use konst_macro_rules::res_map as map;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_map_err as map_err;
+pub use konst_kernel::res_map_err as map_err;
 
 /// A const equivalent of `Result::and_then`
 ///
@@ -315,7 +315,7 @@ pub use konst_macro_rules::res_map_err as map_err;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_and_then as and_then;
+pub use konst_kernel::res_and_then as and_then;
 
 /// A const equivalent of `Result::or_else`
 ///
@@ -351,4 +351,4 @@ pub use konst_macro_rules::res_and_then as and_then;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_or_else as or_else;
+pub use konst_kernel::res_or_else as or_else;

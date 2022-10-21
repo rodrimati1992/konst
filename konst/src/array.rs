@@ -22,4 +22,4 @@
 ///
 /// ```
 ///
-pub use konst_macro_rules::array_map as map;
+pub use konst_kernel::array_map as map;

@@ -1,4 +1,4 @@
-use konst_kernel::type_eq::TypeEq;
+use crate::type_eq::TypeEq;
 
 pub enum CollectorCmd<T, Ret, const CAP: usize> {
     ComputeLength(TypeEq<ComputedLength, Ret>),

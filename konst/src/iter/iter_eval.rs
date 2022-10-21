@@ -330,4 +330,4 @@ assert_eq!(second_number("foo,8,bar,13,baz,21"), Some(13));
 [`iterator_dsl`]: ./iterator_dsl/index.html
 
 */
-pub use konst_macro_rules::iter_eval as eval;
+pub use konst_kernel::iter_eval as eval;

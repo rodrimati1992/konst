@@ -31,6 +31,9 @@ version = "0.7"
 debug = []
 rust_1_64 = []
 docsrs = []
+nightly_mut_refs = []
+mut_refs = []
+__for_konst = ["rust_1_64"]
 
 [package.metadata.docs.rs]
 features = ["debug", "rust_1_64"]

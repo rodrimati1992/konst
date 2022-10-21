@@ -84,7 +84,7 @@ __declare_fns_with_docs! {
 /// The error produced by trying to convert from
 /// `&[T]` to `&[T; N]`, or from `&mut [T]` to `&mut [T; N]`.
 #[doc(inline)]
-pub use konst_macro_rules::slice_::TryIntoArrayError;
+pub use konst_kernel::slice::slice_for_konst::TryIntoArrayError;
 
 /// Tries to convert from `&[T]` to `&[T; N]`.
 ///
@@ -137,7 +137,7 @@ pub use konst_macro_rules::slice_::TryIntoArrayError;
 ///
 /// [`try_into_array`]: ./macro.try_into_array.html
 #[doc(inline)]
-pub use konst_macro_rules::slice_::try_into_array_func as try_into_array;
+pub use konst_kernel::slice::slice_for_konst::try_into_array_func as try_into_array;
 
 /// Tries to convert from `&mut [T]` to `&mut [T; N]`.
 ///
@@ -176,4 +176,4 @@ pub use konst_macro_rules::slice_::try_into_array_func as try_into_array;
     doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
 )]
 #[doc(inline)]
-pub use konst_macro_rules::slice_::try_into_array_mut_func as try_into_array_mut;
+pub use konst_kernel::slice::slice_for_konst::try_into_array_mut_func as try_into_array_mut;

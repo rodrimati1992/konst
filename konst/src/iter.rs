@@ -73,22 +73,22 @@ pub mod iterator_dsl;
 /// ```
 ///
 /// [`iterator_dsl`]: crate::iter::iterator_dsl
-pub use konst_macro_rules::for_each;
+pub use konst_kernel::for_each;
 
 /// Wrapper for `IntoIterKind` implementors,
 /// that defines different methods depending on the
 /// value of `<T as IntoIterKind>::Kind`.
 #[doc(inline)]
-pub use konst_macro_rules::into_iter::IntoIterWrapper;
+pub use konst_kernel::into_iter::IntoIterWrapper;
 
 /// Marker type for proving that `T: IntoIterKind<Kind = K>`
 #[doc(inline)]
-pub use konst_macro_rules::into_iter::IsIntoIterKind;
+pub use konst_kernel::into_iter::IsIntoIterKind;
 
 /// Macro for converting [`IntoIterKind`] implementors into const iterators.
 ///
 #[doc(inline)]
-pub use konst_macro_rules::into_iter_macro as into_iter;
+pub use konst_kernel::into_iter_macro as into_iter;
 
 /// Const analog of the [`IntoIterator`] trait.
 ///
@@ -337,22 +337,22 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::into_iter::IntoIterKind;
+pub use konst_kernel::into_iter::IntoIterKind;
 
 /// For marking some type as being from std
 /// in its [`IntoIterKind::Kind`] associated type.
 #[doc(inline)]
-pub use konst_macro_rules::into_iter::IsStdKind;
+pub use konst_kernel::into_iter::IsStdKind;
 
 /// For marking some type as being convertible to an iterator
 /// in its [`IntoIterKind::Kind`] associated type.
 #[doc(inline)]
-pub use konst_macro_rules::into_iter::IsNonIteratorKind;
+pub use konst_kernel::into_iter::IsNonIteratorKind;
 
 /// For marking some type as being an iterator
 /// in its [`IntoIterKind::Kind`] associated type.
 #[doc(inline)]
-pub use konst_macro_rules::into_iter::IsIteratorKind;
+pub use konst_kernel::into_iter::IsIteratorKind;
 
 include! {"./iter/collect_const.rs"}
 include! {"./iter/iter_eval.rs"}

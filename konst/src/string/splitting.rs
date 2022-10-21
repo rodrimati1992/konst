@@ -5,7 +5,7 @@ use crate::{
     string::{self, str_from, str_up_to, Pattern, PatternNorm},
 };
 
-use konst_macro_rules::iterator_shared;
+use konst_kernel::iterator_shared;
 
 /// A const-equivalent of the [`str::split_once`] method.
 ///

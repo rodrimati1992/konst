@@ -1,3 +1,6 @@
+#[cfg(feature = "__for_konst")]
+pub mod slice_for_konst;
+
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __slice_from_impl {
