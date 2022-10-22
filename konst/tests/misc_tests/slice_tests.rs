@@ -14,6 +14,8 @@ use konst::{
     },
 };
 
+mod slice_concatenation_tests;
+
 mod slice_iter_copied;
 
 mod non_iter_slice_iterators;

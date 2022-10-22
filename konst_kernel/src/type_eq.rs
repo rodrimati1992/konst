@@ -17,6 +17,16 @@ mod type_eq {
         /// Constructs a `TypeEq<L, L>`.
         pub const NEW: Self = TypeEq(PhantomData);
     }
+
+    impl<T, const N: usize, const M: usize> TypeEq<[T; N], [T; M]> {
+        /// Constructs a `TypeEq`,
+        /// conditional on both array type arguments being the same length.
+        pub const MAYBE_SAME_ARRAY_LEN: Option<Self> = if N == M {
+            Some(TypeEq(PhantomData))
+        } else {
+            None
+        };
+    }
 }
 pub use type_eq::TypeEq;
 

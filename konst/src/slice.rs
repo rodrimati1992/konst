@@ -5,9 +5,11 @@
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub mod cmp;
 
+mod slice_concatenation;
 mod slice_const_methods;
 mod slice_iter_methods;
 
+pub use slice_concatenation::*;
 pub use slice_const_methods::*;
 pub use slice_iter_methods::*;
 

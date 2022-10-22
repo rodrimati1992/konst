@@ -1,5 +1,7 @@
 #![allow(non_camel_case_types)]
 
+use crate::type_eq::TypeEq;
+
 use core::fmt::{self, Display};
 
 #[inline]
@@ -61,4 +63,61 @@ impl Display for TryIntoArrayError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("Could not cast slice to array reference")
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[macro_export]
+macro_rules! slice_concat {
+    ($elem_ty:ty, $slice:expr $(,)*) => {{
+        const __ARGS_81608BFNA5: &[&[$elem_ty]] = $slice;
+        {
+            const LEN: $crate::__::usize = $crate::slice::concat_sum_lengths(__ARGS_81608BFNA5);
+
+            const CONC: [$elem_ty; LEN] = $crate::slice::concat_slices(__ARGS_81608BFNA5);
+
+            CONC
+        }
+    }};
+}
+
+pub const fn concat_sum_lengths<T>(slice: &[&[T]]) -> usize {
+    let mut sum = 0usize;
+    crate::for_range! {i in 0..slice.len() =>
+        sum += slice[i].len();
+    }
+    sum
+}
+
+pub const fn concat_slices<T, const N: usize>(slices: &[&[T]]) -> [T; N]
+where
+    T: Copy,
+{
+    if let Some(teq) = TypeEq::MAYBE_SAME_ARRAY_LEN {
+        return teq.to_right([]);
+    }
+
+    let mut out = [*first_elem(slices); N];
+    let mut out_i = 0usize;
+
+    crate::for_range! {si in 0..slices.len() =>
+        let slice = slices[si];
+        crate::for_range! {i in 0..slice.len() =>
+            out[out_i] = slice[i];
+            out_i += 1;
+        }
+    }
+
+    out
+}
+
+// returns the first T in a `&[&[T]]`
+const fn first_elem<'a, T>(slices: &[&'a [T]]) -> &'a T {
+    crate::for_range! {si in 0..slices.len() =>
+        if let [first, ..] = slices[si] {
+            return first;
+        }
+    }
+
+    panic!("there was no element in any slice");
 }
