@@ -33,8 +33,6 @@ mod misc_tests {
     #[cfg(feature = "parsing")]
     mod parser;
 
-    mod type_eq_tests;
-
     #[cfg(feature = "cmp")]
     mod range_and_nonzero_tests;
 

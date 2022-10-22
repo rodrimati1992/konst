@@ -48,9 +48,10 @@ pub mod utils;
 pub mod __ {
     #[cfg(feature = "__for_konst")]
     pub use crate::{
-        collect_const::{CollectorCmd, ComputedLength},
+        collect_const::CollectorCmd,
         into_iter::{EmptyIter, IntoIterWrapper, IsIntoIterKind},
         macros::array_macros::{assert_array, uninit_array, AssumInitCopyArray},
+        type_eq::{HasTypeWitness, MakeTypeWitness, TypeWitnessTypeArg},
     };
 
     pub use core::{

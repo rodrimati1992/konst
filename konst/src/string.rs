@@ -98,7 +98,7 @@ __declare_fns_with_docs! {
 ///
 /// ```
 ///
-/// [`unwrap_ctx`]: crate::resullt::unwrap_ctx
+/// [`unwrap_ctx`]: crate::result::unwrap_ctx
 pub const fn from_utf8(slice: &[u8]) -> Result<&str, Utf8Error> {
     match core::str::from_utf8(slice) {
         Ok(x) => Ok(x),
@@ -110,7 +110,7 @@ pub const fn from_utf8(slice: &[u8]) -> Result<&str, Utf8Error> {
 /// to provide a `panic` method for use in [`unwrap_ctx`],
 /// returned by [`from_utf8`](crate::string::from_utf8).
 ///
-/// [`unwrap_ctx`]: crate::resullt::unwrap_ctx
+/// [`unwrap_ctx`]: crate::result::unwrap_ctx
 #[derive(Copy, Clone)]
 pub struct Utf8Error(pub core::str::Utf8Error);
 

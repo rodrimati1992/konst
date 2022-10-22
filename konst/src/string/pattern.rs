@@ -1,13 +1,13 @@
 use crate::{
     chr,
-    polymorphism::{InTypeEqEnum, TypeEq},
+    polymorphism::{HasTypeWitness, MakeTypeWitness, TypeEq, TypeWitnessTypeArg},
 };
 
 /// A string pattern.
 ///
 /// Types that implement this trait can be used to search into a string.
 ///
-pub trait Pattern<'a>: InTypeEqEnum<PatternInput<'a, Self>> + Copy {}
+pub trait Pattern<'a>: HasTypeWitness<PatternInput<'a, Self>> + Copy + Sized {}
 
 macro_rules! declare_patterns {
     ($((
@@ -22,9 +22,16 @@ macro_rules! declare_patterns {
             )*
         }
 
+        impl<'a, Arg> TypeWitnessTypeArg for PatternInput<'a, Arg>
+        where
+            Arg: Pattern<'a>
+        {
+            type Arg = Arg;
+        }
+
         $(
-            impl<'a> InTypeEqEnum<PatternInput<'a, Self>> for $ty {
-                const TEQ_ENUM: PatternInput<'a, Self> =
+            impl<'a> MakeTypeWitness for PatternInput<'a, $ty> {
+                const MAKE: Self =
                     PatternInput(PatternInputInner::$variant{
                         te: TypeEq::NEW,
                     });
@@ -48,7 +55,7 @@ macro_rules! declare_patterns {
             where
                 P: Pattern<'a>
             {
-                match P::TEQ_ENUM.0 {
+                match P::WITNESS.0 {
                     $(
                         PatternInputInner::$variant{te} => {
                             let $param = te.to_right(pattern);

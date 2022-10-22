@@ -93,8 +93,8 @@ pub const fn concat_slices<T, const N: usize>(slices: &[&[T]]) -> [T; N]
 where
     T: Copy,
 {
-    if let Some(teq) = TypeEq::MAYBE_SAME_ARRAY_LEN {
-        return teq.to_right([]);
+    if let Ok(x) = try_into_array_func::<T, N>(&[]) {
+        return *x;
     }
 
     let mut out = [*first_elem(slices); N];

@@ -1,27 +1,27 @@
-use crate::type_eq::TypeEq;
+use crate::type_eq::{MakeTypeWitness, TypeEq, TypeWitnessTypeArg};
 
-pub enum CollectorCmd<T, Ret, const CAP: usize> {
-    ComputeLength(TypeEq<ComputedLength, Ret>),
+pub enum CollectorCmd<Ret, T, const CAP: usize> {
+    ComputeLength(TypeEq<usize, Ret>),
     BuildArray(TypeEq<[T; CAP], Ret>),
 }
 
-impl<T> CollectorCmd<T, ComputedLength, 0> {
-    pub const COMPUTE_LENGTH: Self = Self::ComputeLength(TypeEq::NEW);
+impl<Ret, T, const CAP: usize> TypeWitnessTypeArg for CollectorCmd<Ret, T, CAP> {
+    type Arg = Ret;
 }
 
-impl<T, const CAP: usize> CollectorCmd<T, [T; CAP], CAP> {
-    pub const BUILD_ARRAY: Self = Self::BuildArray(TypeEq::NEW);
+impl<T> MakeTypeWitness for CollectorCmd<usize, T, 0> {
+    const MAKE: Self = Self::ComputeLength(TypeEq::NEW);
 }
 
-pub struct ComputedLength {
-    pub length: usize,
+impl<T, const CAP: usize> MakeTypeWitness for CollectorCmd<[T; CAP], T, CAP> {
+    const MAKE: Self = Self::BuildArray(TypeEq::NEW);
 }
 
 #[macro_export]
 macro_rules! iter_collect_const {
     ($Item:ty => $($rem:tt)*) => {{
         const fn __func_zxe7hgbnjs<Ret_KO9Y329U2U, const CAP_KO9Y329U2U: usize>(
-            cmd: $crate::__::CollectorCmd<$Item, Ret_KO9Y329U2U, CAP_KO9Y329U2U>,
+            cmd: $crate::__::CollectorCmd<Ret_KO9Y329U2U, $Item, CAP_KO9Y329U2U>
         ) -> Ret_KO9Y329U2U {
             let mut array = $crate::maybe_uninit::uninit_array::<_, CAP_KO9Y329U2U>();
             let mut length = 0usize;
@@ -39,7 +39,7 @@ macro_rules! iter_collect_const {
 
             match cmd {
                 $crate::__::CollectorCmd::ComputeLength(teq) => {
-                    teq.to_right($crate::__::ComputedLength { length })
+                    teq.to_right(length)
                 }
                 $crate::__::CollectorCmd::BuildArray(teq) => {
                     $crate::__::assert!{
@@ -56,10 +56,10 @@ macro_rules! iter_collect_const {
         }
 
         const __COUNT81608BFNA5: $crate::__::usize =
-            __func_zxe7hgbnjs($crate::__::CollectorCmd::COMPUTE_LENGTH).length;
+            __func_zxe7hgbnjs($crate::__::MakeTypeWitness::MAKE);
 
         const __ARR81608BFNA5: [$Item; __COUNT81608BFNA5] =
-            __func_zxe7hgbnjs($crate::__::CollectorCmd::BUILD_ARRAY);
+            __func_zxe7hgbnjs($crate::__::MakeTypeWitness::MAKE);
 
         __ARR81608BFNA5
     }};
