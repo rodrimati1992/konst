@@ -105,6 +105,39 @@ pub const fn join_strs<const N: usize>(
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#[macro_export]
+macro_rules! str_from_iter {
+    ($($rem:tt)*) => {{
+        $crate::__collect_const_iter_with!{
+            $crate::__::u8,
+            |array, written_length, item| {
+                let bytes = item.as_bytes();
+                let item_len = bytes.len();
+                let mut i = written_length;
+                let mut j = 0;
+                while j < item_len {
+                    array[i] = $crate::__::MaybeUninit::new(bytes[j]);
+                    i += 1;
+                    j += 1;
+                }
+            },
+            elem_length = item.len(),
+            =>
+            $($rem)*
+        }
+
+        const __STR81608BFNA5: &$crate::__::str =
+            match core::str::from_utf8(&__ARR81608BFNA5) {
+                $crate::__::Ok(x) => x,
+                $crate::__::Err(_) => $crate::__::panic!("created string isn't UTF8"),
+            };
+
+        __STR81608BFNA5
+    }}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 pub struct ArrayStr<const N: usize>([u8; N]);
 
 impl<const N: usize> ArrayStr<N> {

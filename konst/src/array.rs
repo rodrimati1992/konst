@@ -20,10 +20,11 @@
 /// const SQUARED: [u32; 6] = array::map!([1, 2, 3, 4, 5, 6], |x: u32| x.pow(2));
 /// assert_eq!(SQUARED, [1, 4, 9, 16, 25, 36]);
 ///
-/// assert_eq!(
-///     array::map!([3, 5, 8], |x| -> u64 { x + 2 }),
-///     [5, 7, 10],
-/// );
+/// {
+///     let input = [3, 5, 8];
+///     let output = array::map!(input, |x| -> u64 { x + 2 });
+///     assert_eq!(output, [5, 7, 10]);
+/// }
 ///
 /// ```
 ///

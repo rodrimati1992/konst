@@ -47,3 +47,24 @@ pub use konst_kernel::string_concat as str_concat;
 ///
 /// ```
 pub use konst_kernel::string_join as str_join;
+
+/// Makes a `&'static str` from an const iterator over `&str`s
+///
+/// # Example
+///
+/// ```rust
+/// use konst::string;
+///
+/// const S: &str = string::from_iter!(
+///     &["foo", "bar", "baz"],
+///         flat_map(|s| {
+///             // By value iteration over arrays isn't supported,
+///             // but by-reference iteration is supported
+///             &[*s, ", "]
+///         })
+/// );
+///
+/// assert_eq!(S, "foo, bar, baz, ");
+///
+/// ```
+pub use konst_kernel::str_from_iter as from_iter;

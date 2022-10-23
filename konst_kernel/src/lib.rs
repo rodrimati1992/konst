@@ -61,7 +61,7 @@ pub mod __ {
         ops::Range,
         option::Option::{self, None, Some},
         panic,
-        primitive::{bool, str, usize},
+        primitive::{bool, str, u8, usize},
         result::Result::{self, Err, Ok},
         stringify,
     };
