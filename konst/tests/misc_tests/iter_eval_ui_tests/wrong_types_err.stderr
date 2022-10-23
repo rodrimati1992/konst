@@ -2,37 +2,25 @@ error[E0308]: mismatched types
  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:5:35
   |
 5 |     konst::iter::eval!(R, any(|_| 10u8,));
-  |     ------------------------------^^^^---
-  |     |                             |
-  |     |                             expected `bool`, found `u8`
-  |     expected due to this
+  |                                   ^^^^ expected `bool`, found `u8`
 
 error[E0308]: mismatched types
  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:9:35
   |
 9 |     konst::iter::eval!(R, all(|_| 10u8,));
-  |     ------------------------------^^^^---
-  |     |                             |
-  |     |                             expected `bool`, found `u8`
-  |     expected due to this
+  |                                   ^^^^ expected `bool`, found `u8`
 
 error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:13:38
    |
 13 |     konst::iter::eval!(R, filter(|_| 10u8,));
-   |     ---------------------------------^^^^---
-   |     |                                |
-   |     |                                expected `bool`, found `u8`
-   |     expected due to this
+   |                                      ^^^^ expected `bool`, found `u8`
 
 error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:17:36
    |
 17 |     konst::iter::eval!(R, find(|_| 10u8,));
-   |     -------------------------------^^^^---
-   |     |                              |
-   |     |                              expected `bool`, found `u8`
-   |     expected due to this
+   |                                    ^^^^ expected `bool`, found `u8`
 
 error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:22:42
@@ -51,11 +39,7 @@ error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:26:40
    |
 26 |     konst::iter::eval!(R, find_map(|_| 10u8,));
-   |     -----------------------------------^^^^---
-   |     |                                  |
-   |     |                                  expected enum `Option`, found `u8`
-   |     expected due to the type of this binding
-   |     expected due to this value
+   |                                        ^^^^ expected enum `Option`, found `u8`
    |
    = note: expected enum `Option<_>`
               found type `u8`
@@ -125,28 +109,19 @@ error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:58:40
    |
 58 |     konst::iter::eval!(R, position(|_| 10u8));
-   |     -----------------------------------^^^^--
-   |     |                                  |
-   |     |                                  expected `bool`, found `u8`
-   |     expected due to this
+   |                                        ^^^^ expected `bool`, found `u8`
 
 error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:62:37
    |
 62 |     konst::iter::eval!(R, rfind(|_| 10u8));
-   |     --------------------------------^^^^--
-   |     |                               |
-   |     |                               expected `bool`, found `u8`
-   |     expected due to this
+   |                                     ^^^^ expected `bool`, found `u8`
 
 error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:66:41
    |
 66 |     konst::iter::eval!(R, rposition(|_| 10u8,));
-   |     ------------------------------------^^^^---
-   |     |                                   |
-   |     |                                   expected `bool`, found `u8`
-   |     expected due to this
+   |                                         ^^^^ expected `bool`, found `u8`
 
 error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:70:32
@@ -180,10 +155,7 @@ error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:78:42
    |
 78 |     konst::iter::eval!(R, skip_while(|_| None::<u32>,));
-   |     -------------------------------------^^^^^^^^^^^---
-   |     |                                    |
-   |     |                                    expected `bool`, found enum `Option`
-   |     expected due to this
+   |                                          ^^^^^^^^^^^ expected `bool`, found enum `Option`
    |
    = note: expected type `bool`
               found enum `Option<u32>`
@@ -192,10 +164,7 @@ error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:82:42
    |
 82 |     konst::iter::eval!(R, take_while(|_| None::<u32>,));
-   |     -------------------------------------^^^^^^^^^^^---
-   |     |                                    |
-   |     |                                    expected `bool`, found enum `Option`
-   |     expected due to this
+   |                                          ^^^^^^^^^^^ expected `bool`, found enum `Option`
    |
    = note: expected type `bool`
               found enum `Option<u32>`

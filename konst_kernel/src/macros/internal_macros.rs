@@ -49,6 +49,13 @@ macro_rules! iterator_shared {
 
 #[doc(hidden)]
 #[macro_export]
+macro_rules! __unparenthesize {
+    (($($stuff:tt)*)) => { $($stuff)* };
+    ($($stuff:tt)*) => { $($stuff)* };
+}
+
+#[doc(hidden)]
+#[macro_export]
 macro_rules! __annotate_type {
     (=> $expr:expr) => {
         $expr

@@ -50,7 +50,7 @@ pub mod __ {
     pub use crate::{
         collect_const::CollectorCmd,
         into_iter::{EmptyIter, IntoIterWrapper, IsIntoIterKind},
-        macros::array_macros::{assert_array, uninit_copy_array_of_len},
+        macros::array_macros::{assert_array, uninit_copy_array_of_len, unit_array},
         maybe_uninit::{array_assume_init, uninit_array},
         type_eq::{HasTypeWitness, MakeTypeWitness, TypeWitnessTypeArg},
     };
@@ -66,14 +66,3 @@ pub mod __ {
         stringify,
     };
 }
-
-const _: () = {
-    iter_collect_const!(usize =>
-        (1..=4),
-            map(|x| {
-                // testing that lifetime extension works
-                &(x * 10)
-            }),
-            copied(),
-    );
-};

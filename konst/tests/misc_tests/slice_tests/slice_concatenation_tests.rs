@@ -2,8 +2,8 @@ use konst::slice::slice_concat;
 
 #[test]
 fn slice_concat_basic_test() {
-    assert_eq!(slice_concat!(u8, &[]), []);
-    assert_eq!(slice_concat!(u8, &[&[]]), []);
+    assert_eq!(slice_concat!(u8, &[]), [0u8; 0]);
+    assert_eq!(slice_concat!(u8, &[&[]]), [0u8; 0]);
     assert_eq!(slice_concat!(u8, &[&[], &[3]]), [3]);
     assert_eq!(slice_concat!(u8, &[&[5], &[]]), [5]);
     assert_eq!(slice_concat!(u8, &[&[5], &[8, 13]]), [5, 8, 13]);

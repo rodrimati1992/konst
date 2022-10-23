@@ -102,7 +102,7 @@ macro_rules! make_parse_closure_macro {
                 $_(, $_($rem:expr $_(, $_($rem_tt:tt)*)? )? )?
             ) => ({
                 $_($_(
-                    $crate::__parse_closure_trailing_expr_error!{$usage_site $_($rem)+}
+                    $crate::__parse_closure_trailing_expr_error!{$usage_site $rem}
                 )?)?
 
                 $_($macro)* ! {
@@ -117,7 +117,7 @@ macro_rules! make_parse_closure_macro {
                 $_(, $_($rem:expr $_(, $_($rem_tt:tt)*)? )? )?
             ) => ({
                 $_($_(
-                    $crate::__parse_closure_trailing_expr_error!{$usage_site $_($rem)+}
+                    $crate::__parse_closure_trailing_expr_error!{$usage_site $rem}
                 )?)?
 
                 $_($macro)* ! {

@@ -93,3 +93,15 @@ error: `enumerate` does not take arguments, passed: 10
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__cim_error_on_args` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/iter_eval_ui_tests/a_to_e_method_syntax_err.rs:8:34
+  |
+8 |     konst::iter::eval!(R, any(|_|(), 100));
+  |                                  ^^ expected `bool`, found `()`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/a_to_e_method_syntax_err.rs:15:34
+   |
+15 |     konst::iter::eval!(R, all(|_|(), 100));
+   |                                  ^^ expected `bool`, found `()`

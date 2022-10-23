@@ -1,7 +1,5 @@
 #![allow(non_camel_case_types)]
 
-use crate::type_eq::TypeEq;
-
 use core::fmt::{self, Display};
 
 #[inline]
