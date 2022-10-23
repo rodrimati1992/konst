@@ -1,5 +1,7 @@
+use crate::misc_tests::test_utils::assert_type;
+
 #[test]
-fn array_map_test() {
+fn array_map_basic_test() {
     use konst::array::map;
 
     {
@@ -28,5 +30,15 @@ fn array_map_test() {
 
         assert_eq!(X, [Some(10), Some(20)]);
         assert_eq!(Y, [1, 2, 3]);
+    }
+}
+
+#[test]
+fn array_map_more_tests() {
+    use konst::array::map;
+
+    {
+        let mapped = map!([(); 3], |_| -> u32 { Default::default() });
+        assert_type::<_, [u32; 3]>(&mapped);
     }
 }

@@ -49,6 +49,17 @@ macro_rules! iterator_shared {
 
 #[doc(hidden)]
 #[macro_export]
+macro_rules! __annotate_type {
+    (=> $expr:expr) => {
+        $expr
+    };
+    ($type:ty => $expr:expr) => {
+        $crate::utils::TypeAnnot::<$type> { val: $expr }.val
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
 macro_rules! __choose {
     (true $then:tt $($else:tt)*) => {
         $then

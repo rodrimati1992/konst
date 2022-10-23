@@ -147,7 +147,7 @@ fn test_rsplit_terminator() {
         assert_eq!(err.kind(), ErrorKind::SplitExhausted);
     }
     {
-        let mut parser = Parser::new("");
+        let parser = Parser::new("");
         let err = parser.rsplit_terminator(",").unwrap_err();
         assert_eq!(err.offset(), 0);
         assert_eq!(err.error_direction(), ParseDirection::FromEnd);

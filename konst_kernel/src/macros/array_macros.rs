@@ -2,32 +2,37 @@ use core::mem::MaybeUninit;
 
 #[macro_export]
 macro_rules! array_map {
-    ($array:expr, |$param:tt $(: $type:ty)? $(,)?| $mapper:expr $(,)? ) => (
+    ($array:expr, $($closure:tt)* ) => (
+        $crate::utils::__alt_parse_closure_1!{
+            ($crate::__array_map) ($array,) (array_map),
+            $($closure)*
+        }
+    );
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __array_map {
+    ($array:expr, |$param:tt $(: $type:ty)? $(,)?| $(-> $ret:ty)? $mapper:block $(,)? ) => {
         match $array {
             ref array => {
                 let array = $crate::__::assert_array(array);
                 let len = array.len();
-                let mut out = $crate::__::uninit_array(array);
+                let mut out = $crate::__::uninit_copy_array_of_len(&array);
 
                 let mut i = 0;
                 while i < len {
                     let $param $(: $type)? = array[i];
-                    out[i] = $crate::__::MaybeUninit::new($mapper);
+                    out[i] = $crate::__::MaybeUninit $(::<$ret>)? ::new($mapper);
                     i += 1;
                 }
 
                 unsafe{
-                    $crate::__::AssumInitCopyArray{uninit: out}.init
+                    $crate::__::array_assume_init(out)
                 }
             }
         }
-    );
-    ($array:expr, | $($anything:tt)* ) => {
-        compile_error!("expected the closure to take an argument")
-    };
-    ($array:expr, $function:expr $(,)?) => {
-        $crate::array_map!($array, |x| $function(x))
-    };
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,19 +42,10 @@ pub const fn assert_array<T, const N: usize>(array: &[T; N]) -> &[T; N] {
     array
 }
 
-struct UNINIT<T>(T);
-
-impl<T> UNINIT<T> {
-    pub const V: MaybeUninit<T> = MaybeUninit::uninit();
-}
-
-#[repr(C)]
-pub union AssumInitCopyArray<T: Copy, const N: usize> {
-    pub uninit: [MaybeUninit<T>; N],
-    pub init: [T; N],
-}
-
 #[inline(always)]
-pub const fn uninit_array<T, U, const N: usize>(_input: &[T; N]) -> [MaybeUninit<U>; N] {
-    [UNINIT::V; N]
+pub const fn uninit_copy_array_of_len<T, U, const N: usize>(_input: &[T; N]) -> [MaybeUninit<U>; N]
+where
+    U: Copy,
+{
+    crate::maybe_uninit::uninit_array()
 }

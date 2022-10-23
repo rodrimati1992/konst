@@ -340,7 +340,7 @@ macro_rules! __call_iter_methods {
                     $fixed
                     $item
                     ($($rem)*)
-                    |elem| elem
+                    |elem| {elem}
                 }
             }
             {}
@@ -439,10 +439,10 @@ macro_rules! __cim_output_layer {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __cim_filter {
-    ($item:ident, |$elem:pat_param| $v:expr) => {{
+    ($item:ident, |$elem:pat_param| $(-> $ret_ty:ty)? $v:block) => {{
         let $elem = &$item;
         // avoiding lifetime extension
-        let v: $crate::__::bool = $v;
+        let v: $crate::__::bool = $crate::__annotate_type!{$($ret_ty)? => $v};
         v
     }};
 }
@@ -450,10 +450,11 @@ macro_rules! __cim_filter {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __cim_map {
-    ($item:ident, |$elem:pat_param| $v:expr) => {{
+    ($item:ident, |$elem:pat_param| $(-> $ret_ty:ty)? $v:block) => {{
         let $elem = $item;
+
         // allowing for lifetime extension of temporaries
-        $v
+        $crate::__annotate_type!{$($ret_ty)? => $v}
     }};
 }
 
@@ -486,7 +487,7 @@ macro_rules! __cim_flat_map {
         )
         $item:ident
         ($($rem:tt)*)
-        |$elem:pat_param| $v:expr
+        |$elem:pat_param| $(-> $ret_ty:ty)? $v:block
     ) => ({
         let $elem = $item;
         $crate::__call_iter_methods!{
@@ -495,7 +496,11 @@ macro_rules! __cim_flat_map {
             $item
             (
                 (
-                    {iter = $crate::into_iter_macro!($v)}
+                    {
+                        iter = $crate::into_iter_macro!(
+                            $crate::__annotate_type!{$($ret_ty)? => $v}
+                        )
+                    }
                     let $item = if let $crate::__::Some((elem_, next_)) = iter.$next_fn() {
                         iter = next_;
                         elem_
