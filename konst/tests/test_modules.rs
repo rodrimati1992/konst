@@ -11,6 +11,8 @@ mod misc_tests {
 
     mod iter_mod;
 
+    mod ffi_tests;
+
     mod manually_drop_tests;
 
     mod maybe_uninit_tests;

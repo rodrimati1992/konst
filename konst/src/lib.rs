@@ -331,6 +331,9 @@ pub mod chr;
 
 pub mod iter;
 
+/// const equivalents of `core::ffi` functions
+pub mod ffi;
+
 pub mod polymorphism;
 
 pub mod primitive;
