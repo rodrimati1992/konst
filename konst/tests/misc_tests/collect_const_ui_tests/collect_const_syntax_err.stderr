@@ -34,7 +34,7 @@ error[E0080]: evaluation of constant value failed
 2 |     konst::iter::collect_const!{() => 0..10,all(|_|false)};
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ referenced constant has errors
   |
-  = note: this error originates in the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the macro `$crate::__collect_const_iter_with` which comes from the expansion of the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0080]: evaluation of constant value failed
  --> tests/misc_tests/collect_const_ui_tests/collect_const_syntax_err.rs:6:5
@@ -42,4 +42,4 @@ error[E0080]: evaluation of constant value failed
 6 |     konst::iter::collect_const!{() =>};
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ referenced constant has errors
   |
-  = note: this error originates in the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the macro `$crate::__collect_const_iter_with` which comes from the expansion of the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -1,0 +1,41 @@
+warning: unreachable expression
+ --> tests/misc_tests/string_ui_tests/str_from_iter_err.rs:4:17
+  |
+4 | const _: &str = string::from_iter!(&["foo"],map(|_| break));
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^-----^^
+  |                 |                                   |
+  |                 |                                   any code following this expression is unreachable
+  |                 unreachable expression
+  |
+  = note: `#[warn(unreachable_code)]` on by default
+  = note: this warning originates in the macro `$crate::__call_iter_methods` which comes from the expansion of the macro `string::from_iter` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/string_ui_tests/str_from_iter_err.rs:13:17
+   |
+13 | const _: &str = string::from_iter!(&["foo"; 5],enumerate(),map(|(i, _)| i));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `&str`, found `usize`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `string::from_iter` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/string_ui_tests/str_from_iter_err.rs:13:17
+   |
+13 | const _: &str = string::from_iter!(&["foo"; 5],enumerate(),map(|(i, _)| i));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `&str`, found `usize`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `string::from_iter` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0080]: evaluation of constant value failed
+  --> tests/misc_tests/string_ui_tests/str_from_iter_err.rs:13:17
+   |
+13 | const _: &str = string::from_iter!(&["foo"; 5],enumerate(),map(|(i, _)| i));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ referenced constant has errors
+   |
+   = note: this error originates in the macro `$crate::__collect_const_iter_with` which comes from the expansion of the macro `string::from_iter` (in Nightly builds, run with -Z macro-backtrace for more info)

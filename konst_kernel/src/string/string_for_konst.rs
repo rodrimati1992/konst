@@ -111,7 +111,8 @@ macro_rules! str_from_iter {
         $crate::__collect_const_iter_with!{
             $crate::__::u8,
             |array, written_length, item| {
-                let bytes = <$crate::__::str>::as_bytes(item);
+                let item: &$crate::__::str = item;
+                let bytes = item.as_bytes();
                 let item_len = bytes.len();
                 let mut i = written_length;
                 let mut j = 0;
@@ -121,7 +122,10 @@ macro_rules! str_from_iter {
                     j += 1;
                 }
             },
-            elem_length = <$crate::__::str>::len(item),
+            elem_length = {
+                let item: &$crate::__::str = item;
+                item.len()
+            },
             =>
             $($rem)*
         }
