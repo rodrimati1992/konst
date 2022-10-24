@@ -1,4 +1,4 @@
-use konst::string::{str_concat, str_join};
+use konst::string::{self, str_concat, str_join};
 
 #[test]
 fn str_concat_basic_test() {
@@ -36,6 +36,8 @@ fn str_concat_from_func_test() {
 
     assert_eq!(str_concat!(&func()), "AABBCC");
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 #[test]
 fn str_join_empty_sep_test() {
@@ -110,4 +112,29 @@ fn str_join_from_func_test() {
     }
 
     assert_eq!(str_join!(sep(), &strings()), "AAyepBByepCC");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+#[test]
+fn str_from_iter_basic_test() {
+    {
+        const S: &str = string::from_iter!(&[""; 0]);
+        assert_eq!(S, "");
+    }
+
+    assert_eq!(string::from_iter!(&[""]), "");
+    assert_eq!(string::from_iter!(&["foo"]), "foo");
+    assert_eq!(string::from_iter!(&["foo", "bar"]), "foobar");
+}
+
+#[test]
+fn str_from_iter_flat_mapped_test() {
+    {
+        let str = string::from_iter!(
+            0..5,
+            flat_map(|i| &[konst::string::str_up_to("abcd", i), "."])
+        );
+        assert_eq!(str, ".a.ab.abc.abcd.");
+    }
 }

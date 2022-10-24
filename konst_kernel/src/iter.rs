@@ -1,4 +1,5 @@
 mod combinator_methods;
+pub mod iter_adaptors;
 mod iter_eval_macro;
 
 #[macro_export]
