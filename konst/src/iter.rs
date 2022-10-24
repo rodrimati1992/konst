@@ -4,6 +4,11 @@
 //! const equivalents of IntoIterator and Iterator.
 //!
 
+/// Items related to the [`Step`] trait.
+pub mod step;
+
+pub use step::Step;
+
 mod iterator_adaptors;
 pub mod iterator_dsl;
 

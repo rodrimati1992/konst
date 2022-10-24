@@ -1,4 +1,4 @@
-use super::{IntoIterKind, IntoIterWrapper, IsIteratorKind, IsStdKind};
+use crate::into_iter::{IntoIterKind, IntoIterWrapper, IsIteratorKind, IsStdKind};
 
 use core::mem::ManuallyDrop;
 

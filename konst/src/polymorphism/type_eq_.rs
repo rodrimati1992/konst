@@ -7,7 +7,7 @@ macro_rules! explain_type_witness {
 }
 
 
-/// Gets a type witness for `Self`,
+/// Gets a type witness for `Self`.
 /// 
 #[doc = explain_type_witness!()]
 /// 
@@ -35,18 +35,18 @@ macro_rules! explain_type_witness {
 /// {
 ///     match T::WITNESS {
 ///         StrTryFrom::Str(te) => {
-///             // `TypeEq::<L, R>::to_right` does an identity conversion from
+///             // `TypeEq::<L, R>::sidecast` does an identity conversion from
 ///             // an `L` to an `R`, which `TypeEq` guarantees are the same type.
-///             let string: &str = te.to_right(input);
+///             let string: &str = te.sidecast(input);
 ///             Ok(string)
 ///         }
 ///         StrTryFrom::Bytes(te) => {
-///             let bytes: &[u8] = te.to_right(input);
+///             let bytes: &[u8] = te.sidecast(input);
 ///             std::str::from_utf8(bytes)
 ///         }
 ///         StrTryFrom::Array(te) => {
 ///             // this requires care not to infinitely recurse
-///             let slice: &[u8] = te.to_right(input);
+///             let slice: &[u8] = te.sidecast(input);
 ///             str_try_from(slice)
 ///         }
 ///     }
@@ -126,10 +126,10 @@ pub use konst_kernel::type_eq::TypeWitnessTypeArg;
 /// 
 /// const fn default<T, const L: usize>(ret: Defaultable<'_, T, L>) -> T {
 ///     match ret {
-///         Defaultable::I32(te) => te.to_right(3),
-///         Defaultable::Bool(te) => te.to_right(true),
-///         Defaultable::Str(te) => te.to_right("empty"),
-///         Defaultable::Array(te) => te.to_right([5; L]),
+///         Defaultable::I32(te) => te.sidecast(3),
+///         Defaultable::Bool(te) => te.sidecast(true),
+///         Defaultable::Str(te) => te.sidecast("empty"),
+///         Defaultable::Array(te) => te.sidecast([5; L]),
 ///     }
 /// }
 /// 

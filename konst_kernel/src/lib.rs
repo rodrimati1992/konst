@@ -37,6 +37,8 @@ pub mod slice;
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub mod string;
 
+pub mod step_kk;
+
 #[doc(hidden)]
 pub mod __unsafe_utils;
 

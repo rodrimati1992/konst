@@ -52,6 +52,14 @@ mod type_eq {
         /// Constructs a `TypeEq<L, L>`.
         pub const NEW: Self = TypeEq(PhantomData);
     }
+
+    impl<L: ?Sized, R: ?Sized> TypeEq<L, R> {
+        /// Swaps the type parameters of this `TypeEq`
+        #[inline(always)]
+        pub const fn flip(self) -> TypeEq<R, L> {
+            TypeEq(PhantomData)
+        }
+    }
 }
 pub use type_eq::TypeEq;
 
@@ -100,10 +108,21 @@ impl<L, R> TypeEq<L, R> {
     /// This method uses the fact that
     /// having a `TypeEq<L, R>` value proves that `L` and `R` are the same type.
     #[inline(always)]
-    pub const fn to_right(self, from: L) -> R {
+    pub const fn sidecast(self, from: L) -> R {
         self.reachability_hint(());
 
         unsafe { crate::__priv_transmute!(L, R, from) }
+    }
+
+    /// A no-op cast from `&L` to `&R`
+    ///
+    /// This method uses the fact that
+    /// having a `TypeEq<L, R>` value proves that `L` and `R` are the same type.
+    #[inline(always)]
+    pub(crate) const fn sidecast_ref(self, from: &L) -> &R {
+        self.reachability_hint(());
+
+        unsafe { &*(from as *const L as *const R) }
     }
 }
 

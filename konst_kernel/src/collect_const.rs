@@ -64,7 +64,7 @@ macro_rules! __collect_const_iter_with {
 
             match cmd {
                 $crate::__::CollectorCmd::ComputeLength(teq) => {
-                    teq.to_right($length)
+                    teq.sidecast($length)
                 }
                 $crate::__::CollectorCmd::BuildArray(teq) => {
                     $crate::__::assert!{
@@ -75,7 +75,7 @@ macro_rules! __collect_const_iter_with {
                     // SAFETY: The above assert ensures that
                     // all of the array is initialized
                     let $array = unsafe{ $crate::maybe_uninit::array_assume_init($array) };
-                    teq.to_right($array)
+                    teq.sidecast($array)
                 }
             }
         }

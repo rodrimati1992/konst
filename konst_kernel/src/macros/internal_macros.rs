@@ -26,6 +26,7 @@ macro_rules! iterator_shared {
         )?
 
         /// Advances the iterator and returns the next value.
+        #[track_caller]
         pub const fn next(mut $self) -> Option<($Item, Self)> {
             $crate::__choose!{
                 $is_forward
@@ -36,6 +37,7 @@ macro_rules! iterator_shared {
 
         $(
             /// Removes and returns an element from the end of the iterator.
+            #[track_caller]
             pub const fn next_back(mut $self) -> Option<($Item, Self)> {
                 $crate::__choose!{
                     $is_forward
