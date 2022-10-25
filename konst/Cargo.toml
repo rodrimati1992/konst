@@ -45,12 +45,13 @@ features = ["rust_1_64"]
 default-features = false
 
 [features]
-default = ["cmp", "parsing_proc"]
+default = ["cmp", "iter", "parsing_proc"]
 
 
 # Enables extra checks for debug
 debug = ["konst_kernel/debug"]
 cmp = []
+iter = ["konst_kernel/iter"]
 parsing_proc = ["parsing", "konst_proc_macros"]
 parsing = []
 rust_latest_stable = []

@@ -25,12 +25,16 @@ pub use self::pattern::Pattern;
 
 pub(crate) use self::pattern::PatternNorm;
 
+#[cfg(feature = "iter")]
 mod splitting;
 
+#[cfg(feature = "iter")]
 pub use splitting::*;
 
+#[cfg(feature = "iter")]
 mod split_terminator_items;
 
+#[cfg(feature = "iter")]
 pub use split_terminator_items::*;
 
 use konst_kernel::string::__is_char_boundary_bytes;

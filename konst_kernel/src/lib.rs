@@ -13,14 +13,17 @@ mod macros;
 
 #[doc(hidden)]
 #[cfg(feature = "__for_konst")]
+#[cfg(feature = "iter")]
 pub mod collect_const;
 
 #[doc(hidden)]
 #[cfg(feature = "__for_konst")]
+#[cfg(feature = "iter")]
 pub mod into_iter;
 
 #[doc(hidden)]
 #[cfg(feature = "__for_konst")]
+#[cfg(feature = "iter")]
 pub mod iter;
 
 pub mod type_eq;
@@ -37,6 +40,7 @@ pub mod slice;
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub mod string;
 
+#[cfg(feature = "iter")]
 pub mod step_kk;
 
 pub mod polymorphism;
@@ -52,11 +56,15 @@ pub mod utils;
 pub mod __ {
     #[cfg(feature = "__for_konst")]
     pub use crate::{
-        collect_const::CollectorCmd,
-        into_iter::{IntoIterWrapper, IsConstIntoIter},
         macros::array_macros::{assert_array, uninit_copy_array_of_len, unit_array},
         maybe_uninit::{array_assume_init, uninit_array},
         type_eq::{HasTypeWitness, MakeTypeWitness, TypeWitnessTypeArg},
+    };
+
+    #[cfg(feature = "iter")]
+    pub use crate::{
+        collect_const::CollectorCmd,
+        into_iter::{IntoIterWrapper, IsConstIntoIter},
     };
 
     pub use core::{

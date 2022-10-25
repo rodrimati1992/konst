@@ -119,6 +119,7 @@ impl<L, R> TypeEq<L, R> {
     /// This method uses the fact that
     /// having a `TypeEq<L, R>` value proves that `L` and `R` are the same type.
     #[inline(always)]
+    #[allow(dead_code)]
     pub(crate) const fn sidecast_ref(self, from: &L) -> &R {
         self.reachability_hint(());
 

@@ -76,7 +76,11 @@
 //!
 //! This example demonstrates how CSV can be parsed into integers.
 //!
-//! ```rust
+//! This example requires the `"parsing"` and `"iter"` features
+//! (both are enabled by default).
+//!
+#![cfg_attr(all(feature = "parsing", feature = "iter"), doc = "```rust")]
+#![cfg_attr(not(all(feature = "parsing", feature = "iter")), doc = "```ignore")]
 //! use konst::{
 //!     primitive::parse_u64,
 //!     result::unwrap_ctx,
@@ -238,6 +242,9 @@
 //!
 //! These are the features of these crates:
 //!
+//! - `"iter"`(enabled by default):
+//! Enables all iteration items, including macros/functions that take/return iterators,
+//!
 //! - `"cmp"`(enabled by default):
 //! Enables all comparison functions and macros,
 //! the string equality and ordering comparison functions don't require this feature.
@@ -323,8 +330,12 @@ pub mod array;
 
 pub mod chr;
 
+#[cfg(feature = "cmp")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub mod cmp;
 
+#[cfg(feature = "iter")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub mod iter;
 
 /// const equivalents of `core::ffi` functions

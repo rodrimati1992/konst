@@ -7,10 +7,14 @@ pub mod cmp;
 
 mod slice_concatenation;
 mod slice_const_methods;
+
+#[cfg(feature = "iter")]
 mod slice_iter_methods;
 
 pub use slice_concatenation::*;
 pub use slice_const_methods::*;
+
+#[cfg(feature = "iter")]
 pub use slice_iter_methods::*;
 
 __declare_slice_cmp_fns! {

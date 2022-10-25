@@ -4,6 +4,7 @@ use super::test_utils::must_panic;
 
 mod string_concatenation;
 
+#[cfg(feature = "iter")]
 mod string_splitting;
 
 #[test]

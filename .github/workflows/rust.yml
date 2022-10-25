@@ -1,6 +1,6 @@
 name: Rust
 
-on: [push, pull_request]
+on: [pull_request]
 
 env:
   CARGO_TERM_COLOR: always
@@ -34,10 +34,11 @@ jobs:
         cd "${{github.workspace}}/konst/"
         cargo test --no-default-features --features "debug"
         cargo test --no-default-features --features "debug cmp"
+        cargo test --no-default-features --features "debug iter"
         cargo test --no-default-features --features "debug parsing_proc"
         cargo test --no-default-features --features "debug parsing"
         cargo test --no-default-features --features "debug __cp_derive"
-        cargo test --no-default-features --features "debug __cp_derive alloc cmp parsing_proc"
+        cargo test --no-default-features --features "debug __cp_derive alloc cmp iter parsing_proc"
 
     - uses: actions/checkout@v2
     - name: ci-stable-or-later
@@ -48,10 +49,11 @@ jobs:
         cargo update
         cd "${{github.workspace}}/konst/"
         cargo test --no-default-features --features "debug rust_latest_stable cmp"
+        cargo test --no-default-features --features "debug rust_latest_stable iter"
         cargo test --no-default-features --features "debug rust_latest_stable parsing"
         cargo test --no-default-features --features "debug rust_latest_stable parsing_proc"
         cargo test --no-default-features --features "debug rust_latest_stable __cp_derive"
-        cargo test --no-default-features --features "debug rust_latest_stable __cp_derive alloc cmp parsing_proc"
+        cargo test --no-default-features --features "debug rust_latest_stable __cp_derive alloc cmp iter parsing_proc"
 
     - uses: actions/checkout@v2
     - name: ci-nighly
@@ -68,9 +70,7 @@ jobs:
         cd "${{github.workspace}}/konst/"
         
         cargo test --no-default-features --features "debug nightly_mut_refs"
-        cargo test --no-default-features --features "debug __cp_derive cmp parsing_proc rust_latest_stable nightly_mut_refs"
-        cargo test --no-default-features \
-            --features "alloc debug __cp_derive cmp parsing_proc rust_latest_stable nightly_mut_refs"
+        cargo test --no-default-features --features "debug __cp_derive alloc cmp iter parsing_proc rust_latest_stable nightly_mut_refs"
 
         MIRI_NIGHTLY=nightly-$(curl -s https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/miri)
         echo "Installing latest nightly with Miri"
@@ -85,4 +85,4 @@ jobs:
 
         env RUST_BACKTRACE=0 MIRIFLAGS="-Zmiri-disable-isolation " \
             cargo miri test --no-default-features \
-            --features "alloc debug cmp parsing_proc rust_latest_stable nightly_mut_refs"
+            --features "alloc debug cmp iter parsing_proc rust_latest_stable nightly_mut_refs"

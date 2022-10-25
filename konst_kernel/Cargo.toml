@@ -29,6 +29,7 @@ version = "0.7"
 
 [features]
 debug = []
+iter = []
 rust_1_64 = []
 docsrs = []
 nightly_mut_refs = []

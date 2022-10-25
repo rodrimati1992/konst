@@ -1,4 +1,5 @@
-mod assert_macros;
+#[cfg(feature = "cmp")]
+mod assert_cmp_macros;
 
 #[macro_use]
 mod const_eq_macros;

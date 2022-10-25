@@ -116,6 +116,7 @@ fn str_join_from_func_test() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#[cfg(feature = "iter")]
 #[test]
 fn str_from_iter_basic_test() {
     {
@@ -128,6 +129,7 @@ fn str_from_iter_basic_test() {
     assert_eq!(string::from_iter!(&["foo", "bar"]), "foobar");
 }
 
+#[cfg(feature = "iter")]
 #[test]
 fn str_from_iter_flat_mapped_test() {
     {

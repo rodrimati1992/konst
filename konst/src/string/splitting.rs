@@ -26,6 +26,7 @@ use konst_kernel::iterator_shared;
 /// assert_eq!(string::split_once("foo,bar,baz", ","), Some(("foo", "bar,baz")));
 ///
 /// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub const fn split_once<'a, 'p, P>(this: &'a str, delim: P) -> Option<(&'a str, &'a str)>
 where
     P: Pattern<'p>,
@@ -64,6 +65,7 @@ where
 /// assert_eq!(string::rsplit_once("foo,bar,baz", ','), Some(("foo,bar", "baz")));
 ///
 /// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub const fn rsplit_once<'a, 'p, P>(this: &'a str, delim: P) -> Option<(&'a str, &'a str)>
 where
     P: Pattern<'p>,
@@ -100,6 +102,7 @@ where
 /// assert_eq!(STRS0, ["foo", "bar", "baz"]);
 /// assert_eq!(STRS1, ["these", "are", "spaced"]);
 /// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub const fn split<'a, 'p, P>(this: &'a str, delim: P) -> Split<'a, 'p, P>
 where
     P: Pattern<'p>,
@@ -131,6 +134,7 @@ where
 /// assert_eq!(STRS0, ["baz", "bar", "foo"]);
 /// assert_eq!(STRS1, ["spaced", "are", "these"]);
 /// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub const fn rsplit<'a, 'p, P>(this: &'a str, delim: P) -> RSplit<'a, 'p, P>
 where
     P: Pattern<'p>,
@@ -268,6 +272,7 @@ macro_rules! split_shared {
 /// # ;
 /// ```
 ///
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct Split<'a, 'p, P: Pattern<'p>> {
     this: &'a str,
     state: State<'p, P>,
@@ -316,6 +321,7 @@ impl<'a, 'p, P: Pattern<'p>> Split<'a, 'p, P> {
 /// # ;
 /// ```
 ///
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct RSplit<'a, 'p, P: Pattern<'p>> {
     this: &'a str,
     state: State<'p, P>,

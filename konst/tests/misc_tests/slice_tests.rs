@@ -16,8 +16,10 @@ use konst::{
 
 mod slice_concatenation_tests;
 
+#[cfg(feature = "iter")]
 mod slice_iter_copied;
 
+#[cfg(feature = "iter")]
 mod non_iter_slice_iterators;
 
 #[test]
@@ -219,6 +221,7 @@ fn try_into_array_mut_test() {
     assert!(try_into_array_mut::<_, 6>(&mut slice).is_err());
 }
 
+#[cfg(feature = "iter")]
 #[test]
 fn slice_iter_const_callable() {
     const fn __<'a>(slice: &'a [u8]) {
@@ -236,6 +239,7 @@ fn slice_iter_const_callable() {
     }
 }
 
+#[cfg(feature = "iter")]
 #[test]
 fn slice_iter_both_directions() {
     let slice: &[u8] = &[3, 5, 8, 13, 21];
@@ -261,6 +265,7 @@ fn slice_iter_both_directions() {
     }
 }
 
+#[cfg(feature = "iter")]
 #[test]
 fn slice_iter_mixed_directions() {
     let slice: &[u8] = &[3, 5, 8, 13, 21];
@@ -291,6 +296,7 @@ fn slice_iter_mixed_directions() {
     assert!(iter.next().is_none());
 }
 
+#[cfg(feature = "iter")]
 #[test]
 fn slice_iter_rev() {
     let slice: &[u8] = &[3, 5, 8, 13, 21];

@@ -1,6 +1,10 @@
 #[macro_use]
 mod control_flow;
 
+#[cfg(feature = "iter")]
+#[macro_use]
+mod into_iter_macros;
+
 #[cfg(feature = "__for_konst")]
 #[macro_use]
 mod internal_macros;

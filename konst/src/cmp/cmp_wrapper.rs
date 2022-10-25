@@ -2,7 +2,8 @@ use crate::cmp::{ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
 
 /// A wrapper type for std types, which defines `const_eq` and `const_cmp` methods for them.
 ///
-/// This is what [`coerce_to_cmp`] and the comparison macros convert standard library types into.
+/// This is what [`coerce_to_cmp`](crate::coerce_to_cmp)
+/// and the comparison macros convert standard library types into.
 ///
 /// # Example
 ///

@@ -28,6 +28,7 @@ use konst_kernel::iterator_shared;
 ///
 /// assert_eq!(STRS, ["foo", "bar", "baz"]);
 /// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub const fn split_terminator<'a, 'p, P>(this: &'a str, delim: P) -> SplitTerminator<'a, 'p, P>
 where
     P: Pattern<'p>,
@@ -67,6 +68,7 @@ where
 ///
 /// assert_eq!(STRS, ["baz", "bar", "foo"]);
 /// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub const fn rsplit_terminator<'a, 'p, P>(this: &'a str, delim: P) -> RSplitTerminator<'a, 'p, P>
 where
     P: Pattern<'p>,
@@ -98,6 +100,7 @@ enum EmptyState {
 /// # ;
 /// ```
 ///
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct SplitTerminator<'a, 'p, P: Pattern<'p>> {
     this: &'a str,
     state: State<'p, P>,
@@ -184,6 +187,7 @@ impl<'a, 'p, P: Pattern<'p>> SplitTerminator<'a, 'p, P> {
 /// # ;
 /// ```
 ///
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct RSplitTerminator<'a, 'p, P: Pattern<'p>> {
     this: &'a str,
     state: State<'p, P>,

@@ -67,4 +67,6 @@ pub use konst_kernel::string_join as str_join;
 /// assert_eq!(S, "foo, bar, baz, ");
 ///
 /// ```
+#[cfg(feature = "iter")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub use konst_kernel::str_from_iter as from_iter;

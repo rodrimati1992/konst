@@ -9,6 +9,7 @@ mod misc_tests {
 
     mod char_tests;
 
+    #[cfg(feature = "iter")]
     mod iter_mod;
 
     mod ffi_tests;

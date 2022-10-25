@@ -160,7 +160,6 @@ macro_rules! cmp_assertc_docs {
 /// ```
 ///
 #[macro_export]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 macro_rules! assertc_eq {
     ($left:expr, $right:expr $(, $($fmt:tt)* )? ) => (
         $crate::__cmp_assert_inner!{$left, $right, false, "==", $($($fmt)*)?}
@@ -213,7 +212,6 @@ macro_rules! assertc_eq {
 /// ```
 ///
 #[macro_export]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 macro_rules! assertc_ne {
     ($left:expr, $right:expr $(, $($fmt:tt)* )? ) => (
         $crate::__cmp_assert_inner!{$left, $right, true, "!=", $($($fmt)*)?}
