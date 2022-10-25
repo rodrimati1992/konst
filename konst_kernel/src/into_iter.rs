@@ -1,38 +1,35 @@
 use core::{marker::PhantomData, mem::ManuallyDrop};
 
+#[doc(no_inline)]
+pub use crate::polymorphism::kinds::{IsIntoIterKind, IsIteratorKind, IsStdKind};
+
 pub mod range_into_iter;
 pub mod slice_into_iter;
 
-pub trait IntoIterKind {
+pub trait ConstIntoIter {
     type Kind;
 }
-
-pub struct IsStdKind {}
-
-pub struct IsNonIteratorKind {}
-
-pub struct IsIteratorKind {}
 
 ///
 #[repr(transparent)]
 pub struct IntoIterWrapper<I, K> {
     pub iter: ManuallyDrop<I>,
-    pub marker: IsIntoIterKind<I, K>,
+    pub marker: IsConstIntoIter<I, K>,
 }
 
 mod is_into_iter_kind {
     use super::*;
 
-    pub struct IsIntoIterKind<T, K>(PhantomData<(fn() -> PhantomData<T>, fn() -> K)>);
+    pub struct IsConstIntoIter<T, K>(PhantomData<(fn() -> PhantomData<T>, fn() -> K)>);
 
-    impl<T> IsIntoIterKind<T, T::Kind>
+    impl<T> IsConstIntoIter<T, T::Kind>
     where
-        T: IntoIterKind,
+        T: ConstIntoIter,
     {
         pub const NEW: Self = Self(PhantomData);
     }
 }
-pub use is_into_iter_kind::IsIntoIterKind;
+pub use is_into_iter_kind::IsConstIntoIter;
 
 impl<T> IntoIterWrapper<T, IsStdKind> {
     #[inline(always)]
@@ -41,7 +38,7 @@ impl<T> IntoIterWrapper<T, IsStdKind> {
     }
 }
 
-impl<T> IntoIterWrapper<T, IsNonIteratorKind> {
+impl<T> IntoIterWrapper<T, IsIntoIterKind> {
     #[inline(always)]
     pub const fn coerce(self) -> T {
         ManuallyDrop::into_inner(self.iter)
@@ -62,27 +59,12 @@ impl<T> IntoIterWrapper<T, IsIteratorKind> {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-pub struct EmptyIter;
-
-impl EmptyIter {
-    #[inline(always)]
-    pub const fn next(self) -> Option<(core::convert::Infallible, Self)> {
-        None
-    }
-}
-
-impl IntoIterKind for EmptyIter {
-    type Kind = IsIteratorKind;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 #[macro_export]
 macro_rules! into_iter_macro {
     ($iter:expr) => {
         $crate::__::IntoIterWrapper {
             iter: $crate::__::ManuallyDrop::new($iter),
-            marker: $crate::__::IsIntoIterKind::NEW,
+            marker: $crate::__::IsConstIntoIter::NEW,
         }
         .coerce()
         .const_into_iter()

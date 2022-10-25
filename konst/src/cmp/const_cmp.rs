@@ -1,8 +1,4 @@
-//! Marker trait for types that implement the const formatting methods.
-//!
-//!
-
-use crate::polymorphism::CmpWrapper;
+use crate::cmp::{CmpWrapper, IsNotStdKind, IsRefKind, IsStdKind};
 
 use core::marker::PhantomData;
 
@@ -27,7 +23,7 @@ use core::marker::PhantomData;
 /// # Coercions
 ///
 /// The [`Kind`](#associatedtype.Kind) associated type
-/// is used in the [`IsAConstCmpMarker`] marker type
+/// is used in the [`IsAConstCmp`] marker type
 /// to automatically wrap types in [`CmpWrapper`] if they're from the standard library,
 /// otherwise leaving them unwrapped.
 ///
@@ -38,7 +34,7 @@ use core::marker::PhantomData;
 ///
 /// ```
 /// use konst::{
-///     polymorphism::{ConstCmpMarker, IsNotStdKind},
+///     cmp::{ConstCmp, IsNotStdKind},
 ///     const_cmp, const_eq, try_equal,
 /// };
 ///
@@ -50,7 +46,7 @@ use core::marker::PhantomData;
 ///     y: &'static [u16],
 /// }
 ///
-/// impl ConstCmpMarker for MyType {
+/// impl ConstCmp for MyType {
 ///     // These are the only associated types you're expected to use in
 ///     // impls for custom types.
 ///     type Kind = IsNotStdKind;
@@ -155,7 +151,7 @@ use core::marker::PhantomData;
 ///
 /// [`CmpWrapper`]: struct.CmpWrapper.html
 /// [`impl_cmp`]: ../macro.impl_cmp.html
-pub trait ConstCmpMarker {
+pub trait ConstCmp {
     /// What kind of type this is, this can be one of:
     ///
     /// - [`IsStdKind`]: A standard library type.
@@ -167,56 +163,52 @@ pub trait ConstCmpMarker {
     type Kind;
 }
 
-/// Marker type for standard library types.
-pub struct IsStdKind;
-
-/// Marker type for references.
-pub struct IsRefKind;
-
-/// Marker type for non-standard library types.
-pub struct IsNotStdKind;
-
 ///////////////////////////////////////////////////////////////////////////////
 
-impl<T, const N: usize> ConstCmpMarker for [T; N] {
+impl<T, const N: usize> ConstCmp for [T; N] {
     type Kind = IsStdKind;
 }
 
-impl<T> ConstCmpMarker for [T] {
+impl<T> ConstCmp for [T] {
     type Kind = IsStdKind;
 }
 
-impl ConstCmpMarker for str {
+impl ConstCmp for str {
     type Kind = IsStdKind;
 }
 
-impl<T> ConstCmpMarker for &T
+impl<T> ConstCmp for &T
 where
-    T: ?Sized + ConstCmpMarker,
+    T: ?Sized + ConstCmp,
 {
     type Kind = IsRefKind;
 }
 
-impl<T> ConstCmpMarker for &mut T
+impl<T> ConstCmp for &mut T
 where
-    T: ?Sized + ConstCmpMarker,
+    T: ?Sized + ConstCmp,
 {
     type Kind = IsRefKind;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/// A helper trait of [`ConstCmpMarker`], used for dereferencing.
-pub trait ConstCmpUnref: ConstCmpMarker {
+/// A helper trait of [`ConstCmp`], used for dereferencing.
+pub trait ConstCmpUnref: ConstCmp {
     /// What type `Self` becomes after removing all layers of references.
-    type This: ?Sized + ConstCmpMarker;
+    ///
+    /// Examples:
+    /// - `u32::This == u32`
+    /// - `<&u32>::This == u32`
+    /// - `<&&u32>::This == u32`
+    type This: ?Sized + ConstCmp;
 }
 
 impl<T> ConstCmpUnref for T
 where
-    T: ?Sized + ConstCmpMarker,
-    T: ConstCmpUnrefHelper<<T as ConstCmpMarker>::Kind>,
-    T::This_: ConstCmpMarker,
+    T: ?Sized + ConstCmp,
+    T: ConstCmpUnrefHelper<<T as ConstCmp>::Kind>,
+    T::This_: ConstCmp,
 {
     type This = T::This_;
 }
@@ -250,18 +242,18 @@ impl<T: ?Sized + ConstCmpUnref> ConstCmpUnrefHelper<IsRefKind> for &mut T {
 ///
 /// # Type parameters
 ///
-/// `K` is `<T as ConstCmpMarker>::Kind`
+/// `K` is `<T as ConstCmp>::Kind`
 /// The kind of type that `T` is,
-/// [std types](./struct.IsStdKind.html),
-/// [non-std types](./struct.IsNotStdKind.html).
+/// [std types](IsStdKind),
+/// [non-std types](IsNotStdKind).
 ///
 /// `T` is `<R as ConstCmpUnref>::This`,
 /// the `R` type after removing all layers of references.
 ///
-/// `R`: Is a type that implements [`ConstCmpMarker`]
+/// `R`: Is a type that implements [`ConstCmp`]
 ///
 #[allow(clippy::type_complexity)]
-pub struct IsAConstCmpMarker<K, T: ?Sized, R: ?Sized>(
+pub struct IsAConstCmp<K, T: ?Sized, R: ?Sized>(
     PhantomData<(
         PhantomData<fn() -> PhantomData<K>>,
         PhantomData<fn() -> PhantomData<T>>,
@@ -269,24 +261,24 @@ pub struct IsAConstCmpMarker<K, T: ?Sized, R: ?Sized>(
     )>,
 );
 
-impl<K, T: ?Sized, R: ?Sized> Copy for IsAConstCmpMarker<K, T, R> {}
+impl<K, T: ?Sized, R: ?Sized> Copy for IsAConstCmp<K, T, R> {}
 
-impl<K, T: ?Sized, R: ?Sized> Clone for IsAConstCmpMarker<K, T, R> {
+impl<K, T: ?Sized, R: ?Sized> Clone for IsAConstCmp<K, T, R> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<R, T> IsAConstCmpMarker<T::Kind, T, R>
+impl<R, T> IsAConstCmp<T::Kind, T, R>
 where
     R: ?Sized + ConstCmpUnref<This = T>,
-    T: ?Sized + ConstCmpMarker,
+    T: ?Sized + ConstCmp,
 {
-    /// Constructs an `IsAConstCmpMarker`
+    /// Constructs an `IsAConstCmp`
     pub const NEW: Self = Self(PhantomData);
 }
 
-impl<K, T: ?Sized, R: ?Sized> IsAConstCmpMarker<K, T, R> {
+impl<K, T: ?Sized, R: ?Sized> IsAConstCmp<K, T, R> {
     /// Infers the type parameters by taking a reference to `R` .
     ///
     /// The `K` and `T` type parameters are determined by `R` in
@@ -307,7 +299,7 @@ impl<K, T: ?Sized, R: ?Sized> IsAConstCmpMarker<K, T, R> {
 
 /////////////////////////////////////////////////////////////////////////////
 
-impl<T: ?Sized, R: ?Sized> IsAConstCmpMarker<IsNotStdKind, T, R> {
+impl<T: ?Sized, R: ?Sized> IsAConstCmp<IsNotStdKind, T, R> {
     /// An identity function, just takes `reference` and returns it.
     #[inline(always)]
     pub const fn coerce(self, reference: &T) -> &T {
@@ -317,7 +309,7 @@ impl<T: ?Sized, R: ?Sized> IsAConstCmpMarker<IsNotStdKind, T, R> {
 
 /////////////////////////////////////////////////////////////////////////////
 
-impl<R: ?Sized> IsAConstCmpMarker<IsStdKind, str, R> {
+impl<R: ?Sized> IsAConstCmp<IsStdKind, str, R> {
     /// Wraps `reference` in a `CmpWrapper`.
     #[inline(always)]
     pub const fn coerce(self, reference: &str) -> CmpWrapper<&str> {
@@ -325,7 +317,7 @@ impl<R: ?Sized> IsAConstCmpMarker<IsStdKind, str, R> {
     }
 }
 
-impl<T, R: ?Sized> IsAConstCmpMarker<IsStdKind, [T], R> {
+impl<T, R: ?Sized> IsAConstCmp<IsStdKind, [T], R> {
     /// Wraps `reference` in a `CmpWrapper`.
     #[inline(always)]
     pub const fn coerce(self, reference: &[T]) -> CmpWrapper<&[T]> {
@@ -333,7 +325,7 @@ impl<T, R: ?Sized> IsAConstCmpMarker<IsStdKind, [T], R> {
     }
 }
 
-impl<T, R, const N: usize> IsAConstCmpMarker<IsStdKind, [T; N], R> {
+impl<T, R, const N: usize> IsAConstCmp<IsStdKind, [T; N], R> {
     /// Wraps `reference` in a `CmpWrapper`.
     #[inline(always)]
     pub const fn coerce(self, reference: &[T; N]) -> CmpWrapper<&[T]> {

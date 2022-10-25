@@ -42,7 +42,7 @@ macro_rules! cmp_assertc_docs {
             "\n\n",
             "To pass user-defined types, ",
             "they must implement both of these traits as described in their docs:\n",
-            "- [`konst::polymorphism::ConstCmpMarker`](crate::polymorphism::ConstCmpMarker)\n",
+            "- [`konst::cmp::ConstCmp`](crate::cmp::ConstCmp)\n",
             "- [`const_panic::fmt::PanicFmt`]\n",
             "\n\n",
         )

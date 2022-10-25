@@ -1,6 +1,6 @@
 /// Compares two values for equality.
 ///
-/// The arguments must implement the [`ConstCmpMarker`] trait.
+/// The arguments must implement the [`ConstCmp`] trait.
 /// Non-standard library types must define a `const_eq` method taking a reference.
 ///
 /// # Limitations
@@ -56,7 +56,7 @@
 ///
 /// ```
 ///
-/// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
+/// [`ConstCmp`]: crate::cmp::ConstCmp
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
@@ -323,7 +323,7 @@ macro_rules! const_eq {
 ///
 /// ```
 ///
-/// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
+/// [`ConstCmp`]: const::cmp::ConstCmp
 /// [`const_eq`]: macro.const_eq.html
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]

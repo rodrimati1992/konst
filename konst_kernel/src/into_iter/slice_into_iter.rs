@@ -1,12 +1,12 @@
-use crate::into_iter::{IntoIterKind, IntoIterWrapper, IsIteratorKind, IsStdKind};
+use crate::into_iter::{ConstIntoIter, IntoIterWrapper, IsIteratorKind, IsStdKind};
 
 use core::mem::ManuallyDrop;
 
-impl<T, const N: usize> IntoIterKind for &[T; N] {
+impl<T, const N: usize> ConstIntoIter for &[T; N] {
     type Kind = IsStdKind;
 }
 
-impl<T, const N: usize> IntoIterKind for &&[T; N] {
+impl<T, const N: usize> ConstIntoIter for &&[T; N] {
     type Kind = IsStdKind;
 }
 
@@ -25,7 +25,7 @@ impl<'a, T, const N: usize> IntoIterWrapper<&&'a [T; N], IsStdKind> {
     }
 }
 
-impl<T> IntoIterKind for &[T] {
+impl<T> ConstIntoIter for &[T] {
     type Kind = IsStdKind;
 }
 
@@ -37,7 +37,7 @@ impl<'a, T> IntoIterWrapper<&'a [T], IsStdKind> {
     }
 }
 
-impl<T> IntoIterKind for &&[T] {
+impl<T> ConstIntoIter for &&[T] {
     type Kind = IsStdKind;
 }
 
@@ -89,14 +89,14 @@ macro_rules! iter_shared {
 pub struct Iter<'a, T> {
     slice: &'a [T],
 }
-impl<'a, T> IntoIterKind for Iter<'a, T> {
+impl<'a, T> ConstIntoIter for Iter<'a, T> {
     type Kind = IsIteratorKind;
 }
 
 pub struct IterRev<'a, T> {
     slice: &'a [T],
 }
-impl<'a, T> IntoIterKind for IterRev<'a, T> {
+impl<'a, T> ConstIntoIter for IterRev<'a, T> {
     type Kind = IsIteratorKind;
 }
 
@@ -153,14 +153,14 @@ mod copied {
     pub struct IterCopied<'a, T> {
         slice: &'a [T],
     }
-    impl<'a, T> IntoIterKind for IterCopied<'a, T> {
+    impl<'a, T> ConstIntoIter for IterCopied<'a, T> {
         type Kind = IsIteratorKind;
     }
 
     pub struct IterCopiedRev<'a, T> {
         slice: &'a [T],
     }
-    impl<'a, T> IntoIterKind for IterCopiedRev<'a, T> {
+    impl<'a, T> ConstIntoIter for IterCopiedRev<'a, T> {
         type Kind = IsIteratorKind;
     }
 

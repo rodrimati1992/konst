@@ -1,4 +1,4 @@
-use crate::polymorphism::{ConstCmpMarker, IsAConstCmpMarker, IsNotStdKind, IsStdKind};
+use crate::cmp::{ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
 
 /// A wrapper type for std types, which defines `const_eq` and `const_cmp` methods for them.
 ///
@@ -8,7 +8,7 @@ use crate::polymorphism::{ConstCmpMarker, IsAConstCmpMarker, IsNotStdKind, IsStd
 ///
 /// ```rust
 /// use konst::{
-///     polymorphism::CmpWrapper,
+///     cmp::CmpWrapper,
 ///     coerce_to_cmp,
 /// };
 ///
@@ -48,18 +48,18 @@ impl<'a, T> CmpWrapper<&'a [T]> {
     }
 }
 
-impl<P> ConstCmpMarker for CmpWrapper<P> {
+impl<P> ConstCmp for CmpWrapper<P> {
     type Kind = IsNotStdKind;
 }
 
 macro_rules! std_kind_impls {
     ($($ty:ty),* $(,)* ) => (
         $(
-            impl ConstCmpMarker for $ty {
+            impl ConstCmp for $ty {
                 type Kind = IsStdKind;
             }
 
-            impl<T> IsAConstCmpMarker<IsStdKind, $ty, T> {
+            impl<T> IsAConstCmp<IsStdKind, $ty, T> {
                 /// Copies the value from `reference`, and wraps it in a `CmpWrapper`
                 #[inline(always)]
                 pub const fn coerce(self, reference: &$ty) -> CmpWrapper<$ty> {

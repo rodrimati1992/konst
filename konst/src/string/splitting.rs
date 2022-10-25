@@ -1,7 +1,7 @@
 //! string splitting that requires Rust 1.64.0 to be efficient.
 
 use crate::{
-    iter::{IntoIterKind, IsIteratorKind},
+    iter::{ConstIntoIter, IsIteratorKind},
     string::{self, str_from, str_up_to, Pattern, PatternNorm},
 };
 
@@ -272,7 +272,7 @@ pub struct Split<'a, 'p, P: Pattern<'p>> {
     this: &'a str,
     state: State<'p, P>,
 }
-impl<'p, P: Pattern<'p>> IntoIterKind for Split<'_, 'p, P> {
+impl<'p, P: Pattern<'p>> ConstIntoIter for Split<'_, 'p, P> {
     type Kind = IsIteratorKind;
 }
 
@@ -320,7 +320,7 @@ pub struct RSplit<'a, 'p, P: Pattern<'p>> {
     this: &'a str,
     state: State<'p, P>,
 }
-impl<'p, P: Pattern<'p>> IntoIterKind for RSplit<'_, 'p, P> {
+impl<'p, P: Pattern<'p>> ConstIntoIter for RSplit<'_, 'p, P> {
     type Kind = IsIteratorKind;
 }
 

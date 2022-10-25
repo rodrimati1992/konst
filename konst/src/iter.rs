@@ -1,6 +1,6 @@
 //! Const equivalent of iterators with a specific `next` function signature.
 //!
-//! The docs for [`IntoIterKind`] has more information on
+//! The docs for [`ConstIntoIter`] has more information on
 //! const equivalents of IntoIterator and Iterator.
 //!
 
@@ -29,11 +29,11 @@ pub use iterator_adaptors::*;
 /// ### Custom iterator
 ///
 /// ```rust
-/// use konst::iter::{IntoIterKind, IsIteratorKind};
+/// use konst::iter::{ConstIntoIter, IsIteratorKind};
 ///
 /// struct Upto10(u8);
 ///
-/// impl IntoIterKind for Upto10 { type Kind = IsIteratorKind; }
+/// impl ConstIntoIter for Upto10 { type Kind = IsIteratorKind; }
 ///
 /// impl Upto10 {
 ///     const fn next(mut self) -> Option<(u8, Self)> {
@@ -83,17 +83,17 @@ pub use iterator_adaptors::*;
 /// [`iterator_dsl`]: crate::iter::iterator_dsl
 pub use konst_kernel::for_each;
 
-/// Wrapper for `IntoIterKind` implementors,
+/// Wrapper for `ConstIntoIter` implementors,
 /// that defines different methods depending on the
-/// value of `<T as IntoIterKind>::Kind`.
+/// value of `<T as ConstIntoIter>::Kind`.
 #[doc(inline)]
 pub use konst_kernel::into_iter::IntoIterWrapper;
 
-/// Marker type for proving that `T: IntoIterKind<Kind = K>`
+/// Marker type for proving that `T: ConstIntoIter<Kind = K>`
 #[doc(inline)]
-pub use konst_kernel::into_iter::IsIntoIterKind;
+pub use konst_kernel::into_iter::IsConstIntoIter;
 
-/// Macro for converting [`IntoIterKind`] implementors into const iterators.
+/// Macro for converting [`ConstIntoIter`] implementors into const iterators.
 ///
 #[doc(inline)]
 pub use konst_kernel::into_iter_macro as into_iter;
@@ -105,16 +105,16 @@ pub use konst_kernel::into_iter_macro as into_iter;
 /// Implementors are expected to be:
 ///
 /// - [Types that have an associated iterator](#isnoniteratorkind),
-///   that have [`IsNonIteratorKind`](crate::iter::IsNonIteratorKind)
-///   as the [`IntoIterKind::Kind`] associated type.
+///   that have [`IsIntoIterKind`](crate::iter::IsIntoIterKind)
+///   as the [`ConstIntoIter::Kind`] associated type.
 ///
 /// - [Iterators themselves](#isiteratorkind),
 /// that have [`IsIteratorKind`](crate::iter::IsIteratorKind)
-/// as the [`IntoIterKind::Kind`] associated type.
+/// as the [`ConstIntoIter::Kind`] associated type.
 ///
 /// - Standard library types, of the [`IsStdKind`] kind
 ///
-/// ### `IsNonIteratorKind`
+/// ### `IsIntoIterKind`
 ///
 /// These types are expected to define this inherent method for converting to
 /// a const iterator:
@@ -173,7 +173,7 @@ pub use konst_kernel::into_iter_macro as into_iter;
 /// }
 /// # }
 /// ```
-/// Where `SomeIteratorRev` should be a `IntoIterKind<Kind = IsIteratorKind>`
+/// Where `SomeIteratorRev` should be a `ConstIntoIter<Kind = IsIteratorKind>`
 /// which has the same inherent methods for iteration.
 ///
 /// [full example below](#iter-example)
@@ -191,8 +191,8 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///     up_to: usize,
 /// }
 ///
-/// impl<T> iter::IntoIterKind for GetSlice<'_, T> {
-///     type Kind = iter::IsNonIteratorKind;
+/// impl<T> iter::ConstIntoIter for GetSlice<'_, T> {
+///     type Kind = iter::IsIntoIterKind;
 /// }
 ///
 /// impl<'a, T> GetSlice<'a, T> {
@@ -222,11 +222,11 @@ pub use konst_kernel::into_iter_macro as into_iter;
 /// This example requires Rust 1.47.0 (because of `u8::checked_sub`)
 ///
 /// ```rust
-/// use konst::iter::{self, IntoIterKind};
+/// use konst::iter::{self, ConstIntoIter};
 ///
 /// struct Countdown(u8);
 ///
-/// impl IntoIterKind for Countdown { type Kind = iter::IsIteratorKind; }
+/// impl ConstIntoIter for Countdown { type Kind = iter::IsIteratorKind; }
 ///
 /// impl Countdown {
 ///     const fn next(mut self) -> Option<(u8, Self)> {
@@ -277,7 +277,7 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///     end: u8,
 /// }
 ///
-/// impl iter::IntoIterKind for Hours {
+/// impl iter::ConstIntoIter for Hours {
 ///     type Kind = iter::IsIteratorKind;
 /// }
 ///
@@ -319,7 +319,7 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///
 /// struct HoursRev(Hours);
 ///
-/// impl iter::IntoIterKind for HoursRev {
+/// impl iter::ConstIntoIter for HoursRev {
 ///     type Kind = iter::IsIteratorKind;
 /// }
 ///
@@ -345,22 +345,10 @@ pub use konst_kernel::into_iter_macro as into_iter;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::into_iter::IntoIterKind;
+pub use konst_kernel::into_iter::ConstIntoIter;
 
-/// For marking some type as being from std
-/// in its [`IntoIterKind::Kind`] associated type.
-#[doc(inline)]
-pub use konst_kernel::into_iter::IsStdKind;
-
-/// For marking some type as being convertible to an iterator
-/// in its [`IntoIterKind::Kind`] associated type.
-#[doc(inline)]
-pub use konst_kernel::into_iter::IsNonIteratorKind;
-
-/// For marking some type as being an iterator
-/// in its [`IntoIterKind::Kind`] associated type.
-#[doc(inline)]
-pub use konst_kernel::into_iter::IsIteratorKind;
+#[doc(no_inline)]
+pub use crate::polymorphism::kinds::{IsIntoIterKind, IsIteratorKind, IsStdKind};
 
 include! {"./iter/collect_const.rs"}
 include! {"./iter/iter_eval.rs"}

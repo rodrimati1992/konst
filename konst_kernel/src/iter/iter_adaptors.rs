@@ -1,4 +1,4 @@
-use crate::into_iter::{IntoIterKind, IsIteratorKind};
+use crate::into_iter::{ConstIntoIter, IsIteratorKind};
 
 pub const fn repeat<T: Copy>(val: T) -> Repeat<T> {
     Repeat(val)
@@ -6,7 +6,7 @@ pub const fn repeat<T: Copy>(val: T) -> Repeat<T> {
 
 pub struct Repeat<T>(T);
 
-impl<T> IntoIterKind for Repeat<T> {
+impl<T> ConstIntoIter for Repeat<T> {
     type Kind = IsIteratorKind;
 }
 

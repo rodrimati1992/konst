@@ -1,6 +1,6 @@
 /// Compares two values for ordering.
 ///
-/// The arguments must implement the [`ConstCmpMarker`] trait.
+/// The arguments must implement the [`ConstCmp`] trait.
 /// Non-standard library types must define a `const_cmp` method taking a reference.
 ///
 /// # Limitations
@@ -56,7 +56,7 @@
 ///
 /// ```
 ///
-/// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
+/// [`ConstCmp`]: crate::cmp::ConstCmp
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
@@ -159,7 +159,7 @@ macro_rules! const_cmp {
 ///
 /// ```
 ///
-/// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
+/// [`ConstCmp`]: crate::cmp::ConstCmp
 /// [`const_cmp`]: macro.const_cmp.html
 /// [`cmp::Ordering`]: https://doc.rust-lang.org/core/cmp/enum.Ordering.html
 ///

@@ -2,7 +2,7 @@
 ///
 /// # Impls
 ///
-/// This macro implements [`ConstCmpMarker`] for all the `impl`d types,
+/// This macro implements [`ConstCmp`] for all the `impl`d types,
 /// and outputs the methods/associated constants in each of the listed impls.
 ///
 /// # Example
@@ -123,7 +123,7 @@
 ///
 /// ```
 ///
-/// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
+/// [`ConstCmp`]: crate::cmp::ConstCmp
 ///
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
@@ -230,7 +230,7 @@ macro_rules! __impl_cmp_impl {
         [ $($everything:tt)* ]
     )=>{
         $(#[$impl_attr])*
-        impl<$($impl_)*> $crate::__::ConstCmpMarker for $type
+        impl<$($impl_)*> $crate::__::ConstCmp for $type
         where
             $($where)*
         {

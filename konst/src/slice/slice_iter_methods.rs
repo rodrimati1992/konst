@@ -1,5 +1,5 @@
 use crate::{
-    iter::{IntoIterKind, IsIteratorKind},
+    iter::{ConstIntoIter, IsIteratorKind},
     option, slice,
 };
 
@@ -215,7 +215,7 @@ mod requires_rust_1_64 {
         slice: &'a [T],
         size: usize,
     }
-    impl<T> IntoIterKind for Windows<'_, T> {
+    impl<T> ConstIntoIter for Windows<'_, T> {
         type Kind = IsIteratorKind;
     }
 
@@ -232,7 +232,7 @@ mod requires_rust_1_64 {
         slice: &'a [T],
         size: usize,
     }
-    impl<T> IntoIterKind for WindowsRev<'_, T> {
+    impl<T> ConstIntoIter for WindowsRev<'_, T> {
         type Kind = IsIteratorKind;
     }
 
@@ -321,7 +321,7 @@ mod requires_rust_1_64 {
         slice: Option<&'a [T]>,
         size: usize,
     }
-    impl<T> IntoIterKind for Chunks<'_, T> {
+    impl<T> ConstIntoIter for Chunks<'_, T> {
         type Kind = IsIteratorKind;
     }
 
@@ -338,7 +338,7 @@ mod requires_rust_1_64 {
         slice: Option<&'a [T]>,
         size: usize,
     }
-    impl<T> IntoIterKind for ChunksRev<'_, T> {
+    impl<T> ConstIntoIter for ChunksRev<'_, T> {
         type Kind = IsIteratorKind;
     }
 
@@ -432,7 +432,7 @@ mod requires_rust_1_64 {
         slice: &'a [T],
         size: usize,
     }
-    impl<T> IntoIterKind for ChunksExact<'_, T> {
+    impl<T> ConstIntoIter for ChunksExact<'_, T> {
         type Kind = IsIteratorKind;
     }
 
@@ -449,7 +449,7 @@ mod requires_rust_1_64 {
         slice: &'a [T],
         size: usize,
     }
-    impl<T> IntoIterKind for ChunksExactRev<'_, T> {
+    impl<T> ConstIntoIter for ChunksExactRev<'_, T> {
         type Kind = IsIteratorKind;
     }
 

@@ -1,5 +1,5 @@
 use crate::{
-    iter::{IntoIterKind, IsIteratorKind},
+    iter::{ConstIntoIter, IsIteratorKind},
     string::{self, str_from, str_up_to, Pattern, PatternNorm},
 };
 
@@ -102,7 +102,7 @@ pub struct SplitTerminator<'a, 'p, P: Pattern<'p>> {
     this: &'a str,
     state: State<'p, P>,
 }
-impl<'p, P: Pattern<'p>> IntoIterKind for SplitTerminator<'_, 'p, P> {
+impl<'p, P: Pattern<'p>> ConstIntoIter for SplitTerminator<'_, 'p, P> {
     type Kind = IsIteratorKind;
 }
 
@@ -188,7 +188,7 @@ pub struct RSplitTerminator<'a, 'p, P: Pattern<'p>> {
     this: &'a str,
     state: State<'p, P>,
 }
-impl<'p, P: Pattern<'p>> IntoIterKind for RSplitTerminator<'_, 'p, P> {
+impl<'p, P: Pattern<'p>> ConstIntoIter for RSplitTerminator<'_, 'p, P> {
     type Kind = IsIteratorKind;
 }
 

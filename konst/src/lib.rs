@@ -1,4 +1,4 @@
-//! Const equivalents of std functions, compile-time comparison, and parsing.
+//! Const equivalents of std functions and const parsing.
 //!
 //! # Features
 //!
@@ -7,11 +7,6 @@
 //! - Const fn equivalents of standard library functions and methods.
 //!
 //! - Compile-time parsing through the [`Parser`] type, and [`parser_method`] macro.
-//!
-//! - Functions for comparing many standard library types,
-//! with the [`const_eq`]/[`const_eq_for`]/[`const_cmp`]/[`const_cmp_for`] macros
-//! for more conveniently calling them, powered by the [`polymorphism`] module.
-//!
 //!
 //! # Examples
 //!
@@ -293,7 +288,6 @@
 //! [`const_eq_for`]: ./macro.const_eq_for.html
 //! [`const_cmp`]: ./macro.const_cmp.html
 //! [`const_cmp_for`]: ./macro.const_cmp_for.html
-//! [`polymorphism`]: ./polymorphism/index.html
 //! [`parsing`]: ./parsing/index.html
 //! [`primitive`]: ./primitive/index.html
 //! [`parser_method`]: macro.parser_method.html
@@ -328,6 +322,8 @@ pub mod alloc_type;
 pub mod array;
 
 pub mod chr;
+
+pub mod cmp;
 
 pub mod iter;
 
@@ -413,9 +409,7 @@ pub mod __ {
 
     #[cfg(feature = "cmp")]
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
-    pub use crate::polymorphism::{
-        CmpWrapper, ConstCmpMarker, IsAConstCmpMarker, IsNotStdKind, IsStdKind,
-    };
+    pub use crate::cmp::{CmpWrapper, ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
 
     pub use const_panic::concat_panic;
 }

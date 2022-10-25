@@ -59,8 +59,8 @@ macro_rules!  __priv_delegate_const_inner_cmpwrapper{
 /// `__delegate_const_eq` allows:
 /// - defining a free function,
 /// - defining an inherent `cosnt_eq` method on CmpWrapper that delegates to that free function.
-/// - ConstCmpMarker impl for the first parameter type
-/// - Add a coerce inhenrent method for IsAConstCmpMarker
+/// - ConstCmp impl for the first parameter type
+/// - Add a coerce inhenrent method for IsAConstCmp
 ///
 #[cfg(not(feature = "cmp"))]
 #[doc(hidden)]
@@ -173,14 +173,14 @@ macro_rules! __priv_std_kind_impl {
         impl[$($impl:tt)*] $self:ty
         $(where[ $($where_:tt)* ])?
     )=>{
-        impl<$($impl)*> $crate::__::ConstCmpMarker for $self
+        impl<$($impl)*> $crate::__::ConstCmp for $self
         where
             $($($where_)*)?
         {
             type Kind = $crate::__::IsStdKind;
         }
 
-        impl<$($impl)* __T> $crate::__::IsAConstCmpMarker<$crate::__::IsStdKind, $self, __T>
+        impl<$($impl)* __T> $crate::__::IsAConstCmp<$crate::__::IsStdKind, $self, __T>
         where
             $($($where_)*)?
         {
@@ -198,7 +198,7 @@ macro_rules! __priv_std_kind_impl {
 ///
 /// # Behavior
 ///
-/// This requires arguments to implement the [`ConstCmpMarker`] trait.
+/// This requires arguments to implement the [`ConstCmp`] trait.
 ///
 /// When a type from the standard library is passed,
 /// this wraps it inside a [`CmpWrapper`],
@@ -216,7 +216,7 @@ macro_rules! __priv_std_kind_impl {
 ///
 /// ```rust
 /// use konst::{
-///     polymorphism::CmpWrapper,
+///     cmp::CmpWrapper,
 ///     coerce_to_cmp, impl_cmp,
 /// };
 ///
@@ -244,8 +244,8 @@ macro_rules! __priv_std_kind_impl {
 ///
 /// ```
 ///
-/// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
-/// [`CmpWrapper`]: ./polymorphism/struct.CmpWrapper.html
+/// [`ConstCmp`]: crate::cmp::ConstCmp
+/// [`CmpWrapper`]: crate::cmp::CmpWrapper
 ///
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
@@ -254,27 +254,24 @@ macro_rules! coerce_to_cmp {
     ($reference:expr $(,)*) => {{
         match $reference {
             ref reference => {
-                let marker = $crate::__::IsAConstCmpMarker::NEW;
+                let marker = $crate::__::IsAConstCmp::NEW;
                 if false {
                     marker.infer_type(reference);
                 }
-                marker.coerce(marker.unreference(reference))
+                marker.coerce(reference)
             }
         }
     }};
     ($left:expr, $right:expr $(,)*) => {{
         match (&$left, &$right) {
             (left, right) => {
-                let l_marker = $crate::__::IsAConstCmpMarker::NEW;
-                let r_marker = $crate::__::IsAConstCmpMarker::NEW;
+                let l_marker = $crate::__::IsAConstCmp::NEW;
+                let r_marker = $crate::__::IsAConstCmp::NEW;
                 if false {
                     l_marker.infer_type(left);
                     r_marker.infer_type(right);
                 }
-                (
-                    l_marker.coerce(l_marker.unreference(left)),
-                    r_marker.unreference(right),
-                )
+                (l_marker.coerce(left), r_marker.unreference(right))
             }
         }
     }};
