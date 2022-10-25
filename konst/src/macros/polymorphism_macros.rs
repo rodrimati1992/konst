@@ -178,7 +178,6 @@ macro_rules! __priv_std_kind_impl {
             $($($where_)*)?
         {
             type Kind = $crate::__::IsStdKind;
-            type This = Self;
         }
 
         impl<$($impl)* __T> $crate::__::IsAConstCmpMarker<$crate::__::IsStdKind, $self, __T>

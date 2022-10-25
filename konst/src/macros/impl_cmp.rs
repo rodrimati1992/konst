@@ -235,7 +235,6 @@ macro_rules! __impl_cmp_impl {
             $($where)*
         {
             type Kind = $crate::__::IsNotStdKind;
-            type This = Self;
         }
 
         $(#[$impl_attr])*

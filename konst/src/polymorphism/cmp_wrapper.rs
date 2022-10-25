@@ -50,7 +50,6 @@ impl<'a, T> CmpWrapper<&'a [T]> {
 
 impl<P> ConstCmpMarker for CmpWrapper<P> {
     type Kind = IsNotStdKind;
-    type This = Self;
 }
 
 macro_rules! std_kind_impls {
@@ -58,7 +57,6 @@ macro_rules! std_kind_impls {
         $(
             impl ConstCmpMarker for $ty {
                 type Kind = IsStdKind;
-                type This = Self;
             }
 
             impl<T> IsAConstCmpMarker<IsStdKind, $ty, T> {

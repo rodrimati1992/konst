@@ -6,7 +6,6 @@ macro_rules! shared_range_impls {
     ($type:ty, $eq_fn_name:ident) => {
         impl ConstCmpMarker for $type {
             type Kind = IsStdKind;
-            type This = Self;
         }
         impl CmpWrapper<$type> {
             /// Compares `self` and `other` for equality.

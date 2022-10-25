@@ -17,5 +17,5 @@ include! {"polymorphism/type_eq_.rs"}
 #[cfg(feature = "cmp")]
 pub use self::{
     cmp_wrapper::CmpWrapper,
-    const_cmp_marker::{ConstCmpMarker, IsAConstCmpMarker, IsArrayKind, IsNotStdKind, IsStdKind},
+    const_cmp_marker::{ConstCmpMarker, IsAConstCmpMarker, IsNotStdKind, IsRefKind, IsStdKind},
 };
