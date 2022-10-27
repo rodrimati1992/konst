@@ -8,6 +8,9 @@
 #![cfg_attr(feature = "nightly_mut_refs", feature(const_mut_refs))]
 #![cfg_attr(feature = "docsrs", feature(doc_cfg))]
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
 #[macro_use]
 mod macros;
 
@@ -54,11 +57,15 @@ pub mod utils;
 
 #[doc(hidden)]
 pub mod __ {
+    pub use crate::type_eq::{
+        make_project_fn::__make_projection_parse_generics, HasTypeWitness, MakeTypeWitness, TypeEq,
+        TypeWitnessTypeArg,
+    };
+
     #[cfg(feature = "__for_konst")]
     pub use crate::{
         macros::array_macros::{assert_array, uninit_copy_array_of_len, unit_array},
         maybe_uninit::{array_assume_init, uninit_array},
-        type_eq::{HasTypeWitness, MakeTypeWitness, TypeWitnessTypeArg},
     };
 
     #[cfg(feature = "iter")]

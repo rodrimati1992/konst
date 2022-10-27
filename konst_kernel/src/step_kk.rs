@@ -68,8 +68,8 @@ macro_rules! declare_step_witness {
             match HasTypeWitness::WITNESS {
                 $(
                     StepWitness::$variant{teq, ..} => {
-                        let start = teq.sidecast(start);
-                        let end = teq.sidecast(end);
+                        let start = teq.coerce(start);
+                        let end = teq.coerce(end);
                         code_for_step!($kind, increment, start, end, teq.flip())
                     }
                 )*
@@ -80,8 +80,8 @@ macro_rules! declare_step_witness {
             match HasTypeWitness::WITNESS {
                 $(
                     StepWitness::$variant{teq, ..} => {
-                        let start = teq.sidecast(start);
-                        let end = teq.sidecast(end);
+                        let start = teq.coerce(start);
+                        let end = teq.coerce(end);
                         code_for_step!($kind, decrement, start, end, teq.flip())
                     }
                 )*
@@ -94,8 +94,8 @@ macro_rules! declare_step_witness {
             match HasTypeWitness::WITNESS {
                 $(
                     StepWitness::$variant{pair, range_inc, ..} => {
-                        let range = range_inc.sidecast(range);
-                        pair.flip().sidecast((*range.start(),*range.end()))
+                        let range = range_inc.coerce(range);
+                        pair.flip().coerce((*range.start(),*range.end()))
                     }
                 )*
             }
@@ -106,8 +106,8 @@ macro_rules! declare_step_witness {
             match HasTypeWitness::WITNESS {
                 $(
                     StepWitness::$variant{pair, range_inc, ..} => {
-                        let range = range_inc.sidecast_ref(range);
-                        pair.flip().sidecast((*range.start(),*range.end()))
+                        let range = range_inc.in_ref().coerce(range);
+                        pair.flip().coerce((*range.start(),*range.end()))
                     }
                 )*
             }
@@ -137,7 +137,7 @@ macro_rules! code_for_step {
             finished_inclusive: $start > $end,
             finished_exclusive: $start >= $end,
             overflowed,
-            next: $teq.sidecast(next),
+            next: $teq.coerce(next),
         }
     }};
     (int, decrement, $start:ident, $end:ident, $teq:expr) => {{
@@ -146,7 +146,7 @@ macro_rules! code_for_step {
             finished_inclusive: $end < $start,
             finished_exclusive: $end <= $start,
             overflowed,
-            next: $teq.sidecast(next),
+            next: $teq.coerce(next),
         }
     }};
 }

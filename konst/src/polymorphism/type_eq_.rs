@@ -23,7 +23,7 @@ macro_rules! explain_type_witness {
 /// 
 /// # Example 
 /// 
-/// This example shows how you can make a `const fn` that converts both 
+/// This example shows how one can make a `const fn` that converts both 
 /// `&str` and `&[u8]` to `&str`
 /// 
 /// ```rust
@@ -35,18 +35,18 @@ macro_rules! explain_type_witness {
 /// {
 ///     match T::WITNESS {
 ///         StrTryFrom::Str(te) => {
-///             // `TypeEq::<L, R>::sidecast` does an identity conversion from
+///             // `TypeEq::<L, R>::to` does an identity conversion from
 ///             // an `L` to an `R`, which `TypeEq` guarantees are the same type.
-///             let string: &str = te.sidecast(input);
+///             let string: &str = te.coerce(input);
 ///             Ok(string)
 ///         }
 ///         StrTryFrom::Bytes(te) => {
-///             let bytes: &[u8] = te.sidecast(input);
+///             let bytes: &[u8] = te.coerce(input);
 ///             std::str::from_utf8(bytes)
 ///         }
 ///         StrTryFrom::Array(te) => {
 ///             // this requires care not to infinitely recurse
-///             let slice: &[u8] = te.sidecast(input);
+///             let slice: &[u8] = te.coerce(input);
 ///             str_try_from(slice)
 ///         }
 ///     }
@@ -126,10 +126,10 @@ pub use konst_kernel::type_eq::TypeWitnessTypeArg;
 /// 
 /// const fn default<T, const L: usize>(ret: Defaultable<'_, T, L>) -> T {
 ///     match ret {
-///         Defaultable::I32(te) => te.sidecast(3),
-///         Defaultable::Bool(te) => te.sidecast(true),
-///         Defaultable::Str(te) => te.sidecast("empty"),
-///         Defaultable::Array(te) => te.sidecast([5; L]),
+///         Defaultable::I32(te) => te.coerce(3),
+///         Defaultable::Bool(te) => te.coerce(true),
+///         Defaultable::Str(te) => te.coerce("empty"),
+///         Defaultable::Array(te) => te.coerce([5; L]),
 ///     }
 /// }
 /// 
@@ -209,3 +209,189 @@ pub use konst_kernel::type_eq::MakeTypeWitness;
 /// (the docs are hidden to work around a rustdoc bug)
 #[doc(inline)]
 pub use konst_kernel::type_eq::TypeEq;
+
+/// Declares a function for converting a `TypeEq<L, R>`
+/// to `TypeEq<Foo<L>, Foo<R>>`.
+/// 
+/// [**examples below**](#examples)
+/// 
+/// [**syntax example**](#syntax)
+/// 
+/// # Limitations
+/// 
+/// This macro has the following limitations:
+/// - It only accepts module paths for a type,
+/// followed by the generic parameters of that type,
+/// no concrete generic arguments are allowed.
+/// 
+/// - It can only map one type parameter, the one prefixed with `from`.
+/// 
+/// - It cannot parse trait bounds in the type parameter list written 
+/// the normal way, they must be wrapped in parentheses.
+/// 
+/// - The `from`-prefixed type parameter can only be bounded in the parameter list
+/// 
+/// - The `from`-prefixed type parameter cannot appear in any trait bounds.
+/// 
+/// The first two limitations can be worked around by passing a type alias
+/// to the macro.
+///
+/// # Examples
+/// 
+/// ### Basic
+/// 
+/// This example shows what the macro does,
+/// the [motivating example](#motivating-example) shows why one would use it.
+/// 
+/// ```rust
+/// use konst::polymorphism::{TypeEq,  type_eq_projection_fn};
+/// 
+/// #[derive(Debug, PartialEq)]
+/// struct Foo<T, const N: usize>([T; N]);
+/// 
+/// // This macro invocation generates:
+/// // const fn project_to_foo<L, R, const N: usize>(
+/// //     _: TypeEq<L, R>,
+/// // ) -> TypeEq<Foo<L, N>, Foo<R, N>>
+/// type_eq_projection_fn!{
+///     // The `from` keyword tells the macro that the `T` type parameter
+///     // is the type in `TypeEq` that is mapped to `Foo`.
+///     const fn project_to_foo => Foo<from T, const N: usize>
+/// }
+/// 
+/// // a toy example to demonstrate what projecting a TypeEq does
+/// const fn get_foo<'a, R>(te: TypeEq<&'a str, R>) -> Foo<R, 2> {
+///     // The type annotation is for the reader
+///     let te: TypeEq<Foo<&'a str, 2>, Foo<R, 2>> =
+///         project_to_foo::<&'a str, R, 2>(te);
+/// 
+///     te.coerce(Foo(["foo", "bar"]))
+/// }
+/// 
+/// assert_eq!(get_foo(TypeEq::NEW), Foo(["foo", "bar"]));
+/// 
+/// ```
+/// 
+/// ### Motivating example
+/// 
+/// ```rust
+/// use konst::polymorphism::{
+///     HasTypeWitness,
+///     MakeTypeWitness,
+///     TypeEq, 
+///     TypeWitnessTypeArg,
+///     type_eq_projection_fn,
+/// };
+/// 
+/// fn main() {
+///     assert_eq!(Foo(3, false).transform(), Foo(13, false));
+///     assert_eq!(Foo("hello", "world").transform(), Foo("mapped", "world"));
+/// }
+/// 
+/// #[derive(Debug, PartialEq)]
+/// struct Foo<T, U: Copy>(T, U);
+/// 
+/// // This macro invocation generates:
+/// // const fn project_to_foo<L, R, U>(
+/// //     _: TypeEq<L, R>,
+/// // ) -> TypeEq<Foo<L, U>, Foo<R, U>>
+/// type_eq_projection_fn!{
+///     // The `Copy` bound needs to be wrapped in parentheses in `U: (Copy)` to
+///     // simplify parsing of trait bounds in the generic parameter list.
+///     // 
+///     // note: trait bounds are written normally in where clauses,
+///     //       they must be unparenthesized.
+///     const fn project_to_foo => Foo<from T, U: (Copy)>
+/// }
+/// 
+/// impl<T, U: Copy> Foo<T, U> {
+///     const fn transform<'a>(self) -> Foo<T, U>
+///     where
+///         T: Copy + HasTypeWitness<TheWitness<'a, T>>,
+///     {
+///         match T::WITNESS {
+///             TheWitness::U8(te) => {
+///                 // the type annotation is just for the reader
+///                 let te: TypeEq<Foo<T, U>, Foo<u8, U>> = project_to_foo(te);
+///                 let bar: Foo<u8, U> = te.coerce(self);
+///
+///                 // We need to call `flip` to reverse the type arguments of `TypeEq`,
+///                 // since `coerce` goes from the first type argument to the second.
+///                 te.flip().coerce(Foo(bar.0 + 10, bar.1))
+///             }
+///             TheWitness::Str(te) => {
+///                 // the type annotation is just for the reader
+///                 let te: TypeEq<Foo<T, U>, Foo<&str, U>> = project_to_foo(te);
+///                 te.flip().coerce(Foo("mapped", self.1))
+///             }
+///         }
+///     }
+/// }
+/// 
+/// // A type witmess, a pattern documented in `konst::docs::type_witnesses`
+/// 
+/// // Simply put, type witnesses emulate matching over a set of types.
+/// enum TheWitness<'a, T> {
+///     U8(TypeEq<T, u8>),
+///     Str(TypeEq<T, &'a str>),
+/// }
+/// 
+/// impl<T> TypeWitnessTypeArg for TheWitness<'_, T> {
+///     type Arg = T;
+/// }
+/// 
+/// impl MakeTypeWitness for TheWitness<'_, u8> {
+///     const MAKE: Self = Self::U8(TypeEq::NEW);
+/// }
+/// 
+/// impl<'a> MakeTypeWitness for TheWitness<'a, &'a str> {
+///     const MAKE: Self = Self::Str(TypeEq::NEW);
+/// }
+/// 
+/// ```
+/// 
+/// ### Syntax
+/// 
+/// This example demonstrates all the syntax that this macro supports.
+/// 
+/// ```rust
+/// # use std::fmt::Debug;
+/// # use konst::polymorphism::type_eq_projection_fn;
+/// #
+/// # extern crate self as foo;
+/// #
+/// # #[derive(Debug, PartialEq, Clone)]
+/// # pub struct Ty<'a, 'b: 'a, U: 'a + Debug, const N: usize>(&'a &'b [U; N]);
+/// #
+/// // This macro invocation generates this function:
+/// // 
+/// // pub const fn project<'a, 'b, L, R, const N: usize>(
+/// //     _: TypeEq<L, R>
+/// // ) -> TypeEq<::foo::Ty<'a, 'b, L, N>, ::foo::Ty<'a, 'b, R, N>>
+/// // where
+/// //     'b: 'a,
+/// //     L: 'a + Debug,
+/// //     R: 'a + Debug,
+/// //     [u32; N]: 'a + core::fmt::Debug
+/// type_eq_projection_fn!{
+///     /// Documentation for the generated function
+///     // 
+///     // Without the `const` qualifier, the generated function is non-`const`.
+///     pub const fn project => ::foo::Ty<
+///         'a,
+///         'b: 'a,
+///         // The `from` keyword tells the macro that the `U` type parameter
+///         // is the type in `TypeEq` that is mapped to `Ty`.
+///         // 
+///         // trait bounds in the type parameter list must be parenthesized
+///         from U: ('a +  Debug), 
+///         const N: usize,
+///     >
+///     where
+///         // trait bounds in the where clause are unparenthesized
+///         [u32; N]: 'a + core::fmt::Debug,
+/// }
+/// # fn main(){}
+/// ```
+/// 
+pub use konst_kernel::type_eq_projection_fn;

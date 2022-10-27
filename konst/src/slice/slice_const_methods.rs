@@ -332,7 +332,6 @@ pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
     feature = "docsrs",
     doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
 )]
-#[inline]
 pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
     Some(__slice_up_to_impl!(
         slice,

@@ -9,11 +9,11 @@ fn deref_mut_test() {
     let array_ptr: *mut [u8; 4] = &mut [13, 21, 34, 55];
 
     unsafe {
-        ptr::deref_mut(slice_ptr)[1] += 10;
-        ptr::deref_mut(array_ptr)[1] += 10;
+        (*slice_ptr)[1] += 10;
+        (*array_ptr)[1] += 10;
 
-        assert_eq!(ptr::deref_mut(slice_ptr), &mut [3, 15, 8][..]);
-        assert_eq!(ptr::deref_mut(array_ptr), &mut [13, 31, 34, 55]);
+        assert_eq!(&mut *slice_ptr, &mut [3, 15, 8][..]);
+        assert_eq!(&mut *array_ptr, &mut [13, 31, 34, 55]);
     }
 }
 

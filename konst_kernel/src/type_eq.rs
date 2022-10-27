@@ -1,5 +1,7 @@
 use core::marker::PhantomData;
 
+pub(crate) mod make_project_fn;
+
 // documented in konst::polymorphism::type_eq;
 pub trait HasTypeWitness<W: TypeWitnessTypeArg<Arg = Self>> {
     /// A constant of the type witness
@@ -53,10 +55,29 @@ mod type_eq {
         pub const NEW: Self = TypeEq(PhantomData);
     }
 
+    impl TypeEq<(), ()> {
+        /// Constructs a `TypeEq<T, T>`.
+        #[inline(always)]
+        pub const fn new<T: ?Sized>() -> TypeEq<T, T> {
+            TypeEq::<T, T>::NEW
+        }
+    }
+
     impl<L: ?Sized, R: ?Sized> TypeEq<L, R> {
         /// Swaps the type parameters of this `TypeEq`
         #[inline(always)]
         pub const fn flip(self) -> TypeEq<R, L> {
+            TypeEq(PhantomData)
+        }
+
+        /// Constructs a `TypeEq<L, R>`.
+        ///
+        /// # Safety
+        ///
+        /// You must ensure that `L == R`.
+        ///
+        #[inline(always)]
+        pub const unsafe fn new_unchecked() -> TypeEq<L, R> {
             TypeEq(PhantomData)
         }
     }
@@ -92,6 +113,10 @@ impl<L, R> TypeEq<L, R> {
 
     /// Hints to the compiler that a `TypeEq<L, R>`
     /// can only be constructed if `L == R`.
+    ///
+    /// This function takes and returns `val` unmodified.
+    ///
+    ///
     #[inline(always)]
     pub const fn reachability_hint<T>(self, val: T) -> T {
         if let Amb::No = Self::ARE_SAME_TYPE {
@@ -108,24 +133,37 @@ impl<L, R> TypeEq<L, R> {
     /// This method uses the fact that
     /// having a `TypeEq<L, R>` value proves that `L` and `R` are the same type.
     #[inline(always)]
-    pub const fn sidecast(self, from: L) -> R {
+    pub const fn coerce(self, from: L) -> R {
         self.reachability_hint(());
 
         unsafe { crate::__priv_transmute!(L, R, from) }
     }
+}
 
-    /// A no-op cast from `&L` to `&R`
-    ///
-    /// This method uses the fact that
-    /// having a `TypeEq<L, R>` value proves that `L` and `R` are the same type.
-    #[inline(always)]
-    #[allow(dead_code)]
-    pub(crate) const fn sidecast_ref(self, from: &L) -> &R {
-        self.reachability_hint(());
+impl<L, R> TypeEq<L, R> {
+    crate::type_eq_projection_fn! {
+        /// Converts a `TypeEq<L, R>` to `TypeEq<&L, &R>`
+        pub const fn in_ref(self: TypeEq<L, R>) => Ref<'a, from T>
+    }
 
-        unsafe { &*(from as *const L as *const R) }
+    #[cfg(feature = "mut_refs")]
+    crate::type_eq_projection_fn! {
+        /// Converts a `TypeEq<L, R>` to `TypeEq<&mut L, &mut R>`
+        #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+        pub const fn in_mut(self: TypeEq<L, R>) => RefMut<'a, from T>
+    }
+
+    #[cfg(feature = "alloc")]
+    crate::type_eq_projection_fn! {
+        /// Converts a `TypeEq<L, R>` to `TypeEq<Box<L>, Box<R>>`
+        #[cfg_attr(feature = "docsrs", doc(cfg(feature = "alloc")))]
+        pub const fn in_box(self: TypeEq<L, R>) => ::alloc::boxed::Box<from T>
     }
 }
+type Ref<'a, T> = &'a T;
+
+#[cfg(feature = "mut_refs")]
+type RefMut<'a, T> = &'a mut T;
 
 enum Amb {
     // indefinitely false/true

@@ -29,6 +29,7 @@ version = "0.7"
 
 [features]
 debug = []
+alloc = []
 iter = []
 rust_1_64 = []
 docsrs = []
