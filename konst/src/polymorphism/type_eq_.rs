@@ -1,13 +1,13 @@
 macro_rules! explain_type_witness {
     () => ("\
-        A *type witness* is \
+        A [type witness](crate::docs::type_witnesses) is \
         an enum whose variants only have [`TypeEq`] fields.
         Each variant requires the enum's type parameter to be a specific type.
     ")
 }
 
 
-/// Gets a type witness for `Self`.
+/// Gets a [type witness](crate::docs::type_witnesses) for `Self`.
 /// 
 #[doc = explain_type_witness!()]
 /// 
@@ -107,7 +107,7 @@ pub use konst_kernel::type_eq::HasTypeWitness;
 /// 
 pub use konst_kernel::type_eq::TypeWitnessTypeArg;
 
-/// Constructs this type witness.
+/// Constructs this [type witness](crate::docs::type_witnesses).
 /// 
 #[doc = explain_type_witness!()]
 /// 
@@ -191,9 +191,14 @@ pub use konst_kernel::type_eq::MakeTypeWitness;
 /// <details>
 /// <summary><b>item docs</b></summary>
 /// <p>
+///
 /// This type can be used to prove that `L` and `R` are the same type,
-/// because it can only be constructed with `TypeEq::<L, L>::NEW`,
+/// because it can only be safely constructed with 
+/// `TypeEq::<L, L>::NEW`(or [`new`](#method.new)),
 /// where both type arguments are the same type.
+///
+/// This type is not too useful by itself, it becomes useful 
+/// [when put inside of an enum](crate::docs::type_witnesses#example0).
 ///
 /// # Related
 /// 
