@@ -344,7 +344,7 @@ macro_rules! __cim_no_expr_arg_error {
 #[macro_export]
 macro_rules! __cim_if_empty {
     (() {$($then:tt)*} else $else:tt) => { $($then)* };
-    (() $then:tt else {$($else:tt)*}) => { $($else)* };
+    (($($non_empty:tt)+) $then:tt else {$($else:tt)*}) => { $($else)* };
 }
 
 #[doc(hidden)]
