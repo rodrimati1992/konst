@@ -10,6 +10,12 @@
 //!
 //!
 
+#[cfg(feature = "iter")]
+mod chars_methods;
+
+#[cfg(feature = "iter")]
+pub use chars_methods::*;
+
 mod concatenation;
 
 pub use concatenation::*;

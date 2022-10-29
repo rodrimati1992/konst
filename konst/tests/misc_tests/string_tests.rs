@@ -2,6 +2,9 @@ use konst::string;
 
 use super::test_utils::must_panic;
 
+#[cfg(feature = "iter")]
+mod string_chars_tests;
+
 mod string_concatenation;
 
 #[cfg(feature = "iter")]
