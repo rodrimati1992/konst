@@ -133,10 +133,20 @@ impl<L, R> TypeEq<L, R> {
     /// This method uses the fact that
     /// having a `TypeEq<L, R>` value proves that `L` and `R` are the same type.
     #[inline(always)]
-    pub const fn coerce(self, from: L) -> R {
+    pub const fn to_right(self, from: L) -> R {
         self.reachability_hint(());
 
         unsafe { crate::__priv_transmute!(L, R, from) }
+    }
+    /// A no-op cast from `R` to `L`
+    ///
+    /// This method uses the fact that
+    /// having a `TypeEq<L, R>` value proves that `L` and `R` are the same type.
+    #[inline(always)]
+    pub const fn to_left(self, from: R) -> L {
+        self.reachability_hint(());
+
+        unsafe { crate::__priv_transmute!(R, L, from) }
     }
 }
 

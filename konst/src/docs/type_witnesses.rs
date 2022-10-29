@@ -49,10 +49,10 @@ where
     T: HasTypeWitness<TheWitness<T, N>>
 {
     match T::WITNESS {
-        TheWitness::U8(te, ter) => ter.coerce(te.coerce(arg).to_le_bytes()),
-        TheWitness::U16(te, ter) => ter.coerce(te.coerce(arg).to_le_bytes()),
-        TheWitness::I8(te, ter) => ter.coerce(te.coerce(arg).to_le_bytes()),
-        TheWitness::I16(te, ter) => ter.coerce(te.coerce(arg).to_le_bytes()),
+        TheWitness::U8(te, ter) => ter.to_right(te.to_right(arg).to_le_bytes()),
+        TheWitness::U16(te, ter) => ter.to_right(te.to_right(arg).to_le_bytes()),
+        TheWitness::I8(te, ter) => ter.to_right(te.to_right(arg).to_le_bytes()),
+        TheWitness::I16(te, ter) => ter.to_right(te.to_right(arg).to_le_bytes()),
     }
 }
 

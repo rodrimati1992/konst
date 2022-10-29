@@ -26,6 +26,20 @@ pub(crate) struct StepRet<T> {
     pub(crate) next: T,
 }
 
+type Pair<T> = (T, T);
+crate::type_eq_projection_fn! {
+    const fn teq_pair => Pair<from T>
+}
+
+crate::type_eq_projection_fn! {
+    const fn teq_range_inclusive => RangeInclusive<from T>
+}
+
+type RefRangeInclusive<'a, T> = &'a RangeInclusive<T>;
+crate::type_eq_projection_fn! {
+    const fn teq_ref_range_inclusive => RefRangeInclusive<'a, from T>
+}
+
 macro_rules! declare_step_witness {
     (
         $(($variant:ident, $type:ty, $kind:ident))*
@@ -36,8 +50,6 @@ macro_rules! declare_step_witness {
                 #[non_exhaustive]
                 $variant {
                     teq: TypeEq<T, $type>,
-                    range_inc: TypeEq<RangeInclusive<T>, RangeInclusive<$type>>,
-                    pair: TypeEq<(T, T), ($type, $type)>,
                 },
             )*
         }
@@ -58,8 +70,6 @@ macro_rules! declare_step_witness {
             impl MakeTypeWitness for StepWitness<$type> {
                 const MAKE: Self = Self::$variant {
                     teq: TypeEq::NEW,
-                    range_inc: TypeEq::NEW,
-                    pair: TypeEq::NEW,
                 };
             }
         )*
@@ -68,9 +78,9 @@ macro_rules! declare_step_witness {
             match HasTypeWitness::WITNESS {
                 $(
                     StepWitness::$variant{teq, ..} => {
-                        let start = teq.coerce(start);
-                        let end = teq.coerce(end);
-                        code_for_step!($kind, increment, start, end, teq.flip())
+                        let start = teq.to_right(start);
+                        let end = teq.to_right(end);
+                        code_for_step!($kind, increment, start, end, teq, to_left)
                     }
                 )*
             }
@@ -80,9 +90,9 @@ macro_rules! declare_step_witness {
             match HasTypeWitness::WITNESS {
                 $(
                     StepWitness::$variant{teq, ..} => {
-                        let start = teq.coerce(start);
-                        let end = teq.coerce(end);
-                        code_for_step!($kind, decrement, start, end, teq.flip())
+                        let start = teq.to_right(start);
+                        let end = teq.to_right(end);
+                        code_for_step!($kind, decrement, start, end, teq, to_left)
                     }
                 )*
             }
@@ -93,9 +103,9 @@ macro_rules! declare_step_witness {
         ) -> (T, T) {
             match HasTypeWitness::WITNESS {
                 $(
-                    StepWitness::$variant{pair, range_inc, ..} => {
-                        let range = range_inc.coerce(range);
-                        pair.flip().coerce((*range.start(),*range.end()))
+                    StepWitness::$variant{teq, ..} => {
+                        let range = teq_range_inclusive(teq).to_right(range);
+                        teq_pair(teq).to_left((*range.start(),*range.end()))
                     }
                 )*
             }
@@ -105,9 +115,9 @@ macro_rules! declare_step_witness {
         ) -> (T, T) {
             match HasTypeWitness::WITNESS {
                 $(
-                    StepWitness::$variant{pair, range_inc, ..} => {
-                        let range = range_inc.in_ref().coerce(range);
-                        pair.flip().coerce((*range.start(),*range.end()))
+                    StepWitness::$variant{teq, ..} => {
+                        let range = teq_ref_range_inclusive(teq).to_right(range);
+                        teq_pair(teq).to_left((*range.start(),*range.end()))
                     }
                 )*
             }
@@ -131,22 +141,22 @@ declare_step_witness! {
 }
 
 macro_rules! code_for_step {
-    (int, increment, $start:ident, $end:ident, $teq:expr) => {{
+    (int, increment, $start:ident, $end:ident, $teq:expr, $to_dir:ident) => {{
         let (next, overflowed) = $start.overflowing_add(1);
         StepRet {
             finished_inclusive: $start > $end,
             finished_exclusive: $start >= $end,
             overflowed,
-            next: $teq.coerce(next),
+            next: $teq.$to_dir(next),
         }
     }};
-    (int, decrement, $start:ident, $end:ident, $teq:expr) => {{
+    (int, decrement, $start:ident, $end:ident, $teq:expr, $to_dir:ident) => {{
         let (next, overflowed) = $end.overflowing_sub(1);
         StepRet {
             finished_inclusive: $end < $start,
             finished_exclusive: $end <= $start,
             overflowed,
-            next: $teq.coerce(next),
+            next: $teq.$to_dir(next),
         }
     }};
 }

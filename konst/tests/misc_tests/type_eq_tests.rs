@@ -20,7 +20,7 @@ fn test_when_all_generic_args_are_passed() {
         assert_type::<_, TypeEq<Ty<'a, 'b, u8, N>, Ty<'a, 'b, T, N>>>(&project::<_, _, N>(te));
         assert_type::<_, TypeEq<Ty<'a, 'b, u8, 10>, Ty<'a, 'b, T, 10>>>(&project::<_, _, 10>(te));
 
-        project(te).coerce(this)
+        project(te).to_right(this)
     }
 
     assert_eq!(inner(TypeEq::NEW, Ty(&&[3, 5, 8])), Ty(&&[3, 5, 8]));
@@ -52,7 +52,7 @@ fn test_when_all_kinds_of_bounds_are_passed() {
             te,
         ));
 
-        project_one(te).coerce(this)
+        project_one(te).to_right(this)
     }
 
     assert_eq!(
@@ -89,7 +89,7 @@ fn test_lifetime_bounds_in_parentheses() {
             te,
         ));
 
-        project_two(te).coerce(this)
+        project_two(te).to_right(this)
     }
 
     assert_eq!(inner(TypeEq::NEW, Ty(&&3, 13u8)), Ty(&&3, 13u8),);
@@ -116,6 +116,6 @@ fn test_visibility() {
         opt_pub::project_opt(TypeEq::new::<u8>()),
         opt_pub_crate::project_opt(TypeEq::new::<u8>()),
     ] {
-        assert_eq!(te.coerce(Some(Default::default())), Some(0));
+        assert_eq!(te.to_right(Some(Default::default())), Some(0));
     }
 }

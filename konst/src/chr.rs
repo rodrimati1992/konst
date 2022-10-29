@@ -55,7 +55,7 @@ pub const fn encode_utf8(c: char) -> Utf8Encoded {
 /// # Example
 ///
 /// ```rust
-/// use konst::ctr;
+/// use konst::chr;
 ///
 /// const AT: char = unsafe { chr::from_u32_unchecked(64) };
 ///
@@ -70,7 +70,7 @@ pub const unsafe fn from_u32_unchecked(n: u32) -> char {
 /// # Example
 ///
 /// ```rust
-/// use konst::{ctr, option};
+/// use konst::{chr, option};
 ///
 /// const AT: char = option::unwrap!(chr::from_u32(64));
 ///

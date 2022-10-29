@@ -58,7 +58,7 @@ macro_rules! declare_patterns {
                 match P::WITNESS.0 {
                     $(
                         PatternInputInner::$variant{te} => {
-                            let $param = te.coerce(pattern);
+                            let $param = te.to_right(pattern);
                             PatternNorm::$variant{val: $normalizer, te}
                         }
                     )*

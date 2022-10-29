@@ -37,16 +37,16 @@ macro_rules! explain_type_witness {
 ///         StrTryFrom::Str(te) => {
 ///             // `TypeEq::<L, R>::to` does an identity conversion from
 ///             // an `L` to an `R`, which `TypeEq` guarantees are the same type.
-///             let string: &str = te.coerce(input);
+///             let string: &str = te.to_right(input);
 ///             Ok(string)
 ///         }
 ///         StrTryFrom::Bytes(te) => {
-///             let bytes: &[u8] = te.coerce(input);
+///             let bytes: &[u8] = te.to_right(input);
 ///             std::str::from_utf8(bytes)
 ///         }
 ///         StrTryFrom::Array(te) => {
 ///             // this requires care not to infinitely recurse
-///             let slice: &[u8] = te.coerce(input);
+///             let slice: &[u8] = te.to_right(input);
 ///             str_try_from(slice)
 ///         }
 ///     }
@@ -126,10 +126,10 @@ pub use konst_kernel::type_eq::TypeWitnessTypeArg;
 /// 
 /// const fn default<T, const L: usize>(ret: Defaultable<'_, T, L>) -> T {
 ///     match ret {
-///         Defaultable::I32(te) => te.coerce(3),
-///         Defaultable::Bool(te) => te.coerce(true),
-///         Defaultable::Str(te) => te.coerce("empty"),
-///         Defaultable::Array(te) => te.coerce([5; L]),
+///         Defaultable::I32(te) => te.to_right(3),
+///         Defaultable::Bool(te) => te.to_right(true),
+///         Defaultable::Str(te) => te.to_right("empty"),
+///         Defaultable::Array(te) => te.to_right([5; L]),
 ///     }
 /// }
 /// 
@@ -270,7 +270,7 @@ pub use konst_kernel::type_eq::TypeEq;
 ///     let te: TypeEq<Foo<&'a str, 2>, Foo<R, 2>> =
 ///         project_to_foo::<&'a str, R, 2>(te);
 /// 
-///     te.coerce(Foo(["foo", "bar"]))
+///     te.to_right(Foo(["foo", "bar"]))
 /// }
 /// 
 /// assert_eq!(get_foo(TypeEq::NEW), Foo(["foo", "bar"]));
@@ -318,16 +318,14 @@ pub use konst_kernel::type_eq::TypeEq;
 ///             TheWitness::U8(te) => {
 ///                 // the type annotation is just for the reader
 ///                 let te: TypeEq<Foo<T, U>, Foo<u8, U>> = project_to_foo(te);
-///                 let bar: Foo<u8, U> = te.coerce(self);
+///                 let bar: Foo<u8, U> = te.to_right(self);
 ///
-///                 // We need to call `flip` to reverse the type arguments of `TypeEq`,
-///                 // since `coerce` goes from the first type argument to the second.
-///                 te.flip().coerce(Foo(bar.0 + 10, bar.1))
+///                 te.to_left(Foo(bar.0 + 10, bar.1))
 ///             }
 ///             TheWitness::Str(te) => {
 ///                 // the type annotation is just for the reader
 ///                 let te: TypeEq<Foo<T, U>, Foo<&str, U>> = project_to_foo(te);
-///                 te.flip().coerce(Foo("mapped", self.1))
+///                 te.to_left(Foo("mapped", self.1))
 ///             }
 ///         }
 ///     }
