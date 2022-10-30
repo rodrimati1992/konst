@@ -3,11 +3,11 @@
 mod core {}
 
 konst::polymorphism::type_eq_projection_fn!{
-    pub(crate) fn project_res => ::core::result::Result<from T, E>
+    pub(crate) fn project_res(T) -> ::core::result::Result<T, E>
 }
 
 konst::polymorphism::type_eq_projection_fn!{
-    pub(crate) fn project_opt => core::option::Option<from T>
+    pub(crate) fn project_opt(T) -> core::option::Option<T>
 }
 
 fn main(){}

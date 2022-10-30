@@ -1,5 +1,5 @@
 error[E0433]: failed to resolve: could not find `option` in `core`
-  --> tests/misc_tests/type_eq_ui_tests/leading_double_colon_parsing_err.rs:10:40
+  --> tests/misc_tests/type_eq_ui_tests/leading_double_colon_parsing_err.rs:10:43
    |
-10 |     pub(crate) fn project_opt => core::option::Option<from T>
-   |                                        ^^^^^^ could not find `option` in `core`
+10 |     pub(crate) fn project_opt(T) -> core::option::Option<T>
+   |                                           ^^^^^^ could not find `option` in `core`

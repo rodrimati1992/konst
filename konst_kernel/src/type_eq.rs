@@ -153,21 +153,21 @@ impl<L, R> TypeEq<L, R> {
 impl<L, R> TypeEq<L, R> {
     crate::type_eq_projection_fn! {
         /// Converts a `TypeEq<L, R>` to `TypeEq<&L, &R>`
-        pub const fn in_ref(self: TypeEq<L, R>) => Ref<'a, from T>
+        pub const fn in_ref(T, self: TypeEq<L, R>) -> Ref<'a, T>
     }
 
     #[cfg(feature = "mut_refs")]
     crate::type_eq_projection_fn! {
         /// Converts a `TypeEq<L, R>` to `TypeEq<&mut L, &mut R>`
         #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
-        pub const fn in_mut(self: TypeEq<L, R>) => RefMut<'a, from T>
+        pub const fn in_mut(T, self: TypeEq<L, R>) -> RefMut<'a, T>
     }
 
     #[cfg(feature = "alloc")]
     crate::type_eq_projection_fn! {
         /// Converts a `TypeEq<L, R>` to `TypeEq<Box<L>, Box<R>>`
         #[cfg_attr(feature = "docsrs", doc(cfg(feature = "alloc")))]
-        pub const fn in_box(self: TypeEq<L, R>) => ::alloc::boxed::Box<from T>
+        pub const fn in_box(T, self: TypeEq<L, R>) -> ::alloc::boxed::Box<T>
     }
 }
 type Ref<'a, T> = &'a T;

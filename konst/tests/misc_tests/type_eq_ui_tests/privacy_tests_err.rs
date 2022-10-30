@@ -2,7 +2,7 @@
 
 mod opt_pub_self {
     konst::polymorphism::type_eq_projection_fn!{
-        pub(self) fn project_opt => Option<from T>
+        pub(self) fn project_opt(T) -> Option<T>
     }
 }
 
@@ -14,7 +14,7 @@ const _: () = {
 mod opt_pub_super {
     pub mod foo {
         konst::polymorphism::type_eq_projection_fn!{
-            pub(super) fn project_opt => Option<from T>
+            pub(super) fn project_opt(T) -> Option<T>
         }
     }
 

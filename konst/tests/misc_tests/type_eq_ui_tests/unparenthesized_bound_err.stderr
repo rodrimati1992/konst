@@ -1,9 +1,9 @@
-error: trait bounds in parameter list must be wrapped in parentheses, context: `from T : core`
+error: trait bounds in parameter list must be wrapped in parentheses, context: `T : core`
  --> tests/misc_tests/type_eq_ui_tests/unparenthesized_bound_err.rs:3:1
   |
 3 | / type_eq_projection_fn!{
 4 | |     ///
-5 | |     fn project_option => Option<from T: core::fmt::Debug>
+5 | |     fn project_option(T) -> Option<T: core::fmt::Debug>
 6 | | }
   | |_^
   |

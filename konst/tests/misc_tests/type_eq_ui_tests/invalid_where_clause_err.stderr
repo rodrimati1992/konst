@@ -3,7 +3,7 @@ error: invalid where clause syntax
    |
 4  | / type_eq_projection_fn!{
 5  | |     ///
-6  | |     fn project_option => Option<from T>
+6  | |     fn project_option(T) -> Option<T>
 7  | |     where
 ...  |
 11 | |     fn foo() {}

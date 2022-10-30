@@ -10,7 +10,7 @@ fn test_when_all_generic_args_are_passed() {
     struct Ty<'a, 'b: 'a, T: 'a + Debug, const N: usize>(&'a &'b [T; N]);
 
     type_eq_projection_fn! {
-        fn project => Ty<'a, 'b: 'a, from T: 'a + (Debug), const N: usize>
+        fn project(T) -> Ty<'a, 'b: 'a, T: 'a + (Debug), const N: usize>
     }
 
     fn inner<'a, 'b: 'a, T: 'a + Debug, const N: usize>(
@@ -35,10 +35,10 @@ fn test_when_all_kinds_of_bounds_are_passed() {
     );
 
     type_eq_projection_fn! {
-        fn project_one => Ty<'a, 'b: 'a + 'a, 'c, from T: 'a + 'b + (Debug + Clone)>
+        fn project_one(T) -> Ty<'a, 'b: 'a + 'a, 'c, T: 'a + 'b + (Debug + Clone)>
     }
     type_eq_projection_fn! {
-        fn project_two => Ty<'a, 'b: 'a + 'a, 'c, from T: ('a + 'b + Debug + Clone)>
+        fn project_two(T) -> Ty<'a, 'b: 'a + 'a, 'c, T: ('a + 'b + Debug + Clone)>
     }
 
     fn inner<'a, 'b: 'a + 'a, 'c, T: 'a + 'b + Debug + Clone>(
@@ -67,12 +67,12 @@ fn test_lifetime_bounds_in_parentheses() {
     struct Ty<'a, 'b, T: 'a + 'b, U: std::fmt::Debug>(&'a &'b T, U);
 
     type_eq_projection_fn! {
-        fn project_one => Ty<'a, 'b, from T: ('a + 'b), U>
+        fn project_one(T) -> Ty<'a, 'b, T: ('a + 'b), U>
         where
             U: std::fmt::Debug,
     }
     type_eq_projection_fn! {
-        fn project_two => Ty<'a, 'b, from T: ('a + 'b +), U>
+        fn project_two(T) -> Ty<'a, 'b, T: ('a + 'b +), U>
         where
             u32:,
             U: std::fmt::Debug
@@ -97,7 +97,7 @@ fn test_lifetime_bounds_in_parentheses() {
 
 mod opt_pub {
     konst::polymorphism::type_eq_projection_fn! {
-        pub fn project_opt => Option<from T>
+        pub fn project_opt(T) -> Option<T>
     }
 }
 
@@ -106,7 +106,7 @@ mod opt_pub_crate {
     mod core {}
 
     konst::polymorphism::type_eq_projection_fn! {
-        pub(crate) fn project_opt => ::core::option::Option<from T>
+        pub(crate) fn project_opt(T) -> ::core::option::Option<T>
     }
 }
 

@@ -5,13 +5,16 @@ macro_rules! type_eq_projection_fn {
         $vis:vis
         $(const $(@$is_const:ident@)?)?
         fn $function:ident
-        $(
-            ($param:tt $(@$L_R_from_ctx:ident@)?: TypeEq<$L:ident, $R:ident>)
-        )?
-        =>
+        (
+            $($type_param:ident)?
+            $(, $param:ident $(@$L_R_from_ctx:ident@)?: TypeEq<$L:ident, $R:ident>)?
+        )
+        ->
         $(:: $(@$c2:ident@)?)? $($type_name:ident)::* <
         $($gen_params:tt)*
     ) => {
+        $crate::__mpf_assert_type_param_is_T!{ $($type_param)? }
+
         $crate::__::__make_projection_parse_generics!{
             (
                 ( $(($(@$L_R_from_ctx@)?))? (__L, __R,) )
@@ -37,10 +40,6 @@ macro_rules! __meta__make_projection_parse_generics {
         $_:tt
 
         repeat_punct( $(($punct:tt ($($prep:tt)*)))* )
-
-        repeat_erroring_type_bounds(
-            $(($($from:ident)?))*
-        )
     ) => {
         #[doc(hidden)]
         #[macro_export]
@@ -113,7 +112,7 @@ macro_rules! __meta__make_projection_parse_generics {
                 ($_($prev_gen_args:tt)*)
 
                 (
-                    from $ty_param:ident $_(:
+                    T $_(:
                         $_( $lt_bound:lifetime $_(+)? )*
                         $_( ( $_($ty_bounds:tt)* ) )?
                     )?
@@ -171,11 +170,11 @@ macro_rules! __meta__make_projection_parse_generics {
                     ( $($prep)*  $_($rem)* )
                 }
             };)*
-            $((
+            (
                 $fixed:tt  $prev_gen_params:tt $prev_gen_args:tt
 
                 (
-                    $($from)? $ty_param:ident:
+                    $ty_param:ident:
                         $_( $lt_bound:lifetime $_(+)? )*
                         $_(::)? $ident:ident
                     $_($rem:tt)*
@@ -183,10 +182,10 @@ macro_rules! __meta__make_projection_parse_generics {
             )=>{
                 $crate::__::compile_error!{$crate::__::concat!(
                     "trait bounds in parameter list must be wrapped in parentheses, context: `",
-                    stringify!($($from)? $ty_param: $_( $lt_bound + )*  $ident),
+                    stringify!($ty_param: $_( $lt_bound + )*  $ident),
                     "`",
                 )}
-            };)*
+            };
         }
 
         #[doc(hidden)]
@@ -199,10 +198,6 @@ __meta__make_projection_parse_generics! {
     repeat_punct(
         (, ())
         (> (>))
-    )
-    repeat_erroring_type_bounds(
-        ()
-        (from)
     )
 }
 
@@ -265,7 +260,7 @@ macro_rules! __make_projection_fn {
 macro_rules! __assert_replaced_type_param_and_where_clause {
     (() $where:tt $($token:tt)*) => {
         $crate::__::compile_error!{
-            "expected a type parameter to be prefixed with from, eg: `Foo<from T>`"
+            "expected a `T` type parameter in the return type"
         }
     };
     (
@@ -293,4 +288,17 @@ macro_rules! __assert_replaced_type_param_and_where_clause {
 #[macro_export]
 macro_rules! __mpf_assert_bound {
     ($bound:ty) => {};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __mpf_assert_type_param_is_T {
+    (T) => {};
+    ($($tt:tt)*) => {
+        $crate::__::compile_error!{$crate::__::concat!(
+            "expected function parameter to be `T`, found: `",
+            $crate::__::stringify!($($tt)*),
+            "`",
+        )}
+    };
 }

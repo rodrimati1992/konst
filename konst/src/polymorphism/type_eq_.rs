@@ -35,7 +35,7 @@ macro_rules! explain_type_witness {
 /// {
 ///     match T::WITNESS {
 ///         StrTryFrom::Str(te) => {
-///             // `TypeEq::<L, R>::to` does an identity conversion from
+///             // `TypeEq::<L, R>::to_right` does an identity conversion from
 ///             // an `L` to an `R`, which `TypeEq` guarantees are the same type.
 ///             let string: &str = te.to_right(input);
 ///             Ok(string)
@@ -59,7 +59,7 @@ macro_rules! explain_type_witness {
 /// assert_eq!(str_try_from(b"foo bar" as &[_]), Ok("foo bar"));
 /// 
 /// // this enum is a type witness
-/// // `#[non_exhausitve]` allows adding more supported types to the set.
+/// // `#[non_exhausitve]` allows adding more supported types.
 /// #[non_exhaustive]
 /// pub enum StrTryFrom<'a, T, const L: usize> {
 ///     // This variant requires `T == &'a str`
@@ -208,6 +208,43 @@ pub use konst_kernel::type_eq::MakeTypeWitness;
 /// - [`TypeWitnessTypeArg`]
 /// - [`MakeTypeWitness`]
 /// 
+/// # Soundness
+/// 
+/// `TypeEq<L, R>` requires both type arguments to be the same type so that 
+/// [projecting](#projecting) the type arguments results in the same type for 
+/// both arguments.
+/// 
+/// # Examples
+/// 
+/// All the [related](#related) items show how `TypeEq` is used`inside of enums
+/// (its primary usecase).
+/// 
+/// The examples below are intended to demonstrate basic properties of `TypeEq`.
+/// 
+/// ### Projecting
+/// 
+/// This example demonstrates `TypeEq` projection using [`type_eq_projection_fn`]:
+/// 
+/// ```rust
+/// use konst::polymorphism::{TypeEq, type_eq_projection_fn};
+/// 
+/// // This macro invocation generates this function:
+/// // const fn project_vec<L, R>(teq: TypeEq<L, R>) -> TypeEq<Vec<L>, Vec<R>>
+/// type_eq_projection_fn!{
+///     // `T` must be both the function parameter, and in the return type.
+///     const fn project_vec(T) -> Vec<T>
+/// }
+/// 
+/// fn foo<T>(te: TypeEq<u32, T>) -> Vec<T> {
+///     let vec_te: TypeEq<Vec<u32>, Vec<T>> = project_vec(te);
+///     vec_te.to_right(vec![3, 5, 8])
+/// }
+/// 
+/// assert_eq!(foo(TypeEq::NEW), vec![3u32, 5, 8]);
+/// 
+/// ```
+/// 
+/// 
 /// </p>
 /// </details>
 ///
@@ -229,14 +266,14 @@ pub use konst_kernel::type_eq::TypeEq;
 /// followed by the generic parameters of that type,
 /// no concrete generic arguments are allowed.
 /// 
-/// - It can only map one type parameter, the one prefixed with `from`.
+/// - It can only map one type parameter, the `T` parameter.
 /// 
 /// - It cannot parse trait bounds in the type parameter list written 
 /// the normal way, they must be wrapped in parentheses.
 /// 
-/// - The `from`-prefixed type parameter can only be bounded in the parameter list
+/// - The `T` type parameter can only be bounded in the parameter list
 /// 
-/// - The `from`-prefixed type parameter cannot appear in any trait bounds.
+/// - The `T` type parameter cannot appear in any trait bounds.
 /// 
 /// The first two limitations can be worked around by passing a type alias
 /// to the macro.
@@ -259,9 +296,8 @@ pub use konst_kernel::type_eq::TypeEq;
 /// //     _: TypeEq<L, R>,
 /// // ) -> TypeEq<Foo<L, N>, Foo<R, N>>
 /// type_eq_projection_fn!{
-///     // The `from` keyword tells the macro that the `T` type parameter
-///     // is the type in `TypeEq` that is mapped to `Foo`.
-///     const fn project_to_foo => Foo<from T, const N: usize>
+///     // `T` must be both the function parameter, and in the return type.
+///     const fn project_to_foo(T) -> Foo<T, const N: usize>
 /// }
 /// 
 /// // a toy example to demonstrate what projecting a TypeEq does
@@ -306,7 +342,7 @@ pub use konst_kernel::type_eq::TypeEq;
 ///     // 
 ///     // note: trait bounds are written normally in where clauses,
 ///     //       they must be unparenthesized.
-///     const fn project_to_foo => Foo<from T, U: (Copy)>
+///     const fn project_to_foo(T) -> Foo<T, U: (Copy)>
 /// }
 /// 
 /// impl<T, U: Copy> Foo<T, U> {
@@ -333,7 +369,7 @@ pub use konst_kernel::type_eq::TypeEq;
 /// 
 /// // A type witmess, a pattern documented in `konst::docs::type_witnesses`
 /// 
-/// // Simply put, type witnesses emulate matching over a set of types.
+/// // Simply put, type witnesses emulate matching over a range of types.
 /// enum TheWitness<'a, T> {
 ///     U8(TypeEq<T, u8>),
 ///     Str(TypeEq<T, &'a str>),
@@ -380,14 +416,13 @@ pub use konst_kernel::type_eq::TypeEq;
 ///     /// Documentation for the generated function
 ///     // 
 ///     // Without the `const` qualifier, the generated function is non-`const`.
-///     pub const fn project => ::foo::Ty<
+///     // 
+///     // `T` must be both the function parameter, and in the return type.
+///     pub const fn project(T) -> ::foo::Ty<
 ///         'a,
 ///         'b: 'a,
-///         // The `from` keyword tells the macro that the `U` type parameter
-///         // is the type in `TypeEq` that is mapped to `Ty`.
-///         // 
 ///         // trait bounds in the type parameter list must be parenthesized
-///         from U: ('a +  Debug), 
+///         T: ('a +  Debug), 
 ///         const N: usize,
 ///     >
 ///     where

@@ -28,16 +28,16 @@ pub(crate) struct StepRet<T> {
 
 type Pair<T> = (T, T);
 crate::type_eq_projection_fn! {
-    const fn teq_pair => Pair<from T>
+    const fn teq_pair(T) -> Pair<T>
 }
 
 crate::type_eq_projection_fn! {
-    const fn teq_range_inclusive => RangeInclusive<from T>
+    const fn teq_range_inclusive(T) -> RangeInclusive<T>
 }
 
 type RefRangeInclusive<'a, T> = &'a RangeInclusive<T>;
 crate::type_eq_projection_fn! {
-    const fn teq_ref_range_inclusive => RefRangeInclusive<'a, from T>
+    const fn teq_ref_range_inclusive(T) -> RefRangeInclusive<'a, T>
 }
 
 macro_rules! declare_step_witness {

@@ -8,7 +8,7 @@ note: the function `project_opt` is defined here
   --> tests/misc_tests/type_eq_ui_tests/privacy_tests_err.rs:4:5
    |
 4  | /     konst::polymorphism::type_eq_projection_fn!{
-5  | |         pub(self) fn project_opt => Option<from T>
+5  | |         pub(self) fn project_opt(T) -> Option<T>
 6  | |     }
    | |_____^
    = note: this error originates in the macro `konst::polymorphism::type_eq_projection_fn` (in Nightly builds, run with -Z macro-backtrace for more info)
@@ -23,7 +23,7 @@ note: the function `project_opt` is defined here
   --> tests/misc_tests/type_eq_ui_tests/privacy_tests_err.rs:16:9
    |
 16 | /         konst::polymorphism::type_eq_projection_fn!{
-17 | |             pub(super) fn project_opt => Option<from T>
+17 | |             pub(super) fn project_opt(T) -> Option<T>
 18 | |         }
    | |_________^
    = note: this error originates in the macro `konst::polymorphism::type_eq_projection_fn` (in Nightly builds, run with -Z macro-backtrace for more info)
