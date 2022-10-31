@@ -2,21 +2,34 @@
 ///
 /// This acts like a compile-time-evaluated version of this function:
 /// ```rust
-/// pub const fn str_concat(strings: &'static [&'static str]) -> &'static str
+/// # trait StrOrChar: Copy {}
+/// pub const fn str_concat(strings: &'static [impl StrOrChar]) -> &'static str
 /// # { "" }
 /// ```
+///
+/// Where `impl StrOrChar` is either a `&'static str` or `char`
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::string::str_concat;
 ///
-/// const S: &[&str] = &["these ", "are ", "words"];
-/// assert_eq!(str_concat!(S), "these are words");
+/// {
+///     const S: &[&str] = &["these ", "are ", "words"];
+///     assert_eq!(str_concat!(S), "these are words");
+///    
+///     assert_eq!(str_concat!(&[]), "");
+///    
+///     assert_eq!(str_concat!(&["foo", "bar", "baz"]), "foobarbaz");
+/// }
 ///
-/// assert_eq!(str_concat!(&[]), "");
+/// {
+///     const C: &[char] = &['c', 'h', 'a', 'r', 's'];
+///     assert_eq!(str_concat!(C), "chars");
+///    
+///     assert_eq!(str_concat!(&['q'; 10]), "qqqqqqqqqq");
+/// }
 ///
-/// assert_eq!(str_concat!(&["foo", "bar", "baz"]), "foobarbaz");
 ///
 /// ```
 pub use konst_kernel::string_concat as str_concat;
@@ -25,32 +38,42 @@ pub use konst_kernel::string_concat as str_concat;
 ///
 /// This acts like a compile-time-evaluated version of this function:
 /// ```rust
+/// # trait StrOrChar: Copy {}
 /// pub const fn str_join(
-///     delimiter: &'static str,
+///     delimiter: impl StrOrChar,
 ///     strings: &'static [&'static str],
 /// ) -> &'static str
 /// # { "" }
 /// ```
+///
+/// Where `impl StrOrChar` is either a `&'static str` or `char`
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::string::str_join;
 ///
-/// const COMMA: &str = ",";
-/// const S: &[&str] = &["these", "are", "words"];
-/// assert_eq!(str_join!(COMMA, S), "these,are,words");
+/// {
+///     const COMMA: &str = ",";
+///     const S: &[&str] = &["these", "are", "words"];
+///     assert_eq!(str_join!(COMMA, S), "these,are,words");
+/// }
 ///
 /// assert_eq!(str_join!(",", &[]), "");
 ///
 /// assert_eq!(str_join!(" ", &["foo", "bar", "baz"]), "foo bar baz");
 ///
+/// // char separator
+/// assert_eq!(str_join!(' ', &["foo", "bar", "baz"]), "foo bar baz");
+///
 /// ```
 pub use konst_kernel::string_join as str_join;
 
-/// Makes a `&'static str` from an const iterator over `&str`s
+/// Makes a `&'static str` from an const iterator over `&str`s or `char`s
 ///
 /// # Example
+///
+/// ### Iterator over strings
 ///
 /// ```rust
 /// use konst::string;
@@ -65,6 +88,21 @@ pub use konst_kernel::string_join as str_join;
 /// );
 ///
 /// assert_eq!(S, "foo, bar, baz, ");
+///
+/// ```
+///
+/// ### Iterator over chars
+///
+/// ```rust
+/// use konst::{iter, string};
+///
+/// const S: &str = string::from_iter!(
+///     iter::repeat('-'),
+///         take(5),
+///         flat_map(|c| &[c, '_'])
+/// );
+///
+/// assert_eq!(S, "-_-_-_-_-_");
 ///
 /// ```
 #[cfg(feature = "iter")]

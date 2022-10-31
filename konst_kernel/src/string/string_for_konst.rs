@@ -1,7 +1,119 @@
+use crate::char_formatting::{encode_utf8, Utf8Encoded};
+
+#[doc(hidden)]
+pub struct __NormalizeConcatArg<T: 'static>(pub &'static [T]);
+
+impl __NormalizeConcatArg<char> {
+    pub const fn conv(self) -> __StrConcatArg {
+        __StrConcatArg::Char(self.0)
+    }
+}
+
+impl __NormalizeConcatArg<&'static str> {
+    pub const fn conv(self) -> __StrConcatArg {
+        __StrConcatArg::Str(self.0)
+    }
+}
+
+#[doc(hidden)]
+#[derive(Copy, Clone)]
+pub enum __StrConcatArg {
+    Char(&'static [char]),
+    Str(&'static [&'static str]),
+}
+
+#[doc(hidden)]
+pub struct __MakeSepArg<T>(pub T);
+
+#[doc(hidden)]
+#[derive(Copy, Clone)]
+pub enum __SepArg {
+    Char(char),
+    Str(&'static str),
+}
+
+impl __SepArg {
+    const fn len(self) -> usize {
+        match self {
+            Self::Char(x) => x.len_utf8(),
+            Self::Str(x) => x.len(),
+        }
+    }
+}
+
+#[doc(hidden)]
+pub struct __ElemDispatch<T>(pub T);
+
+macro_rules! __ref_unref_impls {
+    ($($ref_token:tt $deref_token:tt)?) => {
+        impl __MakeSepArg<$($ref_token)? char> {
+            pub const fn conv(self) -> __SepArg {
+                __SepArg::Char($($deref_token)? self.0)
+            }
+        }
+
+        impl __MakeSepArg<$($ref_token)? &'static str> {
+            pub const fn conv(self) -> __SepArg {
+                __SepArg::Str(self.0)
+            }
+        }
+
+        impl __ElemDispatch<$($ref_token)? char> {
+            pub const fn as_bytesable(self) -> Utf8Encoded {
+                encode_utf8($($deref_token)? self.0)
+            }
+            pub const fn len(self) -> usize {
+                self.0.len_utf8()
+            }
+        }
+
+        impl __ElemDispatch<$($ref_token)? &'static str> {
+            pub const fn as_bytesable(self) -> &'static str {
+                self.0
+            }
+            pub const fn len(self) -> usize {
+                self.0.len()
+            }
+        }
+    };
+}
+
+__ref_unref_impls! {}
+__ref_unref_impls! {& *}
+
+impl __StrConcatArg {
+    const fn is_empty(self) -> bool {
+        self.len() == 0
+    }
+    const fn len(self) -> usize {
+        match self {
+            Self::Char(x) => x.len(),
+            Self::Str(x) => x.len(),
+        }
+    }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __with_str_concat_slices {
+    ($arg:expr, |$slices:ident| $with_slices:expr) => {
+        match $arg {
+            $crate::string::__StrConcatArg::Char($slices) => $with_slices,
+            $crate::string::__StrConcatArg::Str($slices) => $with_slices,
+        }
+    };
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 #[macro_export]
 macro_rules! string_concat {
+    ($(&)? []) => {
+        ""
+    };
     ($slice:expr $(,)*) => {{
-        const __ARGS_81608BFNA5: &[&$crate::__::str] = $slice;
+        const __ARGS_81608BFNA5: $crate::string::__StrConcatArg =
+            $crate::string::__NormalizeConcatArg($slice).conv();
         {
             const LEN: $crate::__::usize = $crate::string::concat_sum_lengths(__ARGS_81608BFNA5);
 
@@ -15,25 +127,45 @@ macro_rules! string_concat {
     }};
 }
 
-pub const fn concat_sum_lengths(slice: &[&str]) -> usize {
+pub const fn concat_sum_lengths(arg: __StrConcatArg) -> usize {
     let mut sum = 0usize;
-    crate::for_range! {i in 0..slice.len() =>
-        sum += slice[i].len();
-    }
+
+    __with_str_concat_slices! {arg, |slices| {
+        crate::for_range! {i in 0..slices.len() =>
+            sum += __ElemDispatch(slices[i]).len();
+        }
+    }}
+
     sum
 }
 
-pub const fn concat_strs<const N: usize>(slices: &[&str]) -> ArrayStr<N> {
+macro_rules! call_macro_with_as_bytes {
+    ($macro:ident, $arg:expr) => {
+        let utf8_encoded: Utf8Encoded;
+        match $arg {
+            __StrConcatArg::Char(slices) => $macro! {slices, |c| {
+                utf8_encoded = encode_utf8(c);
+                utf8_encoded.as_bytes()
+            }},
+            __StrConcatArg::Str(slices) => $macro! {slices, |s| s.as_bytes()},
+        }
+    };
+}
+
+pub const fn concat_strs<const N: usize>(arg: __StrConcatArg) -> ArrayStr<N> {
     let mut out = [0u8; N];
     let mut out_i = 0usize;
 
-    crate::for_range! {si in 0..slices.len() =>
-        let slice = slices[si].as_bytes();
-        crate::for_range! {i in 0..slice.len() =>
-            out[out_i] = slice[i];
-            out_i += 1;
+    __with_str_concat_slices! {arg, |slices| {
+        crate::for_range! {si in 0..slices.len() =>
+            let byteser = __ElemDispatch(slices[si]).as_bytesable();
+            let slice = byteser.as_bytes();
+            crate::for_range! {i in 0..slice.len() =>
+                out[out_i] = slice[i];
+                out_i += 1;
+            }
         }
-    }
+    }}
 
     ArrayStr(out)
 }
@@ -42,9 +174,12 @@ pub const fn concat_strs<const N: usize>(slices: &[&str]) -> ArrayStr<N> {
 
 #[macro_export]
 macro_rules! string_join {
+    ($sep:expr, $(&)? []) => {
+        ""
+    };
     ($sep:expr, $slice:expr $(,)*) => {{
         const __ARGS_81608BFNA5: $crate::string::StrJoinArgs = $crate::string::StrJoinArgs {
-            sep: $sep,
+            sep: $crate::string::__MakeSepArg($sep).conv(),
             slice: $slice,
         };
 
@@ -63,7 +198,7 @@ macro_rules! string_join {
 
 #[derive(Copy, Clone)]
 pub struct StrJoinArgs {
-    pub sep: &'static str,
+    pub sep: __SepArg,
     pub slice: &'static [&'static str],
 }
 
@@ -71,7 +206,7 @@ pub const fn join_sum_lengths(StrJoinArgs { sep, slice }: StrJoinArgs) -> usize 
     if slice.is_empty() {
         0
     } else {
-        concat_sum_lengths(slice) + sep.len() * (slice.len() - 1)
+        concat_sum_lengths(__StrConcatArg::Str(slice)) + sep.len() * (slice.len() - 1)
     }
 }
 
@@ -80,6 +215,15 @@ pub const fn join_strs<const N: usize>(
 ) -> ArrayStr<N> {
     let mut out = [0u8; N];
     let mut out_i = 0usize;
+
+    let utf8e: Utf8Encoded;
+    let sep = match sep {
+        __SepArg::Char(c) => {
+            utf8e = encode_utf8(c);
+            utf8e.as_str()
+        }
+        __SepArg::Str(s) => s,
+    };
 
     macro_rules! write_str {
         ($str:expr) => {{
@@ -111,8 +255,8 @@ macro_rules! str_from_iter {
         $crate::__collect_const_iter_with!{
             $crate::__::u8,
             |array, written_length, item| {
-                let item: &$crate::__::str = item;
-                let bytes = item.as_bytes();
+                let byteser = $crate::string::__ElemDispatch(item).as_bytesable();
+                let bytes = byteser.as_bytes();
                 let item_len = bytes.len();
                 let mut i = written_length;
                 let mut j = 0;
@@ -123,8 +267,7 @@ macro_rules! str_from_iter {
                 }
             },
             elem_length = {
-                let item: &$crate::__::str = item;
-                item.len()
+                $crate::string::__ElemDispatch(item).len()
             },
             =>
             $($rem)*

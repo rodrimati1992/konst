@@ -19,6 +19,8 @@ mod macros;
 #[cfg(feature = "iter")]
 pub mod collect_const;
 
+pub mod char_formatting;
+
 #[doc(hidden)]
 #[cfg(feature = "__for_konst")]
 #[cfg(feature = "iter")]

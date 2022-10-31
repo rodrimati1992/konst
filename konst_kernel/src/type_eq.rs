@@ -1,5 +1,6 @@
 use core::marker::PhantomData;
 
+#[cfg(feature = "__for_konst")]
 pub(crate) mod make_project_fn;
 
 // documented in konst::polymorphism::type_eq;
@@ -150,6 +151,7 @@ impl<L, R> TypeEq<L, R> {
     }
 }
 
+#[cfg(feature = "__for_konst")]
 impl<L, R> TypeEq<L, R> {
     crate::type_eq_projection_fn! {
         /// Converts a `TypeEq<L, R>` to `TypeEq<&L, &R>`
@@ -170,6 +172,7 @@ impl<L, R> TypeEq<L, R> {
         pub const fn in_box(T, self: TypeEq<L, R>) -> ::alloc::boxed::Box<T>
     }
 }
+#[cfg(feature = "__for_konst")]
 type Ref<'a, T> = &'a T;
 
 #[cfg(feature = "mut_refs")]
