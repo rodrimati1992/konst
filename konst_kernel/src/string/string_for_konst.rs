@@ -1,4 +1,4 @@
-use crate::char_formatting::{encode_utf8, Utf8Encoded};
+use crate::chr::{encode_utf8, Utf8Encoded};
 
 #[doc(hidden)]
 pub struct __NormalizeConcatArg<T: 'static>(pub &'static [T]);

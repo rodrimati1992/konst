@@ -7,8 +7,6 @@ mod misc_tests {
 
     mod array_tests;
 
-    mod char_tests;
-
     #[cfg(feature = "iter")]
     mod iter_mod;
 

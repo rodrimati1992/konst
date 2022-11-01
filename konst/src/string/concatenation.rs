@@ -96,13 +96,9 @@ pub use konst_kernel::string_join as str_join;
 /// ```rust
 /// use konst::{iter, string};
 ///
-/// const S: &str = string::from_iter!(
-///     iter::repeat('-'),
-///         take(5),
-///         flat_map(|c| &[c, '_'])
-/// );
+/// const S: &str = string::from_iter!('a'..='z');
 ///
-/// assert_eq!(S, "-_-_-_-_-_");
+/// assert_eq!(S, "abcdefghijklmnopqrstuvwxyz");
 ///
 /// ```
 #[cfg(feature = "iter")]

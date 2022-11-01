@@ -1,4 +1,7 @@
-use crate::type_eq::{HasTypeWitness, MakeTypeWitness, TypeEq, TypeWitnessTypeArg};
+use crate::{
+    chr,
+    type_eq::{HasTypeWitness, MakeTypeWitness, TypeEq, TypeWitnessTypeArg},
+};
 
 use core::{marker::PhantomData, ops::RangeInclusive};
 
@@ -135,9 +138,40 @@ declare_step_witness! {
     (I64, i64, int)
     (I128, i128, int)
     (Isize, isize, int)
+    (Char, char, char)
 }
 
 macro_rules! code_for_step {
+    (char, increment, $start:ident, $end:ident, $teq:expr, $to_dir:ident) => {{
+        let (next_num, overflowed) = match $start as u32 {
+            0xD7FF => (0xE000, false),
+            0x10FFFF => (0, true),
+            num => (num + 1, false),
+        };
+        let next = crate::opt_unwrap!(chr::from_u32(next_num));
+
+        StepRet {
+            finished_inclusive: $start > $end,
+            finished_exclusive: $start >= $end,
+            overflowed,
+            next: $teq.$to_dir(next),
+        }
+    }};
+    (char, decrement, $start:ident, $end:ident, $teq:expr, $to_dir:ident) => {{
+        let (next_num, overflowed) = match $end as u32 {
+            0 => (0x10FFFF, true),
+            0xE000 => (0xD7FF, false),
+            num => (num - 1, false),
+        };
+        let next = crate::opt_unwrap!(chr::from_u32(next_num));
+
+        StepRet {
+            finished_inclusive: $end < $start,
+            finished_exclusive: $end <= $start,
+            overflowed,
+            next: $teq.$to_dir(next),
+        }
+    }};
     (int, increment, $start:ident, $end:ident, $teq:expr, $to_dir:ident) => {{
         let (next, overflowed) = $start.overflowing_add(1);
         StepRet {
@@ -162,6 +196,9 @@ use code_for_step;
 macro_rules! get_min {
     (int, $ty:ty) => {
         <$ty>::MIN
+    };
+    (char, $ty:ty) => {
+        '\0'
     };
 }
 use get_min;

@@ -254,3 +254,31 @@ fn test_non_usize_integer_iters() {
     test_case!(usize::MIN, usize::MAX);
     test_case!(isize::MIN, isize::MAX);
 }
+
+macro_rules! test_char_range_inner {
+    ($range:expr, $next_fn:ident) => {{
+        let mut kiter = konst::iter::into_iter!($range);
+        let mut kelem;
+        let mut iter = $range;
+
+        while let Some(elem) = iter.$next_fn() {
+            (kelem, kiter) = kiter.$next_fn().unwrap();
+            assert_eq!(kelem, elem);
+        }
+        assert!(kiter.$next_fn().is_none());
+    }};
+}
+macro_rules! test_char_range {
+    ($range:expr) => {{
+        test_char_range_inner! {$range, next}
+        test_char_range_inner! {$range, next_back}
+    }};
+}
+
+#[cfg(not(miri))]
+#[test]
+fn test_char_ranges() {
+    test_char_range! {char::MAX..'\0'}
+    test_char_range! {'\0'..char::MAX}
+    test_char_range! {'\0'..=char::MAX}
+}
