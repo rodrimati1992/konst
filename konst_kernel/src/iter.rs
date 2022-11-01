@@ -368,17 +368,17 @@ macro_rules! __assert_fold_accum {
 
 #[doc(hidden)]
 #[inline(always)]
-pub const fn __get_item_ty<Iter, Item>(_: &Iter) -> PhantomData<(Iter, Item)>
+pub const fn __get_item_ty<Iter>(_: &Iter) -> PhantomData<(Iter, Iter::Item)>
 where
-    Iter: ConstIntoIter<Item = Item>,
+    Iter: ConstIntoIter,
 {
     PhantomData
 }
 
 #[doc(hidden)]
 #[inline(always)]
-pub const fn __assert_item_ty<Iter, Item>(_: &Item, _: PhantomData<(Iter, Item)>)
+pub const fn __assert_item_ty<Iter>(_: &Iter::Item, _: PhantomData<(Iter, Iter::Item)>)
 where
-    Iter: ConstIntoIter<Item = Item>,
+    Iter: ConstIntoIter,
 {
 }

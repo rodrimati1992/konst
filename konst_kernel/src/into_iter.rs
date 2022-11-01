@@ -57,7 +57,10 @@ impl<T> IntoIterWrapper<T, IsIteratorKind> {
     }
 
     #[inline(always)]
-    pub const fn const_into_iter(self) -> T {
+    pub const fn const_into_iter(self) -> T
+    where
+        T: ConstIntoIter<IntoIter = T>,
+    {
         ManuallyDrop::into_inner(self.iter)
     }
 }
