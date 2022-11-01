@@ -9,18 +9,26 @@ use crate::{
 };
 
 macro_rules! impl_std_kinds {
-    ($($ty:ident),*) => (
+    ($($ty:ident => $iter:ident,)*) => (
         $(
             impl<T: Step> ConstIntoIter for $ty<T> {
                 type Kind = IsStdKind;
+                type IntoIter = $iter<T>;
+                type Item = T;
             }
             impl<T: Step> ConstIntoIter for &$ty<T> {
                 type Kind = IsStdKind;
+                type IntoIter = $iter<T>;
+                type Item = T;
             }
         )*
     )
 }
-impl_std_kinds! {Range, RangeInclusive, RangeFrom}
+impl_std_kinds! {
+    Range => RangeIter,
+    RangeInclusive => RangeInclusiveIter,
+    RangeFrom => RangeFromIter,
+}
 
 pub struct RangeIter<T> {
     start: T,
@@ -28,6 +36,8 @@ pub struct RangeIter<T> {
 }
 impl<T: Step> ConstIntoIter for RangeIter<T> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = T;
 }
 
 pub struct RangeIterRev<T> {
@@ -36,6 +46,8 @@ pub struct RangeIterRev<T> {
 }
 impl<T: Step> ConstIntoIter for RangeIterRev<T> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = T;
 }
 
 pub struct RangeInclusiveIter<T> {
@@ -44,6 +56,8 @@ pub struct RangeInclusiveIter<T> {
 }
 impl<T: Step> ConstIntoIter for RangeInclusiveIter<T> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = T;
 }
 
 pub struct RangeInclusiveIterRev<T> {
@@ -52,6 +66,8 @@ pub struct RangeInclusiveIterRev<T> {
 }
 impl<T: Step> ConstIntoIter for RangeInclusiveIterRev<T> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = T;
 }
 
 pub struct RangeFromIter<T> {
@@ -59,6 +75,8 @@ pub struct RangeFromIter<T> {
 }
 impl<T: Step> ConstIntoIter for RangeFromIter<T> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = T;
 }
 
 macro_rules! int_range_shared {

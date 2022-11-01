@@ -33,7 +33,11 @@ pub use iterator_adaptors::*;
 ///
 /// struct Upto10(u8);
 ///
-/// impl ConstIntoIter for Upto10 { type Kind = IsIteratorKind; }
+/// impl ConstIntoIter for Upto10 {
+///     type Kind = IsIteratorKind;
+///     type IntoIter = Self;
+///     type Item = u8;
+/// }
 ///
 /// impl Upto10 {
 ///     const fn next(mut self) -> Option<(u8, Self)> {
@@ -191,8 +195,10 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///     up_to: usize,
 /// }
 ///
-/// impl<T> iter::ConstIntoIter for GetSlice<'_, T> {
+/// impl<'a, T> iter::ConstIntoIter for GetSlice<'a, T> {
 ///     type Kind = iter::IsIntoIterKind;
+///     type IntoIter = konst::slice::Iter<'a, T>;
+///     type Item = &'a T;
 /// }
 ///
 /// impl<'a, T> GetSlice<'a, T> {
@@ -226,7 +232,11 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///
 /// struct Countdown(u8);
 ///
-/// impl ConstIntoIter for Countdown { type Kind = iter::IsIteratorKind; }
+/// impl ConstIntoIter for Countdown {
+///     type Kind = iter::IsIteratorKind;
+///     type IntoIter = Self;
+///     type Item = u8;
+/// }
 ///
 /// impl Countdown {
 ///     const fn next(mut self) -> Option<(u8, Self)> {
@@ -279,6 +289,8 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///
 /// impl iter::ConstIntoIter for Hours {
 ///     type Kind = iter::IsIteratorKind;
+///     type IntoIter = Self;
+///     type Item = u8;
 /// }
 ///
 /// impl Hours {
@@ -321,6 +333,8 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///
 /// impl iter::ConstIntoIter for HoursRev {
 ///     type Kind = iter::IsIteratorKind;
+///     type IntoIter = Self;
+///     type Item = u8;
 /// }
 ///
 /// impl HoursRev {

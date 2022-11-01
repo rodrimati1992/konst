@@ -2,12 +2,16 @@ use crate::into_iter::{ConstIntoIter, IntoIterWrapper, IsIteratorKind, IsStdKind
 
 use core::mem::ManuallyDrop;
 
-impl<T, const N: usize> ConstIntoIter for &[T; N] {
+impl<'a, T, const N: usize> ConstIntoIter for &'a [T; N] {
     type Kind = IsStdKind;
+    type IntoIter = Iter<'a, T>;
+    type Item = &'a T;
 }
 
-impl<T, const N: usize> ConstIntoIter for &&[T; N] {
+impl<'a, T, const N: usize> ConstIntoIter for &&'a [T; N] {
     type Kind = IsStdKind;
+    type IntoIter = Iter<'a, T>;
+    type Item = &'a T;
 }
 
 impl<'a, T, const N: usize> IntoIterWrapper<&'a [T; N], IsStdKind> {
@@ -25,8 +29,10 @@ impl<'a, T, const N: usize> IntoIterWrapper<&&'a [T; N], IsStdKind> {
     }
 }
 
-impl<T> ConstIntoIter for &[T] {
+impl<'a, T> ConstIntoIter for &'a [T] {
     type Kind = IsStdKind;
+    type IntoIter = Iter<'a, T>;
+    type Item = &'a T;
 }
 
 impl<'a, T> IntoIterWrapper<&'a [T], IsStdKind> {
@@ -37,8 +43,10 @@ impl<'a, T> IntoIterWrapper<&'a [T], IsStdKind> {
     }
 }
 
-impl<T> ConstIntoIter for &&[T] {
+impl<'a, T> ConstIntoIter for &&'a [T] {
     type Kind = IsStdKind;
+    type IntoIter = Iter<'a, T>;
+    type Item = &'a T;
 }
 
 impl<'a, T> IntoIterWrapper<&&'a [T], IsStdKind> {
@@ -91,6 +99,8 @@ pub struct Iter<'a, T> {
 }
 impl<'a, T> ConstIntoIter for Iter<'a, T> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = &'a T;
 }
 
 pub struct IterRev<'a, T> {
@@ -98,6 +108,8 @@ pub struct IterRev<'a, T> {
 }
 impl<'a, T> ConstIntoIter for IterRev<'a, T> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = &'a T;
 }
 
 impl<'a, T> Iter<'a, T> {
@@ -155,6 +167,8 @@ mod copied {
     }
     impl<'a, T> ConstIntoIter for IterCopied<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = T;
     }
 
     pub struct IterCopiedRev<'a, T> {
@@ -162,6 +176,8 @@ mod copied {
     }
     impl<'a, T> ConstIntoIter for IterCopiedRev<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = T;
     }
 
     impl<'a, T: Copy> IterCopied<'a, T> {

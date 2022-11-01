@@ -1,3 +1,7 @@
+use crate::into_iter::ConstIntoIter;
+
+use core::marker::PhantomData;
+
 mod combinator_methods;
 pub mod iter_adaptors;
 mod iter_eval_macro;
@@ -269,7 +273,10 @@ make__cim_preprocess_methods__macro! {
                         $iter_var = $iter_expr,
                         $($var = $var_value,)*
                     }
+
+                    let elem_phantom_ty = $crate::iter::__get_item_ty(&$iter_var);
                     let $item = if let $crate::__::Some((elem_, next_)) = $iter_var.$next_fn() {
+                        $crate::iter::__assert_item_ty(&elem_, elem_phantom_ty);
                         $iter_var = next_;
                         elem_
                     } else {
@@ -357,4 +364,21 @@ macro_rules! __assert_fold_accum {
     ($func:ident, $($args:tt)*) => {
         ()
     };
+}
+
+#[doc(hidden)]
+#[inline(always)]
+pub const fn __get_item_ty<Iter, Item>(_: &Iter) -> PhantomData<(Iter, Item)>
+where
+    Iter: ConstIntoIter<Item = Item>,
+{
+    PhantomData
+}
+
+#[doc(hidden)]
+#[inline(always)]
+pub const fn __assert_item_ty<Iter, Item>(_: &Item, _: PhantomData<(Iter, Item)>)
+where
+    Iter: ConstIntoIter<Item = Item>,
+{
 }

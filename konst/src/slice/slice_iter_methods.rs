@@ -223,8 +223,10 @@ mod requires_rust_1_64 {
         slice: &'a [T],
         size: usize,
     }
-    impl<T> ConstIntoIter for Windows<'_, T> {
+    impl<'a, T> ConstIntoIter for Windows<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::Windows>`
@@ -241,8 +243,10 @@ mod requires_rust_1_64 {
         slice: &'a [T],
         size: usize,
     }
-    impl<T> ConstIntoIter for WindowsRev<'_, T> {
+    impl<'a, T> ConstIntoIter for WindowsRev<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
     }
 
     impl<'a, T> Windows<'a, T> {
@@ -332,8 +336,10 @@ mod requires_rust_1_64 {
         slice: Option<&'a [T]>,
         size: usize,
     }
-    impl<T> ConstIntoIter for Chunks<'_, T> {
+    impl<'a, T> ConstIntoIter for Chunks<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::Chunks>`
@@ -350,8 +356,10 @@ mod requires_rust_1_64 {
         slice: Option<&'a [T]>,
         size: usize,
     }
-    impl<T> ConstIntoIter for ChunksRev<'_, T> {
+    impl<'a, T> ConstIntoIter for ChunksRev<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
     }
 
     impl<'a, T> Chunks<'a, T> {
@@ -446,8 +454,10 @@ mod requires_rust_1_64 {
         slice: &'a [T],
         size: usize,
     }
-    impl<T> ConstIntoIter for ChunksExact<'_, T> {
+    impl<'a, T> ConstIntoIter for ChunksExact<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::ChunksExact>`
@@ -464,8 +474,10 @@ mod requires_rust_1_64 {
         slice: &'a [T],
         size: usize,
     }
-    impl<T> ConstIntoIter for ChunksExactRev<'_, T> {
+    impl<'a, T> ConstIntoIter for ChunksExactRev<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
     }
 
     impl<'a, T> ChunksExact<'a, T> {

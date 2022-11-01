@@ -8,9 +8,14 @@ pub mod slice_into_iter;
 
 pub trait ConstIntoIter {
     type Kind;
+
+    /// The item that `Self::IntoIter` yields on `.next()`
+    type Item;
+
+    /// The iterator that this can be converted into.
+    type IntoIter: ConstIntoIter<Item = Self::Item>;
 }
 
-///
 #[repr(transparent)]
 pub struct IntoIterWrapper<I, K> {
     pub iter: ManuallyDrop<I>,

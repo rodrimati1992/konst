@@ -1,7 +1,7 @@
 use konst::string;
 
 // finish early
-const _: &str = string::from_iter!(&["foo"],map(|_| break));
+const _: &str = string::from_iter!(&["foo"],map(|_| -> &str {break}));
 
 const _: &str =
     string::from_iter!(&["foo"; 5],

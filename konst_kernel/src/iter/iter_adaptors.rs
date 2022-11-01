@@ -8,6 +8,8 @@ pub struct Repeat<T>(T);
 
 impl<T> ConstIntoIter for Repeat<T> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = T;
 }
 
 impl<T: Copy> Repeat<T> {

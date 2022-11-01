@@ -74,9 +74,13 @@ pub struct RChars<'a> {
 
 impl ConstIntoIter for Chars<'_> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = char;
 }
 impl ConstIntoIter for RChars<'_> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = char;
 }
 
 macro_rules! chars_shared {
@@ -186,9 +190,13 @@ pub struct RCharIndices<'a> {
 
 impl ConstIntoIter for CharIndices<'_> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = (usize, char);
 }
 impl ConstIntoIter for RCharIndices<'_> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = (usize, char);
 }
 
 macro_rules! chars_shared {

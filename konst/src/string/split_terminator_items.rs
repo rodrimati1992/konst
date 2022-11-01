@@ -105,8 +105,10 @@ pub struct SplitTerminator<'a, 'p, P: Pattern<'p>> {
     this: &'a str,
     state: State<'p, P>,
 }
-impl<'p, P: Pattern<'p>> ConstIntoIter for SplitTerminator<'_, 'p, P> {
+impl<'a, 'p, P: Pattern<'p>> ConstIntoIter for SplitTerminator<'a, 'p, P> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = &'a str;
 }
 
 impl<'a, 'p, P: Pattern<'p>> SplitTerminator<'a, 'p, P> {
@@ -192,8 +194,10 @@ pub struct RSplitTerminator<'a, 'p, P: Pattern<'p>> {
     this: &'a str,
     state: State<'p, P>,
 }
-impl<'p, P: Pattern<'p>> ConstIntoIter for RSplitTerminator<'_, 'p, P> {
+impl<'a, 'p, P: Pattern<'p>> ConstIntoIter for RSplitTerminator<'a, 'p, P> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = &'a str;
 }
 
 impl<'a, 'p, P: Pattern<'p>> RSplitTerminator<'a, 'p, P> {
