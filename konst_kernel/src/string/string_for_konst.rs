@@ -81,18 +81,6 @@ macro_rules! __ref_unref_impls {
 __ref_unref_impls! {}
 __ref_unref_impls! {& *}
 
-impl __StrConcatArg {
-    const fn is_empty(self) -> bool {
-        self.len() == 0
-    }
-    const fn len(self) -> usize {
-        match self {
-            Self::Char(x) => x.len(),
-            Self::Str(x) => x.len(),
-        }
-    }
-}
-
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __with_str_concat_slices {
@@ -137,19 +125,6 @@ pub const fn concat_sum_lengths(arg: __StrConcatArg) -> usize {
     }}
 
     sum
-}
-
-macro_rules! call_macro_with_as_bytes {
-    ($macro:ident, $arg:expr) => {
-        let utf8_encoded: Utf8Encoded;
-        match $arg {
-            __StrConcatArg::Char(slices) => $macro! {slices, |c| {
-                utf8_encoded = encode_utf8(c);
-                utf8_encoded.as_bytes()
-            }},
-            __StrConcatArg::Str(slices) => $macro! {slices, |s| s.as_bytes()},
-        }
-    };
 }
 
 pub const fn concat_strs<const N: usize>(arg: __StrConcatArg) -> ArrayStr<N> {

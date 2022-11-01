@@ -70,7 +70,11 @@ mod tests {
             let utf8_konst = encode_utf8(c);
             assert_eq!(utf8_std.as_bytes(), as_bytes(&utf8_konst));
             assert_eq!(utf8_std.as_bytes(), utf8_konst.as_bytes());
-            assert_eq!(utf8_std, utf8_konst.as_str());
+
+            {
+                core::str::from_utf8(utf8_std.as_bytes()).unwrap();
+                assert_eq!(utf8_std, utf8_konst.as_str());
+            }
         }
     }
 }

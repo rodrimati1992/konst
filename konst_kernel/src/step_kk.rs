@@ -12,6 +12,7 @@ pub trait Step: HasTypeWitness<StepWitness<Self>> + Copy {
     /// The maximum value of the type.
     const MAX_VAL: Self;
 
+    // hack to emulate sealed traits
     #[doc(hidden)]
     const __PRIV_KO9Y329U2U: __Priv<Self>;
 }
@@ -33,11 +34,6 @@ crate::type_eq_projection_fn! {
 
 crate::type_eq_projection_fn! {
     const fn teq_range_inclusive(T) -> RangeInclusive<T>
-}
-
-type RefRangeInclusive<'a, T> = &'a RangeInclusive<T>;
-crate::type_eq_projection_fn! {
-    const fn teq_ref_range_inclusive(T) -> RefRangeInclusive<'a, T>
 }
 
 macro_rules! declare_step_witness {
@@ -98,6 +94,13 @@ macro_rules! declare_step_witness {
             }
         }
 
+        // needed to work around the fact that copying RangeInclusive's fields
+        // requires that it's passed by reference,
+        // it's not possible to call `.start()` or `.end()` on a `RangeInclusive` value.
+        //
+        //
+        // To do it would require  the `Frozen` trait (the "no internal mutability" trait)
+        // is stabilized, then this function can be removed.
         pub(crate) const fn range_inclusive_into_inner<T: Step>(
             range: RangeInclusive<T>,
         ) -> (T, T) {
@@ -110,17 +113,11 @@ macro_rules! declare_step_witness {
                 )*
             }
         }
+
         pub(crate) const fn range_inclusive_ref_into_inner<T: Step>(
             range: &RangeInclusive<T>,
         ) -> (T, T) {
-            match HasTypeWitness::WITNESS {
-                $(
-                    StepWitness::$variant{teq, ..} => {
-                        let range = teq_ref_range_inclusive(teq).to_right(range);
-                        teq_pair(teq).to_left((*range.start(),*range.end()))
-                    }
-                )*
-            }
+            (*range.start(), *range.end())
         }
     };
 }
