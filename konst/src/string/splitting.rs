@@ -1,5 +1,3 @@
-//! string splitting that requires Rust 1.64.0 to be efficient.
-
 use crate::{
     iter::{ConstIntoIter, IsIteratorKind},
     string::{self, str_from, str_up_to, Pattern, PatternNorm},

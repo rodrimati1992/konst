@@ -283,7 +283,7 @@
 //!
 //! # Minimum Supported Rust Version
 //!
-//! `konst` requires Rust 1.64.0.
+//! `konst` requires Rust 1.65.0.
 //!
 //! Features that require newer versions of Rust, or the nightly compiler,
 //! need to be explicitly enabled with crate features.

@@ -12,7 +12,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        rust: [stable, beta, nightly, 1.64.0]
+        rust: [stable, beta, nightly, 1.65.0]
 
     steps:
     - uses: actions/checkout@v2
@@ -25,8 +25,7 @@ jobs:
         cd "${{github.workspace}}/konst_kernel/"
         cargo test --no-default-features 
         cargo test --no-default-features --features "debug"
-        cargo test --no-default-features --features "debug rust_1_64"
-        cargo test --no-default-features --features "debug __for_konst rust_1_64"
+        cargo test --no-default-features --features "debug __for_konst"
           
         cd "${{github.workspace}}/konst_proc_macros/"
         cargo build

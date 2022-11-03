@@ -2,7 +2,7 @@
 name = "konst_proc_macros"
 version = "0.3.0"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
-rust-version = "1.64.0"
+rust-version = "1.65.0"
 edition = "2021"
 license = "Zlib"
 description = "Implementation detail of the `konst` crate"

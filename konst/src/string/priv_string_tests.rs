@@ -14,21 +14,21 @@ const B: &[u8] = S.as_bytes();
 #[should_panic]
 fn invalid_start() {
     // SAFETY: this is a slice of a string
-    unsafe { super::from_u8_subslice_of_str(&B[1..]) };
+    unsafe { super::__from_u8_subslice_of_str(&B[1..]) };
 }
 
 #[test]
 #[should_panic]
 fn invalid_end() {
     // SAFETY: this is a slice of a string
-    unsafe { super::from_u8_subslice_of_str(&B[..B.len() - 1]) };
+    unsafe { super::__from_u8_subslice_of_str(&B[..B.len() - 1]) };
 }
 
 #[test]
 #[should_panic]
 fn invalid_both() {
     // SAFETY: this is a slice of a string
-    unsafe { super::from_u8_subslice_of_str(&B[1..B.len() - 1]) };
+    unsafe { super::__from_u8_subslice_of_str(&B[1..B.len() - 1]) };
 }
 
 #[test]

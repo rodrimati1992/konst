@@ -9,7 +9,7 @@ pub const fn str_up_to(string: &str, len: usize) -> &str {
     let bytes = string.as_bytes();
     if __is_char_boundary_forgiving(bytes, len) {
         // Safety: __is_char_boundary_forgiving checks that `len` falls on a char boundary.
-        unsafe { from_u8_subslice_of_str(crate::slice::slice_up_to(bytes, len)) }
+        unsafe { __from_u8_subslice_of_str(crate::slice::slice_up_to(bytes, len)) }
     } else {
         non_char_boundary_panic("index", len)
     }
@@ -20,7 +20,7 @@ pub const fn str_from(string: &str, start: usize) -> &str {
     let bytes = string.as_bytes();
     if __is_char_boundary_forgiving(bytes, start) {
         // Safety: __is_char_boundary_forgiving checks that `start` falls on a char boundary.
-        unsafe { from_u8_subslice_of_str(crate::slice::slice_from(bytes, start)) }
+        unsafe { __from_u8_subslice_of_str(crate::slice::slice_from(bytes, start)) }
     } else {
         non_char_boundary_panic("start", start)
     }
@@ -33,7 +33,7 @@ pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
     if start_inbounds && __is_char_boundary_forgiving(bytes, end) {
         // Safety: __is_char_boundary_forgiving checks that
         // `start` and `end` fall on a char boundaries.
-        unsafe { from_u8_subslice_of_str(crate::slice::slice_range(bytes, start, end)) }
+        unsafe { __from_u8_subslice_of_str(crate::slice::slice_range(bytes, start, end)) }
     } else if start_inbounds {
         non_char_boundary_panic("end", end)
     } else {
@@ -85,8 +85,9 @@ pub const fn __find_prev_char_boundary(bytes: &[u8], mut position: usize) -> usi
     position
 }
 
+#[doc(hidden)]
 #[track_caller]
-pub const unsafe fn from_u8_subslice_of_str(s: &[u8]) -> &str {
+pub const unsafe fn __from_u8_subslice_of_str(s: &[u8]) -> &str {
     #[cfg(any(feature = "debug", test))]
     if !s.is_empty() {
         if !byte_is_char_boundary!(s[0]) {

@@ -471,7 +471,7 @@ pub use konst_kernel::string::is_char_boundary;
 /// The input byte slice must be a subslice of a `&str`,
 /// so that only the start and end need to be checked.
 #[doc(inline)]
-pub use konst_kernel::string::from_u8_subslice_of_str;
+pub use konst_kernel::string::__from_u8_subslice_of_str;
 
 /// A const equivalent of `string.get(..len)`.
 ///
@@ -508,7 +508,7 @@ pub const fn get_up_to(string: &str, len: usize) -> Option<&str> {
         crate::slice::get_up_to(bytes, len),
         |x| if __is_char_boundary_bytes(bytes, len) {
             // Safety: __is_char_boundary_bytes checks that `len` falls on a char boundary.
-            unsafe { Some(from_u8_subslice_of_str(x)) }
+            unsafe { Some(__from_u8_subslice_of_str(x)) }
         } else {
             None
         }
@@ -550,7 +550,7 @@ pub const fn get_from(string: &str, from: usize) -> Option<&str> {
         crate::slice::get_from(bytes, from),
         |x| if __is_char_boundary_bytes(bytes, from) {
             // Safety: __is_char_boundary_bytes checks that `from` falls on a char boundary.
-            unsafe { Some(from_u8_subslice_of_str(x)) }
+            unsafe { Some(__from_u8_subslice_of_str(x)) }
         } else {
             None
         }
@@ -647,7 +647,7 @@ pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
     crate::option::and_then!(crate::slice::get_range(bytes, start, end), |x| {
         if __is_char_boundary_bytes(bytes, start) && __is_char_boundary_bytes(bytes, end) {
             // Safety: __is_char_boundary_bytes checks that `start` and `end` fall on a char boundary.
-            unsafe { Some(from_u8_subslice_of_str(x)) }
+            unsafe { Some(__from_u8_subslice_of_str(x)) }
         } else {
             None
         }
@@ -695,7 +695,7 @@ where
     unsafe {
         crate::option::map!(
             crate::slice::bytes_strip_prefix(string.as_bytes(), pat.as_bytes()),
-            from_u8_subslice_of_str,
+            __from_u8_subslice_of_str,
         )
     }
 }
@@ -740,7 +740,7 @@ where
     unsafe {
         crate::option::map!(
             crate::slice::bytes_strip_suffix(string.as_bytes(), pat.as_bytes()),
-            from_u8_subslice_of_str,
+            __from_u8_subslice_of_str,
         )
     }
 }
@@ -760,7 +760,7 @@ where
 pub const fn trim(this: &str) -> &str {
     let trimmed = crate::slice::bytes_trim(this.as_bytes());
     // safety: bytes_trim only removes ascii bytes
-    unsafe { from_u8_subslice_of_str(trimmed) }
+    unsafe { __from_u8_subslice_of_str(trimmed) }
 }
 
 /// A const subset of [`str::trim_start`] which only removes ascii whitespace.
@@ -778,7 +778,7 @@ pub const fn trim(this: &str) -> &str {
 pub const fn trim_start(this: &str) -> &str {
     let trimmed = crate::slice::bytes_trim_start(this.as_bytes());
     // safety: bytes_trim_start only removes ascii bytes
-    unsafe { from_u8_subslice_of_str(trimmed) }
+    unsafe { __from_u8_subslice_of_str(trimmed) }
 }
 
 /// A const subset of [`str::trim_end`] which only removes ascii whitespace.
@@ -797,7 +797,7 @@ pub const fn trim_start(this: &str) -> &str {
 pub const fn trim_end(this: &str) -> &str {
     let trimmed = crate::slice::bytes_trim_end(this.as_bytes());
     // safety: bytes_trim_end only removes ascii bytes
-    unsafe { from_u8_subslice_of_str(trimmed) }
+    unsafe { __from_u8_subslice_of_str(trimmed) }
 }
 
 /// A const subset of [`str::trim_matches`].
@@ -825,7 +825,7 @@ where
     // safety:
     // because bytes_trim_matches was passed `&str`s casted to `&[u8]`s,
     // it returns a valid utf8 sequence.
-    unsafe { from_u8_subslice_of_str(trimmed) }
+    unsafe { __from_u8_subslice_of_str(trimmed) }
 }
 
 /// A const subset of [`str::trim_start_matches`].
@@ -853,7 +853,7 @@ where
     // safety:
     // because bytes_trim_start_matches was passed `&str`s casted to `&[u8]`s,
     // it returns a valid utf8 sequence.
-    unsafe { from_u8_subslice_of_str(trimmed) }
+    unsafe { __from_u8_subslice_of_str(trimmed) }
 }
 
 /// A const subset of [`str::trim_end_matches`].
@@ -881,7 +881,7 @@ where
     // safety:
     // because bytes_trim_end_matches was passed `&str`s casted to `&[u8]`s,
     // it returns a valid utf8 sequence.
-    unsafe { from_u8_subslice_of_str(trimmed) }
+    unsafe { __from_u8_subslice_of_str(trimmed) }
 }
 
 /// Advances `this` past the first instance of `needle`.
@@ -922,7 +922,7 @@ where
             // safety:
             // because bytes_find_skip was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
-            from_u8_subslice_of_str,
+            __from_u8_subslice_of_str,
         )
     }
 }
@@ -965,7 +965,7 @@ where
             // safety:
             // because bytes_find_keep was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
-            from_u8_subslice_of_str,
+            __from_u8_subslice_of_str,
         )
     }
 }
@@ -1008,7 +1008,7 @@ where
             // safety:
             // because bytes_rfind_skip was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
-            from_u8_subslice_of_str,
+            __from_u8_subslice_of_str,
         )
     }
 }
@@ -1051,7 +1051,7 @@ where
             // safety:
             // because bytes_rfind_keep was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
-            from_u8_subslice_of_str,
+            __from_u8_subslice_of_str,
         )
     }
 }
