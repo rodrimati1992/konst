@@ -19,6 +19,7 @@ mod macros;
 #[cfg(feature = "iter")]
 pub mod collect_const;
 
+#[cfg(feature = "__for_konst")]
 pub mod chr;
 
 #[doc(hidden)]
@@ -48,6 +49,7 @@ pub mod string;
 #[cfg(feature = "iter")]
 pub mod step_kk;
 
+#[cfg(feature = "__for_konst")]
 pub mod polymorphism;
 
 #[doc(hidden)]
@@ -59,15 +61,13 @@ pub mod utils;
 
 #[doc(hidden)]
 pub mod __ {
-    pub use crate::type_eq::{
-        make_project_fn::__make_projection_parse_generics, HasTypeWitness, MakeTypeWitness, TypeEq,
-        TypeWitnessTypeArg,
-    };
+    pub use crate::type_eq::{HasTypeWitness, MakeTypeWitness, TypeEq, TypeWitnessTypeArg};
 
     #[cfg(feature = "__for_konst")]
     pub use crate::{
         macros::array_macros::{assert_array, uninit_copy_array_of_len, unit_array},
         maybe_uninit::{array_assume_init, uninit_array},
+        type_eq::make_project_fn::__make_projection_parse_generics,
     };
 
     #[cfg(feature = "iter")]

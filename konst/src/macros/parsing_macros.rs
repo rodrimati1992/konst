@@ -280,14 +280,14 @@ macro_rules! try_parsing {
         $parser.parse_direction = ParseDirection::$parse_direction;
         let copy = $parser;
 
-        let ($($ret),*) = 'ret: loop {
+        let ($($ret),*) = 'ret: {
             partial!{throw = throw_out!(copy, $parse_direction,)}
             partial!{ret_ = return_!('ret,)}
 
             #[allow(unreachable_code)]
-            break {
+            {
                 $($code)*
-            };
+            }
         };
 
         enable_if_start!{$parse_direction,
@@ -305,12 +305,10 @@ macro_rules! parsing {
         $parser.parse_direction = ParseDirection::$parse_direction;
         enable_if_start!{$parse_direction, let copy = $parser; }
 
-        let ($($ret),*) = 'ret: loop {
+        let ($($ret),*) = 'ret: {
             partial!{ret_ = return_!('ret,)}
 
-            break {
-                $($code)*
-            };
+            $($code)*
         };
 
         enable_if_start!{$parse_direction,
