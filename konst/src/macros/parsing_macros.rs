@@ -80,11 +80,11 @@
 #[macro_export]
 macro_rules! rebind_if_ok {
     (
-        $pattern:tt = $expression:expr
+        $pattern:tt $(:$ty:ty)? = $expression:expr
         $( => $($code:tt)* )?
     ) => {
         if let $crate::__::v::Ok(tuple) = $expression {
-            $crate::__priv_ai_preprocess_pattern!( tuple, ($pattern) );
+            $crate::__priv_ai_preprocess_pattern!{tuple, ($pattern $(:$ty)?)}
             $($($code)*)?
         }
     };
@@ -94,29 +94,36 @@ macro_rules! rebind_if_ok {
 #[macro_export]
 macro_rules! __priv_ai_preprocess_pattern {
     ( $var:ident, (($($pat:tt)*))) => {
-        $crate::__priv_assign_tuple!($var, (0 1 2 3 4 5) , $($pat)*)
+        $crate::__priv_assign_tuple!{$var, (0 1 2 3 4 5) , $($pat)*}
     };
     ( $var:ident, ($($pat:tt)*)) => {
-        $crate::__priv_assign_tuple!($var, (0 1 2 3 4 5) , $($pat)*)
+        $crate::__priv_assign_tuple!{$var, (0 1 2 3 4 5) , $($pat)*}
     };
 }
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_assign_tuple {
     ($var:ident, $fields:tt, let $pat:tt: $ty:ty $(, $($rem:tt)*)?) => {
-        $crate::__priv_next_ai_access!(
+        $crate::__priv_next_ai_access!{
             (let $pat: $ty) $var, $fields, $($($rem)*)?
-        )
+        }
     };
     ($var:ident, $fields:tt, let $pat:pat_param $(, $($rem:tt)*)?) => {
-        $crate::__priv_next_ai_access!(
+        $crate::__priv_next_ai_access!{
             (let $pat) $var, $fields, $($($rem)*)?
-        )
+        }
     };
     ($var:ident, $fields:tt, _ $(: $ty:ty)? $(, $($rem:tt)*)?) => {
-        $crate::__priv_next_ai_access!(
+        $crate::__priv_next_ai_access!{
             (let _ $(: $ty)? ) $var, $fields, $($($rem)*)?
-        )
+        }
+    };
+    ($var:ident, $fields:tt, $e:tt $(: $ty:ty)? $(, $($rem:tt)*)?) => {
+        $(let _: $ty = $var;)?
+
+        $crate::__priv_next_ai_access!{
+            ($e) $var, $fields, $($($rem)*)?
+        }
     };
     ($var:ident, $fields:tt, $e:expr $(, $($rem:tt)*)?) => {
         $crate::__priv_next_ai_access!(

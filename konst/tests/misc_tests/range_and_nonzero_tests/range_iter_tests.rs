@@ -278,7 +278,13 @@ macro_rules! test_char_range {
 #[cfg(not(miri))]
 #[test]
 fn test_char_ranges() {
+    test_char_range! {char::MAX..=char::MAX}
+    test_char_range! {char::MAX..char::MAX}
     test_char_range! {char::MAX..'\0'}
     test_char_range! {'\0'..char::MAX}
     test_char_range! {'\0'..=char::MAX}
+
+    test_char_range! {'\0'..'\0'}
+    test_char_range! {'\0'..='\0'}
+    test_char_range! {'\u{10FFFF}'..='\u{10FFFE}'}
 }
