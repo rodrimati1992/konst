@@ -87,10 +87,7 @@
 //!     iter, string,
 //! };
 //!
-//! # /*
-//! const CSV: &str = env!("NUMBERS");
-//! # */
-//! # const CSV: &str = "3, 8, 13, 21, 34";
+//! const CSV: &str = "3, 8, 13, 21, 34";
 //!
 //! static PARSED: [u64; 5] = iter::collect_const!(u64 =>
 //!     string::split(CSV, ","),
@@ -400,6 +397,10 @@ pub use crate::result::unwrap_ctx;
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub use crate::string::{cmp_option_str, eq_option_str};
+
+#[cfg(all(doctest, feature = "iter", feature = "parsing_proc"))]
+#[doc = include_str!("../../README.md")]
+pub struct ReadmeTest;
 
 #[doc(hidden)]
 pub mod __ {

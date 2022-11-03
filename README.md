@@ -2,7 +2,7 @@
 [![crates-io](https://img.shields.io/crates/v/konst.svg)](https://crates.io/crates/konst)
 [![api-docs](https://docs.rs/konst/badge.svg)](https://docs.rs/konst/*)
 
-Const equivalents of std functions, compile-time comparison, and parsing.
+Const equivalents of std functions and const parsing.
 
 # Features
 
@@ -10,11 +10,7 @@ This crate provides:
 
 - Const fn equivalents of standard library functions and methods.
 
-- Compile-time parsing through the [`Parser`] type, and [`parse_any`] macro.
-
-- Functions for comparing many standard library types,
-with the [`const_eq`]/[`const_eq_for`]/[`const_cmp`]/[`const_cmp_for`] macros
-for more conveniently calling them, powered by the [`polymorphism`] module.
+- Compile-time parsing through the [`Parser`] type, and [`parser_method`] macro.
 
 
 # Examples
@@ -79,14 +75,14 @@ impl ParseDirectionError {
     }
 }
 
-
-
-
 ```
 
 ### Parsing CSV
 
 This example demonstrates how CSV can be parsed into integers.
+
+This example requires the `"parsing"` and `"iter"` features
+(both are enabled by default).
 
 ```rust
 use konst::{
@@ -95,7 +91,7 @@ use konst::{
     iter, string,
 };
 
-const CSV: &str = env!("NUMBERS");
+const CSV: &str = "3, 8, 13, 21, 34";
 
 static PARSED: [u64; 5] = iter::collect_const!(u64 =>
     string::split(CSV, ","),
@@ -246,17 +242,20 @@ pub const fn parse_color(mut parser: Parser<'_>) -> ParseValueResult<'_, Color> 
 
 These are the features of these crates:
 
+- `"iter"`(enabled by default):
+Enables all iteration items, including macros/functions that take/return iterators,
+
 - `"cmp"`(enabled by default):
 Enables all comparison functions and macros,
 the string equality and ordering comparison functions don't require this feature.
 
-- `"parsing"`(enabled by default):
-Enables the `"parsing_no_proc"` feature, compiles the `konst_proc_macros` dependency,
-and enables the [`parse_any`] macro.
-You can use this feature instead of `"parsing_no_proc"` if the slightly longer
+- `"parsing_proc"`(enabled by default):
+Enables the `"parsing"` feature, compiles the `konst_proc_macros` dependency,
+and enables the [`parser_method`] macro.
+You can use this feature instead of `"parsing"` if the slightly longer
 compile times aren't a problem.
 
-- `"parsing_no_proc"`(enabled by default):
+- `"parsing"`(enabled by default):
 Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
 the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
 
@@ -284,7 +283,7 @@ Enables the `"mut_refs"` feature. Requires Rust nightly.
 
 # Minimum Supported Rust Version
 
-`konst` requires Rust 1.64.0.
+`konst` requires Rust 1.65.0.
 
 Features that require newer versions of Rust, or the nightly compiler,
 need to be explicitly enabled with crate features.
