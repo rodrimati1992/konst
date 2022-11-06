@@ -47,8 +47,6 @@ use core::marker::PhantomData;
 /// }
 ///
 /// impl ConstCmp for MyType {
-///     // These are the only associated types you're expected to use in
-///     // impls for custom types.
 ///     type Kind = IsNotStdKind;
 /// }
 ///
@@ -64,30 +62,16 @@ use core::marker::PhantomData;
 ///     }
 /// }
 ///
-/// const CMPS: [(Ordering, bool); 4] = {
+/// const _: () = {
 ///     let foo = MyType{x: "hello", y: &[3, 5, 8, 13]};
 ///     let bar = MyType{x: "world", y: &[3, 5, 8, 13]};
 ///
-///     [
-///         (const_cmp!(foo, foo), const_eq!(foo, foo)),
-///         (const_cmp!(foo, bar), const_eq!(foo, bar)),
-///         (const_cmp!(bar, foo), const_eq!(bar, foo)),
-///         (const_cmp!(bar, bar), const_eq!(bar, bar)),
-///     ]
+///     assert!(matches!(const_cmp!(foo, foo), Ordering::Equal));
+///     assert!(matches!(const_cmp!(foo, bar), Ordering::Less));
+///     assert!(matches!(const_cmp!(bar, foo), Ordering::Greater));
+///     assert!(const_eq!(foo, foo));
+///     assert!(!const_eq!(foo, bar));
 /// };
-///
-/// assert_eq!(
-///     CMPS,
-///     [
-///         (Ordering::Equal, true),
-///         (Ordering::Less, false),
-///         (Ordering::Greater, false),
-///         (Ordering::Equal, true),
-///     ]
-/// );
-///
-///
-///
 /// ```
 ///
 ///
@@ -125,27 +109,27 @@ use core::marker::PhantomData;
 ///     }
 /// }
 ///
-/// const CMPS: [(Ordering, bool); 4] = {
-///     let foo = MyType{x: "hello", y: &[3u16, 5, 8, 13]};
+/// const _: () = {
+///     let foo = MyType{x: "hello", y: &[3, 5, 8, 13]};
 ///     let bar = MyType{x: "world", y: &[3, 5, 8, 13]};
 ///
-///     [
-///         (const_cmp!(foo, foo), const_eq!(foo, foo)),
-///         (const_cmp!(foo, bar), const_eq!(foo, bar)),
-///         (const_cmp!(bar, foo), const_eq!(bar, foo)),
-///         (const_cmp!(bar, bar), const_eq!(bar, bar)),
-///     ]
+///     assert!(matches!(const_cmp!(foo, foo), Ordering::Equal));
+///     assert!(matches!(const_cmp!(foo, bar), Ordering::Less));
+///     assert!(matches!(const_cmp!(bar, foo), Ordering::Greater));
+///     assert!(const_eq!(foo, foo));
+///     assert!(!const_eq!(foo, bar));
 /// };
 ///
-/// assert_eq!(
-///     CMPS,
-///     [
-///         (Ordering::Equal, true),
-///         (Ordering::Less, false),
-///         (Ordering::Greater, false),
-///         (Ordering::Equal, true),
-///     ]
-/// );
+/// const _: () = {
+///     let foo = MyType{x: "hello", y: &[false]};
+///     let bar = MyType{x: "hello", y: &[true]};
+///
+///     assert!(matches!(const_cmp!(foo, foo), Ordering::Equal));
+///     assert!(matches!(const_cmp!(foo, bar), Ordering::Less));
+///     assert!(matches!(const_cmp!(bar, foo), Ordering::Greater));
+///     assert!(const_eq!(foo, foo));
+///     assert!(!const_eq!(foo, bar));
+/// };
 ///
 /// ```
 ///
@@ -243,9 +227,8 @@ impl<T: ?Sized + ConstCmpUnref> ConstCmpUnrefHelper<IsRefKind> for &mut T {
 /// # Type parameters
 ///
 /// `K` is `<T as ConstCmp>::Kind`
-/// The kind of type that `T` is,
-/// [std types](IsStdKind),
-/// [non-std types](IsNotStdKind).
+/// The kind of type that `T` is: either [`IsStdKind`] or
+/// [`IsNotStdKind`](crate::cmp::IsNotStdKind).
 ///
 /// `T` is `<R as ConstCmpUnref>::This`,
 /// the `R` type after removing all layers of references.

@@ -298,7 +298,7 @@ assert_eq!(concat_u16s(&[3, 5, 8]), 0x0008_0005_0003);
 This example demonstrates a function that gets the second number in a CSV string,
 using iterators.
 
-This example requires both the `"parsing"` feature.
+This example requires the `"parsing"` feature.
 
 */
 #[cfg_attr(not(feature = "parsing"), doc = "```ignore")]

@@ -24,19 +24,3 @@ macro_rules! __priv_transmute {
         )
     }};
 }
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __priv_transmute_ref {
-    ($from:ty, $to:ty, $reference:expr) => {
-        match $reference {
-            ptr => {
-                let ptr: *const $from = ptr;
-                $crate::__unsafe_utils::PtrToRef::<$to> {
-                    ptr: ptr as *const $to,
-                }
-                .reff
-            }
-        }
-    };
-}

@@ -7,6 +7,7 @@
 /// Items related to the [`Step`] trait.
 pub mod step;
 
+#[doc(no_inline)]
 pub use step::Step;
 
 mod iterator_adaptors;
@@ -14,14 +15,23 @@ pub mod iterator_dsl;
 
 pub use iterator_adaptors::*;
 
-/// Iterates over all elements of an [iterator](crate::iter#iterator),
+/// Iterates over all elements of an [iterator](crate::iter::ConstIntoIter),
 /// const equivalent of [`Iterator::for_each`]
 ///
-/// # Iterator methods
+/// # Syntax
+///
+/// ```text
+/// for_each!{
+///     $pattern:pat in $iterator:expr
+///         $(,$iterator_method:ident ($($method_args:tt)*) )*
+///         $(,)?
+///     =>
+///     $($code:tt)*
+/// }
+/// ```
 ///
 /// This macro supports emulating iterator methods by expanding to equivalent code.
-///
-/// The supported iterator methods are documented in the [`iterator_dsl`] module,
+/// They are documented in the [`iterator_dsl`] module,
 /// because they are also supported by other `konst::iter` macros.
 ///
 /// # Examples
@@ -89,7 +99,7 @@ pub use konst_kernel::for_each;
 
 /// Wrapper for `ConstIntoIter` implementors,
 /// that defines different methods depending on the
-/// value of `<T as ConstIntoIter>::Kind`.
+/// value of `K`.
 #[doc(inline)]
 pub use konst_kernel::into_iter::IntoIterWrapper;
 
@@ -106,21 +116,18 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///
 /// # Implementor
 ///
-/// Implementors are expected to be:
+/// Implementors are expected to be one of these:
 ///
-/// - [Types that have an associated iterator](#isnoniteratorkind),
-///   that have [`IsIntoIterKind`](crate::iter::IsIntoIterKind)
-///   as the [`ConstIntoIter::Kind`] associated type.
-///
-/// - [Iterators themselves](#isiteratorkind),
-/// that have [`IsIteratorKind`](crate::iter::IsIteratorKind)
-/// as the [`ConstIntoIter::Kind`] associated type.
-///
+/// - [`IsIntoIterKind` kind](#isintoiterkind)
+/// - [`IsIteratorKind` kind](#isiteratorkind)
 /// - Standard library types, of the [`IsStdKind`] kind
 ///
 /// ### `IsIntoIterKind`
 ///
-/// These types are expected to define this inherent method for converting to
+/// These are user-defined types convertible to const iterators.
+///
+/// These implement `ConstIntoIter<Kind = `[`IsIntoIterKind`]`>`
+/// and are expected to define this inherent method for converting to
 /// a const iterator:
 ///
 /// ```rust
@@ -137,7 +144,10 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///
 /// ### `IsIteratorKind`
 ///
-/// These types are expected to have this inherent method:
+/// These are const iterator types.
+///
+/// These implement `ConstIntoIter<Kind = `[`IsIteratorKind`]`>`
+/// and are expected to define this inherent method:
 ///
 /// ```rust
 /// # struct SomeIterator;
@@ -164,7 +174,7 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///     // ... some code...
 /// }
 ///
-/// // Reverses the itereator, equivalent to `Iterator::rev`
+/// // Reverses the iterator, equivalent to `Iterator::rev`
 /// const fn rev(self) -> SomeIteratorRev {
 /// #   loop{}
 ///     // ... some code...
@@ -178,14 +188,15 @@ pub use konst_kernel::into_iter_macro as into_iter;
 /// # }
 /// ```
 /// Where `SomeIteratorRev` should be a `ConstIntoIter<Kind = IsIteratorKind>`
-/// which has the same inherent methods for iteration.
+/// which has the same inherent methods for iteration,
+/// and returns the same `Item` type.
 ///
 /// [full example below](#iter-example)
 ///
 /// # Examples
 ///
 /// <span id = "non-iter-example"></span>
-/// ### Implementing for a non-iterator
+/// ### Implementing for an into-iterator
 ///
 /// ```rust
 /// use konst::{iter, slice};
@@ -224,8 +235,6 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///
 /// <span id = "iter-example"></span>
 /// ### Implementing for an iterator
-///
-/// This example requires Rust 1.47.0 (because of `u8::checked_sub`)
 ///
 /// ```rust
 /// use konst::iter::{self, ConstIntoIter};

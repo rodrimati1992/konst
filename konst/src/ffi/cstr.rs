@@ -119,6 +119,7 @@ const fn from_bytes_until_nul_inner(
     Err(FromBytesUntilNulError(()))
 }
 
+/// Converts a byte slice which contains any amount of nul bytes into a `&CStr`.
 /// Const equivalent of [`CStr::from_bytes_until_nul`]
 ///
 /// # Example
@@ -142,6 +143,7 @@ pub const fn from_bytes_until_nul(bytes: &[u8]) -> Result<&CStr, FromBytesUntilN
     }
 }
 
+/// Converts a nul-terminated byte slice into a `&CStr`.
 /// Const equivalent of [`CStr::from_bytes_with_nul`]
 ///
 /// # Example
@@ -180,6 +182,7 @@ pub const fn from_bytes_with_nul(bytes: &[u8]) -> Result<&CStr, FromBytesWithNul
     }
 }
 
+/// Converts this CStr to a byte slice, including the nul terminator.
 /// Const equivalent of [`CStr::to_bytes_with_nul`]
 ///
 /// # Performance
@@ -214,6 +217,7 @@ pub const fn to_bytes_with_nul(this: &CStr) -> &[u8] {
     }
 }
 
+/// Converts this CStr to a byte slice, excluding the nul terminator.
 /// Const equivalent of [`CStr::to_bytes`]
 ///
 /// # Performance
@@ -242,6 +246,7 @@ pub const fn to_bytes(this: &CStr) -> &[u8] {
     }
 }
 
+/// Converts this CStr to a string slice, excluding the nul terminator.
 /// Const equivalent of [`CStr::to_str`]
 ///
 /// # Performance

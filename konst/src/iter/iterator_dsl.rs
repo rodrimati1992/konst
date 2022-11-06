@@ -4,11 +4,12 @@ Documentation on the iterator DSL that some `konst::iter` macros support.
 The macros from this crate don't directly invoke any of the method listed below,
 they expand to equivalent code, this allows the macros to work on stable.
 
-The `konst::iter::collect_const` macro is used in examples here purely for simplicity.
+The [`collect_const`](crate::iter::collect_const) macro is
+used in examples here purely for simplicity.
 
 # Methods
 
-Every iterator method below behaves the same as in Iterator,
+Every iterator method below behaves the same as in the [`Iterator`] trait,
 unless specified otherwise.
 
 The methods listed alphabetically:
@@ -29,7 +30,7 @@ The methods listed alphabetically:
 
 ### `zip`
 
-Limitation: the iterator DSL can't passed as an argument to this method.
+Limitation: the iterator DSL can't be passed as an argument to this method.
 
 ```rust
 use konst::iter;
@@ -93,7 +94,7 @@ assert_eq!(ARR, [3, 1, 5, 6].map(|n| NonZeroU8::new(n).unwrap()));
 
 ### `flat_map`
 
-Limitation: the iterator DSL can't passed as an argument to this method.
+Limitation: the iterator DSL can't be passed as an argument to this method.
 
 ```rust
 use konst::iter;

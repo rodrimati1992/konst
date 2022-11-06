@@ -256,7 +256,7 @@
 //! Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
 //! the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
 //!
-//! - `alloc"`:
+//! - `"alloc"`:
 //! Enables items that use types from the [`alloc`] crate, including `Vec` and `String`.
 //!
 //! ### Rust release related
@@ -369,11 +369,7 @@ mod utils;
 #[allow(unused_imports)]
 mod utils_1_56 {
     pub(crate) use konst_kernel::__priv_transmute;
-    pub(crate) use konst_kernel::__priv_transmute_ref;
 }
-
-#[cfg(feature = "mut_refs")]
-mod utils_mut;
 
 #[cfg(feature = "parsing")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]

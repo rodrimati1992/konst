@@ -131,7 +131,7 @@ pub use konst_kernel::maybe_uninit::uninit_array;
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
 #[inline(always)]
 pub const unsafe fn assume_init_mut<T>(md: &mut MaybeUninit<T>) -> &mut T {
-    crate::utils_mut::__priv_transmute_mut! {MaybeUninit<T>, T, md}
+    &mut *(md as *mut MaybeUninit<T> as *mut T)
 }
 
 /// Const equivalent of [`MaybeUninit::write`](core::mem::MaybeUninit::write)
@@ -168,9 +168,7 @@ pub const unsafe fn assume_init_mut<T>(md: &mut MaybeUninit<T>) -> &mut T {
 #[inline(always)]
 pub const fn write<T>(md: &mut MaybeUninit<T>, value: T) -> &mut T {
     *md = MaybeUninit::new(value);
-    unsafe {
-        crate::utils_mut::__priv_transmute_mut! {MaybeUninit<T>, T, md}
-    }
+    unsafe { &mut *(md as *mut MaybeUninit<T> as *mut T) }
 }
 
 /// Const equivalent of [`MaybeUninit::as_mut_ptr`].

@@ -34,7 +34,7 @@ the [`iterator_dsl`] module.
 ```rust
 use konst::iter;
 
-const ARR: [usize; 8] = iter::collect_const!(usize =>
+const ARR: [u64; 8] = iter::collect_const!(u64 =>
     10..,
         filter(|n| *n % 2 == 0),
         skip(5),

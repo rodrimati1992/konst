@@ -1,4 +1,4 @@
-/// Const equivalent of [`core::iter::repeat`],
+/// Const analog of [`core::iter::repeat`],
 /// except that this requires the repeated value to impl `Copy`
 /// (instead of `Clone`).
 ///
@@ -13,5 +13,6 @@
 /// ```
 pub use konst_kernel::iter::iter_adaptors::repeat;
 
-/// Const equivalent of [`core::iter::Repeat`]
+/// Const analog of [`core::iter::Repeat`],
+/// constructed by [`repeat`](crate::iter::repeat).
 pub use konst_kernel::iter::iter_adaptors::Repeat;

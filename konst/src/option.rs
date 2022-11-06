@@ -1,6 +1,6 @@
 //! `const` equivalents of `Option` methods.
 
-/// A const equivalent of `Option::unwrap`.
+/// A const equivalent of [`Option::unwrap`]
 ///
 /// # Example
 ///
@@ -16,7 +16,7 @@
 #[doc(inline)]
 pub use konst_kernel::opt_unwrap as unwrap;
 
-/// A const equivalent of `Option::unwrap_or`
+/// A const equivalent of [`Option::unwrap_or`]
 ///
 /// # Example
 ///
@@ -35,7 +35,7 @@ pub use konst_kernel::opt_unwrap as unwrap;
 #[doc(inline)]
 pub use konst_kernel::opt_unwrap_or as unwrap_or;
 
-/// A const equivalent of `Option::unwrap_or_else`
+/// A const equivalent of [`Option::unwrap_or_else`]
 ///
 /// # Example
 ///
@@ -63,7 +63,7 @@ pub use konst_kernel::opt_unwrap_or as unwrap_or;
 #[doc(inline)]
 pub use konst_kernel::opt_unwrap_or_else as unwrap_or_else;
 
-/// A const equivalent of `Option::ok_or`
+/// A const equivalent of [`Option::ok_or`]
 ///
 /// # Example
 ///
@@ -81,7 +81,7 @@ pub use konst_kernel::opt_unwrap_or_else as unwrap_or_else;
 #[doc(inline)]
 pub use konst_kernel::opt_ok_or as ok_or;
 
-/// A const equivalent of `Option::ok_or_else`
+/// A const equivalent of [`Option::ok_or_else`]
 ///
 /// # Example
 ///
@@ -108,7 +108,7 @@ pub use konst_kernel::opt_ok_or as ok_or;
 #[doc(inline)]
 pub use konst_kernel::opt_ok_or_else as ok_or_else;
 
-/// A const equivalent of `Option::map`
+/// A const equivalent of [`Option::map`]
 ///
 /// # Example
 ///
@@ -136,7 +136,7 @@ pub use konst_kernel::opt_ok_or_else as ok_or_else;
 #[doc(inline)]
 pub use konst_kernel::opt_map as map;
 
-/// A const equivalent of `Option::and_then`
+/// A const equivalent of [`Option::and_then`]
 ///
 /// # Example
 ///
@@ -170,7 +170,7 @@ pub use konst_kernel::opt_map as map;
 #[doc(inline)]
 pub use konst_kernel::opt_and_then as and_then;
 
-/// A const equivalent of `Option::or_else`
+/// A const equivalent of [`Option::or_else`]
 ///
 /// # Example
 ///
@@ -198,7 +198,7 @@ pub use konst_kernel::opt_and_then as and_then;
 #[doc(inline)]
 pub use konst_kernel::opt_or_else as or_else;
 
-/// A const equivalent of `Option::flatten`
+/// A const equivalent of [`Option::flatten`]
 ///
 /// # Example
 ///
@@ -216,7 +216,7 @@ pub use konst_kernel::opt_or_else as or_else;
 #[doc(inline)]
 pub use konst_kernel::opt_flatten as flatten;
 
-/// A const equivalent of `Option::filter`
+/// A const equivalent of [`Option::filter`]
 ///
 /// # Example
 ///

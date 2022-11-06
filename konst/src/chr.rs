@@ -17,7 +17,7 @@
 /// ```
 pub use konst_kernel::chr::Utf8Encoded;
 
-/// Encodes `c` into utf8.
+/// Encodes `c` into utf8, const analog of [`char::encode_utf8`].
 ///
 /// # Example
 ///
@@ -32,7 +32,15 @@ pub use konst_kernel::chr::Utf8Encoded;
 /// ```
 pub use konst_kernel::chr::encode_utf8;
 
-/// A const equivalent of [`core::char::from_u32_unchecked`]
+/// Unsafely coerces `u32` to `char`,
+/// const equivalent of [`char::from_u32_unchecked`]
+///
+/// # Safety
+///
+/// The input `u32` must be within either of these ranges:
+///
+/// - `0..=0xD7FF`
+/// - `0xE000..=0x10FFFF`
 ///
 /// # Example
 ///
@@ -45,7 +53,8 @@ pub use konst_kernel::chr::encode_utf8;
 /// ```
 pub use konst_kernel::chr::from_u32_unchecked;
 
-/// A const equivalent of [`core::char::from_u32`]
+/// Fallible conversion from `u32` to `char`,
+/// const equivalent of [`char::from_u32`]
 ///
 /// # Example
 ///

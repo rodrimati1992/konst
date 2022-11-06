@@ -25,8 +25,8 @@ impl<'a> Parser<'a> {
     /// use konst::Parser;
     ///
     /// // indices
-    /// // 0    4   8
-    /// // |    |   |
+    /// //  0   4   8
+    /// //  |   |   |
     /// // "foo bar baz"
     /// let substr = konst::string::str_from("foo bar baz", 4);
     /// let parser = Parser::with_start_offset(substr, 4);

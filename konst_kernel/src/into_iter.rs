@@ -7,6 +7,10 @@ pub mod range_into_iter;
 pub mod slice_into_iter;
 
 pub trait ConstIntoIter {
+    /// What kind of type this is:
+    /// - [`IsIntoIterKind`]: user-defined types that are convertible to const iterators
+    /// - [`IsIteratorKind`]: const iterators
+    /// - [`IsStdKind`]: standard library types that are convertible to const iterators
     type Kind;
 
     /// The item that `Self::IntoIter` yields on `.next()`
