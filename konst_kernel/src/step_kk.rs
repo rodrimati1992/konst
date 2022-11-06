@@ -41,6 +41,7 @@ macro_rules! declare_step_witness {
         $(($variant:ident, $type:ty, $kind:ident))*
     ) => {
         #[non_exhaustive]
+        #[doc(hidden)]
         pub enum StepWitness<T: Step> {
             $(
                 #[non_exhaustive]

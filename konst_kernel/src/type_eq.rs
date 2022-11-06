@@ -29,10 +29,10 @@ pub struct __Priv<T: ?Sized, W>(
 );
 
 pub trait TypeWitnessTypeArg {
-    /// The type argument of the type witness.
+    /// The type parameter used for type witnesses-
     ///
-    /// Note: this is not necessarily one of the types
-    /// that this witness type witnesses.
+    /// Usually, enums that implement this trait have
+    /// variants with `Type<Self::Arg, SomeType>` fields.
     type Arg;
 }
 
@@ -75,7 +75,8 @@ mod type_eq {
         ///
         /// # Safety
         ///
-        /// You must ensure that `L == R`.
+        /// You must ensure that `L` is the same type as `R`,
+        /// layout equivalence is **not** enough.
         ///
         #[inline(always)]
         pub const unsafe fn new_unchecked() -> TypeEq<L, R> {
@@ -116,12 +117,13 @@ impl<L, R> TypeEq<L, R> {
     /// can only be constructed if `L == R`.
     ///
     /// This function takes and returns `val` unmodified.
-    ///
+    /// This allows returning some value from an expression
+    /// while hinting that `L == R`.
     ///
     #[inline(always)]
     pub const fn reachability_hint<T>(self, val: T) -> T {
         if let Amb::No = Self::ARE_SAME_TYPE {
-            // safety: it's impossible to have a `TypeEq<L, R>` value,
+            // safety: it's impossible to have a `TypeEq<L, R>` value
             // where `L` and `R` are not the same type
             unsafe { core::hint::unreachable_unchecked() }
         }
@@ -131,8 +133,7 @@ impl<L, R> TypeEq<L, R> {
 
     /// A no-op cast from `L` to `R`
     ///
-    /// This method uses the fact that
-    /// having a `TypeEq<L, R>` value proves that `L` and `R` are the same type.
+    /// Having a `TypeEq<L, R>` value proves that `L` and `R` are the same type.
     #[inline(always)]
     pub const fn to_right(self, from: L) -> R {
         self.reachability_hint(());
@@ -141,8 +142,7 @@ impl<L, R> TypeEq<L, R> {
     }
     /// A no-op cast from `R` to `L`
     ///
-    /// This method uses the fact that
-    /// having a `TypeEq<L, R>` value proves that `L` and `R` are the same type.
+    /// Having a `TypeEq<L, R>` value proves that `L` and `R` are the same type.
     #[inline(always)]
     pub const fn to_left(self, from: R) -> L {
         self.reachability_hint(());

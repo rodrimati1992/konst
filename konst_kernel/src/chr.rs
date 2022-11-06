@@ -16,6 +16,8 @@ pub const fn from_u32(n: u32) -> Option<char> {
     }
 }
 
+// this isn't really dead though, it's used for the static assertion below
+#[allow(dead_code)]
 #[track_caller]
 const fn assert_char_repr_as_u32(c: char) {
     let num = unsafe { core::mem::transmute::<char, u32>(c) };

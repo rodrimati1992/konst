@@ -43,7 +43,7 @@ pub struct TryIntoArrayError {
 }
 
 impl TryIntoArrayError {
-    /// For erroring with an error message.
+    /// For panicking with an error message.
     pub const fn panic(&self) -> ! {
         use crate::utils::PanikVal;
 

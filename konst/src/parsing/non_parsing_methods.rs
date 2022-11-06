@@ -6,6 +6,10 @@ use crate::string;
 // the integer parsing methods in the docs
 impl<'a> Parser<'a> {
     /// Constructs a Parser from a string.
+    ///
+    /// This parser start with a `start_offset` of `0`,
+    /// [`with_start_offset`](Self::with_start_offset)
+    /// is preferable for parsing after the start of a string.
     #[inline]
     pub const fn new(string: &'a str) -> Self {
         Self {
@@ -22,20 +26,25 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::Parser;
+    /// use konst::parsing::{ErrorKind, Parser};
     ///
     /// // indices
     /// //  0   4   8
     /// //  |   |   |
     /// // "foo bar baz"
     /// let substr = konst::string::str_from("foo bar baz", 4);
+    ///
     /// let parser = Parser::with_start_offset(substr, 4);
+    /// assert_eq!(parser.remainder(), "bar baz");
     ///
     /// let (bar, parser) = parser.split(' ').unwrap();
+    /// assert_eq!(bar, "bar");
+    ///
     /// let err = parser.split_terminator(' ').unwrap_err();
     ///
-    /// assert_eq!(bar, "bar");
+    /// assert_eq!(parser.remainder(), "baz");
     /// assert_eq!(err.offset(), 8);
+    /// assert_eq!(err.kind(), ErrorKind::DelimiterNotFound);
     ///
     /// ```
     #[inline]
@@ -87,21 +96,21 @@ impl<'a> Parser<'a> {
         self.str
     }
 
-    /// Gets the byte offset of this parser in the str/byte slice that this
+    /// Gets the byte offset of this parser in the str slice that this
     /// was constructed from.
     #[inline(always)]
     pub const fn start_offset(self) -> usize {
         self.start_offset as _
     }
 
-    /// Gets the end byte offset of this parser in the str/byte slice that this
+    /// Gets the end byte offset of this parser in the str slice that this
     /// was constructed from.
     #[inline(always)]
     pub const fn end_offset(self) -> usize {
         self.start_offset as usize + self.str.len()
     }
 
-    /// The end the parser was last mutated from.
+    /// The direction that the parser was last mutated from.
     pub fn parse_direction(self) -> ParseDirection {
         self.parse_direction
     }
@@ -114,7 +123,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Constructs a [`ParseError`] for this point in parsing,
-    /// with an [`ErrorKind::Other`] for the kind of error.
+    /// for an [`ErrorKind::Other`] with a custom error message.
     ///
     /// [`ParseError`]: struct.ParseError.html
     /// [`ErrorKind::Other`]: ./enum.ErrorKind.html#variant.Other

@@ -20,7 +20,7 @@ use konst_kernel::iterator_shared;
 /// const ARR: &[usize] = &{
 ///     let mut arr = [0usize; 3];
 ///     // the `slice::iter` call here is unnecessary,
-///     // you can pass a slice reference to `for_each*`
+///     // you can pass a slice reference to `for_each`
 ///     for_each!{(i, elem) in slice::iter(&["foo", "hello", "That box"]), enumerate() =>
 ///         arr[i] = elem.len();
 ///     }
@@ -266,16 +266,11 @@ mod requires_rust_1_64 {
     /// # Example
     ///
     /// ```rust
-    /// use konst::iter::for_each;
+    /// use konst::iter::collect_const;
     /// use konst::slice;
     ///
-    /// const CHUNKS: &[&[u8]] = &{
-    ///     let mut out = [&[] as &[u8]; 3] ;
-    ///     let fibb = &[3, 5, 8, 13, 21, 34, 55, 89];
-    ///     for_each!{(i, chunk) in slice::chunks(fibb, 3),enumerate() =>
-    ///         out[i] = chunk;
-    ///     }
-    ///     out
+    /// const CHUNKS: [&[u8]; 3] = collect_const!{&[u8] =>
+    ///     slice::chunks(&[3, 5, 8, 13, 21, 34, 55, 89], 3)
     /// };
     ///
     /// let expected: &[&[u8]] = &[&[3, 5, 8], &[13, 21, 34], &[55, 89]];
@@ -432,7 +427,7 @@ mod requires_rust_1_64 {
                 fields = {slice, size},
             }
 
-            /// Returns the remainder of the slice that not returned by [`next`](Self::next),
+            /// Returns the remainder of the slice that's not returned by [`next`](Self::next),
             /// because it is shorter than the chunk size.
             pub const fn remainder(&self) -> &'a [T] {
                 self.slice

@@ -9,15 +9,14 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_u128`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `u128`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `u128`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
     /// ```rust
     /// use konst::{
     ///     parsing::{Parser, ParseValueResult},
-    ///     unwrap_ctx,
-    ///     try_rebind,
+    ///     unwrap_ctx, try_,
     /// };
     ///
     /// {
@@ -31,18 +30,15 @@ impl<'a> Parser<'a> {
     /// const fn parse_pair(mut parser: Parser<'_>) -> ParseValueResult<'_, [u128; 2]> {
     ///     let mut ret = [0; 2];
     ///     
-    ///     // `try_rebind` is like the `?` operator,
-    ///     // and it assigns the value in the Ok variant into either a
-    ///     // single pre-existing variable or multiple (if the Ok value is a tuple)
-    ///     try_rebind!{(ret[0], parser) = parser.parse_u128()};
+    ///     (ret[0], parser) = try_!(parser.parse_u128());
     ///     
     ///     // parsing the `;``between the integers.
     ///     //
     ///     // Note that because we don't use `.trim_start()` afterwards,
     ///     // this can't be followed by spaces.
-    ///     try_rebind!{parser = parser.strip_prefix(";")};
+    ///     parser = try_!(parser.strip_prefix(";"));
     ///     
-    ///     try_rebind!{(ret[1], parser) = parser.parse_u128()};
+    ///     (ret[1], parser) = try_!(parser.parse_u128());
     ///     
     ///     Ok((ret, parser))
     /// }
@@ -68,7 +64,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_i128`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `i128`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `i128`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -111,7 +107,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_u64`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `u64`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `u64`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -128,7 +124,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_i64`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `i64`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `i64`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -145,7 +141,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_u32`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `u32`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `u32`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -162,7 +158,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_i32`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `i32`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `i32`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -179,7 +175,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_u16`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `u16`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `u16`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -196,7 +192,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_i16`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `i16`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `i16`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -213,7 +209,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_u8`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `u8`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `u8`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -230,7 +226,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_i8`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `i8`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `i8`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -247,7 +243,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_usize`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `usize`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `usize`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// [`primitive::parse_usize`]: ../primitive/fn.parse_usize.html
     pub const fn parse_usize(mut self) -> ParseValueResult<'a, usize> {
@@ -259,7 +255,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_isize`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `isize`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `isize`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -351,7 +347,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_bool`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `bool`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `bool`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///

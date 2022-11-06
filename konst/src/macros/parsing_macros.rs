@@ -338,4 +338,7 @@ macro_rules! enable_if_start{
     (FromStart, $($tokens:tt)*) => {
         $($tokens)*
     };
+    (FromBoth, $($tokens:tt)*) => {
+        $($tokens)*
+    };
 }

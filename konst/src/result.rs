@@ -13,7 +13,7 @@
 /// # }
 /// ```
 ///
-/// The Results returned by [`Parser`] methods can all be used with this macro.
+/// All the errors from this crate can be used with this macro.
 ///
 /// # Example
 ///
@@ -90,7 +90,7 @@
 #[doc(inline)]
 pub use konst_kernel::unwrap_ctx;
 
-/// A const equivalent of `Result::unwrap_or`
+/// A const equivalent of [`Result::unwrap_or`]
 ///
 /// # Example
 ///
@@ -112,7 +112,7 @@ pub use konst_kernel::unwrap_ctx;
 #[doc(inline)]
 pub use konst_kernel::res_unwrap_or as unwrap_or;
 
-/// A const equivalent of `Result::unwrap_or_else`
+/// A const equivalent of [`Result::unwrap_or_else`]
 ///
 /// # Example
 ///
@@ -175,7 +175,7 @@ pub use konst_kernel::res_unwrap_or_else as unwrap_or_else;
 #[doc(inline)]
 pub use konst_kernel::res_unwrap_err_or_else as unwrap_err_or_else;
 
-/// A const equivalent of `Result::ok`
+/// A const equivalent of [`Result::ok`]
 ///
 /// # Example
 ///
@@ -197,7 +197,7 @@ pub use konst_kernel::res_unwrap_err_or_else as unwrap_err_or_else;
 #[doc(inline)]
 pub use konst_kernel::res_ok as ok;
 
-/// A const equivalent of `Result::err`
+/// A const equivalent of [`Result::err`]
 ///
 /// # Example
 ///
@@ -219,7 +219,7 @@ pub use konst_kernel::res_ok as ok;
 #[doc(inline)]
 pub use konst_kernel::res_err as err;
 
-/// A const equivalent of `Result::map`
+/// A const equivalent of [`Result::map`]
 ///
 /// # Example
 ///
@@ -250,7 +250,7 @@ pub use konst_kernel::res_err as err;
 #[doc(inline)]
 pub use konst_kernel::res_map as map;
 
-/// A const equivalent of `Result::map_err`
+/// A const equivalent of [`Result::map_err`]
 ///
 /// # Example
 ///
@@ -281,7 +281,7 @@ pub use konst_kernel::res_map as map;
 #[doc(inline)]
 pub use konst_kernel::res_map_err as map_err;
 
-/// A const equivalent of `Result::and_then`
+/// A const equivalent of [`Result::and_then`]
 ///
 /// # Example
 ///
@@ -317,7 +317,7 @@ pub use konst_kernel::res_map_err as map_err;
 #[doc(inline)]
 pub use konst_kernel::res_and_then as and_then;
 
-/// A const equivalent of `Result::or_else`
+/// A const equivalent of [`Result::or_else`]
 ///
 /// # Example
 ///

@@ -8,7 +8,7 @@
 //! then you want to look in the module for that type, eg: [`primitive::parse_bool`].
 //!
 //! If you do want to parse a type fron only part of a string, then you can use
-//! [`Parser`]'s `parser_*` methods, or the [`parse_with`] macro.
+//! [`Parser`]'s `parse_*` methods, or the [`parse_with`] macro.
 //!
 //! [`Parser`]: ./struct.Parser.html
 //! [`primitive::parse_bool`]: ../primitive/fn.parse_bool.html
@@ -23,7 +23,7 @@ mod primitive_parsing;
 /////////////////////////////////////////////////////////////////////////////////
 
 pub use self::{
-    get_parser::{ParserFor, StdParser},
+    get_parser::{HasParser, StdParser},
     parse_errors::{ErrorKind, ParseDirection, ParseError, ParseValueResult, ParserResult},
 };
 
@@ -33,13 +33,13 @@ use crate::string::{self, Pattern};
 ///
 /// If you're looking for functions to parse some type from an entire string
 /// (instead of only part of it),
-/// then you want to look in the module for that type, eg: [`primitive::parse_bool`].
+/// then you want to look in the module for that type, eg: [`primitive::parse_u64`].
 ///
-/// [`primitive::parse_bool`]: ../primitive/fn.parse_bool.html
+/// [`primitive::parse_u64`]: ../primitive/fn.parse_u64.html
 ///
 /// # Mutation
 ///
-/// Because `konst` only requires Rust 1.46.0,
+/// Because `konst` only requires Rust 1.65.0,
 /// in order to mutate a parser you must reassign the parser returned by its methods.
 /// <br>eg: `parser = parser.trim_start();`
 ///
@@ -47,18 +47,18 @@ use crate::string::{self, Pattern};
 ///
 /// - [`try_rebind`]:
 /// Like the `?` operator,
-/// but also reassigns variables with the value in the `Ok` variant.
+/// but also reassigns variables and declares new ones with the value in the `Ok` variant.
 ///
 /// - [`rebind_if_ok`]:
 /// Like an `if let Ok`,
-/// but also reassigns variables with the value in the `Ok` variant.
+/// but also reassigns variables and declares new ones with the value in the `Ok` variant.
 ///
 /// - [`parser_method`]:
 /// Parses any of the string literal patterns using a supported `Parser` method.
 ///
 /// [`try_rebind`]: ../macro.try_rebind.html
 /// [`rebind_if_ok`]: ../macro.rebind_if_ok.html
-/// [`parser_method`]: ../macro.parser_method.html
+/// [`parser_method`]: crate::parser_method
 ///
 /// # Examples
 ///
@@ -73,7 +73,7 @@ use crate::string::{self, Pattern};
 #[cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
 /// use konst::{
 ///     parsing::{Parser, ParseValueResult},
-///     for_range, parser_method, try_rebind, unwrap_ctx,
+///     for_range, parser_method, try_, unwrap_ctx,
 /// };
 ///
 /// // We need to parse the length into a separate const to use it as the length of the array.
@@ -88,9 +88,8 @@ use crate::string::{self, Pattern};
 ///     (len, unwrap_ctx!(parser.strip_prefix(';')))
 /// };
 ///
-/// const LEN: usize = LEN_AND_PARSER.0;
-///
-/// const ANGLES: [Angle; LEN] = unwrap_ctx!(Angle::parse_array(LEN_AND_PARSER.1)).0;
+/// const ANGLES: [Angle; LEN_AND_PARSER.0] =
+///     unwrap_ctx!(Angle::parse_array(LEN_AND_PARSER.1)).0;
 ///
 /// fn main() {
 ///     assert_eq!(
@@ -114,25 +113,24 @@ use crate::string::{self, Pattern};
 ///         Angle((n % 360) as u16)
 ///     }
 ///
-///     // This could take a `const LEN: usize` const parameter in Rust 1.51.0,
-///     // so that the returned array can be any length.
-///     const fn parse_array(mut parser: Parser<'_>) -> ParseValueResult<'_, [Angle; LEN]> {
+///     const fn parse_array<const LEN: usize>(
+///         mut parser: Parser<'_>
+///     ) -> ParseValueResult<'_, [Angle; LEN]> {
 ///         let mut ret = [Angle::UP; LEN];
 ///         
 ///         for_range!{i in 0..LEN =>
-///             try_rebind!{(ret[i], parser) = Angle::parse(parser.trim_start())}
+///             (ret[i], parser) = try_!(Angle::parse(parser.trim_start()));
 ///             
 ///             parser = parser.trim_start();
 ///             if !parser.is_empty() {
-///                 try_rebind!{parser = parser.strip_prefix(',')}
+///                 parser = try_!(parser.strip_prefix(','));
 ///             }
 ///         }
 ///         Ok((ret, parser))
 ///     }
 ///
 ///     pub const fn parse(mut parser: Parser<'_>) -> ParseValueResult<'_, Angle> {
-///         // Prefer using the `rebind_if_ok` macro if you don't `return` inside the `if let`,
-///         // because the `parser` inside this `if let` is a different variable than outside.
+///         // this doesn't use the `rebind_if_ok` macro because it returns early.
 ///         if let Ok((angle, parser)) = parser.parse_u64() {
 ///             return Ok((Self::new(angle), parser))
 ///         }
@@ -365,8 +363,8 @@ impl<'a> Parser<'a> {
     /// this returns the remainder of the string.
     ///
     /// If the delimiter can be found.
-    /// this returns the string before the delimiter,
-    /// moving the parser to after the delimiter.
+    /// this returns the string after the delimiter,
+    /// moving the parser to before the delimiter.
     ///
     /// # Example
     ///
@@ -425,7 +423,7 @@ impl<'a> Parser<'a> {
     ///
     /// # Example
     ///
-    /// This example requires the `"parser"` feature.
+    /// This example requires the `"parsing_proc"` feature.
     ///
     #[cfg_attr(feature = "parsing", doc = "```rust")]
     #[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
@@ -506,12 +504,12 @@ impl<'a> Parser<'a> {
         }
     }
 
-    /// Checks that the parsed str start with `matched`,
+    /// Checks that the parsed string starts with `matched`,
     /// returning the remainder of the str.
     ///
     /// For calling `strip_prefix` with multiple alternative `matched` string literals,
     /// you can use the [`parser_method`] macro,
-    /// [example](../macro.parser_method.html#parsing-enum-example)
+    /// [example](crate::parser_method#parsing-enum-example)
     ///
     /// # Examples
     ///
@@ -626,6 +624,25 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Removes whitespace from the start and end of the parsed string.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{Parser, unwrap_ctx};
+    ///
+    /// let mut parser = Parser::new("    foo\n\t bar    ");
+    ///
+    /// parser = parser.trim();
+    /// assert_eq!(parser.remainder(), "foo\n\t bar");
+    ///
+    /// ```
+    pub const fn trim(mut self) -> Self {
+        parsing! {self, FromBoth;
+            self.str = crate::string::trim(self.str);
+        }
+    }
+
     /// Removes whitespace from the start of the parsed string.
     ///
     /// # Example
@@ -670,10 +687,46 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Repeatedly removes all instances of `needle` from
+    /// both the start and end of the parsed string.
+    ///
+    /// # Example
+    ///
+    /// ### `&str`
+    ///
+    /// ```rust
+    /// use konst::Parser;
+    ///
+    /// let mut parser = Parser::new("<><>hello<><>");
+    ///
+    /// parser = parser.trim_matches("<>");
+    /// assert_eq!(parser.remainder(), "hello");
+    /// ```
+    ///
+    /// ### `char` argument
+    ///
+    /// ```rust
+    /// use konst::Parser;
+    ///
+    /// let mut parser = Parser::new("    world   ");
+    ///
+    /// parser = parser.trim_matches(' ');
+    /// assert_eq!(parser.remainder(), "world");
+    /// ```
+    ///
+    pub const fn trim_matches<'p, P>(mut self, needle: P) -> Self
+    where
+        P: Pattern<'p>,
+    {
+        parsing! {self, FromBoth;
+            self.str = crate::string::trim_matches(self.str, needle);
+        }
+    }
+
     /// Repeatedly removes all instances of `needle` from the start of the parsed string.
     ///
     /// For trimming with multiple `needle`s, you can use the [`parser_method`] macro,
-    /// [example](../macro.parser_method.html#trimming-example)
+    /// [example](crate::parser_method#trimming-example)
     ///
     /// # Example
     ///
@@ -730,7 +783,7 @@ impl<'a> Parser<'a> {
     /// Repeatedly removes all instances of `needle` from the start of the parsed string.
     ///
     /// For trimming with multiple `needle`s, you can use the [`parser_method`] macro,
-    /// [example](../macro.parser_method.html#trimming-example)
+    /// [example](crate::parser_method#trimming-example)
     ///
     /// # Example
     ///
@@ -786,9 +839,9 @@ impl<'a> Parser<'a> {
 
     /// Skips the parser after the first instance of `needle`.
     ///
-    /// For calling `find_skip` with multiple alternative `ǹeedle` string literals,
+    /// For calling `find_skip` with multiple alternative `needle` string literals,
     /// you can use the [`parser_method`] macro,
-    /// [example](../macro.parser_method.html#find-example)
+    /// [example](crate::parser_method#find-example)
     ///
     /// # Example
     ///
@@ -841,9 +894,9 @@ impl<'a> Parser<'a> {
 
     /// Truncates the parsed string to before the last instance of `needle`.
     ///
-    /// For calling `find_skip` with multiple alternative `ǹeedle` string literals,
+    /// For calling `rfind_skip` with multiple alternative `needle` string literals,
     /// you can use the [`parser_method`] macro,
-    /// [example](../macro.parser_method.html#find-example)
+    /// [example](crate::parser_method#find-example)
     ///
     /// # Example
     ///

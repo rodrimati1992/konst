@@ -65,7 +65,7 @@ impl<'a> ParseError<'a> {
     #[inline(always)]
     pub const fn offset(&self) -> usize {
         (match self.direction {
-            ParseDirection::FromStart => self.start_offset,
+            ParseDirection::FromStart | ParseDirection::FromBoth => self.start_offset,
             ParseDirection::FromEnd => self.end_offset,
         }) as usize
     }
@@ -85,7 +85,7 @@ impl<'a> ParseError<'a> {
         self.extra_message
     }
 
-    /// For erroring with an error message,
+    /// For panicking with an error message,
     /// this is called by the [`unwrap_ctx`] macro.
     ///
     /// [`unwrap_ctx`]: ../result/macro.unwrap_ctx.html
@@ -106,6 +106,7 @@ impl<'a> ParseError<'a> {
         match self.direction {
             ParseDirection::FromStart => "error from the start at the ",
             ParseDirection::FromEnd => "error from the end at the ",
+            ParseDirection::FromBoth => "error from the start and end at the ",
         }
     }
     const fn error_suffix(&self) -> &'static str {
@@ -147,6 +148,8 @@ pub enum ParseDirection {
     FromStart = 0,
     /// Parsing was attempted from the end of the string
     FromEnd = 1,
+    /// Parsing was attempted from both the start and end of the string
+    FromBoth = 2,
 }
 
 ////////////////////////////////////////////////////////////////////////////////

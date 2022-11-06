@@ -4,12 +4,6 @@
 //! const equivalents of IntoIterator and Iterator.
 //!
 
-/// Items related to the [`Step`] trait.
-pub mod step;
-
-#[doc(no_inline)]
-pub use step::Step;
-
 mod iterator_adaptors;
 pub mod iterator_dsl;
 
@@ -372,6 +366,11 @@ pub use konst_kernel::into_iter::ConstIntoIter;
 
 #[doc(no_inline)]
 pub use crate::polymorphism::kinds::{IsIntoIterKind, IsIteratorKind, IsStdKind};
+
+/// Trait for all the types that can be iterated over with ranges.
+///
+/// This trait is sealed and can only be implemented by `konst`
+pub use konst_kernel::step_kk::Step;
 
 include! {"./iter/collect_const.rs"}
 include! {"./iter/iter_eval.rs"}

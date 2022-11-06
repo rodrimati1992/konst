@@ -12,8 +12,8 @@ use core::marker::PhantomData;
 /// ```rust
 /// # struct SomeType;
 /// # struct SomeParser;
-/// # use konst::parsing::ParserFor;
-/// impl ParserFor for SomeType {
+/// # use konst::parsing::HasParser;
+/// impl HasParser for SomeType {
 ///     // This is usually `Self` for user-defined types.
 ///     type Parser = SomeParser;
 /// }
@@ -34,7 +34,7 @@ use core::marker::PhantomData;
 /// ```rust
 /// use konst::{parse_with, try_rebind, unwrap_ctx};
 ///
-/// use konst::parsing::{ParserFor, Parser, ParseValueResult};
+/// use konst::parsing::{HasParser, Parser, ParseValueResult};
 ///
 /// const PAIR: Pair = {
 ///     let parser = Parser::new("100,200");
@@ -47,7 +47,7 @@ use core::marker::PhantomData;
 /// #[derive(Debug, PartialEq)]
 /// struct Pair(u32, u64);
 ///
-/// impl ParserFor for Pair {
+/// impl HasParser for Pair {
 ///     type Parser = Self;
 /// }
 ///
@@ -63,9 +63,9 @@ use core::marker::PhantomData;
 /// ```
 ///
 /// [`parse_with`]: ../macro.parse_with.html
-/// [`ParserFor::Parser`]: #associatedtype.Parser
+/// [`HasParser::Parser`]: #associatedtype.Parser
 ///
-pub trait ParserFor: Sized {
+pub trait HasParser: Sized {
     /// The type that parses `Self` with its `parse_with` associated function.
     ///
     /// This is usually `Self` for user-defined types.
@@ -82,7 +82,7 @@ pub struct StdParser<StdType>(PhantomData<StdType>);
 
 macro_rules! impl_std_parser_one {
     ($method:ident, $type:ty, $parse_with_docs:expr) => {
-        impl ParserFor for $type {
+        impl HasParser for $type {
             type Parser = StdParser<$type>;
         }
 

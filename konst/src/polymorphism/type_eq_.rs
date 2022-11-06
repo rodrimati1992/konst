@@ -11,7 +11,10 @@ macro_rules! explain_type_witness {
 /// 
 #[doc = explain_type_witness!()]
 /// 
-/// This trait has a generic implementation and can't be implemented outside of `konst`
+/// This trait is a helper to write [`W: MakeTypeWitness<Arg = T>`](MakeTypeWitness) 
+/// with the `T` and `W` type parameters flipped,
+/// most useful in supertrait bounds,
+/// and can't be implemented outside of `konst`
 /// 
 /// # Related
 /// 
@@ -31,20 +34,20 @@ macro_rules! explain_type_witness {
 /// 
 /// const fn str_try_from<'a, T, const L: usize>(input: T) -> Result<&'a str, std::str::Utf8Error>
 /// where
-///     T: Copy + HasTypeWitness<StrTryFrom<'a, T, L>>
+///     T: StrTryFrom<'a, L>
 /// {
 ///     match T::WITNESS {
-///         StrTryFrom::Str(te) => {
+///         StrTryFromWitness::Str(te) => {
 ///             // `TypeEq::<L, R>::to_right` does an identity conversion from
 ///             // an `L` to an `R`, which `TypeEq` guarantees are the same type.
 ///             let string: &str = te.to_right(input);
 ///             Ok(string)
 ///         }
-///         StrTryFrom::Bytes(te) => {
+///         StrTryFromWitness::Bytes(te) => {
 ///             let bytes: &[u8] = te.to_right(input);
 ///             std::str::from_utf8(bytes)
 ///         }
-///         StrTryFrom::Array(te) => {
+///         StrTryFromWitness::Array(te) => {
 ///             // this requires care not to infinitely recurse
 ///             let slice: &[u8] = te.to_right(input);
 ///             str_try_from(slice)
@@ -58,10 +61,20 @@ macro_rules! explain_type_witness {
 /// 
 /// assert_eq!(str_try_from(b"foo bar" as &[_]), Ok("foo bar"));
 /// 
-/// // this enum is a type witness
+/// 
+/// // trait alias pattern
+/// trait StrTryFrom<'a, const L: usize>: Copy + HasTypeWitness<StrTryFromWitness<'a, Self, L>> {}
+/// 
+/// impl<'a, T, const L: usize> StrTryFrom<'a, L> for T
+/// where
+///     T: Copy + HasTypeWitness<StrTryFromWitness<'a, T, L>>
+/// {}
+/// 
+/// 
+/// // this enum is a type witness (konst::docs::type_witnesses)
 /// // `#[non_exhausitve]` allows adding more supported types.
 /// #[non_exhaustive]
-/// pub enum StrTryFrom<'a, T, const L: usize> {
+/// pub enum StrTryFromWitness<'a, T, const L: usize> {
 ///     // This variant requires `T == &'a str`
 ///     Str(TypeEq<T, &'a str>),
 ///
@@ -72,30 +85,34 @@ macro_rules! explain_type_witness {
 ///     Array(TypeEq<T, &'a [u8; L]>),
 /// }
 /// 
-/// impl<'a, T, const L: usize> TypeWitnessTypeArg for StrTryFrom<'a, T, L> {
+/// impl<'a, T, const L: usize> TypeWitnessTypeArg for StrTryFromWitness<'a, T, L> {
 ///     type Arg = T;
 /// }
 /// 
-/// impl<'a> MakeTypeWitness for StrTryFrom<'a, &'a str, 0> {
+/// impl<'a> MakeTypeWitness for StrTryFromWitness<'a, &'a str, 0> {
 ///     const MAKE: Self = Self::Str(TypeEq::NEW);
 /// }
 /// 
-/// impl<'a> MakeTypeWitness for StrTryFrom<'a, &'a [u8], 0> {
+/// impl<'a> MakeTypeWitness for StrTryFromWitness<'a, &'a [u8], 0> {
 ///     const MAKE: Self = Self::Bytes(TypeEq::NEW);
 /// }
 /// 
-/// impl<'a, const L: usize> MakeTypeWitness for StrTryFrom<'a, &'a [u8; L], L> {
+/// impl<'a, const L: usize> MakeTypeWitness for StrTryFromWitness<'a, &'a [u8; L], L> {
 ///     const MAKE: Self = Self::Array(TypeEq::NEW);
 /// }
 /// 
 /// ```
 pub use konst_kernel::type_eq::HasTypeWitness;
 
-/// Gets the type argument that `Self` witnesses.
+/// Gets the type argument that this [type witness](crate::docs::type_witnesses) witnesses.
+/// 
+/// [**example shared with `MakeTypeWitness`**](MakeTypeWitness#example)
 /// 
 #[doc = explain_type_witness!()]
 /// 
-/// [**example shared with `MakeTypeWitness`**](MakeTypeWitness#example)
+/// This trait should be implemented generically, 
+/// as generic as the type definition of the implementor,
+/// doing so will help type inference.
 /// 
 /// # Related
 /// 
@@ -122,47 +139,52 @@ pub use konst_kernel::type_eq::TypeWitnessTypeArg;
 /// # Example
 /// 
 /// ```rust
-/// use konst::polymorphism::{HasTypeWitness, TypeWitnessTypeArg, MakeTypeWitness, TypeEq};
+/// use konst::polymorphism::{TypeWitnessTypeArg, MakeTypeWitness, TypeEq};
 /// 
-/// const fn default<T, const L: usize>(ret: Defaultable<'_, T, L>) -> T {
-///     match ret {
-///         Defaultable::I32(te) => te.to_right(3),
-///         Defaultable::Bool(te) => te.to_right(true),
-///         Defaultable::Str(te) => te.to_right("empty"),
-///         Defaultable::Array(te) => te.to_right([5; L]),
+/// const fn default<'a, T, const L: usize>() -> T 
+/// where
+///     Defaultable<'a, T, L>: MakeTypeWitness<Arg = T>
+/// {
+///     match MakeTypeWitness::MAKE {
+///         Defaultable::I32(te) => te.to_left(3),
+///         Defaultable::Bool(te) => te.to_left(true),
+///         Defaultable::Str(te) => te.to_left("empty"),
+///         Defaultable::Array(te) => te.to_left([5; L]),
 ///     }
 /// }
 /// 
-/// // using `<i32 as HasTypeWitness<_>>::WITNESS`
-/// assert_eq!(default(i32::WITNESS), 3);
+/// let number: i32 = default();
+/// assert_eq!(number, 3);
 /// 
-/// assert_eq!(default(bool::WITNESS), true);
+/// let boolean: bool = default();
+/// assert_eq!(boolean, true);
 /// 
-/// // using `<Defaultable<..> as MakeTypeWitness>::MAKE`
-/// let string: &str = default(MakeTypeWitness::MAKE);
+/// let string: &str = default();
 /// assert_eq!(string, "empty");
 ///
-/// let array: [u32; 3] = default(MakeTypeWitness::MAKE);
+/// let array: [u32; 3] = default();
 /// assert_eq!(array, [5, 5, 5]);
 /// 
-/// // this enum is a type witness
+/// 
+/// // This enum is a type witness,
+/// // a pattern documented in `konst::docs::type_witnesses`
 /// #[non_exhaustive]
-/// enum Defaultable<'a, Ret, const L: usize> {
-///     // This variant requires `Ret == i32`
-///     I32(TypeEq<i32, Ret>),
+/// enum Defaultable<'a, T, const L: usize> {
+///     // This variant requires `T == i32`
+///     I32(TypeEq<T, i32>),
 ///
-///     // This variant requires `Ret == bool`
-///     Bool(TypeEq<bool, Ret>),
+///     // This variant requires `T == bool`
+///     Bool(TypeEq<T, bool>),
 ///
-///     // This variant requires `Ret == &'a str`
-///     Str(TypeEq<&'a str, Ret>),
+///     // This variant requires `T == &'a str`
+///     Str(TypeEq<T, &'a str>),
 ///
-///     // This variant requires `Ret == [u32; L]`
-///     Array(TypeEq<[u32; L], Ret>),
+///     // This variant requires `T == [u32; L]`
+///     Array(TypeEq<T, [u32; L]>),
 /// }
 /// 
-/// impl<Ret, const L: usize> TypeWitnessTypeArg for Defaultable<'_, Ret, L> {
-///     type Arg = Ret;
+/// impl<T, const L: usize> TypeWitnessTypeArg for Defaultable<'_, T, L> {
+///     type Arg = T;
 /// }
 /// 
 /// impl MakeTypeWitness for Defaultable<'_, i32, 0> {
@@ -216,7 +238,7 @@ pub use konst_kernel::type_eq::MakeTypeWitness;
 /// 
 /// # Examples
 /// 
-/// All the [related](#related) items show how `TypeEq` is used`inside of enums
+/// All the [related](#related) items show how `TypeEq` is used inside of enums
 /// (its primary usecase).
 /// 
 /// The examples below are intended to demonstrate basic properties of `TypeEq`.
@@ -367,9 +389,10 @@ pub use konst_kernel::type_eq::TypeEq;
 ///     }
 /// }
 /// 
-/// // A type witmess, a pattern documented in `konst::docs::type_witnesses`
-/// 
-/// // Simply put, type witnesses emulate matching over a range of types.
+/// // A type witness, a pattern documented in `konst::docs::type_witnesses`
+/// //
+/// // Simply put, type witnesses emulate matching over a range of types
+/// // (not values of those types, the types themselves).
 /// enum TheWitness<'a, T> {
 ///     U8(TypeEq<T, u8>),
 ///     Str(TypeEq<T, &'a str>),

@@ -7,7 +7,8 @@
 //!
 //! - `deref`: raw pointers can be dereferenced since Rust 1.58.0
 //!
-//! - `deref_mut`: it uses the same unstable features as mutable references in const.
+//! - `deref_mut`: the unstable feature for using mutable references
+//! also allows dereferencing mutable pointers.
 //!
 
 use core::ptr::NonNull;
@@ -18,7 +19,7 @@ use core::ptr::NonNull;
 /// # Safety
 ///
 /// This function has the same safety requirements as
-/// [`<*const>::as_ref`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety)
+/// [`<*const T>::as_ref`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety)
 ///
 /// # Example
 ///
@@ -45,7 +46,7 @@ pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: *const T) -> Option<&'a T> {
 /// # Safety
 ///
 /// This function has the same safety requirements as
-/// [`<*const>::as_mut`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety-13).
+/// [`<*mut T>::as_mut`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety-13).
 ///
 /// # Example
 ///
@@ -77,7 +78,7 @@ pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
 }
 
 /// Const equivalent of
-/// [`<*const>::is_null`](https://doc.rust-lang.org/std/primitive.pointer.html#method.is_null)
+/// [`<*const T>::is_null`](https://doc.rust-lang.org/std/primitive.pointer.html#method.is_null)
 ///
 /// # Example
 ///
@@ -86,8 +87,8 @@ pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
 ///
 /// use core::ptr::null;
 ///
-/// const NULL_IS_NULL: bool = unsafe{ ptr::is_null(null::<u8>()) };
-/// const REFF_IS_NULL: bool = unsafe{ ptr::is_null(&100) };
+/// const NULL_IS_NULL: bool = ptr::is_null(null::<u8>());
+/// const REFF_IS_NULL: bool = ptr::is_null(&100);
 ///
 /// assert_eq!(NULL_IS_NULL, true);
 /// assert_eq!(REFF_IS_NULL, false);
@@ -116,8 +117,8 @@ pub mod nonnull {
     ///
     /// use core::ptr::{NonNull, null_mut};
     ///
-    /// const NONE: Option<NonNull<u8>> = unsafe{ nonnull::new(null_mut()) };
-    /// const SOME: Option<NonNull<u8>> = unsafe{ nonnull::new(&100 as *const _ as *mut _) };
+    /// const NONE: Option<NonNull<u8>> = nonnull::new(null_mut());
+    /// const SOME: Option<NonNull<u8>> = nonnull::new(&100 as *const _ as *mut _);
     ///
     /// assert!(NONE.is_none());
     /// assert_eq!(SOME.map(|x|unsafe{*x.as_ptr()}), Some(100));
@@ -207,8 +208,8 @@ pub mod nonnull {
     ///
     /// use core::ptr::NonNull;
     ///
-    /// const H: NonNull<str> = unsafe{ nonnull::from_ref("hello") };
-    /// const W: NonNull<str> = unsafe{ nonnull::from_ref("world") };
+    /// const H: NonNull<str> = nonnull::from_ref("hello");
+    /// const W: NonNull<str> = nonnull::from_ref("world");
     ///
     /// unsafe{
     ///     assert_eq!(H.as_ref(), "hello");

@@ -1,4 +1,4 @@
-/// Parses a type that impls [`ParserFor`] with the passed in [`Parser`].
+/// Parses a type that impls [`HasParser`] with the passed in [`Parser`].
 ///
 /// # Example
 ///
@@ -8,7 +8,7 @@
 /// ```rust
 /// use konst::{parse_with, try_rebind, unwrap_ctx};
 ///
-/// use konst::parsing::{ParserFor, Parser, ParseValueResult};
+/// use konst::parsing::{HasParser, Parser, ParseValueResult};
 ///
 /// const PAIR: (u32, Foo) = unwrap_ctx!(parse_pair(Parser::new("100,Baz"))).0;
 ///
@@ -31,7 +31,7 @@
 ///     Qux,
 /// }
 ///
-/// impl ParserFor for Foo {
+/// impl HasParser for Foo {
 ///     type Parser = Self;
 /// }
 ///
@@ -52,14 +52,14 @@
 /// ```
 ///
 /// [`Parser`]: ./parsing/struct.Parser.html
-/// [`ParserFor`]: ./parsing/trait.ParserFor.html
+/// [`HasParser`]: ./parsing/trait.HasParser.html
 #[macro_export]
 macro_rules! parse_with {
     ($parser:expr, $type:ty $(,)*) => {
         match $parser {
             parser @ $crate::Parser { .. } => {
                 let res: $crate::__::Result<_, _> =
-                    <<$type as $crate::parsing::ParserFor>::Parser>::parse_with(parser);
+                    <<$type as $crate::parsing::HasParser>::Parser>::parse_with(parser);
                 res
             }
         }
