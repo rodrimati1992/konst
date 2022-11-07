@@ -103,6 +103,128 @@ pub use konst_kernel::into_iter::IsConstIntoIter;
 
 /// Macro for converting [`ConstIntoIter`] implementors into const iterators.
 ///
+/// # Behavior
+///
+/// For std types (`ConstIntoIter<Kind = IsStdKind>`),
+/// this converts those types to their iterator.
+/// [(example below)](#std-type-example)
+///
+/// For user-defined into-iterators (`ConstIntoIter<Kind = IsIntoIterKind>`),
+/// this calls their `const_into_iter` inherent method to convert them to an iterator.
+/// [(example below)](#into-iter-example)
+///
+/// For iterators (`ConstIntoIter<Kind = IsIteratorKind>`),
+/// this returns the iterator untouched.
+/// [(example below)](#iterator-example)
+///
+/// # Examples
+///
+/// <span id="std-type-example"></span>
+/// ### Std type
+///
+/// This example demonstrates passing a `ConstIntoIter<Kind = IsStdKind>` in.
+///
+/// ```rust
+/// use konst::{iter, slice};
+///
+/// let mut elem;
+/// let mut iter: slice::Iter<'_, u8> = iter::into_iter!(&[3, 5, 8]);
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, &3);
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, &5);
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, &8);
+///
+/// assert!(iter.next().is_none());
+///
+/// ```
+///
+/// <span id="into-iter-example"></span>
+/// ### IntoIterator type
+///
+/// This example demonstrates passing a `ConstIntoIter<Kind = IsIntoIterKind>` in.
+///
+/// ```rust
+/// use konst::{iter, string};
+///
+/// let mut iter: Countdown = iter::into_iter!(Number(3));
+/// let mut elem;
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, 2);
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, 1);
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, 0);
+///
+/// assert!(iter.next().is_none());
+///
+///
+/// struct Number(u32);
+///
+/// impl iter::ConstIntoIter for Number {
+///     type Kind = iter::IsIntoIterKind;
+///     type Item = u32;
+///     type IntoIter = Countdown;
+/// }
+///
+/// impl Number {
+///     const fn const_into_iter(self) -> Countdown {
+///         Countdown(self.0)
+///     }
+/// }
+///
+/// struct Countdown(u32);
+///
+/// impl iter::ConstIntoIter for Countdown {
+///     type Kind = iter::IsIteratorKind;
+///     type Item = u32;
+///     type IntoIter = Self;
+/// }
+///
+/// impl Countdown {
+///     const fn next(self) -> Option<(u32, Self)> {
+///         let next = konst::try_opt!(self.0.checked_sub(1));
+///         Some((next, Countdown(next)))
+///     }
+/// }
+///
+///
+/// ```
+///
+/// <span id="iterator-example"></span>
+/// ### Iterator type
+///
+/// This example demonstrates passing a `ConstIntoIter<Kind = IsIteratorKind>` in.
+///
+/// ```rust
+/// use konst::{iter, string};
+///
+/// let iter: string::Split<'_, '_, char> = string::split("foo bar baz", ' ');
+///
+/// // `iter::into_iter` is an identity function when passed iterators
+/// let mut iter: string::Split<'_, '_, char> = iter::into_iter!(iter);
+/// let mut elem;
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, "foo");
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, "bar");
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, "baz");
+///
+/// assert!(iter.next().is_none());
+/// ```
+///
+///
 #[doc(inline)]
 pub use konst_kernel::into_iter_macro as into_iter;
 
