@@ -1,5 +1,7 @@
 use konst_kernel::{__slice_from_impl, __slice_up_to_impl};
 
+use crate::slice::{BytesPattern, PatternNorm};
+
 /// A const equivalent of `slice.get(index)`
 ///
 /// # Example
@@ -533,15 +535,24 @@ pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T])
 /// ```rust
 /// use konst::slice::bytes_start_with;
 ///
-/// assert!( bytes_start_with(b"foo,bar,baz", b"foo,"));
-///
-/// assert!(!bytes_start_with(b"foo,bar,baz", b"bar"));
-/// assert!(!bytes_start_with(b"foo,bar,baz", b"baz"));
+/// assert!( bytes_start_with(b"foo,bar,baz", "foo,"));
+/// assert!( bytes_start_with(b"foo,bar,baz", &'f'));
+/// assert!( bytes_start_with(b"foo,bar,baz", &[b'f', b'o', b'o']));
+/// assert!(!bytes_start_with(b"foo,bar,baz", "bar"));
+/// assert!(!bytes_start_with(b"foo,bar,baz", "baz"));
 ///
 /// ```
 ///
 #[inline]
-pub const fn bytes_start_with(left: &[u8], right: &[u8]) -> bool {
+pub const fn bytes_start_with<'a, 'p, const N: usize, P>(left: &[u8], right: &'p P) -> bool
+where
+    P: ?Sized + BytesPattern<N>,
+{
+    let right = PatternNorm::new(right);
+    __bytes_start_with(left, right.as_bytes())
+}
+
+const fn __bytes_start_with(left: &[u8], right: &[u8]) -> bool {
     matches!(bytes_strip_prefix(left, right), Some(_))
 }
 

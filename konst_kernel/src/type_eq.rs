@@ -14,7 +14,8 @@ pub trait HasTypeWitness<W: TypeWitnessTypeArg<Arg = Self>> {
 
 impl<T, W> HasTypeWitness<W> for T
 where
-    W: TypeWitnessTypeArg<Arg = T> + MakeTypeWitness,
+    T: ?Sized,
+    W: MakeTypeWitness<Arg = T>,
 {
     const WITNESS: W = W::MAKE;
 
@@ -33,7 +34,7 @@ pub trait TypeWitnessTypeArg {
     ///
     /// Usually, enums that implement this trait have
     /// variants with `Type<Self::Arg, SomeType>` fields.
-    type Arg;
+    type Arg: ?Sized;
 }
 
 pub trait MakeTypeWitness: TypeWitnessTypeArg {
@@ -152,7 +153,7 @@ impl<L, R> TypeEq<L, R> {
 }
 
 #[cfg(feature = "__for_konst")]
-impl<L, R> TypeEq<L, R> {
+impl<L: ?Sized, R: ?Sized> TypeEq<L, R> {
     crate::type_eq_projection_fn! {
         /// Converts a `TypeEq<L, R>` to `TypeEq<&L, &R>`
         pub const fn in_ref(T, self: TypeEq<L, R>) -> Ref<'a, T>
