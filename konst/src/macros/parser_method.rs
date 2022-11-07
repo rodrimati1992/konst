@@ -1,7 +1,7 @@
 /// Calls a `Parser` method with many alternative string literals.
 ///
 /// If any of the literals match, the parser is mutated accordingly,
-/// otherwise it keeps the unparsed bytes to parse them again.
+/// otherwise the parser is left untouched.
 ///
 /// # Syntax
 ///

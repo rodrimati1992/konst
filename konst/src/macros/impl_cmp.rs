@@ -38,28 +38,22 @@
 ///     }
 /// }
 ///
-/// const CMPS: [(Ordering, bool); 4] = {
+/// const _: () = {
 ///     let foo = Tupled(3, PhantomData::<u32>);
 ///     let bar = Tupled(5, PhantomData::<u32>);
 ///     
-///     [
-///         (const_cmp!(foo, foo), const_eq!(foo, foo)),
-///         (const_cmp!(foo, bar), const_eq!(foo, bar)),
-///         (const_cmp!(bar, foo), const_eq!(bar, foo)),
-///         (const_cmp!(bar, bar), const_eq!(bar, bar)),
-///     ]
+///     assert!(matches!(const_cmp!(foo, foo), Ordering::Equal));
+///     assert!( const_eq!(foo, foo));
+///
+///     assert!(matches!(const_cmp!(foo, bar), Ordering::Less));
+///     assert!(!const_eq!(foo, bar));
+///
+///     assert!(matches!(const_cmp!(bar, foo), Ordering::Greater));
+///     assert!(!const_eq!(bar, foo));
+///
+///     assert!(matches!(const_cmp!(bar, bar), Ordering::Equal));
+///     assert!( const_eq!(bar, bar));
 /// };
-///
-/// assert_eq!(
-///     CMPS,
-///     [
-///         (Ordering::Equal, true),
-///         (Ordering::Less, false),
-///         (Ordering::Greater, false),
-///         (Ordering::Equal, true),
-///     ]
-/// );
-///
 /// ```
 ///
 /// ### Enum
@@ -99,27 +93,22 @@
 ///     }
 /// }
 ///
-/// const CMPS: [(Ordering, bool); 4] = {
+/// const _: () = {
 ///     let foo = Enum::Tupled(3, 5);
 ///     let bar = Enum::Unit;
 ///     
-///     [
-///         (const_cmp!(foo, foo), const_eq!(foo, foo)),
-///         (const_cmp!(foo, bar), const_eq!(foo, bar)),
-///         (const_cmp!(bar, foo), const_eq!(bar, foo)),
-///         (const_cmp!(bar, bar), const_eq!(bar, bar)),
-///     ]
-/// };
+///     assert!(matches!(const_cmp!(foo, foo), Ordering::Equal));
+///     assert!( const_eq!(foo, foo));
 ///
-/// assert_eq!(
-///     CMPS,
-///     [
-///         (Ordering::Equal, true),
-///         (Ordering::Less, false),
-///         (Ordering::Greater, false),
-///         (Ordering::Equal, true),
-///     ]
-/// );
+///     assert!(matches!(const_cmp!(foo, bar), Ordering::Less));
+///     assert!(!const_eq!(foo, bar));
+///
+///     assert!(matches!(const_cmp!(bar, foo), Ordering::Greater));
+///     assert!(!const_eq!(bar, foo));
+///
+///     assert!(matches!(const_cmp!(bar, bar), Ordering::Equal));
+///     assert!( const_eq!(bar, bar));
+/// };
 ///
 /// ```
 ///

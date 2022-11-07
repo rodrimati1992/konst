@@ -18,7 +18,7 @@ declare_generic_const! {
     /// Generic constant for an uninitialized `MaybeUninit<T>`.
     /// Usable to safely construct a `[MaybeUninit<T>; LEN]` when `T` is non-`Copy`.
     ///
-    /// As of Rust 1.51.0, `[MaybeUninit::uninit(); LEN]` is not valid for non-`Copy` types,
+    /// As of Rust 1.65.0, `[MaybeUninit::uninit(); LEN]` is not valid for non-`Copy` types,
     /// but `[CONST; LEN]` does work, like in the example below.
     ///
     /// # Example
@@ -47,7 +47,7 @@ declare_generic_const! {
 }
 
 declare_generic_const! {
-    /// Generic constant for an uninitialized `[MaybeUninit<T>; N]`. Requires Rust 1.51.0.
+    /// Generic constant for an uninitialized `[MaybeUninit<T>; N]`.
     ///
     /// # Example
     ///

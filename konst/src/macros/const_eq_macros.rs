@@ -32,7 +32,7 @@
 ///     }
 /// }
 ///
-/// const CMPS: [bool; 4] = {
+/// const _: () = {
 ///     let foo = Fields {
 ///         foo: 10,
 ///         bar: None,
@@ -47,13 +47,11 @@
 ///         qux: "world",
 ///     };
 ///     
-///     [const_eq!(foo, foo), const_eq!(foo, bar), const_eq!(bar, foo), const_eq!(bar, bar)]
+///     assert!( const_eq!(foo, foo));
+///     assert!(!const_eq!(foo, bar));
+///     assert!(!const_eq!(bar, foo));
+///     assert!( const_eq!(bar, bar));
 /// };
-///
-/// assert_eq!(CMPS, [true, false, false, true]);
-///
-///
-///
 /// ```
 ///
 /// [`ConstCmp`]: crate::cmp::ConstCmp
@@ -159,16 +157,11 @@ macro_rules! const_eq {
 ///
 /// const THERE: &[Location] = &[here!(), here!(), here!(), here!()];
 ///
-/// const CMP_HERE: bool = const_eq_for!(slice; HERE, HERE);
-/// assert!( CMP_HERE );
-///
-/// const CMP_HERE_THERE: bool = const_eq_for!(slice; HERE, THERE);
-/// assert!( !CMP_HERE_THERE );
-///
-/// const CMP_THERE_THERE: bool = const_eq_for!(slice; THERE, THERE);
-/// assert!( CMP_THERE_THERE );
-///
-///
+/// const _: () = {
+///     assert!( const_eq_for!(slice; HERE, HERE));
+///     assert!(!const_eq_for!(slice; HERE, THERE));
+///     assert!( const_eq_for!(slice; THERE, THERE));
+/// };
 /// # }
 ///
 /// ```
@@ -195,15 +188,11 @@ macro_rules! const_eq {
 ///
 /// const CLOCKWISE: &[Direction] = &[Up, Right, Down, Left];
 ///
-///
-/// const CMP_CHEAT: bool = eq_slice_direction(CHEAT_CODE, CHEAT_CODE);
-/// assert!( CMP_CHEAT );
-///
-/// const CMP_CHEAT_CLOCK: bool = eq_slice_direction(CHEAT_CODE, CLOCKWISE);
-/// assert!( !CMP_CHEAT_CLOCK );
-///
-/// const CMP_CLOCK_CLOCK: bool = eq_slice_direction(CLOCKWISE, CLOCKWISE);
-/// assert!( CMP_CLOCK_CLOCK );
+/// const _: () = {
+///     assert!( eq_slice_direction(CHEAT_CODE, CHEAT_CODE));
+///     assert!(!eq_slice_direction(CHEAT_CODE, CLOCKWISE));
+///     assert!( eq_slice_direction(CLOCKWISE, CLOCKWISE));
+/// };
 ///
 /// ```
 ///
@@ -220,14 +209,11 @@ macro_rules! const_eq {
 ///     const_eq_for!(option; left, right, |l, r| l.0 == r.0 && l.1 == r.1 )
 /// }
 ///
-/// const SOME_SOME: bool = eq_opt_tuple(&SOME, &SOME);
-/// assert!( SOME_SOME );
-///
-/// const SOME_NONE: bool = eq_opt_tuple(&SOME, &NONE);
-/// assert!( !SOME_NONE );
-///
-/// const NONE_NONE: bool = eq_opt_tuple(&NONE, &NONE);
-/// assert!( NONE_NONE );
+/// const _: () = {
+///     assert!( eq_opt_tuple(&SOME, &SOME));
+///     assert!(!eq_opt_tuple(&SOME, &NONE));
+///     assert!( eq_opt_tuple(&NONE, &NONE));
+/// };
 ///
 /// ```
 ///
@@ -269,14 +255,11 @@ macro_rules! const_eq {
 /// const FOO: Range<Month> = January..April;
 /// const BAR: Range<Month> = October..December;
 ///
-/// const FOO_FOO: bool = const_eq_for!(range; FOO, FOO);
-/// assert!( FOO_FOO );
-///
-/// const FOO_BAR: bool = const_eq_for!(range; FOO, BAR);
-/// assert!( !FOO_BAR );
-///
-/// const BAR_BAR: bool = const_eq_for!(range; BAR, BAR);
-/// assert!( BAR_BAR );
+/// const _: () = {
+///     assert!( const_eq_for!(range; FOO, FOO));
+///     assert!(!const_eq_for!(range; FOO, BAR));
+///     assert!( const_eq_for!(range; BAR, BAR));
+/// };
 ///
 /// ```
 ///
@@ -312,14 +295,11 @@ macro_rules! const_eq {
 /// const FOO: RangeInclusive<WeekDay> = Monday..=Thursday;
 /// const BAR: RangeInclusive<WeekDay> = Friday..=Sunday;
 ///
-/// const FOO_FOO: bool = const_eq_for!(range_inclusive; FOO, FOO);
-/// assert!( FOO_FOO );
-///
-/// const FOO_BAR: bool = const_eq_for!(range_inclusive; FOO, BAR, WeekDay::const_eq);
-/// assert!( !FOO_BAR );
-///
-/// const BAR_BAR: bool = const_eq_for!(range_inclusive; BAR, BAR, WeekDay::const_eq);
-/// assert!( BAR_BAR );
+/// const _: () = {
+///     assert!( const_eq_for!(range_inclusive; FOO, FOO));
+///     assert!(!const_eq_for!(range_inclusive; FOO, BAR, WeekDay::const_eq));
+///     assert!( const_eq_for!(range_inclusive; BAR, BAR, WeekDay::const_eq));
+/// };
 ///
 /// ```
 ///

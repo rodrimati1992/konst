@@ -154,19 +154,6 @@ macro_rules! __priv_next_ai_access {
 ///
 /// Note: the `Ok` variant can only be destructured into a single variable or a tuple.
 ///
-/// # Mapping errors
-///
-/// You can optionally map the returned error like this:
-/// ```text
-/// try_rebind!{foo = bar(), map_err = |e| convert_this_error(e)}
-/// ```
-/// or
-/// ```text
-/// try_rebind!{foo = bar(), map_err = convert_this_error}
-/// ```
-/// The `convert_this_error` function is expected to return the error type that
-/// the current function returns.
-///
 /// # Let pattern
 ///
 /// You can declare new variables with `let` patterns like this:
@@ -217,31 +204,13 @@ macro_rules! __priv_next_ai_access {
 #[macro_export]
 macro_rules! try_rebind {
     (
-        $pattern:tt = $expression:expr $(, $($map_err:tt)* )?
+        $pattern:tt = $expression:expr $(,)?
     ) => {
         let tuple = match $expression {
             $crate::__::v::Ok(tuple) => tuple,
-            $crate::__::v::Err(_e) => return $crate::__::v::Err(
-                $crate::__priv_try_map_err!(_e $(, $($map_err)* )? )
-            ),
+            $crate::__::v::Err(_e) => return $crate::__::v::Err(_e),
         };
-        $crate::__priv_ai_preprocess_pattern!( tuple, ($pattern) );
-    };
-}
-
-#[macro_export]
-#[doc(hidden)]
-macro_rules! __priv_try_map_err {
-    ($error:ident, map_err = |$pat:pat_param| $map_err:expr ) => {{
-        let $pat = $error;
-        $map_err
-    }};
-    ($error:ident, map_err = $map_err:path ) => {{
-        let $pat = $error;
-        $map_err($error)
-    }};
-    ($error:ident $(,)?) => {
-        $error
+        $crate::__priv_ai_preprocess_pattern!(tuple, ($pattern));
     };
 }
 

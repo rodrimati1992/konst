@@ -6,7 +6,7 @@ use alloc::{borrow::Cow, string::String, vec::Vec};
 
 /// An empty `Cow<'_, str>`. Usable to construct a `[Cow<'_, str>; N]`.
 ///
-/// As of Rust 1.51.0, `[Cow::Borrowed(""); LEN]` is not valid,
+/// As of Rust 1.65.0, `[Cow::Borrowed(""); LEN]` is not valid,
 /// because `Cow<'_, str>` isn't copy,
 /// but `[COW_STR_NEW; LEN]` does work, like in the example below.
 ///
@@ -36,7 +36,7 @@ pub const COW_STR_NEW: Cow<'_, str> = Cow::Borrowed("");
 
 /// An empty `String`. Usable to construct a `[String; N]`.
 ///
-/// As of Rust 1.51.0, `[String::new(); LEN]` is not valid, because `String` isn't copy,
+/// As of Rust 1.65.0, `[String::new(); LEN]` is not valid, because `String` isn't copy,
 /// but `[STRING_NEW; LEN]` does work, like in the example below.
 ///
 /// # Example
@@ -62,7 +62,7 @@ pub const STRING_NEW: String = String::new();
 declare_generic_const! {
     /// An empty `Cow<'_, [T]>`. Usable to construct a `[Cow<'_, [T]>; N]`.
     ///
-    /// As of Rust 1.51.0, `[Cow::Borrowed(&[][..]); LEN]` is not valid,
+    /// As of Rust 1.65.0, `[Cow::Borrowed(&[][..]); LEN]` is not valid,
     /// because `Cow<'_, [T]>` isn't copy,
     /// but `[CONST; LEN]` does work, like in the example below.
     ///
@@ -95,7 +95,7 @@ declare_generic_const! {
 declare_generic_const! {
     /// An empty `Vec<T>`. Usable to construct a `[Vec<T>; N]`.
     ///
-    /// As of Rust 1.51.0, `[Vec::new(); LEN]` is not valid,
+    /// As of Rust 1.65.0, `[Vec::new(); LEN]` is not valid,
     /// because `Vec<T>` isn't copy,
     /// but `[CONST; LEN]` does work, like in the example below.
     ///

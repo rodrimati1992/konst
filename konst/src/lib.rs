@@ -16,8 +16,11 @@
 //! at compile-time.
 //!
 //! ```rust
-//! use konst::eq_str;
-//! use konst::{unwrap_opt_or, unwrap_ctx};
+//! use konst::{
+//!     eq_str,
+//!     option,
+//!     result::unwrap_ctx,
+//! };
 //!
 //! #[derive(Debug, PartialEq)]
 //! enum Direction {
@@ -29,7 +32,7 @@
 //!
 //! impl Direction {
 //!     const fn try_parse(input: &str) -> Result<Self, ParseDirectionError> {
-//!         // As of Rust 1.51.0, string patterns don't work in const contexts
+//!         // As of Rust 1.65.0, string patterns don't work in const contexts
 //!         match () {
 //!             _ if eq_str(input, "forward") => Ok(Direction::Forward),
 //!             _ if eq_str(input, "backward") => Ok(Direction::Backward),
@@ -40,7 +43,7 @@
 //!     }
 //! }
 //!
-//! const CHOICE: &str = unwrap_opt_or!(option_env!("chosen-direction"), "forward");
+//! const CHOICE: &str = option::unwrap_or!(option_env!("chosen-direction"), "forward");
 //!
 //! const DIRECTION: Direction = unwrap_ctx!(Direction::try_parse(CHOICE));
 //!

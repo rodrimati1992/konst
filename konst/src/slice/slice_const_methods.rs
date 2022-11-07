@@ -270,10 +270,6 @@ pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
 ///
 /// If `slice.len() < len`, this simply returns `slice` back.
 ///
-/// # Performance
-///
-/// This takes constant time to run.
-///
 /// # Example
 ///
 /// ```rust
@@ -303,10 +299,6 @@ pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
 }
 
 /// A const equivalent of `slice.get_mut(..len)`.
-///
-/// # Performance
-///
-/// This takes constant time to run.
 ///
 /// # Example
 ///
@@ -489,10 +481,6 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at_mut)
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
-///
-/// # Performance
-///
-/// This takes constant time to run.
 ///
 /// # Example
 ///
