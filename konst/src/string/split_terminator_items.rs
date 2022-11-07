@@ -7,7 +7,7 @@ use konst_kernel::iterator_shared;
 
 /// Const equivalent of [`str::split_terminator`], which only takes a `&str` delimiter.
 ///
-/// The same as [`split`](crate::string::split),
+/// This does the same as [`split`](crate::string::split),
 /// except that, if the string after the last delimiter is empty, it is skipped.
 ///
 /// This takes [`Pattern`] implementors as the delimiter.
@@ -16,15 +16,11 @@ use konst_kernel::iterator_shared;
 ///
 /// ```rust
 /// use konst::string;
-/// use konst::iter::for_each;
+/// use konst::iter::collect_const;
 ///
-/// const STRS: &[&str] = &{
-///     let mut arr = [""; 3];
-///     for_each!{(i, sub) in string::split_terminator("foo,bar,baz,", ','),enumerate() =>
-///         arr[i] = sub;
-///     }
-///     arr
-/// };
+/// const STRS: [&str; 3] = collect_const!(&str =>  
+///     string::split_terminator("foo,bar,baz,", ',')
+/// );
 ///
 /// assert_eq!(STRS, ["foo", "bar", "baz"]);
 /// ```
@@ -47,7 +43,7 @@ where
 
 /// Const equivalent of [`str::rsplit_terminator`].
 ///
-/// The same as [`rsplit`](crate::string::rsplit),
+/// This does the same as [`rsplit`](crate::string::rsplit),
 /// except that, if the string before the first delimiter is empty, it is skipped.
 ///
 /// This takes [`Pattern`] implementors as the delimiter.
@@ -56,15 +52,11 @@ where
 ///
 /// ```rust
 /// use konst::string;
-/// use konst::iter::for_each;
+/// use konst::iter::collect_const;
 ///
-/// const STRS: &[&str] = &{
-///     let mut arr = [""; 3];
-///     for_each!{(i, sub) in string::rsplit_terminator(":foo:bar:baz", ":"),enumerate() =>
-///         arr[i] = sub;
-///     }
-///     arr
-/// };
+/// const STRS: [&str; 3] = collect_const!(&str =>
+///     string::rsplit_terminator(":foo:bar:baz", ":")
+/// );
 ///
 /// assert_eq!(STRS, ["baz", "bar", "foo"]);
 /// ```

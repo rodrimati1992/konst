@@ -1,14 +1,5 @@
 //! `const fn` equivalents of `str` methods.
 //!
-//! # Removed in 0.3.0
-//!
-//! These functions were removed in 0.3.0 because there is an equivalent
-//! const fn in the standard library:
-//!
-//! - `from_utf8`: [`core::str::from_utf8`]
-//! - `Utf8Error`: [`core::str::Utf8Error`]
-//!
-//!
 
 #[cfg(feature = "iter")]
 mod chars_methods;
@@ -318,7 +309,7 @@ where
 ///
 /// # Panics
 ///
-/// This function panics if `len` is inside the string or doesn't fall on a char boundary.
+/// This function panics if `len` is inside the string but doesn't fall on a char boundary.
 ///
 /// # Example
 ///
@@ -350,7 +341,7 @@ pub use konst_kernel::string::str_up_to;
 ///
 /// # Panics
 ///
-/// This function panics if `start` is inside the string or doesn't fall on a char boundary.
+/// This function panics if `start` is inside the string but doesn't fall on a char boundary.
 ///
 /// # Example
 ///
@@ -393,11 +384,6 @@ pub use konst_kernel::string::str_from;
 ///
 /// [`str_from`]: ./fn.str_from.html
 /// [`str_up_to`]: ./fn.str_up_to.html
-///
-/// # Performance
-///
-/// This has the same performance as
-/// [`konst::slice::slice_range`](../slice/fn.slice_range.html#performance)
 ///
 /// # Panics
 ///
@@ -475,11 +461,6 @@ pub use konst_kernel::string::__from_u8_subslice_of_str;
 
 /// A const equivalent of `string.get(..len)`.
 ///
-/// # Performance
-///
-/// This has the same performance as
-/// [`konst::slice::slice_up_to`](../slice/fn.slice_up_to.html#performance)
-///
 /// # Example
 ///
 /// ```
@@ -516,11 +497,6 @@ pub const fn get_up_to(string: &str, len: usize) -> Option<&str> {
 }
 
 /// A const equivalent of `string.get(from..)`.
-///
-/// # Performance
-///
-/// This has the same performance as
-/// [`konst::slice::slice_from`](../slice/fn.slice_from.html#performance)
 ///
 /// # Example
 ///
@@ -561,13 +537,9 @@ pub const fn get_from(string: &str, from: usize) -> Option<&str> {
 ///
 /// If `at > string.len()` this returns `(string, "")`.
 ///
-/// # Performance
-///
-/// This has the same performance as [`konst::slice::split_at`](crate::slice::split_at)
-///
 /// # Panics
 ///
-/// This function panics if `at` is inside the string or doesn't fall on a char boundary.
+/// This function panics if `at` is inside the string but doesn't fall on a char boundary.
 ///
 /// # Example
 ///
@@ -614,11 +586,6 @@ pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
 ///
 /// [`get_from`]: ./fn.get_from.html
 /// [`get_up_to`]: ./fn.get_up_to.html
-///
-/// # Performance
-///
-/// This has the same performance as
-/// [`konst::slice::slice_range`](../slice/fn.slice_range.html#performance)
 ///
 /// # Example
 ///
@@ -886,9 +853,9 @@ where
 
 /// Advances `this` past the first instance of `needle`.
 ///
-/// Return `None` if no instance of `needle` is found.
+/// Returns `None` if no instance of `needle` is found.
 ///
-/// Return `Some(this)` if `needle` is empty.
+/// Returns `Some(this)` if `needle` is empty.
 ///
 /// This takes [`Pattern`] implementors as the needle.
 ///
@@ -929,9 +896,9 @@ where
 
 /// Advances `this` up to the first instance of `needle`.
 ///
-/// Return `None` if no instance of `needle` is found.
+/// Returns `None` if no instance of `needle` is found.
 ///
-/// Return `Some(this)` if `needle` is empty.
+/// Returns `Some(this)` if `needle` is empty.
 ///
 /// This takes [`Pattern`] implementors as the needle.
 ///
@@ -972,9 +939,9 @@ where
 
 /// Truncates `this` to before the last instance of `needle`.
 ///
-/// Return `None` if no instance of `needle` is found.
+/// Returns `None` if no instance of `needle` is found.
 ///
-/// Return `Some(this)` if `needle` is empty.
+/// Returns `Some(this)` if `needle` is empty.
 ///
 /// This takes [`Pattern`] implementors as the needle.
 ///
@@ -1015,9 +982,9 @@ where
 
 /// Truncates `this` to the last instance of `needle`.
 ///
-/// Return `None` if no instance of `needle` is found.
+/// Returns `None` if no instance of `needle` is found.
 ///
-/// Return `Some(this)` if `needle` is empty.
+/// Returns `Some(this)` if `needle` is empty.
 ///
 /// This takes [`Pattern`] implementors as the needle.
 ///

@@ -7,6 +7,8 @@ use crate::{
 ///
 /// Types that implement this trait can be used to search into a string.
 ///
+/// This trait can only be implemented in the `konst` crate.
+///
 pub trait Pattern<'a>: HasTypeWitness<PatternInput<'a, Self>> + Copy + Sized {}
 
 macro_rules! declare_patterns {
