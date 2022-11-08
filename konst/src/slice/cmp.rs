@@ -82,8 +82,8 @@ __declare_fns_with_docs! {
     macro = __impl_option_cmp_fns!(
         for['a,]
         params(l, r)
-        eq_comparison = crate::polymorphism::CmpWrapper(l).const_eq(r),
-        cmp_comparison = crate::polymorphism::CmpWrapper(l).const_cmp(r),
+        eq_comparison = crate::cmp::CmpWrapper(l).const_eq(r),
+        cmp_comparison = crate::cmp::CmpWrapper(l).const_cmp(r),
         parameter_copyability = copy,
     ),
 }
@@ -97,8 +97,8 @@ __declare_fns_with_docs! {
     macro = __impl_option_cmp_fns!(
         for['a, 'b,]
         params(l, r)
-        eq_comparison = crate::polymorphism::CmpWrapper(l).const_eq(r),
-        cmp_comparison = crate::polymorphism::CmpWrapper(l).const_cmp(r),
+        eq_comparison = crate::cmp::CmpWrapper(l).const_eq(r),
+        cmp_comparison = crate::cmp::CmpWrapper(l).const_cmp(r),
         parameter_copyability = copy,
     ),
 }

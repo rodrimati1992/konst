@@ -1,56 +1,6 @@
-/// For unwrapping `Result`s in const contexts, with a default value when it's an error.
-#[deprecated(
-    since = "0.2.1",
-    note = "Use `konst::result::unwrap_or`, or `konst::result::unwrap_or_else` instead"
-)]
-#[macro_export]
-macro_rules! unwrap_res_or {
-    ($e:expr, |$($pati:pat)?| $v:expr) => {
-        match $e {
-            $crate::__::Ok(x) => x,
-            $crate::__::Err{$(0: $pati,)? ..} => $v,
-        }
-    };
-    ($e:expr, $v:expr) => {{
-        let value = $v;
-        match $e {
-            $crate::__::Ok(x) => x,
-            $crate::__::Err(_) => value,
-        }
-    }};
-}
-
-/// For unwrapping `Option`s in const contexts, with a default value when it's a `None`.
-#[deprecated(
-    since = "0.2.1",
-    note = "Use `konst::option::unwrap_or`, or `konst::option::unwrap_or_else` instead"
-)]
-#[macro_export]
-macro_rules! unwrap_opt_or {
-    ($e:expr, || $v:expr) => {
-        match $e {
-            $crate::__::Some(x) => x,
-            $crate::__::None => $v,
-        }
-    };
-    ($e:expr, |_| $v:expr) => {
-        match $e {
-            $crate::__::Some(x) => x,
-            $crate::__::None => $v,
-        }
-    };
-    ($e:expr, $v:expr) => {{
-        let value = $v;
-        match $e {
-            $crate::__::Some(x) => x,
-            $crate::__::None => value,
-        }
-    }};
-}
-
 /// `?`-like macro, which allows optionally mapping errors.
 ///
-/// `?` currently doesn't work in `const fn`s because as of Rust 1.51.0
+/// `?` currently doesn't work in `const fn`s because as of Rust 1.65.0
 /// trait methods don't work in `const fn`s.
 ///
 /// # Examples
@@ -151,7 +101,7 @@ macro_rules! unwrap_opt_or {
 ///
 #[macro_export]
 macro_rules! try_ {
-    ($e:expr, map_err = |$($pati:pat)?| $v:expr $(,)*) => {
+    ($e:expr, map_err = |$($pati:pat_param)?| $v:expr $(,)*) => {
         match $e {
             $crate::__::Ok(x) => x,
             $crate::__::Err{$(0: $pati,)? ..} => return $crate::__::Err($v),

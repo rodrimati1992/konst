@@ -1,7 +1,7 @@
 use konst::iter;
 
-#[cfg(feature = "rust_1_56")]
 mod collect_const_tests;
+mod iter_adaptor_tests;
 
 const fn is_rru8_even(n: &&u8) -> bool {
     is_u8_even(**n)
@@ -17,6 +17,37 @@ const fn is_u8_even(n: u8) -> bool {
 
 const fn add_usize(l: usize, r: usize) -> usize {
     l + r
+}
+
+// used to require type inference in tests of
+// closure-taking methods that have an explicit return type for the closure.
+trait Def: Sized {
+    const DEF: Self;
+    const DEF_OTHER: Self = Self::DEF;
+}
+
+impl Def for bool {
+    const DEF: Self = false;
+    const DEF_OTHER: Self = true;
+}
+
+impl Def for () {
+    const DEF: Self = ();
+}
+
+impl Def for usize {
+    const DEF: Self = 0;
+    const DEF_OTHER: Self = 1;
+}
+
+impl Def for i32 {
+    const DEF: Self = 0;
+    const DEF_OTHER: Self = 1;
+}
+
+impl<T: Def> Def for Option<T> {
+    const DEF: Self = Some(T::DEF);
+    const DEF_OTHER: Self = Some(T::DEF_OTHER);
 }
 
 #[test]
@@ -63,7 +94,7 @@ fn iterator_rev_and_flat_map_test() {
         iter::eval! {
             slice,
                 rev(),
-                flat_map(|&[a, b, c]| &[100 + a, b, c]),
+                flat_map(|&[a, b, c]| -> &[u8; 3] {&[100 + a, b, c]}),
                 copied(),
                 enumerate(),
                 for_each(|(i, v)| arr[i] = v),
@@ -110,6 +141,10 @@ fn iterator_all_test() {
         ))
     }
 
+    const fn all_fn_ret_ty(slice: &[u8]) -> bool {
+        iter::eval!(slice, all(|_| -> bool { Def::DEF }))
+    }
+
     assert!(all_fn(&[]));
     assert!(all_fn(&[0]));
     assert!(!all_fn(&[0, 1, 2]));
@@ -118,6 +153,9 @@ fn iterator_all_test() {
     assert_eq!(all_fn_breaking(&[]), Some(true));
     assert_eq!(all_fn_breaking(&[0]), None);
     assert_eq!(all_fn_breaking(&[1]), Some(false));
+
+    assert!(all_fn_ret_ty(&[]));
+    assert!(!all_fn_ret_ty(&[3]));
 }
 
 #[test]
@@ -137,6 +175,10 @@ fn iterator_any_test() {
         ))
     }
 
+    const fn any_fn_ret_ty(slice: &[u8]) -> bool {
+        iter::eval!(slice, any(|_| -> bool { Def::DEF_OTHER }))
+    }
+
     assert!(!any_fn(&[]));
     assert!(!any_fn(&[1]));
     assert!(!any_fn(&[1, 3, 5]));
@@ -153,6 +195,9 @@ fn iterator_any_test() {
     assert_eq!(any_fn_breaking(&[2, 1, 0]), None);
     assert_eq!(any_fn_breaking(&[2, 1]), None);
     assert_eq!(any_fn_breaking(&[2]), None);
+
+    assert!(!any_fn_ret_ty(&[]));
+    assert!(any_fn_ret_ty(&[3]));
 }
 
 #[test]
@@ -186,6 +231,14 @@ fn flat_map_count_test() {
     for (slice, count) in vec![(&[3usize] as &[_], 4), (&[3, 5], 8), (&[3, 5, 8], 12)] {
         assert_eq!(iter::eval!(slice, flat_map(range_f), count()), count);
     }
+}
+
+#[test]
+fn flat_map_ret_type() {
+    assert_eq!(
+        iter::eval!(&[3, 5], flat_map(|_| -> &[usize] { &[Def::DEF] }), next()),
+        Some(&Def::DEF),
+    );
 }
 
 #[test]
@@ -265,6 +318,14 @@ fn find_tests() {
         assert_eq!(calls_const_fn(&[4]), Some(&4));
         assert_eq!(calls_const_fn(&[1, 4, 2]), Some(&4));
     }
+
+    {
+        assert_eq!(iter::eval!(&[3, 5], find(|_| -> bool { Def::DEF })), None);
+        assert_eq!(
+            iter::eval!(&[3, 5], find(|_| -> bool { Def::DEF_OTHER })),
+            Some(&3)
+        );
+    }
 }
 
 #[test]
@@ -299,6 +360,14 @@ fn rfind_tests() {
         assert_eq!(calls_const_fn(&[2, 1]), Some(&2));
         assert_eq!(calls_const_fn(&[4]), Some(&4));
         assert_eq!(calls_const_fn(&[2, 4, 1]), Some(&4));
+    }
+
+    {
+        assert_eq!(iter::eval!(&[3, 5], rfind(|_| -> bool { Def::DEF })), None);
+        assert_eq!(
+            iter::eval!(&[3, 5], rfind(|_| -> bool { Def::DEF_OTHER })),
+            Some(&5)
+        );
     }
 }
 
@@ -341,6 +410,15 @@ fn find_map_test() {
         assert_eq!(calls_const_fn(&[2]), Some(20));
         assert_eq!(calls_const_fn(&[1, 2]), Some(20));
     }
+
+    assert_eq!(
+        iter::eval!(&[3, 5], find_map(|_| -> Option<usize> { Def::DEF })),
+        Some(0)
+    );
+    assert_eq!(
+        iter::eval!(&[3, 5], find_map(|_| -> Option<usize> { Def::DEF_OTHER })),
+        Some(1)
+    );
 }
 
 #[test]
@@ -382,6 +460,14 @@ fn fold_test() {
     assert_eq!(ret_on_0(&[2, 0]), None);
     assert_eq!(ret_on_0(&[1, 1]), Some(2));
     assert_eq!(ret_on_0(&[1, 2]), Some(3));
+
+    assert_eq!(
+        iter::eval!(
+            konst::slice::iter_copied(&[Def::DEF, Def::DEF_OTHER]),
+            fold(None, |_, e| -> Option<usize> { e })
+        ),
+        Some(1),
+    );
 }
 
 #[test]
@@ -415,6 +501,14 @@ fn rfold_test() {
     assert_eq!(ret_on_0(&[0, 2]), None);
     assert_eq!(ret_on_0(&[1, 1]), Some(2));
     assert_eq!(ret_on_0(&[2, 1]), Some(3));
+
+    assert_eq!(
+        iter::eval!(
+            konst::slice::iter_copied(&[Def::DEF, Def::DEF_OTHER]),
+            rfold(None, |_, e| -> Option<usize> { e })
+        ),
+        Some(0),
+    );
 }
 
 #[test]
@@ -439,6 +533,18 @@ fn for_each_test() {
     assert_eq!(sum_positives(&[1, 2]), Some(3));
     assert_eq!(sum_positives(&[1, 2, 3]), Some(6));
     assert_eq!(sum_positives(&[1, 2, 3, 4]), Some(10));
+
+    {
+        let mut i = 0;
+        iter::eval!(
+            &[3, 5],
+            for_each(|_| -> () {
+                i += 1;
+                Def::DEF
+            })
+        );
+        assert_eq!(i, 2);
+    }
 }
 
 #[test]
@@ -560,6 +666,18 @@ fn position_tests() {
         assert_eq!(calls_const_fn(&[1, 2]), Some(1));
         assert_eq!(calls_const_fn(&[1, 3, 4]), Some(2));
     }
+
+    // explicit return type
+    {
+        assert_eq!(
+            iter::eval!(&[3, 5], position(|_| -> bool { Def::DEF })),
+            None,
+        );
+        assert_eq!(
+            iter::eval!(&[3, 5], position(|_| -> bool { Def::DEF_OTHER })),
+            Some(0),
+        );
+    }
 }
 
 #[test]
@@ -595,4 +713,111 @@ fn rposition_tests() {
         assert_eq!(calls_const_fn(&[2, 1]), Some(1));
         assert_eq!(calls_const_fn(&[4, 3, 1]), Some(2));
     }
+
+    // explicit return type
+    {
+        assert_eq!(
+            iter::eval!(&[3, 5], rposition(|_| -> bool { Def::DEF })),
+            None,
+        );
+        assert_eq!(
+            iter::eval!(&[3, 5], rposition(|_| -> bool { Def::DEF_OTHER })),
+            Some(0),
+        );
+    }
+}
+
+#[test]
+fn filter_retty_test() {
+    let mut vect = Vec::new();
+
+    iter::eval!(
+        konst::slice::iter_copied(&[3u8, 5, 8, 13, 21]),
+        filter(|&x| -> bool {
+            if x % 2 == 0 {
+                Def::DEF
+            } else {
+                Def::DEF_OTHER
+            }
+        }),
+        for_each(|x| vect.push(x))
+    );
+
+    assert_eq!(vect, [3, 5, 13, 21]);
+}
+
+#[test]
+fn map_retty_test() {
+    let mut vect = Vec::new();
+
+    iter::eval!(
+        &[3u8, 5, 8, 13, 21],
+        map(|&x| -> usize {
+            if x % 2 == 0 {
+                Def::DEF
+            } else {
+                Def::DEF_OTHER
+            }
+        }),
+        for_each(|x| vect.push(x))
+    );
+
+    assert_eq!(vect, [1, 1, 0, 1, 1]);
+}
+
+#[test]
+fn filter_map_retty_test() {
+    let mut vect = Vec::new();
+
+    iter::eval!(
+        &[0, 1, 2, 3, 4],
+        map(|&x| -> Option<usize> {
+            match x % 3 {
+                0 => Def::DEF,
+                1 => Def::DEF_OTHER,
+                _ => None,
+            }
+        }),
+        for_each(|x| vect.push(x))
+    );
+
+    assert_eq!(vect, [Some(0), Some(1), None, Some(0), Some(1)]);
+}
+
+#[test]
+fn take_while_retty_test() {
+    let mut vect = Vec::new();
+
+    iter::eval!(
+        konst::slice::iter_copied(&[0, 1, 2, 3, 4]),
+        take_while(|x| -> bool {
+            if *x < 3 {
+                Def::DEF_OTHER
+            } else {
+                Def::DEF
+            }
+        }),
+        for_each(|x| vect.push(x))
+    );
+
+    assert_eq!(vect, [0, 1, 2]);
+}
+
+#[test]
+fn skip_while_retty_test() {
+    let mut vect = Vec::new();
+
+    iter::eval!(
+        konst::slice::iter_copied(&[0, 1, 2, 3, 4, 5]),
+        skip_while(|x| -> bool {
+            if *x < 3 {
+                Def::DEF_OTHER
+            } else {
+                Def::DEF
+            }
+        }),
+        for_each(|x| vect.push(x))
+    );
+
+    assert_eq!(vect, [3, 4, 5]);
 }

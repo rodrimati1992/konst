@@ -14,10 +14,14 @@ use konst::{
     },
 };
 
-#[cfg(feature = "rust_1_61")]
+mod bytes_fns_tests;
+
+mod slice_concatenation_tests;
+
+#[cfg(feature = "iter")]
 mod slice_iter_copied;
 
-#[cfg(feature = "rust_1_64")]
+#[cfg(feature = "iter")]
 mod non_iter_slice_iterators;
 
 #[test]
@@ -151,54 +155,35 @@ fn cmp_str_test() {
 }
 
 #[test]
-fn try_into_array_macro_explicit_test() {
-    let slice = &[0, 2, 3, 4][..];
-
-    assert!(try_into_array!(slice, 0).is_err());
-    assert!(try_into_array!(slice, 1).is_err());
-    assert!(try_into_array!(slice, 2).is_err());
-    assert!(try_into_array!(slice, 3).is_err());
-    assert_eq!(try_into_array!(slice, 4), Ok(&[0, 2, 3, 4]));
-    assert!(try_into_array!(slice, 5).is_err());
-    assert!(try_into_array!(slice, 6).is_err());
-}
-
-#[test]
-#[cfg(feature = "rust_1_51")]
-fn try_into_array_macro_implicit_test() {
-    let slice = &[0, 2, 3, 4][..];
-
-    macro_rules! try_into_infer_err {
-        ($slice:expr, $len:expr) => {{
-            let arr: Result<&[_; $len], _> = try_into_array!(slice);
-            assert!(arr.is_err());
-        }};
-    }
-
-    try_into_infer_err! {slice, 0}
-    try_into_infer_err! {slice, 1}
-    try_into_infer_err! {slice, 2}
-    try_into_infer_err! {slice, 3}
-
-    let arr_4: Result<&[_; 4], _> = try_into_array!(slice,);
-    assert_eq!(arr_4, Ok(&[0, 2, 3, 4]));
-
-    try_into_infer_err! {slice, 5}
-    try_into_infer_err! {slice, 6}
-}
-
-#[test]
-#[cfg(feature = "rust_1_56")]
 fn try_into_array_fn_test() {
     let slice = &[0, 2, 3, 4][..];
 
-    assert!(try_into_array::<_, 0>(slice).is_err());
-    assert!(try_into_array::<_, 1>(slice).is_err());
-    assert!(try_into_array::<_, 2>(slice).is_err());
-    assert!(try_into_array::<_, 3>(slice).is_err());
-    assert_eq!(try_into_array::<_, 4>(slice), Ok(&[0, 2, 3, 4]));
-    assert!(try_into_array::<_, 5>(slice).is_err());
-    assert!(try_into_array::<_, 6>(slice).is_err());
+    {
+        assert!(try_into_array::<_, 0>(slice).is_err());
+        assert!(try_into_array::<_, 1>(slice).is_err());
+        assert!(try_into_array::<_, 2>(slice).is_err());
+        assert!(try_into_array::<_, 3>(slice).is_err());
+        assert_eq!(try_into_array::<_, 4>(slice), Ok(&[0, 2, 3, 4]));
+        assert!(try_into_array::<_, 5>(slice).is_err());
+        assert!(try_into_array::<_, 6>(slice).is_err());
+    }
+
+    macro_rules! err_len {
+        ($len:expr) => {{
+            let res: Result<&[_; $len], _> = try_into_array(slice);
+            assert!(res.is_err());
+        }};
+    }
+
+    err_len! {0}
+    err_len! {1}
+    err_len! {2}
+    err_len! {3}
+    {
+        let res: Result<&[_; 4], _> = try_into_array(slice);
+        assert_eq!(res, Ok(&[0, 2, 3, 4]));
+    }
+    err_len! {5}
 }
 
 #[test]
@@ -238,6 +223,7 @@ fn try_into_array_mut_test() {
     assert!(try_into_array_mut::<_, 6>(&mut slice).is_err());
 }
 
+#[cfg(feature = "iter")]
 #[test]
 fn slice_iter_const_callable() {
     const fn __<'a>(slice: &'a [u8]) {
@@ -255,6 +241,7 @@ fn slice_iter_const_callable() {
     }
 }
 
+#[cfg(feature = "iter")]
 #[test]
 fn slice_iter_both_directions() {
     let slice: &[u8] = &[3, 5, 8, 13, 21];
@@ -280,6 +267,7 @@ fn slice_iter_both_directions() {
     }
 }
 
+#[cfg(feature = "iter")]
 #[test]
 fn slice_iter_mixed_directions() {
     let slice: &[u8] = &[3, 5, 8, 13, 21];
@@ -310,6 +298,7 @@ fn slice_iter_mixed_directions() {
     assert!(iter.next().is_none());
 }
 
+#[cfg(feature = "iter")]
 #[test]
 fn slice_iter_rev() {
     let slice: &[u8] = &[3, 5, 8, 13, 21];

@@ -1,12 +1,11 @@
 use core::ops::{Range, RangeInclusive};
 
-use crate::polymorphism::{CmpWrapper, ConstCmpMarker, IsAConstCmpMarker, IsStdKind};
+use crate::cmp::{CmpWrapper, ConstCmp, IsAConstCmp, IsStdKind};
 
 macro_rules! shared_range_impls {
     ($type:ty, $eq_fn_name:ident) => {
-        impl ConstCmpMarker for $type {
+        impl ConstCmp for $type {
             type Kind = IsStdKind;
-            type This = Self;
         }
         impl CmpWrapper<$type> {
             /// Compares `self` and `other` for equality.
@@ -26,7 +25,7 @@ macro_rules! declare_range_cmp_fns {
     ) => {
         shared_range_impls! {$type, $eq_fn_name}
 
-        impl<T> IsAConstCmpMarker<IsStdKind, $type, T> {
+        impl<T> IsAConstCmp<IsStdKind, $type, T> {
             ///
             #[inline(always)]
             pub const fn coerce(self, range: &$type) -> CmpWrapper<$type> {
@@ -72,7 +71,7 @@ macro_rules! declare_rangeinclusive_cmp_fns {
     ) => {
         shared_range_impls! {$type, $eq_fn_name}
 
-        impl<T> IsAConstCmpMarker<IsStdKind, $type, T> {
+        impl<T> IsAConstCmp<IsStdKind, $type, T> {
             ///
             #[inline(always)]
             pub const fn coerce(self, range: &$type) -> CmpWrapper<$type> {

@@ -1,3 +1,5 @@
+use crate::string;
+
 use super::{ErrorKind, ParseDirection, ParseValueResult, Parser};
 
 impl<'a> Parser<'a> {
@@ -7,45 +9,41 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_u128`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `u128`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `u128`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
     /// ```rust
     /// use konst::{
     ///     parsing::{Parser, ParseValueResult},
-    ///     unwrap_ctx,
-    ///     try_rebind,
+    ///     unwrap_ctx, try_,
     /// };
     ///
     /// {
-    ///     let parser = Parser::from_str("12345");
+    ///     let parser = Parser::new("12345");
     ///     let (num, parser) = unwrap_ctx!(parser.parse_u128());
     ///     assert_eq!(num, 12345);
-    ///     assert!(parser.bytes().is_empty());
+    ///     assert!(parser.is_empty());
     /// }
     ///
     /// /// Parses a `[u128; 2]` from a parser starting with `"<number>;<number>", eg: `"100;400"`.
     /// const fn parse_pair(mut parser: Parser<'_>) -> ParseValueResult<'_, [u128; 2]> {
     ///     let mut ret = [0; 2];
     ///     
-    ///     // `try_rebind` is like the `?` operator,
-    ///     // and it assigns the value in the Ok variant into either a
-    ///     // single pre-existing variable or multiple (if the Ok value is a tuple)
-    ///     try_rebind!{(ret[0], parser) = parser.parse_u128()};
+    ///     (ret[0], parser) = try_!(parser.parse_u128());
     ///     
     ///     // parsing the `;``between the integers.
     ///     //
     ///     // Note that because we don't use `.trim_start()` afterwards,
     ///     // this can't be followed by spaces.
-    ///     try_rebind!{parser = parser.strip_prefix(";")};
+    ///     parser = try_!(parser.strip_prefix(";"));
     ///     
-    ///     try_rebind!{(ret[1], parser) = parser.parse_u128()};
+    ///     (ret[1], parser) = try_!(parser.parse_u128());
     ///     
     ///     Ok((ret, parser))
     /// }
     /// const PAIR: ([u128; 2], Parser<'_>) = {
-    ///     let parser = Parser::from_str("1365;6789");
+    ///     let parser = Parser::new("1365;6789");
     ///     unwrap_ctx!(parse_pair(parser))
     /// };
     ///
@@ -66,7 +64,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_i128`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `i128`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `i128`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -74,23 +72,23 @@ impl<'a> Parser<'a> {
     /// use konst::{Parser, unwrap_ctx, rebind_if_ok};
     ///
     /// {
-    ///     let parser = Parser::from_str("12345");
+    ///     let parser = Parser::new("12345");
     ///     let (num, parser) = unwrap_ctx!(parser.parse_i128());
     ///     assert_eq!(num, 12345);
-    ///     assert!(parser.bytes().is_empty());
+    ///     assert!(parser.is_empty());
     /// }
     /// {
     ///     let mut num = 0;
-    ///     let mut parser = Parser::from_str("-54321;6789");
+    ///     let mut parser = Parser::new("-54321;6789");
     ///     
     ///     // `rebind_if_ok` stores the return value of `.parse_i128()` in `num` and `parser`,
     ///     // if `.parse_i128()` returned an `Ok((u128, Parser))`.
     ///     rebind_if_ok!{(num, parser) = parser.parse_i128()}
     ///     assert_eq!(num, -54321);
-    ///     assert_eq!(parser.bytes(), b";6789");
+    ///     assert_eq!(parser.remainder(), ";6789");
     ///
     ///     rebind_if_ok!{parser = parser.strip_prefix(";")}
-    ///     assert_eq!(parser.bytes(), b"6789");
+    ///     assert_eq!(parser.remainder(), "6789");
     ///
     ///     rebind_if_ok!{(num, parser) = parser.parse_i128()}
     ///     assert_eq!(num, 6789);
@@ -109,7 +107,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_u64`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `u64`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `u64`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -126,7 +124,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_i64`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `i64`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `i64`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -143,7 +141,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_u32`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `u32`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `u32`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -160,7 +158,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_i32`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `i32`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `i32`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -177,7 +175,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_u16`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `u16`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `u16`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -194,7 +192,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_i16`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `i16`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `i16`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -211,7 +209,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_u8`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `u8`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `u8`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -228,7 +226,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_i8`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `i8`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `i8`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -245,7 +243,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_usize`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `usize`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `usize`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// [`primitive::parse_usize`]: ../primitive/fn.parse_usize.html
     pub const fn parse_usize(mut self) -> ParseValueResult<'a, usize> {
@@ -257,7 +255,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_isize`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `isize`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `isize`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -275,10 +273,12 @@ macro_rules! parse_integer {
         $parser, FromStart, ret;{
             let mut num: $uns;
 
-            parse_integer! {@parse_signed $signedness, ($type, $uns), $parser, num, sign}
+            let mut bytes = $parser.str.as_bytes();
 
-            while let [byte @ b'0'..=b'9', rem @ ..] = $parser.bytes {
-                $parser.bytes = rem;
+            parse_integer! {@parse_signed $signedness, ($type, $uns), bytes, num, sign}
+
+            while let [byte @ b'0'..=b'9', rem @ ..] = bytes {
+                bytes = rem;
 
                 let (next_mul, overflowed_mul) = num.overflowing_mul(10);
                 let (next_add, overflowed_add) = next_mul.overflowing_add((*byte - b'0') as $uns);
@@ -292,22 +292,24 @@ macro_rules! parse_integer {
 
             parse_integer! {@apply_sign $signedness, ($type, $uns), num, sign}
 
+            $parser.str = string::str_from($parser.str, $parser.str.len() - bytes.len());
+
             num
         }
     });
-    (@parse_signed signed, ($type:ty, $uns:ty), $parser:ident, $num:ident, $isneg:ident) => {
-        let $isneg = if let [b'-', rem @ ..] = $parser.bytes {
-            $parser.bytes = rem;
+    (@parse_signed signed, ($type:ty, $uns:ty), $bytes:ident, $num:ident, $isneg:ident) => {
+        let $isneg = if let [b'-', rem @ ..] = $bytes {
+            $bytes = rem;
             true
         } else {
             false
         };
 
-        parse_integer!(@parse_signed unsigned, ($type, $uns), $parser, $num, $isneg)
+        parse_integer!(@parse_signed unsigned, ($type, $uns), $bytes, $num, $isneg)
     };
-    (@parse_signed unsigned, ($type:ty, $uns:ty), $parser:ident, $num:ident, $isneg:ident) => {
-        $num = if let [byte @ b'0'..=b'9', rem @ ..] = $parser.bytes {
-            $parser.bytes = rem;
+    (@parse_signed unsigned, ($type:ty, $uns:ty), $bytes:ident, $num:ident, $isneg:ident) => {
+        $num = if let [byte @ b'0'..=b'9', rem @ ..] = $bytes {
+            $bytes = rem;
             (*byte - b'0') as $uns
         } else {
             throw!(ErrorKind::ParseInteger)
@@ -345,7 +347,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_bool`]
     ///
     /// You also can use the [`parse_with`](../macro.parse_with.html)
-    /// macro to parse a `bool`, and other [`ParserFor`](./trait.ParserFor.html) types.
+    /// macro to parse a `bool`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
     ///
@@ -353,16 +355,16 @@ impl<'a> Parser<'a> {
     /// use konst::{Parser, unwrap_ctx};
     ///
     /// {
-    ///     let parser = Parser::from_str("falsemorestring");
+    ///     let parser = Parser::new("falsemorestring");
     ///     let (boolean, parser) = unwrap_ctx!(parser.parse_bool());
     ///     assert_eq!(boolean, false);
-    ///     assert_eq!(parser.bytes(), "morestring".as_bytes());
+    ///     assert_eq!(parser.remainder(), "morestring");
     /// }
     /// {
-    ///     let parser = Parser::from_str("truefoo");
+    ///     let parser = Parser::new("truefoo");
     ///     let (boolean, parser) = unwrap_ctx!(parser.parse_bool());
     ///     assert_eq!(boolean, true);
-    ///     assert_eq!(parser.bytes(), "foo".as_bytes());
+    ///     assert_eq!(parser.remainder(), "foo");
     /// }
     ///
     /// ```
@@ -370,13 +372,13 @@ impl<'a> Parser<'a> {
     /// [`primitive::parse_bool`]: ../primitive/fn.parse_bool.html
     pub const fn parse_bool(mut self) -> ParseValueResult<'a, bool> {
         try_parsing! {self, FromStart, ret;
-            match self.bytes {
-                [b't', b'r', b'u', b'e', rem @ ..] => {
-                    self.bytes = rem;
+            match self.str.as_bytes() {
+                [b't', b'r', b'u', b'e', ..] => {
+                    self.str = string::str_from(self.str, 4);
                     true
                 }
-                [b'f', b'a', b'l', b's', b'e', rem @ ..] => {
-                    self.bytes = rem;
+                [b'f', b'a', b'l', b's', b'e', ..] => {
+                    self.str = string::str_from(self.str, 5);
                     false
                 }
                 _ => throw!(ErrorKind::ParseBool),

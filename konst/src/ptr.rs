@@ -1,71 +1,17 @@
 //! Const equivalents of raw pointer and [`NonNull`](core::ptr::NonNull) methods.
+//!
+//! # Removed in 0.3.0
+//!
+//! These functions were removed in 0.3.0 because there is an equivalent
+//! const fn in the standard library:
+//!
+//! - `deref`: raw pointers can be dereferenced since Rust 1.58.0
+//!
+//! - `deref_mut`: the unstable feature for using mutable references
+//! also allows dereferencing mutable pointers.
+//!
 
 use core::ptr::NonNull;
-
-/// Const equivalent of `&*raw_pointer`.
-///
-///
-/// # Safety
-///
-/// This function has the safety requirements of
-/// [`<*const>::as_ref`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety),
-/// in addition to requiring that `ptr` is not null.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::ptr;
-///
-/// const F: &u8 = unsafe{ ptr::deref("foo".as_ptr()) };
-/// assert_eq!(F, &b'f');
-///
-/// const BAR: &[u8; 3] = unsafe{ ptr::deref("bar".as_ptr().cast::<[u8; 3]>()) };
-/// assert_eq!(BAR, b"bar");
-///
-///
-/// ```
-#[cfg(feature = "rust_1_56")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
-pub const unsafe fn deref<'a, T: ?Sized>(ptr: *const T) -> &'a T {
-    core::mem::transmute(ptr)
-}
-
-/// Const equivalent of `&mut *raw_pointer`.
-///
-///
-/// # Safety
-///
-/// This function has the safety requirements of
-/// [`<*const>::as_mut`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety-13),
-/// in addition to requiring that `ptr` is not null.
-///
-/// # Example
-///
-/// ```rust
-/// # #![feature(const_mut_refs)]
-/// use konst::ptr;
-///
-/// assert_eq!(ARR, [33, 35, 38]);
-///
-/// const ARR: [u8; 3] = unsafe {
-///     let mut arr = [3, 5, 8];
-///     mutate(&mut arr[0]);
-///     mutate(&mut arr[1]);
-///     mutate(&mut arr[2]);
-///     arr
-/// };
-///
-/// const unsafe fn mutate(x: *mut u8) {
-///     let mutt = ptr::deref_mut(x);
-///     *mutt += 30;
-/// }
-///
-/// ```
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
-pub const unsafe fn deref_mut<'a, T: ?Sized>(ptr: *mut T) -> &'a mut T {
-    core::mem::transmute(ptr)
-}
 
 /// Const equivalent of
 /// [`<*const>::as_ref`](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_ref)
@@ -73,7 +19,7 @@ pub const unsafe fn deref_mut<'a, T: ?Sized>(ptr: *mut T) -> &'a mut T {
 /// # Safety
 ///
 /// This function has the same safety requirements as
-/// [`<*const>::as_ref`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety)
+/// [`<*const T>::as_ref`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety)
 ///
 /// # Example
 ///
@@ -90,8 +36,6 @@ pub const unsafe fn deref_mut<'a, T: ?Sized>(ptr: *mut T) -> &'a mut T {
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_56")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: *const T) -> Option<&'a T> {
     core::mem::transmute(ptr)
 }
@@ -102,7 +46,7 @@ pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: *const T) -> Option<&'a T> {
 /// # Safety
 ///
 /// This function has the same safety requirements as
-/// [`<*const>::as_mut`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety-13).
+/// [`<*mut T>::as_mut`](https://doc.rust-lang.org/1.55.0/std/primitive.pointer.html#safety-13).
 ///
 /// # Example
 ///
@@ -134,7 +78,7 @@ pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
 }
 
 /// Const equivalent of
-/// [`<*const>::is_null`](https://doc.rust-lang.org/std/primitive.pointer.html#method.is_null)
+/// [`<*const T>::is_null`](https://doc.rust-lang.org/std/primitive.pointer.html#method.is_null)
 ///
 /// # Example
 ///
@@ -143,16 +87,14 @@ pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
 ///
 /// use core::ptr::null;
 ///
-/// const NULL_IS_NULL: bool = unsafe{ ptr::is_null(null::<u8>()) };
-/// const REFF_IS_NULL: bool = unsafe{ ptr::is_null(&100) };
+/// const NULL_IS_NULL: bool = ptr::is_null(null::<u8>());
+/// const REFF_IS_NULL: bool = ptr::is_null(&100);
 ///
 /// assert_eq!(NULL_IS_NULL, true);
 /// assert_eq!(REFF_IS_NULL, false);
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_56")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 pub const fn is_null<'a, T: ?Sized>(ptr: *const T) -> bool {
     unsafe {
         matches!(
@@ -175,16 +117,14 @@ pub mod nonnull {
     ///
     /// use core::ptr::{NonNull, null_mut};
     ///
-    /// const NONE: Option<NonNull<u8>> = unsafe{ nonnull::new(null_mut()) };
-    /// const SOME: Option<NonNull<u8>> = unsafe{ nonnull::new(&100 as *const _ as *mut _) };
+    /// const NONE: Option<NonNull<u8>> = nonnull::new(null_mut());
+    /// const SOME: Option<NonNull<u8>> = nonnull::new(&100 as *const _ as *mut _);
     ///
     /// assert!(NONE.is_none());
     /// assert_eq!(SOME.map(|x|unsafe{*x.as_ptr()}), Some(100));
     ///
     ///
     /// ```
-    #[cfg(feature = "rust_1_56")]
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
     pub const fn new<T: ?Sized>(ptr: *mut T) -> Option<NonNull<T>> {
         unsafe { core::mem::transmute(ptr) }
     }
@@ -216,8 +156,6 @@ pub mod nonnull {
     ///
     /// ```
     ///
-    #[cfg(feature = "rust_1_56")]
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
     pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: NonNull<T>) -> &'a T {
         core::mem::transmute(ptr)
     }
@@ -270,8 +208,8 @@ pub mod nonnull {
     ///
     /// use core::ptr::NonNull;
     ///
-    /// const H: NonNull<str> = unsafe{ nonnull::from_ref("hello") };
-    /// const W: NonNull<str> = unsafe{ nonnull::from_ref("world") };
+    /// const H: NonNull<str> = nonnull::from_ref("hello");
+    /// const W: NonNull<str> = nonnull::from_ref("world");
     ///
     /// unsafe{
     ///     assert_eq!(H.as_ref(), "hello");

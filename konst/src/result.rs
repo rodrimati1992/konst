@@ -13,21 +13,21 @@
 /// # }
 /// ```
 ///
-/// The Results returned by [`Parser`] methods can all be used with this macro.
+/// All the errors from this crate can be used with this macro.
 ///
 /// # Example
 ///
 /// ### Basic
 ///
-#[cfg_attr(feature = "parsing_no_proc", doc = "```rust")]
-#[cfg_attr(not(feature = "parsing_no_proc"), doc = "```ignore")]
+#[cfg_attr(feature = "parsing", doc = "```rust")]
+#[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
 /// use konst::{Parser, unwrap_ctx};
 ///
-/// let mut parser = Parser::from_str("hello world");
+/// let mut parser = Parser::new("hello world");
 ///
 /// parser = unwrap_ctx!(parser.strip_prefix("hello "));
 ///
-/// assert_eq!(parser.bytes(), "world".as_bytes());
+/// assert_eq!(parser.remainder(), "world");
 ///
 /// ```
 ///
@@ -51,17 +51,11 @@
 ///
 /// impl FooError {
 ///     pub const fn panic(&self) -> ! {
-///         let offset = self.0;
-///         [/*Foo errored at offset*/][offset]
+///         panic!("Foo error")
 ///         
-///         // Alternatively, using the `const_panic` crate (requires Rust 1.57.0):
+///         // Alternatively, using the `const_panic` crate:
 ///         //
 ///         // const_panic::concat_panic!("Foo errored at offset: ", self.0)
-///         
-///         // Alternatively, using the panic macro (requires Rust 1.57.0).
-///         // Unfortunately, formatted `panic!`s are not supported const contexts.
-///         //
-///         // panic!("Foo error")
 ///     }
 /// }
 ///
@@ -78,32 +72,25 @@
 /// If `res` was an error instead, this is the error message you would see:
 ///
 /// ```text
-/// error: any use of this value will cause an error
+/// error[E0080]: evaluation of constant value failed
 ///   --> src/result.rs:55:9
 ///    |
-/// 6  | / const UNWRAPPED: u32 = {
-/// 7  | |     let res: Result<u32, FooError> = Err(FooError(100));
-/// 8  | |     // let res: Result<u32, FooError> = Ok(100);
-/// 9  | |     unwrap_ctx!(res)
-/// 10 | | };
-///    | |__-
+/// 9  |     unwrap_ctx!(res)
+///    |     ---------------- inside `UNWRAPPED` at result_macros_.rs:6:35
 /// ...
-/// 23 |           [/*Foo errored at offset*/][offset]
-///    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-///    |           |
-///    |           index out of bounds: the length is 0 but the index is 100
-///    |           inside `FooError::panic` at src/result.rs:23:9
-///    |           inside `UNWRAPPED` at src/result_macros_.rs:6:35
-///    |
-///    = note: `#[deny(const_err)]` on by default
+/// 23 |         panic!("Foo error")
+///    |         ^^^^^^^^^^^^^^^^^^^
+///    |         |
+///    |         the evaluated program panicked at 'Foo error', src/result.rs:23:9
+///    |         inside `FooError::panic`
 ///
 /// ```
 ///
 /// [`Parser`]: ../parsing/struct.Parser.html
 #[doc(inline)]
-pub use konst_macro_rules::unwrap_ctx;
+pub use konst_kernel::unwrap_ctx;
 
-/// A const equivalent of `Result::unwrap_or`
+/// A const equivalent of [`Result::unwrap_or`]
 ///
 /// # Example
 ///
@@ -123,9 +110,9 @@ pub use konst_macro_rules::unwrap_ctx;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_unwrap_or as unwrap_or;
+pub use konst_kernel::res_unwrap_or as unwrap_or;
 
-/// A const equivalent of `Result::unwrap_or_else`
+/// A const equivalent of [`Result::unwrap_or_else`]
 ///
 /// # Example
 ///
@@ -154,7 +141,7 @@ pub use konst_macro_rules::res_unwrap_or as unwrap_or;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_unwrap_or_else as unwrap_or_else;
+pub use konst_kernel::res_unwrap_or_else as unwrap_or_else;
 
 /// Returns the error in the `Err` variant,
 /// otherwise runs a closure/function with the value in the `Ok` variant.
@@ -186,9 +173,9 @@ pub use konst_macro_rules::res_unwrap_or_else as unwrap_or_else;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_unwrap_err_or_else as unwrap_err_or_else;
+pub use konst_kernel::res_unwrap_err_or_else as unwrap_err_or_else;
 
-/// A const equivalent of `Result::ok`
+/// A const equivalent of [`Result::ok`]
 ///
 /// # Example
 ///
@@ -208,9 +195,9 @@ pub use konst_macro_rules::res_unwrap_err_or_else as unwrap_err_or_else;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_ok as ok;
+pub use konst_kernel::res_ok as ok;
 
-/// A const equivalent of `Result::err`
+/// A const equivalent of [`Result::err`]
 ///
 /// # Example
 ///
@@ -230,9 +217,9 @@ pub use konst_macro_rules::res_ok as ok;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_err as err;
+pub use konst_kernel::res_err as err;
 
-/// A const equivalent of `Result::map`
+/// A const equivalent of [`Result::map`]
 ///
 /// # Example
 ///
@@ -261,9 +248,9 @@ pub use konst_macro_rules::res_err as err;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_map as map;
+pub use konst_kernel::res_map as map;
 
-/// A const equivalent of `Result::map_err`
+/// A const equivalent of [`Result::map_err`]
 ///
 /// # Example
 ///
@@ -292,9 +279,9 @@ pub use konst_macro_rules::res_map as map;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_map_err as map_err;
+pub use konst_kernel::res_map_err as map_err;
 
-/// A const equivalent of `Result::and_then`
+/// A const equivalent of [`Result::and_then`]
 ///
 /// # Example
 ///
@@ -328,9 +315,9 @@ pub use konst_macro_rules::res_map_err as map_err;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_and_then as and_then;
+pub use konst_kernel::res_and_then as and_then;
 
-/// A const equivalent of `Result::or_else`
+/// A const equivalent of [`Result::or_else`]
 ///
 /// # Example
 ///
@@ -364,4 +351,4 @@ pub use konst_macro_rules::res_and_then as and_then;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::res_or_else as or_else;
+pub use konst_kernel::res_or_else as or_else;

@@ -5,8 +5,8 @@
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub mod cmp;
 
-#[cfg(feature = "parsing_no_proc")]
+#[cfg(feature = "parsing")]
 mod parse;
 
-#[cfg(feature = "parsing_no_proc")]
+#[cfg(feature = "parsing")]
 pub use parse::*;

@@ -1,6 +1,6 @@
 name: Rust
 
-on: [push, pull_request]
+on: [pull_request]
 
 env:
   CARGO_TERM_COLOR: always
@@ -12,87 +12,72 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        rust: [stable, beta, nightly, 1.46.0, 1.51.0, 1.55.0, 1.56.0, 1.61.0, 1.64.0]
+        rust: [
+            # reenable when github updates its stable version
+            # stable,
+            beta,
+            nightly,
+            # the MSRV of konst
+            1.65.0,
+            # the MSRV of konst_kernel
+            1.57.0,
+        ]
 
     steps:
     - uses: actions/checkout@v2
     - name: ci-all-versions
       run: |
-        set -x
+        set -ex
         rustup override set ${{ matrix.rust }}
         cargo update
-          
+
+        cd "${{github.workspace}}/konst_kernel/"
+        cargo test --no-default-features 
+        cargo test --no-default-features --features "debug"
+
+    - uses: actions/checkout@v2
+    - name: ci-MSRV-versions
+      if: ${{ matrix.rust != '1.57.0' }}
+      run: |
+        set -ex
+        rustup override set ${{ matrix.rust }}
+        cargo update
+
+        cd "${{github.workspace}}/konst_kernel/"
+        cargo test --no-default-features --features "debug __for_konst"
+
         cd "${{github.workspace}}/konst_proc_macros/"
         cargo build
         
         cd "${{github.workspace}}/konst/"
-        cargo test --no-default-features --features "__test cmp"
-        cargo test --no-default-features --features "__test parsing_no_proc"
-        cargo test --no-default-features --features "__test parsing"
-        cargo test --no-default-features --features "__test cmp parsing_no_proc"
-        cargo test --no-default-features --features "__test cmp parsing"
-        cargo test --no-default-features --features "__test alloc cmp parsing"
+        cargo test --no-default-features --features "debug"
+        cargo test --no-default-features --features "debug cmp"
+        cargo test --no-default-features --features "debug iter"
+        cargo test --no-default-features --features "debug parsing_proc"
+        cargo test --no-default-features --features "debug parsing"
+        cargo test --no-default-features --features "debug __cp_derive"
+        cargo test --no-default-features --features "debug __cp_derive alloc cmp iter parsing_proc"
 
     - uses: actions/checkout@v2
-    - name: ci-1-51
-      if: ${{ matrix.rust == '1.51.0' }}
+    - name: ci-stable-or-later
+      if: ${{ matrix.rust == 'stable' || matrix.rust == 'beta' || matrix.rust == 'nightly' }}
       run: |
-        set -x
+        set -ex
         rustup override set ${{ matrix.rust }}
         cargo update
         cd "${{github.workspace}}/konst/"
-        cargo test --no-default-features --features "__test cmp parsing rust_1_51"
-        cargo test --no-default-features --features "__test alloc cmp parsing rust_1_51"
-
-    - uses: actions/checkout@v2
-    - name: ci-1-55
-      if: ${{ matrix.rust == '1.55.0' }}
-      run: |
-        set -x
-        rustup override set ${{ matrix.rust }}
-        cargo update
-        cd "${{github.workspace}}/konst/"
-        cargo test --no-default-features --features "__test cmp parsing rust_1_55"
-        cargo test --no-default-features --features "__test alloc cmp parsing rust_1_55"
-
-    - uses: actions/checkout@v2
-    - name: ci-1-56
-      if: ${{ matrix.rust == '1.56.0' }}
-      run: |
-        set -x
-        rustup override set ${{ matrix.rust }}
-        cargo update
-        cd "${{github.workspace}}/konst/"
-        cargo test --no-default-features --features "__test cmp parsing rust_1_56"
-        cargo test --no-default-features --features "__test alloc cmp parsing rust_1_56"
-
-    - uses: actions/checkout@v2
-    - name: ci-1-61
-      if: ${{ matrix.rust == '1.61.0' }}
-      run: |
-        set -x
-        rustup override set ${{ matrix.rust }}
-        cargo update
-        cd "${{github.workspace}}/konst/"
-        cargo test --no-default-features --features "__test cmp parsing rust_1_61"
-        cargo test --no-default-features --features "__test alloc cmp parsing rust_1_61"
-
-    - uses: actions/checkout@v2
-    - name: ci-1-64
-      if: ${{ matrix.rust == '1.64.0' }}
-      run: |
-        set -x
-        rustup override set ${{ matrix.rust }}
-        cargo update
-        cd "${{github.workspace}}/konst/"
-        cargo test --no-default-features --features "__test cmp parsing rust_1_64"
-        cargo test --no-default-features --features "__test alloc cmp parsing rust_1_64"
+        cargo test --no-default-features --features "debug rust_latest_stable cmp"
+        cargo test --no-default-features --features "debug rust_latest_stable iter"
+        cargo test --no-default-features --features "debug rust_latest_stable parsing"
+        cargo test --no-default-features --features "debug rust_latest_stable parsing_proc"
+        cargo test --no-default-features --features "debug rust_latest_stable __cp_derive"
+        cargo test --no-default-features --features "debug rust_latest_stable __cp_derive alloc cmp iter parsing_proc"
 
     - uses: actions/checkout@v2
     - name: ci-nighly
       if: ${{ matrix.rust == 'nightly' && runner.os == 'Linux' }}
       run: |
-        set -x
+        set -ex
         rustup override set ${{ matrix.rust }}
 
         cargo update -Z minimal-versions
@@ -102,18 +87,8 @@ jobs:
 
         cd "${{github.workspace}}/konst/"
         
-        cargo test --no-default-features --features "__test cmp"
-        cargo test --no-default-features --features "__test parsing_no_proc"
-        cargo test --no-default-features --features "__test parsing"
-        cargo test --no-default-features --features "__test rust_1_51"
-        cargo test --no-default-features --features "__test rust_1_55"
-        cargo test --no-default-features --features "__test rust_1_56"
-        cargo test --no-default-features --features "__test rust_1_61"
-        cargo test --no-default-features --features "__test rust_1_64"
-        cargo test --no-default-features --features "__test nightly_mut_refs"
-        cargo test --no-default-features --features "__test cmp parsing rust_latest_stable nightly_mut_refs"
-        cargo test --no-default-features \
-            --features "alloc __test cmp parsing rust_latest_stable nightly_mut_refs"
+        cargo test --no-default-features --features "debug nightly_mut_refs"
+        cargo test --no-default-features --features "debug __cp_derive alloc cmp iter parsing_proc rust_latest_stable nightly_mut_refs"
 
         MIRI_NIGHTLY=nightly-$(curl -s https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/miri)
         echo "Installing latest nightly with Miri"
@@ -126,10 +101,6 @@ jobs:
 
         cargo clean 
 
-        # Needed to test try_into_array impl used before Rust 1.51.0
-        env MIRIFLAGS="-Zmiri-disable-isolation " \
-        cargo miri test --no-default-features -- try_into_array
-
         env RUST_BACKTRACE=0 MIRIFLAGS="-Zmiri-disable-isolation " \
             cargo miri test --no-default-features \
-            --features "alloc __test cmp parsing rust_latest_stable nightly_mut_refs"
+            --features "alloc debug cmp iter parsing_proc rust_latest_stable nightly_mut_refs"

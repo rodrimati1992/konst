@@ -1,8 +1,6 @@
 /**
 Collects an iterator constant into an array
 
-This macro requires the `"rust_1_56"` feature.
-
 # Iterator methods
 
 This macro supports emulating iterator methods by expanding to equivalent code.
@@ -36,7 +34,7 @@ the [`iterator_dsl`] module.
 ```rust
 use konst::iter;
 
-const ARR: [usize; 8] = iter::collect_const!(usize =>
+const ARR: [u64; 8] = iter::collect_const!(u64 =>
     10..,
         filter(|n| *n % 2 == 0),
         skip(5),
@@ -71,6 +69,4 @@ assert_eq!(ARR, [9, 11, 19, 21, 29, 31]);
 
 [`iterator_dsl`]: crate::iter::iterator_dsl
 */
-#[cfg(feature = "rust_1_56")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
-pub use konst_macro_rules::iter_collect_const as collect_const;
+pub use konst_kernel::iter_collect_const as collect_const;

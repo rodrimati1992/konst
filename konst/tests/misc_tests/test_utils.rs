@@ -16,6 +16,14 @@ pub struct ShouldHavePanickedAt {
     pub span: FileSpan,
 }
 
+#[track_caller]
+pub fn assert_type<T, Expected>(_: &T) {
+    assert_eq!(
+        std::any::type_name::<T>(),
+        std::any::type_name::<Expected>()
+    );
+}
+
 #[macro_export]
 macro_rules! file_span {
     () => {{

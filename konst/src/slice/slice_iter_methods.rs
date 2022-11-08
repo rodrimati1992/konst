@@ -1,9 +1,9 @@
 use crate::{
-    iter::{IntoIterKind, IsIteratorKind},
+    iter::{ConstIntoIter, IsIteratorKind},
     option, slice,
 };
 
-use konst_macro_rules::iterator_shared;
+use konst_kernel::iterator_shared;
 
 /// Gets a const iterator over `slice`, const equivalent of
 /// [`<[T]>::iter`
@@ -20,7 +20,7 @@ use konst_macro_rules::iterator_shared;
 /// const ARR: &[usize] = &{
 ///     let mut arr = [0usize; 3];
 ///     // the `slice::iter` call here is unnecessary,
-///     // you can pass a slice reference to `for_each*`
+///     // you can pass a slice reference to `for_each`
 ///     for_each!{(i, elem) in slice::iter(&["foo", "hello", "That box"]), enumerate() =>
 ///         arr[i] = elem.len();
 ///     }
@@ -48,7 +48,8 @@ use konst_macro_rules::iterator_shared;
 /// assert_eq!(ARR, [8, 5, 3]);
 ///
 /// ```
-pub use konst_macro_rules::into_iter::slice_into_iter::iter;
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub use konst_kernel::into_iter::slice_into_iter::iter;
 
 /// Const equivalent of [`core::slice::Iter`].
 ///
@@ -61,7 +62,8 @@ pub use konst_macro_rules::into_iter::slice_into_iter::iter;
 /// konst::iter::into_iter!(a_slice)
 /// # );
 /// ```
-pub use konst_macro_rules::into_iter::slice_into_iter::Iter;
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub use konst_kernel::into_iter::slice_into_iter::Iter;
 
 /// Const equivalent of `core::iter::Rev<core::slice::Iter<_>>`
 ///
@@ -74,13 +76,10 @@ pub use konst_macro_rules::into_iter::slice_into_iter::Iter;
 /// konst::iter::into_iter!(a_slice).rev()
 /// # );
 /// ```
-pub use konst_macro_rules::into_iter::slice_into_iter::IterRev;
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub use konst_kernel::into_iter::slice_into_iter::IterRev;
 
 /// A const equivalent of `slice.iter().copied()`
-///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_61"` feature.
 ///
 /// # Example
 ///
@@ -98,21 +97,14 @@ pub use konst_macro_rules::into_iter::slice_into_iter::IterRev;
 ///
 /// ```
 ///
-#[cfg(feature = "rust_1_61")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
-pub use konst_macro_rules::into_iter::slice_into_iter::iter_copied;
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub use konst_kernel::into_iter::slice_into_iter::iter_copied;
 
 /// A const equivalent of `iter::Copied<slice::Iter<'a, T>>`.
 ///
 /// This const iterator can be created with [`iter_copied`].
-///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_61"` feature.
-///
-#[cfg(feature = "rust_1_61")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
-pub use konst_macro_rules::into_iter::slice_into_iter::IterCopied;
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub use konst_kernel::into_iter::slice_into_iter::IterCopied;
 
 /// A const equivalent of `iter::Rev<iter::Copied<slice::Iter<'a, T>>>`
 ///
@@ -123,10 +115,6 @@ pub use konst_macro_rules::into_iter::slice_into_iter::IterCopied;
 /// konst::slice::iter_copied(slice).rev()
 /// # ;
 /// ```
-///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_61"` feature.
 ///
 /// # Example
 ///
@@ -146,13 +134,11 @@ pub use konst_macro_rules::into_iter::slice_into_iter::IterCopied;
 ///
 /// ```
 ///
-#[cfg(feature = "rust_1_61")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
-pub use konst_macro_rules::into_iter::slice_into_iter::IterCopiedRev;
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub use konst_kernel::into_iter::slice_into_iter::IterCopiedRev;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#[cfg(feature = "rust_1_64")]
 mod requires_rust_1_64 {
     use super::*;
 
@@ -184,8 +170,8 @@ mod requires_rust_1_64 {
     ///
     ///
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     #[track_caller]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub const fn windows<T>(slice: &[T], size: usize) -> Windows<'_, T> {
         assert!(size != 0, "window size must be non-zero");
 
@@ -232,13 +218,15 @@ mod requires_rust_1_64 {
     /// konst::slice::windows(slice, 1)
     /// # ;
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub struct Windows<'a, T> {
         slice: &'a [T],
         size: usize,
     }
-    impl<T> IntoIterKind for Windows<'_, T> {
+    impl<'a, T> ConstIntoIter for Windows<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::Windows>`
@@ -250,13 +238,15 @@ mod requires_rust_1_64 {
     /// konst::slice::windows(slice, 1).rev()
     /// # ;
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub struct WindowsRev<'a, T> {
         slice: &'a [T],
         size: usize,
     }
-    impl<T> IntoIterKind for WindowsRev<'_, T> {
+    impl<'a, T> ConstIntoIter for WindowsRev<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
     }
 
     impl<'a, T> Windows<'a, T> {
@@ -276,16 +266,11 @@ mod requires_rust_1_64 {
     /// # Example
     ///
     /// ```rust
-    /// use konst::iter::for_each;
+    /// use konst::iter::collect_const;
     /// use konst::slice;
     ///
-    /// const CHUNKS: &[&[u8]] = &{
-    ///     let mut out = [&[] as &[u8]; 3] ;
-    ///     let fibb = &[3, 5, 8, 13, 21, 34, 55, 89];
-    ///     for_each!{(i, chunk) in slice::chunks(fibb, 3),enumerate() =>
-    ///         out[i] = chunk;
-    ///     }
-    ///     out
+    /// const CHUNKS: [&[u8]; 3] = collect_const!{&[u8] =>
+    ///     slice::chunks(&[3, 5, 8, 13, 21, 34, 55, 89], 3)
     /// };
     ///
     /// let expected: &[&[u8]] = &[&[3, 5, 8], &[13, 21, 34], &[55, 89]];
@@ -294,8 +279,8 @@ mod requires_rust_1_64 {
     ///
     /// ```
     ///
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     #[track_caller]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub const fn chunks<T>(slice: &[T], size: usize) -> Chunks<'_, T> {
         assert!(size != 0, "chunk size must be non-zero");
 
@@ -341,13 +326,15 @@ mod requires_rust_1_64 {
     /// konst::slice::chunks(slice, 1)
     /// # ;
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub struct Chunks<'a, T> {
         slice: Option<&'a [T]>,
         size: usize,
     }
-    impl<T> IntoIterKind for Chunks<'_, T> {
+    impl<'a, T> ConstIntoIter for Chunks<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::Chunks>`
@@ -359,13 +346,15 @@ mod requires_rust_1_64 {
     /// konst::slice::chunks(slice, 1).rev()
     /// # ;
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub struct ChunksRev<'a, T> {
         slice: Option<&'a [T]>,
         size: usize,
     }
-    impl<T> IntoIterKind for ChunksRev<'_, T> {
+    impl<'a, T> ConstIntoIter for ChunksRev<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
     }
 
     impl<'a, T> Chunks<'a, T> {
@@ -401,8 +390,8 @@ mod requires_rust_1_64 {
     ///
     /// ```
     ///
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
     #[track_caller]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub const fn chunks_exact<T>(slice: &[T], size: usize) -> ChunksExact<'_, T> {
         assert!(size != 0, "chunk size must be non-zero");
 
@@ -438,7 +427,7 @@ mod requires_rust_1_64 {
                 fields = {slice, size},
             }
 
-            /// Returns the remainder of the slice that not returned by [`next`](Self::next),
+            /// Returns the remainder of the slice that's not returned by [`next`](Self::next),
             /// because it is shorter than the chunk size.
             pub const fn remainder(&self) -> &'a [T] {
                 self.slice
@@ -455,13 +444,15 @@ mod requires_rust_1_64 {
     /// konst::slice::chunks_exact(slice, 1)
     /// # ;
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub struct ChunksExact<'a, T> {
         slice: &'a [T],
         size: usize,
     }
-    impl<T> IntoIterKind for ChunksExact<'_, T> {
+    impl<'a, T> ConstIntoIter for ChunksExact<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::ChunksExact>`
@@ -473,13 +464,15 @@ mod requires_rust_1_64 {
     /// konst::slice::chunks_exact(slice, 1).rev()
     /// # ;
     /// ```
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub struct ChunksExactRev<'a, T> {
         slice: &'a [T],
         size: usize,
     }
-    impl<T> IntoIterKind for ChunksExactRev<'_, T> {
+    impl<'a, T> ConstIntoIter for ChunksExactRev<'a, T> {
         type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
     }
 
     impl<'a, T> ChunksExact<'a, T> {
@@ -491,5 +484,5 @@ mod requires_rust_1_64 {
     }
 }
 
-#[cfg(feature = "rust_1_64")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub use requires_rust_1_64::*;

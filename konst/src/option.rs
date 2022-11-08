@@ -1,13 +1,10 @@
 //! `const` equivalents of `Option` methods.
 
-/// A const equivalent of `Option::unwrap`, requires Rust 1.57.0 to invoke.
+/// A const equivalent of [`Option::unwrap`]
 ///
 /// # Example
 ///
-/// This example requires Rust 1.47.0 (because of `NonZeroUsize::new`).
-///
-#[cfg_attr(feature = "rust_1_51", doc = "```rust")]
-#[cfg_attr(not(feature = "rust_1_51"), doc = "```ignore")]
+/// ```rust
 /// use konst::option::unwrap;
 ///
 /// use std::num::NonZeroUsize;
@@ -17,9 +14,9 @@
 /// assert_eq!(TEN.get(), 10);
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_unwrap as unwrap;
+pub use konst_kernel::opt_unwrap as unwrap;
 
-/// A const equivalent of `Option::unwrap_or`
+/// A const equivalent of [`Option::unwrap_or`]
 ///
 /// # Example
 ///
@@ -36,9 +33,9 @@ pub use konst_macro_rules::opt_unwrap as unwrap;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::opt_unwrap_or as unwrap_or;
+pub use konst_kernel::opt_unwrap_or as unwrap_or;
 
-/// A const equivalent of `Option::unwrap_or_else`
+/// A const equivalent of [`Option::unwrap_or_else`]
 ///
 /// # Example
 ///
@@ -64,9 +61,9 @@ pub use konst_macro_rules::opt_unwrap_or as unwrap_or;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::opt_unwrap_or_else as unwrap_or_else;
+pub use konst_kernel::opt_unwrap_or_else as unwrap_or_else;
 
-/// A const equivalent of `Option::ok_or`
+/// A const equivalent of [`Option::ok_or`]
 ///
 /// # Example
 ///
@@ -82,9 +79,9 @@ pub use konst_macro_rules::opt_unwrap_or_else as unwrap_or_else;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_ok_or as ok_or;
+pub use konst_kernel::opt_ok_or as ok_or;
 
-/// A const equivalent of `Option::ok_or_else`
+/// A const equivalent of [`Option::ok_or_else`]
 ///
 /// # Example
 ///
@@ -109,9 +106,9 @@ pub use konst_macro_rules::opt_ok_or as ok_or;
 /// }
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_ok_or_else as ok_or_else;
+pub use konst_kernel::opt_ok_or_else as ok_or_else;
 
-/// A const equivalent of `Option::map`
+/// A const equivalent of [`Option::map`]
 ///
 /// # Example
 ///
@@ -137,9 +134,9 @@ pub use konst_macro_rules::opt_ok_or_else as ok_or_else;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_map as map;
+pub use konst_kernel::opt_map as map;
 
-/// A const equivalent of `Option::and_then`
+/// A const equivalent of [`Option::and_then`]
 ///
 /// # Example
 ///
@@ -171,9 +168,9 @@ pub use konst_macro_rules::opt_map as map;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_and_then as and_then;
+pub use konst_kernel::opt_and_then as and_then;
 
-/// A const equivalent of `Option::or_else`
+/// A const equivalent of [`Option::or_else`]
 ///
 /// # Example
 ///
@@ -199,9 +196,9 @@ pub use konst_macro_rules::opt_and_then as and_then;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_or_else as or_else;
+pub use konst_kernel::opt_or_else as or_else;
 
-/// A const equivalent of `Option::flatten`
+/// A const equivalent of [`Option::flatten`]
 ///
 /// # Example
 ///
@@ -217,9 +214,9 @@ pub use konst_macro_rules::opt_or_else as or_else;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_flatten as flatten;
+pub use konst_kernel::opt_flatten as flatten;
 
-/// A const equivalent of `Option::filter`
+/// A const equivalent of [`Option::filter`]
 ///
 /// # Example
 ///
@@ -247,13 +244,9 @@ pub use konst_macro_rules::opt_flatten as flatten;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_macro_rules::opt_filter as filter;
+pub use konst_kernel::opt_filter as filter;
 
 /// A const equivalent of the [`Option::copied`] method.
-///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_61"` feature.
 ///
 /// # Example
 ///
@@ -270,8 +263,6 @@ pub use konst_macro_rules::opt_filter as filter;
 ///
 ///
 /// ```
-#[cfg(feature = "rust_1_61")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_61")))]
 pub const fn copied<T: Copy>(opt: Option<&T>) -> Option<T> {
     match opt {
         Some(x) => Some(*x),
@@ -282,7 +273,7 @@ pub const fn copied<T: Copy>(opt: Option<&T>) -> Option<T> {
 declare_generic_const! {
     /// Usable to do `[None::<T>; LEN]` when `T` is non-`Copy`.
     ///
-    /// As of Rust 1.51.0, `[None::<T>; LEN]` is not valid for non-`Copy` types,
+    /// As of Rust 1.65.0, `[None::<T>; LEN]` is not valid for non-`Copy` types,
     /// but `[CONST; LEN]` does work, like in the example below.
     ///
     /// # Example

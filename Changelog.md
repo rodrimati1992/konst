@@ -1,5 +1,165 @@
 This is the changelog, summarising changes in each version(some minor changes may be ommited).
 
+# 0.3
+
+### 0.3.0
+
+Removed `konst::array::try_into_array` macro (it's superceeded by the function of the same name)
+
+Removed  functions
+
+Removed these functions because the std equivalent is stably const:
+- `konst::maybe_uninit::{as_ptr, assume_init, assume_init_ref}`
+- `konst::ptr::{deref, deref_mut}`
+- `konst::slice::{first, last, split_first, split_last}`
+
+Removed extra `from` parameter of:
+- `konst::slice::{bytes_contain, bytes_rcontain, bytes_find,  bytes_rfind}`
+- `konst::string::{find, contains, rfind, rcontains}`
+
+Added these items in `konst::polymorphism`:
+- `HasTypeWitness`(trait)
+- `MakeTypeWitness`(trait)
+- `TypeEq`(struct)
+- `TypeWitnessTypeArg`(trait)
+- `type_eq_projection_fn`(macro)
+
+Added `konst::docs::type_witnesses` documentation module.
+
+Added `konst::chr` module, with these items:
+- `Utf8Encoded`
+- `encode_utf8`
+- `from_u32_unchecked`
+- `from_u32`
+
+Renamed `IntoIterKind` to `ConstIntoIter`.
+
+Added `Item` and `IntoIter` assoc types to ConstIntoIter, and added checks in iterator macros that `Item` matches the item's type.
+
+Moved comparison-related from `konst::polymorphism` to new `konst::cmp` module.
+
+Renamed `ConstCmpMarker` to `ConstCmp`.
+
+Renamed these marker types:
+- `IsAConstCmpMarker` to `IsAConstCmp`
+- `IsIntoIterKind` to `IsConstIntoIter`
+- `IsNonIteratorKind` to `IsIntoIterKind` (not to be confused with the previous name for the trait `ConstIntoIter` trait)
+
+Removed `konst::polymorphism::IsArrayKind`
+
+Added `konst::polymorphism::IsRefKind`
+    
+Added `konst::cmp::ConstCmpUnref` traits.
+
+Moved all `Is*Kind` field-less structs to `konst::polymorphism::kinds`, made them all 0-variant enums, and reexported the relevant items in `konst::cmp` and `konst::iter`.
+
+Removed `ConstCmp::This` associated type, now it's derived with `ConstCmpUnref`.
+
+Added `konst::slice::BytesPattern` trait, implemented for `char`, `[u8]`, `[u8; N]`, and `str`.
+
+Made the second parameter of `konst::slice::bytes_*` functions take a generic `BytesPattern`.
+
+Added `konst::string::Pattern` trait, implemented for `char` and `&str`
+
+Made `string` functions take `P: Pattern<'s>` as the pattern argument.
+
+Bumped minimum supported Rust versions to 1.65.0
+
+Added `const_panic = "0.2"` depdendency to `konst`
+
+Made all panicking code use `const_panic` to have the same error messages as at runtime (previously use array indexing hack to panic).
+
+Added `konst::array::from_fn` macro.
+
+Added `konst::iter::{repeat, Repeat}`.
+
+Added iteration over ranges of non-usize integers and `char`.
+    
+Added `konst::iter::Step` trait.
+
+Added `konst::ffi::cstr` module.
+
+Reexporting `konst::iter::step::Step` in `konst::iter`
+
+Added these `konst::string` items:
+- `Chars`(struct)
+- `RChars`(struct)
+- `CharIndices`(struct)
+- `RCharIndices`(struct)
+- `char_indices`(function)
+- `chars`(function)
+- `from_iter`(macro)
+- `is_char_boundary`(function)
+- `str_concat`(macro)
+- `str_join`(macro)
+
+Rewrote `Parser` to only support parsing `&str`.
+
+Added `Parser::{skip, skip_back}` methods
+
+Removed these parser functions:
+- `Parser::*_b`
+- `Parser::*_u8` (except for `parse_u8`)
+- `Parser::advance_*`
+- `Parser::from_bytes`
+
+Renamed these `Parser` functions:
+- `from_str` to `new`.
+- `bytes` to `remainder` (and takes `&str`)
+
+Added these `Parser` methods:
+- `into_other_error`
+- `rsplit_terminator`
+- `rsplit`
+- `split_keep`
+- `split_terminator`
+- `split`
+- `skip`
+- `skip_back`
+- `trim`
+- `trim_matches`
+- `with_start_offset`
+
+Added `ParseError::other_error` function for constructing `Other` errors with custom error messages.
+
+Added `FromBoth` variant to `konst::parser::ParseDirection`
+
+Renamed `ParserFor` trait to `HasParser`
+
+Added `SplitExhausted`,`DelimiterNotFound` variants to `konst::parsing::ErrorKind`
+
+Removed `map_err` capability of `try_rebind` due to being untested and unused.
+
+Removed `unwrap_opt_or` and `unwrap_res_or` macros (they are superceeded by other macros).
+
+Made `array::map` and iterator-taking macros support specifying an explicit return type.
+
+Added `assertc_eq`, `assertc_ne` macros.
+
+Added type annotation support to `rebind_if_ok` macro (for the pattern as a whole).
+
+Fixed support for `continue` and `break` inside of `konst::for_range`.
+
+Changed `Parser` methods from taking `&str` patterns to taking any `P: Pattern<'p>`
+
+Renamed `parse_any` macro to `parser_method`
+
+Removed `konst::primitive::parse_*_b` functions
+
+Renamed `"parsing"` feature to `"parsing_proc"` and `"parsing_no_proc"` feature to `"parsing"`
+
+Added `"iter"` feature(enabled by default), feature-gating all iterator-related items.
+
+Added `"debug"` feature for additional safety checks in `konst` unsafe code.
+
+Made `konst` crate 2021 edition, `resolver="2"`.
+
+Removed all `"rust_1_*"` features, and all old-version-dependent code.
+
+Renamed `konst_macro_rules` to `konst_kernel` crate, which defines items for reexporting in `konst` (mostly needed for having macros in submodules).
+
+
+
 # 0.2
 
 ### 0.2.19

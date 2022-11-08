@@ -1,6 +1,10 @@
-mod integer_parsing_tests;
+mod primitive_parsing_tests;
 
 mod trim_and_strip_and_find;
 
-#[cfg(feature = "parsing")]
-mod parse_any_tests;
+mod split_methods_tests;
+
+mod other_method_tests;
+
+#[cfg(feature = "parsing_proc")]
+mod parser_method_macro_tests;

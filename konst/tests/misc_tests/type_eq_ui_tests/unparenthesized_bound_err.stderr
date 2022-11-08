@@ -1,0 +1,10 @@
+error: trait bounds in parameter list must be wrapped in parentheses, context: `T : core`
+ --> tests/misc_tests/type_eq_ui_tests/unparenthesized_bound_err.rs:3:1
+  |
+3 | / type_eq_projection_fn!{
+4 | |     ///
+5 | |     fn project_option(T) -> Option<T: core::fmt::Debug>
+6 | | }
+  | |_^
+  |
+  = note: this error originates in the macro `$crate::__::__make_projection_parse_generics` which comes from the expansion of the macro `type_eq_projection_fn` (in Nightly builds, run with -Z macro-backtrace for more info)

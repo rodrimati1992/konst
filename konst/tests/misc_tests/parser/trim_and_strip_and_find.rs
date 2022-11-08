@@ -1,9 +1,5 @@
-use konst::{
-    parsing::{ParseDirection, Parser},
-    slice::{self, bytes_strip_prefix, bytes_strip_suffix},
-};
+use konst::parsing::{ErrorKind, ParseDirection, Parser};
 
-#[cfg(feature = "rust_1_55")]
 use konst::string;
 
 fn reverse(s: &str) -> String {
@@ -15,16 +11,21 @@ fn trim_start_end_matches_test() {
     #[track_caller]
     fn assertion(string: &str, needle: &str, returned: &str) {
         {
-            let parser = Parser::from_str(string);
+            let parser = Parser::new(string).skip_back(0);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
             let trimmed = parser.trim_start_matches(needle);
-            assert_eq!(trimmed.bytes(), returned.as_bytes(), "normal");
-
+            assert_eq!(trimmed.remainder(), returned, "normal");
             assert_eq!(
-                slice::bytes_trim_start_matches(string.as_bytes(), needle.as_bytes()),
-                returned.as_bytes(),
-                "norm"
+                trimmed.start_offset(),
+                string.len() - returned.len(),
+                "normal-sa"
             );
-            #[cfg(feature = "rust_1_55")]
+            assert_eq!(
+                trimmed.parse_direction(),
+                ParseDirection::FromStart,
+                "normal-sa"
+            );
+
             assert_eq!(string::trim_start_matches(string, needle), returned, "norm");
 
             {
@@ -41,20 +42,16 @@ fn trim_start_end_matches_test() {
         }
         {
             let rev_string = &*reverse(string);
-            let parser = Parser::from_str(&rev_string);
+            let parser = Parser::new(&rev_string).skip(0);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
             let rev_needle = &*reverse(needle);
             let rev_returned = &*reverse(returned);
             let trimmed = parser.trim_end_matches(rev_needle);
 
-            assert_eq!(trimmed.bytes(), rev_returned.as_bytes(), "rev");
+            assert_eq!(trimmed.remainder(), rev_returned, "rev");
+            assert_eq!(trimmed.start_offset(), 0, "rev-sa");
+            assert_eq!(trimmed.parse_direction(), ParseDirection::FromEnd, "rev-sa");
 
-            assert_eq!(
-                slice::bytes_trim_end_matches(rev_string.as_bytes(), rev_needle.as_bytes()),
-                rev_returned.as_bytes(),
-                "rev-"
-            );
-
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(
                 string::trim_end_matches(rev_string, rev_needle),
                 rev_returned,
@@ -100,40 +97,14 @@ fn trim_start_end_matches_test() {
     assertion("", "e", "");
 
     assertion("", "ello", "");
-}
 
-#[test]
-fn trim_start_end_matches_u8_test() {
-    #[track_caller]
-    fn assertion(string: &str, needle: u8, returned: &str) {
-        {
-            let parser = Parser::from_str(string);
-            assert_eq!(
-                parser.trim_start_matches_u8(needle).bytes(),
-                returned.as_bytes(),
-                "normal"
-            );
-        }
-        {
-            let rev_string = &*reverse(string);
-            let parser = Parser::from_str(&rev_string);
-            let rev_returned = &*reverse(returned);
+    // making sure that trim_end_matched doesn't set start_offset to 0
+    {
+        let parser = Parser::new("foobarbaz").skip(3).trim_end_matches("baz");
 
-            assert_eq!(
-                parser.trim_end_matches_u8(needle).bytes(),
-                rev_returned.as_bytes(),
-                "rev"
-            );
-        }
+        assert_eq!(parser.start_offset(), 3);
+        assert_eq!(parser.remainder(), "bar");
     }
-
-    assertion("hello", b'h', "ello");
-
-    assertion("hhhhello", b'h', "ello");
-
-    assertion("ello", b'h', "ello");
-
-    assertion("", b'h', "");
 }
 
 #[test]
@@ -141,32 +112,35 @@ fn trim_start_end_test() {
     #[track_caller]
     fn assertion(string: &str, returned: &str) {
         {
-            let parser = Parser::from_str(string);
-            assert_eq!(parser.trim_start().bytes(), returned.as_bytes(), "normal");
-
+            let parser = Parser::new(string).skip_back(0);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
+            let trimmed = parser.trim_start();
+            assert_eq!(trimmed.remainder(), returned, "normal");
             assert_eq!(
-                slice::bytes_trim_start(string.as_bytes()),
-                returned.as_bytes(),
-                "normal-b"
+                trimmed.start_offset(),
+                string.len() - returned.len(),
+                "rev-sa"
+            );
+            assert_eq!(
+                trimmed.parse_direction(),
+                ParseDirection::FromStart,
+                "rev-sa"
             );
 
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(string::trim_start(string), returned, "normal-c");
         }
         {
             let rev_string = &*reverse(string);
-            let parser = Parser::from_str(&rev_string);
+            let parser = Parser::new(&rev_string).skip(0);
+            assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
             let rev_returned = &*reverse(returned);
 
-            assert_eq!(parser.trim_end().bytes(), rev_returned.as_bytes(), "rev");
+            let trimmed = parser.trim_end();
 
-            assert_eq!(
-                slice::bytes_trim_end(rev_string.as_bytes()),
-                rev_returned.as_bytes(),
-                "rev-b"
-            );
+            assert_eq!(trimmed.remainder(), rev_returned, "rev");
+            assert_eq!(trimmed.start_offset(), 0, "rev-sa");
+            assert_eq!(trimmed.parse_direction(), ParseDirection::FromEnd, "rev-sa");
 
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(string::trim_end(rev_string), rev_returned, "rev-c");
         }
     }
@@ -184,23 +158,54 @@ fn trim_start_end_test() {
     assertion("\r\rfooo bar\r\r", "fooo bar\r\r");
 
     assertion("\r\n \t-FOO BAR     ", "-FOO BAR     ");
+
+    // making sure that trim_end_matched doesn't set start_offset to 0
+    {
+        let parser = Parser::new("fobar ").skip(2).trim_end();
+
+        assert_eq!(parser.start_offset(), 2);
+        assert_eq!(parser.remainder(), "bar");
+    }
 }
 
 ////////////////////////////////////////////
+
+#[test]
+fn strip_prefix_err_test() {
+    let parser = Parser::new("fobar");
+    let err = parser
+        .strip_prefix("fo")
+        .unwrap()
+        .strip_prefix("foo")
+        .unwrap_err();
+    assert_eq!(err.offset(), 2);
+    assert_eq!(err.error_direction(), ParseDirection::FromStart);
+    assert_eq!(err.kind(), ErrorKind::Strip);
+}
+
+#[test]
+fn strip_suffix_err_test() {
+    let parser = Parser::new("foosuffix");
+    let err = parser
+        .strip_suffix("suffix")
+        .unwrap()
+        .strip_suffix("suffix")
+        .unwrap_err();
+    assert_eq!(err.offset(), 3);
+    assert_eq!(err.error_direction(), ParseDirection::FromEnd);
+    assert_eq!(err.kind(), ErrorKind::Strip);
+}
 
 #[test]
 fn strip_prefix_suffix_test() {
     #[track_caller]
     fn assertion(string: &str, needle: &str, returned: Option<&str>) {
         {
-            let parser = Parser::from_str(string);
-            let returned = returned.map(|x| x.as_bytes());
+            let parser = Parser::new(string);
             let stripped = parser.strip_prefix(needle).ok();
             {
-                let stripped = stripped.map(|x| x.bytes());
-                let stripped_b = bytes_strip_prefix(string.as_bytes(), needle.as_bytes());
+                let stripped = stripped.map(|x| x.remainder());
                 assert_eq!(stripped, returned, "normala");
-                assert_eq!(stripped, stripped_b, "normalb");
             }
 
             if let Some(stripped) = stripped {
@@ -211,17 +216,14 @@ fn strip_prefix_suffix_test() {
         }
         {
             let rev_string = &*reverse(string);
-            let parser = Parser::from_str(&rev_string);
+            let parser = Parser::new(&rev_string);
             let rev_needle = &*reverse(needle);
             let rev_returned = returned.map(|x| reverse(x));
-            let rev_returned = rev_returned.as_ref().map(|x| x.as_bytes());
 
             let stripped = parser.strip_suffix(rev_needle).ok();
             {
-                let stripped = stripped.map(|x| x.bytes());
-                let stripped_b = bytes_strip_suffix(rev_string.as_bytes(), rev_needle.as_bytes());
-                assert_eq!(stripped, rev_returned, "reva");
-                assert_eq!(stripped, stripped_b, "revb");
+                let stripped = stripped.map(|x| x.remainder());
+                assert_eq!(stripped, rev_returned.as_deref(), "reva");
             }
 
             if let (Some(stripped), Some(returned)) = (stripped, rev_returned) {
@@ -245,74 +247,62 @@ fn strip_prefix_suffix_test() {
     assertion("a", "a", Some(""));
     assertion("aa", "a", Some("a"));
     assertion("aaa", "a", Some("aa"));
-}
 
-#[test]
-fn strip_prefix_suffix_u8_test() {
-    #[track_caller]
-    fn assertion(string: &str, needle: u8, returned: Option<&str>) {
-        {
-            let parser = Parser::from_str(string);
-            let returned = returned.map(|x| x.as_bytes());
-            assert_eq!(
-                parser.strip_prefix_u8(needle).map(|x| x.bytes()).ok(),
-                returned,
-                "normal"
-            );
-        }
-        {
-            let rev_string = &*reverse(string);
-            let parser = Parser::from_str(&rev_string);
-            let rev_returned = returned.map(|x| reverse(x));
-            let rev_returned = rev_returned.as_ref().map(|x| x.as_bytes());
+    // making sure that rfind_skip doesn't set start_offset to 0
+    {
+        let parser = Parser::new("foobarbazhello")
+            .skip(3)
+            .strip_suffix("hello")
+            .unwrap();
 
-            assert_eq!(
-                parser.strip_suffix_u8(needle).map(|x| x.bytes()).ok(),
-                rev_returned,
-                "rev"
-            );
-        }
+        assert_eq!(parser.start_offset(), 3);
+        assert_eq!(parser.remainder(), "barbaz");
     }
-
-    assertion("", b'l', None);
-
-    assertion("hellllllo", b'l', None);
-    assertion("hellooworld", b'x', None);
-    assertion("hellooworld", b'h', Some("ellooworld"));
-    assertion("  Hi!", b' ', Some(" Hi!"));
 }
 
 ////////////////////////////////////////////
+
+#[test]
+fn find_skip_err_test() {
+    let parser = Parser::new("fobar");
+    let err = parser
+        .strip_prefix("fo")
+        .unwrap()
+        .find_skip("z")
+        .unwrap_err();
+    assert_eq!(err.offset(), 2);
+    assert_eq!(err.error_direction(), ParseDirection::FromStart);
+    assert_eq!(err.kind(), ErrorKind::Find);
+}
+
+#[test]
+fn rfind_skip_err_test() {
+    let parser = Parser::new("foosuffix");
+    let err = parser
+        .strip_suffix("suffix")
+        .unwrap()
+        .rfind_skip("bar")
+        .unwrap_err();
+    assert_eq!(err.offset(), 3);
+    assert_eq!(err.error_direction(), ParseDirection::FromEnd);
+    assert_eq!(err.kind(), ErrorKind::Find);
+}
 
 #[test]
 fn find_skip_test() {
     #[track_caller]
     fn assertion(string: &str, needle: &str, returned: Option<&str>, returned_keep: Option<&str>) {
         {
-            let parser = Parser::from_str(string);
+            let parser = Parser::new(string);
 
             assert_eq!(
-                parser.find_skip(needle).map(|x| x.bytes()).ok(),
-                returned.map(|x| x.as_bytes()),
+                parser.find_skip(needle).map(|x| x.remainder()).ok(),
+                returned,
                 "normal"
             );
 
-            assert_eq!(
-                slice::bytes_find_skip(string.as_bytes(), needle.as_bytes()),
-                returned.map(|x| x.as_bytes()),
-                "normal-2"
-            );
-
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(string::find_skip(string, needle), returned, "normal-3");
 
-            assert_eq!(
-                slice::bytes_find_keep(string.as_bytes(), needle.as_bytes()),
-                returned_keep.as_ref().map(|x| x.as_bytes()),
-                "normal-4"
-            );
-
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(
                 string::find_keep(string, needle),
                 returned_keep.as_deref(),
@@ -321,37 +311,21 @@ fn find_skip_test() {
         }
         {
             let rev_string = &*reverse(string);
-            let parser = Parser::from_str(&rev_string);
+            let parser = Parser::new(&rev_string);
             let rev_needle = &*reverse(needle);
             let rev_returned = returned.map(|x| reverse(x));
 
             let rev_returned_keep = returned_keep.map(|x| reverse(x));
 
-            let rev_returned_bytes = rev_returned.as_ref().map(|x| x.as_bytes());
+            let trimmed = parser.rfind_skip(rev_needle).map(|x| x.remainder());
+            assert_eq!(trimmed.ok(), rev_returned.as_deref(), "rev");
 
-            let trimmed = parser.rfind_skip(rev_needle).map(|x| x.bytes());
-            assert_eq!(trimmed.ok(), rev_returned_bytes, "rev");
-
-            assert_eq!(
-                slice::bytes_rfind_skip(rev_string.as_bytes(), rev_needle.as_bytes()),
-                rev_returned_bytes,
-                "rev-2"
-            );
-
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(
                 string::rfind_skip(rev_string, rev_needle),
                 rev_returned.as_deref(),
                 "rev-3"
             );
 
-            assert_eq!(
-                slice::bytes_rfind_keep(rev_string.as_bytes(), rev_needle.as_bytes()),
-                rev_returned_keep.as_ref().map(|x| x.as_bytes()),
-                "rev-4"
-            );
-
-            #[cfg(feature = "rust_1_55")]
             assert_eq!(
                 string::rfind_keep(rev_string, rev_needle),
                 rev_returned_keep.as_deref(),
@@ -409,40 +383,15 @@ fn find_skip_test() {
     assertion("ell", "ella", None, None);
 
     assertion("woowooa-that-", "wooa", Some("-that-"), Some("wooa-that-"));
-}
 
-#[test]
-fn find_skip_u8_test() {
-    #[track_caller]
-    fn assertion(string: &str, needle: u8, returned: Option<&str>) {
-        {
-            let parser = Parser::from_str(string);
-            let returned = returned.map(|x| x.as_bytes());
-            assert_eq!(
-                parser.find_skip_u8(needle).map(|x| x.bytes()).ok(),
-                returned,
-                "normal"
-            );
-        }
-        {
-            let rev_string = &*reverse(string);
-            let parser = Parser::from_str(&rev_string);
-            let rev_returned = returned.map(|x| reverse(x));
-            let rev_returned = rev_returned.as_ref().map(|x| x.as_bytes());
+    // making sure that rfind_skip doesn't set start_offset to 0
+    {
+        let parser = Parser::new("foobarbazhello")
+            .skip(3)
+            .rfind_skip("hello")
+            .unwrap();
 
-            assert_eq!(
-                parser.rfind_skip_u8(needle).map(|x| x.bytes()).ok(),
-                rev_returned,
-                "rev"
-            );
-        }
+        assert_eq!(parser.start_offset(), 3);
+        assert_eq!(parser.remainder(), "barbaz");
     }
-
-    assertion("helloworld", b'l', Some("loworld"));
-
-    assertion("helloworld", b'w', Some("orld"));
-
-    assertion("helloworld", b'x', None);
-
-    assertion("", b'x', None);
 }

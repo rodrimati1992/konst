@@ -1,0 +1,45 @@
+warning: unreachable expression
+ --> tests/misc_tests/string_ui_tests/str_from_iter_err.rs:4:17
+  |
+4 | const _: &str = string::from_iter!(&["foo"],map(|_| -> &str {break}));
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^-----^^^
+  |                 |                                            |
+  |                 |                                            any code following this expression is unreachable
+  |                 unreachable expression
+  |
+  = note: `#[warn(unreachable_code)]` on by default
+  = note: this warning originates in the macro `$crate::__annotate_type` which comes from the expansion of the macro `string::from_iter` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no method named `as_bytesable` found for struct `konst_kernel::string::string_for_konst::__ElemDispatch<usize>` in the current scope
+  --> tests/misc_tests/string_ui_tests/str_from_iter_err.rs:13:17
+   |
+13 | const _: &str = string::from_iter!(&["foo"; 5],enumerate(),map(|(i, _)| i));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `konst_kernel::string::string_for_konst::__ElemDispatch<usize>`
+   |
+   = note: the method was found for
+           - `konst_kernel::string::string_for_konst::__ElemDispatch<char>`
+           - `konst_kernel::string::string_for_konst::__ElemDispatch<&'static str>`
+           - `konst_kernel::string::string_for_konst::__ElemDispatch<&char>`
+           - `konst_kernel::string::string_for_konst::__ElemDispatch<&&'static str>`
+   = note: this error originates in the macro `string::from_iter` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no method named `len` found for struct `konst_kernel::string::string_for_konst::__ElemDispatch<usize>` in the current scope
+  --> tests/misc_tests/string_ui_tests/str_from_iter_err.rs:13:17
+   |
+13 | const _: &str = string::from_iter!(&["foo"; 5],enumerate(),map(|(i, _)| i));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `konst_kernel::string::string_for_konst::__ElemDispatch<usize>`
+   |
+   = note: the method was found for
+           - `konst_kernel::string::string_for_konst::__ElemDispatch<char>`
+           - `konst_kernel::string::string_for_konst::__ElemDispatch<&'static str>`
+           - `konst_kernel::string::string_for_konst::__ElemDispatch<&char>`
+           - `konst_kernel::string::string_for_konst::__ElemDispatch<&&'static str>`
+   = note: this error originates in the macro `string::from_iter` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0080]: evaluation of constant value failed
+  --> tests/misc_tests/string_ui_tests/str_from_iter_err.rs:13:17
+   |
+13 | const _: &str = string::from_iter!(&["foo"; 5],enumerate(),map(|(i, _)| i));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ referenced constant has errors
+   |
+   = note: this error originates in the macro `$crate::__collect_const_iter_with` which comes from the expansion of the macro `string::from_iter` (in Nightly builds, run with -Z macro-backtrace for more info)

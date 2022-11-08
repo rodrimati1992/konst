@@ -1,6 +1,14 @@
-#[cfg(feature = "rust_1_56")]
+use crate::misc_tests::test_utils::assert_type;
+
 #[test]
-fn array_map_test() {
+#[should_panic]
+#[allow(unreachable_code)]
+fn array_map_break() {
+    konst::array::map!([(); 3], |_| break);
+}
+
+#[test]
+fn array_map_basic_test() {
     use konst::array::map;
 
     {
@@ -31,3 +39,100 @@ fn array_map_test() {
         assert_eq!(Y, [1, 2, 3]);
     }
 }
+
+#[test]
+fn array_map_more_tests() {
+    use konst::array::map;
+
+    {
+        let mapped = map!([(); 3], |_| -> u32 { Default::default() });
+        assert_type::<_, [u32; 3]>(&mapped);
+    }
+}
+
+#[test]
+fn array_from_fn_tests() {
+    use konst::array::from_fn;
+
+    {
+        const fn evens<const N: usize>() -> [usize; N] {
+            from_fn!(|i| i * 2)
+        }
+
+        assert_eq!(evens::<0>(), [0usize; 0]);
+        assert_eq!(evens::<1>(), [0usize]);
+        assert_eq!(evens::<2>(), [0usize, 2]);
+        assert_eq!(evens::<3>(), [0usize, 2, 4]);
+    }
+
+    // closure with explicit parameter type
+    {
+        const XS: [usize; 3] = from_fn!(|x: usize| x * 2);
+
+        assert_eq!(XS, [0, 2, 4]);
+    }
+
+    // closure with explicit return type
+    {
+        let xs: [_; 3] = from_fn!(|_| -> &str { Default::default() });
+        assert_type::<_, [&str; 3]>(&xs);
+    }
+
+    // explicit array type, infer elem type
+    {
+        let xs = from_fn!([_; 3] => |x| (x as u32).pow(2));
+        assert_eq!(xs, [0, 1, 4]);
+    }
+
+    // explicit array type
+    {
+        let xs = from_fn!([u32; 3] => |x| x as _);
+        assert_eq!(xs, [0, 1, 2]);
+    }
+
+    // explicit array type, parenthesized
+    {
+        let xs = from_fn!((Array<u32, 3>) => |x| x as _);
+        assert_eq!(xs, [0, 1, 2]);
+    }
+
+    // explicit array type, parenthesized, infer elem type
+    {
+        let xs = from_fn!((Array<_, 3>) => |x| x);
+        assert_eq!(xs, [0, 1, 2]);
+    }
+
+    // explicit array type, single ident
+    {
+        type Arr = [u32; 3];
+
+        let xs = from_fn!(Arr => |x| x as _);
+        assert_eq!(xs, [0, 1, 2]);
+    }
+
+    // ensuring that functions can be used
+    {
+        let xs: [_; 3] = from_fn!(usize_to_str);
+        assert_eq!(xs, ["zero", "one", "two"]);
+    }
+    // ensuring that functions can be used, and also explicit array type
+    {
+        assert_eq!(
+            from_fn!([_; 4] => usize_to_str),
+            ["zero", "one", "two", "three"]
+        );
+    }
+}
+
+#[test]
+#[should_panic]
+#[allow(unreachable_code)]
+fn array_from_fn_break() {
+    konst::array::from_fn!([(); 3] => |_| break);
+}
+
+const fn usize_to_str(i: usize) -> &'static str {
+    ["zero", "one", "two", "three", "four"][i]
+}
+
+type Array<T, const N: usize> = [T; N];

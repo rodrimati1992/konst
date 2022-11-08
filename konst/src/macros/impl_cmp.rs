@@ -2,7 +2,7 @@
 ///
 /// # Impls
 ///
-/// This macro implements [`ConstCmpMarker`] for all the `impl`d types,
+/// This macro implements [`ConstCmp`] for all the `impl`d types,
 /// and outputs the methods/associated constants in each of the listed impls.
 ///
 /// # Example
@@ -38,28 +38,22 @@
 ///     }
 /// }
 ///
-/// const CMPS: [(Ordering, bool); 4] = {
+/// const _: () = {
 ///     let foo = Tupled(3, PhantomData::<u32>);
 ///     let bar = Tupled(5, PhantomData::<u32>);
 ///     
-///     [
-///         (const_cmp!(foo, foo), const_eq!(foo, foo)),
-///         (const_cmp!(foo, bar), const_eq!(foo, bar)),
-///         (const_cmp!(bar, foo), const_eq!(bar, foo)),
-///         (const_cmp!(bar, bar), const_eq!(bar, bar)),
-///     ]
+///     assert!(matches!(const_cmp!(foo, foo), Ordering::Equal));
+///     assert!( const_eq!(foo, foo));
+///
+///     assert!(matches!(const_cmp!(foo, bar), Ordering::Less));
+///     assert!(!const_eq!(foo, bar));
+///
+///     assert!(matches!(const_cmp!(bar, foo), Ordering::Greater));
+///     assert!(!const_eq!(bar, foo));
+///
+///     assert!(matches!(const_cmp!(bar, bar), Ordering::Equal));
+///     assert!( const_eq!(bar, bar));
 /// };
-///
-/// assert_eq!(
-///     CMPS,
-///     [
-///         (Ordering::Equal, true),
-///         (Ordering::Less, false),
-///         (Ordering::Greater, false),
-///         (Ordering::Equal, true),
-///     ]
-/// );
-///
 /// ```
 ///
 /// ### Enum
@@ -99,31 +93,26 @@
 ///     }
 /// }
 ///
-/// const CMPS: [(Ordering, bool); 4] = {
+/// const _: () = {
 ///     let foo = Enum::Tupled(3, 5);
 ///     let bar = Enum::Unit;
 ///     
-///     [
-///         (const_cmp!(foo, foo), const_eq!(foo, foo)),
-///         (const_cmp!(foo, bar), const_eq!(foo, bar)),
-///         (const_cmp!(bar, foo), const_eq!(bar, foo)),
-///         (const_cmp!(bar, bar), const_eq!(bar, bar)),
-///     ]
-/// };
+///     assert!(matches!(const_cmp!(foo, foo), Ordering::Equal));
+///     assert!( const_eq!(foo, foo));
 ///
-/// assert_eq!(
-///     CMPS,
-///     [
-///         (Ordering::Equal, true),
-///         (Ordering::Less, false),
-///         (Ordering::Greater, false),
-///         (Ordering::Equal, true),
-///     ]
-/// );
+///     assert!(matches!(const_cmp!(foo, bar), Ordering::Less));
+///     assert!(!const_eq!(foo, bar));
+///
+///     assert!(matches!(const_cmp!(bar, foo), Ordering::Greater));
+///     assert!(!const_eq!(bar, foo));
+///
+///     assert!(matches!(const_cmp!(bar, bar), Ordering::Equal));
+///     assert!( const_eq!(bar, bar));
+/// };
 ///
 /// ```
 ///
-/// [`ConstCmpMarker`]: ./polymorphism/trait.ConstCmpMarker.html
+/// [`ConstCmp`]: crate::cmp::ConstCmp
 ///
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
@@ -230,12 +219,11 @@ macro_rules! __impl_cmp_impl {
         [ $($everything:tt)* ]
     )=>{
         $(#[$impl_attr])*
-        impl<$($impl_)*> $crate::__::ConstCmpMarker for $type
+        impl<$($impl_)*> $crate::__::ConstCmp for $type
         where
             $($where)*
         {
             type Kind = $crate::__::IsNotStdKind;
-            type This = Self;
         }
 
         $(#[$impl_attr])*

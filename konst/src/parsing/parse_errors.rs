@@ -8,7 +8,7 @@ use core::{
 /// Error returned by all parsing methods that return Result.
 ///
 /// This error type knows [`where`](#method.offset) the error happened,
-/// in what [`direction`](#method.error_direction) the bytes were being parsed,
+/// in what [`direction`](#method.error_direction) the string was being parsed,
 /// and the [`kind`](#method.kind) of error that happened.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ParseError<'a> {
@@ -16,6 +16,7 @@ pub struct ParseError<'a> {
     end_offset: u32,
     direction: ParseDirection,
     kind: ErrorKind,
+    extra_message: &'static &'static str,
     // Just in case that it goes back to storing the parser
     _lifetime: PhantomData<&'a [u8]>,
 }
@@ -26,9 +27,23 @@ impl<'a> ParseError<'a> {
     pub const fn new(parser: Parser<'a>, kind: ErrorKind) -> Self {
         Self {
             start_offset: parser.start_offset,
-            end_offset: parser.start_offset + parser.bytes.len() as u32,
+            end_offset: parser.start_offset + parser.str.len() as u32,
             direction: parser.parse_direction,
             kind,
+            extra_message: &"",
+            _lifetime: PhantomData,
+        }
+    }
+
+    /// Constructs a `ParseError`  for an `ErrorKind::Other` error with
+    /// a customized error message.
+    pub const fn other_error(parser: Parser<'a>, extra_message: &'static &'static str) -> Self {
+        Self {
+            start_offset: parser.start_offset,
+            end_offset: parser.start_offset + parser.str.len() as u32,
+            direction: parser.parse_direction,
+            kind: ErrorKind::Other,
+            extra_message,
             _lifetime: PhantomData,
         }
     }
@@ -40,16 +55,17 @@ impl<'a> ParseError<'a> {
             end_offset: self.end_offset,
             direction: self.direction,
             kind: self.kind,
+            extra_message: self.extra_message,
             _lifetime: PhantomData,
         }
     }
 
-    /// Gets the byte offset of this error in the parsed bytes that the
+    /// Gets the byte offset of this error in the parsed string that the
     /// [`Parser`] was constructed from.
     #[inline(always)]
     pub const fn offset(&self) -> usize {
         (match self.direction {
-            ParseDirection::FromStart => self.start_offset,
+            ParseDirection::FromStart | ParseDirection::FromBoth => self.start_offset,
             ParseDirection::FromEnd => self.end_offset,
         }) as usize
     }
@@ -65,67 +81,61 @@ impl<'a> ParseError<'a> {
         self.kind
     }
 
-    /// For erroring with an error message,
+    const fn extra_message(&self) -> &str {
+        self.extra_message
+    }
+
+    /// For panicking with an error message,
     /// this is called by the [`unwrap_ctx`] macro.
     ///
     /// [`unwrap_ctx`]: ../result/macro.unwrap_ctx.html
     #[track_caller]
     pub const fn panic(&self) -> ! {
+        use const_panic::{FmtArg, PanicVal};
+
+        const_panic::concat_panic(&[&[
+            PanicVal::write_str(self.error_for_direction()),
+            PanicVal::from_usize(self.offset(), FmtArg::DEBUG),
+            PanicVal::write_str(" byte offset"),
+            PanicVal::write_str(self.error_suffix()),
+            PanicVal::write_str(self.extra_message()),
+        ]])
+    }
+
+    const fn error_for_direction(&self) -> &'static str {
+        match self.direction {
+            ParseDirection::FromStart => "error from the start at the ",
+            ParseDirection::FromEnd => "error from the end at the ",
+            ParseDirection::FromBoth => "error from the start and end at the ",
+        }
+    }
+    const fn error_suffix(&self) -> &'static str {
         match self.kind {
-            ErrorKind::ParseInteger => match self.direction {
-                ParseDirection::FromStart => {
-                    [/*integer parsing errored from start offset*/][self.offset()]
+            ErrorKind::ParseInteger => " while parsing an integer",
+            ErrorKind::ParseBool => " while parsing a bool",
+            ErrorKind::Find => " while trying to find and skip a pattern",
+            ErrorKind::Strip => " while trying to strip a pattern",
+            ErrorKind::SplitExhausted => ": called split on empty parser",
+            ErrorKind::DelimiterNotFound => ": delimiter (for splitting) could not be found",
+            ErrorKind::Other => {
+                if self.extra_message.is_empty() {
+                    " other error"
+                } else {
+                    ": "
                 }
-                ParseDirection::FromEnd => {
-                    [/*integer parsing errored from end offset*/][self.offset()]
-                }
-            },
-            ErrorKind::ParseBool => match self.direction {
-                ParseDirection::FromStart => {
-                    [/*bool parsing errored from start offset*/][self.offset()]
-                }
-                ParseDirection::FromEnd => {
-                    [/*bool parsing errored from end offset*/][self.offset()]
-                }
-            },
-            ErrorKind::Find => match self.direction {
-                ParseDirection::FromStart => {
-                    [/*Error finding pattern from start offset*/][self.offset()]
-                }
-                ParseDirection::FromEnd => {
-                    [/*Error finding pattern from end offset*/][self.offset()]
-                }
-            },
-            ErrorKind::Strip => match self.direction {
-                ParseDirection::FromStart => [/*Error stripping from start offset*/][self.offset()],
-                ParseDirection::FromEnd => [/*Error stripping from end offset*/][self.offset()],
-            },
-            ErrorKind::SkipByte => [/*Error skipping byte at offset*/][self.offset()],
-            ErrorKind::Other => match self.direction {
-                ParseDirection::FromStart => [/*parse error from start offset*/][self.offset()],
-                ParseDirection::FromEnd => [/*parse error from end offset*/][self.offset()],
-            },
+            }
         }
     }
 }
 
 impl<'a> Display for ParseError<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(match self.direction {
-            ParseDirection::FromStart => "error from the start at the ",
-            ParseDirection::FromEnd => "error from the end at the ",
-        })?;
+        f.write_str(self.error_for_direction())?;
         Display::fmt(&self.offset(), f)?;
         f.write_str(" byte offset")?;
-
-        f.write_str(match self.kind {
-            ErrorKind::ParseInteger => " while parsing an integer",
-            ErrorKind::ParseBool => " while parsing a bool",
-            ErrorKind::Find => " while trying to find and skip a pattern",
-            ErrorKind::Strip => " while trying to strip a pattern",
-            ErrorKind::SkipByte => " while trying to skip a byte",
-            ErrorKind::Other => " (a parsing error)",
-        })
+        f.write_str(self.error_suffix())?;
+        f.write_str(self.extra_message())?;
+        Ok(())
     }
 }
 
@@ -138,6 +148,8 @@ pub enum ParseDirection {
     FromStart = 0,
     /// Parsing was attempted from the end of the string
     FromEnd = 1,
+    /// Parsing was attempted from both the start and end of the string
+    FromBoth = 2,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -154,8 +166,11 @@ pub enum ErrorKind {
     Find,
     /// Returned from `strip_*` methods
     Strip,
-    /// Returned from `skip_byte`
-    SkipByte,
+    /// Returned from `split` when the last delimiter-separated/terminated string
+    /// has already been returned
+    SplitExhausted,
+    /// Returned from `split_terminator` when the delimiter could not be found
+    DelimiterNotFound,
     /// For user-defined types
     Other,
 }

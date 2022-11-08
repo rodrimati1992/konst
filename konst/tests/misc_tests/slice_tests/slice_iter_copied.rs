@@ -1,5 +1,3 @@
-use konst::slice;
-
 #[test]
 fn slice_iter_const_callable() {
     const fn __<'a, T: Copy>(slice: &'a [T]) {

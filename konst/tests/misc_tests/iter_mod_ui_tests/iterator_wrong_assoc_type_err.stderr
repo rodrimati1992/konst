@@ -1,0 +1,32 @@
+error[E0271]: type mismatch resolving `<WrongItem as ConstIntoIter>::Item == u64`
+  --> tests/misc_tests/iter_mod_ui_tests/iterator_wrong_assoc_type_err.rs:18:5
+   |
+18 |     konst::iter::for_each!{_ in WrongItem => }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch resolving `<WrongItem as ConstIntoIter>::Item == u64`
+   |
+note: expected this to be `u8`
+  --> tests/misc_tests/iter_mod_ui_tests/iterator_wrong_assoc_type_err.rs:8:17
+   |
+8  |     type Item = u8;
+   |                 ^^
+   = note: this error originates in the macro `$crate::iter::__cim_preprocess_methods` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0271]: type mismatch resolving `<WrongIntoIter as ConstIntoIter>::IntoIter == WrongIntoIter`
+  --> tests/misc_tests/iter_mod_ui_tests/iterator_wrong_assoc_type_err.rs:37:5
+   |
+37 |     konst::iter::for_each!{_ in WrongIntoIter => }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch resolving `<WrongIntoIter as ConstIntoIter>::IntoIter == WrongIntoIter`
+   |
+note: expected this to be `WrongIntoIter`
+  --> tests/misc_tests/iter_mod_ui_tests/iterator_wrong_assoc_type_err.rs:26:21
+   |
+26 |     type IntoIter = konst::slice::IterCopied<'static, u8>;
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   = note: expected struct `WrongIntoIter`
+              found struct `IterCopied<'static, u8>`
+note: required by a bound in `IntoIterWrapper::<T, IsIteratorKind>::const_into_iter`
+  --> $WORKSPACE/konst_kernel/src/into_iter.rs
+   |
+   |         T: ConstIntoIter<IntoIter = T>
+   |                          ^^^^^^^^^^^^ required by this bound in `IntoIterWrapper::<T, IsIteratorKind>::const_into_iter`
+   = note: this error originates in the macro `$crate::into_iter_macro` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)

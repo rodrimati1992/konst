@@ -1,40 +1,39 @@
 use crate::{
-    iter::{IntoIterKind, IsIteratorKind},
-    string::{self, str_from, str_up_to},
+    iter::{ConstIntoIter, IsIteratorKind},
+    string::{self, str_from, str_up_to, Pattern, PatternNorm},
 };
 
-use konst_macro_rules::iterator_shared;
+use konst_kernel::iterator_shared;
 
 /// Const equivalent of [`str::split_terminator`], which only takes a `&str` delimiter.
 ///
-/// The same as [`split`](crate::string::split),
+/// This does the same as [`split`](crate::string::split),
 /// except that, if the string after the last delimiter is empty, it is skipped.
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
+/// This takes [`Pattern`] implementors as the delimiter.
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
-/// use konst::iter::for_each;
+/// use konst::iter::collect_const;
 ///
-/// const STRS: &[&str] = &{
-///     let mut arr = [""; 3];
-///     for_each!{(i, sub) in string::split_terminator("foo,bar,baz,", ","),enumerate() =>
-///         arr[i] = sub;
-///     }
-///     arr
-/// };
+/// const STRS: [&str; 3] = collect_const!(&str =>  
+///     string::split_terminator("foo,bar,baz,", ',')
+/// );
 ///
 /// assert_eq!(STRS, ["foo", "bar", "baz"]);
 /// ```
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
-pub const fn split_terminator<'a, 'b>(this: &'a str, delim: &'b str) -> SplitTerminator<'a, 'b> {
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub const fn split_terminator<'a, 'p, P>(this: &'a str, delim: P) -> SplitTerminator<'a, 'p, P>
+where
+    P: Pattern<'p>,
+{
+    let delim = PatternNorm::new(delim);
+
     SplitTerminator {
         this,
-        state: if delim.is_empty() {
+        state: if delim.as_str().is_empty() {
             State::Empty(EmptyState::Start)
         } else {
             State::Normal { delim }
@@ -42,40 +41,37 @@ pub const fn split_terminator<'a, 'b>(this: &'a str, delim: &'b str) -> SplitTer
     }
 }
 
-/// Const equivalent of [`str::rsplit_terminator`], which only takes a `&str` delimiter.
+/// Const equivalent of [`str::rsplit_terminator`].
 ///
-/// The same as [`rsplit`](crate::string::rsplit),
+/// This does the same as [`rsplit`](crate::string::rsplit),
 /// except that, if the string before the first delimiter is empty, it is skipped.
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
+/// This takes [`Pattern`] implementors as the delimiter.
 ///
 /// # Example
 ///
 /// ```rust
 /// use konst::string;
-/// use konst::iter::for_each;
+/// use konst::iter::collect_const;
 ///
-/// const STRS: &[&str] = &{
-///     let mut arr = [""; 3];
-///     for_each!{(i, sub) in string::rsplit_terminator(":foo:bar:baz", ":"),enumerate() =>
-///         arr[i] = sub;
-///     }
-///     arr
-/// };
+/// const STRS: [&str; 3] = collect_const!(&str =>
+///     string::rsplit_terminator(":foo:bar:baz", ":")
+/// );
 ///
 /// assert_eq!(STRS, ["baz", "bar", "foo"]);
 /// ```
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
-pub const fn rsplit_terminator<'a, 'b>(this: &'a str, delim: &'b str) -> RSplitTerminator<'a, 'b> {
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub const fn rsplit_terminator<'a, 'p, P>(this: &'a str, delim: P) -> RSplitTerminator<'a, 'p, P>
+where
+    P: Pattern<'p>,
+{
     let SplitTerminator { this, state } = split_terminator(this, delim);
     RSplitTerminator { this, state }
 }
 
 #[derive(Copy, Clone)]
-enum State<'a> {
-    Normal { delim: &'a str },
+enum State<'p, P: Pattern<'p>> {
+    Normal { delim: PatternNorm<'p, P> },
     Empty(EmptyState),
 }
 
@@ -85,35 +81,33 @@ enum EmptyState {
     Continue,
 }
 
-/// Const equivalent of `core::str::SplitTerminator<'a, &'b str>`
+/// Const equivalent of `core::str::SplitTerminator<'a, P>`
 ///
 /// This is constructed with [`split_terminator`] like this:
 /// ```rust
 /// # let string = "";
 /// # let delim = "";
-/// # let _: konst::string::SplitTerminator<'_, '_> =
+/// # let _: konst::string::SplitTerminator<'_, '_, &str> =
 /// konst::string::split_terminator(string, delim)
 /// # ;
 /// ```
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
-///
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
-pub struct SplitTerminator<'a, 'b> {
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub struct SplitTerminator<'a, 'p, P: Pattern<'p>> {
     this: &'a str,
-    state: State<'b>,
+    state: State<'p, P>,
 }
-impl IntoIterKind for SplitTerminator<'_, '_> {
+impl<'a, 'p, P: Pattern<'p>> ConstIntoIter for SplitTerminator<'a, 'p, P> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = &'a str;
 }
 
-impl<'a, 'b> SplitTerminator<'a, 'b> {
+impl<'a, 'p, P: Pattern<'p>> SplitTerminator<'a, 'p, P> {
     iterator_shared! {
         is_forward = true,
         item = &'a str,
-        iter_forward = SplitTerminator<'a, 'b>,
+        iter_forward = SplitTerminator<'a, 'p, P>,
         next(self){
             let Self {
                 this,
@@ -129,7 +123,8 @@ impl<'a, 'b> SplitTerminator<'a, 'b> {
                     None
                 }
                 State::Normal{delim} => {
-                    let (next, ret) = match string::find(this, delim, 0) {
+                    let delim = delim.as_str();
+                    let (next, ret) = match string::find(this, delim) {
                         Some(pos) => (pos + delim.len(), pos),
                         None => (this.len(), this.len()),
                     };
@@ -137,7 +132,9 @@ impl<'a, 'b> SplitTerminator<'a, 'b> {
                     Some((str_up_to(this, ret), self))
                 }
                 State::Empty(EmptyState::Continue) => {
-                    let next_char = string::find_next_char_boundary(self.this.as_bytes(), 0);
+                    use konst_kernel::string::__find_next_char_boundary;
+
+                    let next_char = __find_next_char_boundary(self.this.as_bytes(), 0);
                     let (next_char, rem) = string::split_at(self.this, next_char);
                     self.this = rem;
                     Some((next_char, self))
@@ -173,35 +170,33 @@ impl<'a, 'b> SplitTerminator<'a, 'b> {
     }
 }
 
-/// Const equivalent of `core::str::RSplitTerminator<'a, &'b str>`
+/// Const equivalent of `core::str::RSplitTerminator<'a, P>`
 ///
 /// This is constructed with [`rsplit_terminator`] like this:
 /// ```rust
 /// # let string = "";
 /// # let delim = "";
-/// # let _: konst::string::RSplitTerminator<'_, '_> =
+/// # let _: konst::string::RSplitTerminator<'_, '_, &str> =
 /// konst::string::rsplit_terminator(string, delim)
 /// # ;
 /// ```
 ///
-/// # Version compatibility
-///
-/// This requires the `"rust_1_64"` feature.
-///
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
-pub struct RSplitTerminator<'a, 'b> {
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub struct RSplitTerminator<'a, 'p, P: Pattern<'p>> {
     this: &'a str,
-    state: State<'b>,
+    state: State<'p, P>,
 }
-impl IntoIterKind for RSplitTerminator<'_, '_> {
+impl<'a, 'p, P: Pattern<'p>> ConstIntoIter for RSplitTerminator<'a, 'p, P> {
     type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = &'a str;
 }
 
-impl<'a, 'b> RSplitTerminator<'a, 'b> {
+impl<'a, 'p, P: Pattern<'p>> RSplitTerminator<'a, 'p, P> {
     iterator_shared! {
         is_forward = true,
         item = &'a str,
-        iter_forward = RSplitTerminator<'a, 'b>,
+        iter_forward = RSplitTerminator<'a, 'p>,
         next(self){
             let Self {
                 this,
@@ -217,7 +212,8 @@ impl<'a, 'b> RSplitTerminator<'a, 'b> {
                     None
                 }
                 State::Normal{delim} => {
-                    let (next, ret) = match string::rfind(this, delim, this.len()) {
+                    let delim = delim.as_str();
+                    let (next, ret) = match string::rfind(this, delim) {
                         Some(pos) => (pos, pos + delim.len()),
                         None => (0, 0),
                     };
@@ -225,8 +221,10 @@ impl<'a, 'b> RSplitTerminator<'a, 'b> {
                     Some((str_from(this, ret), self))
                 }
                 State::Empty(EmptyState::Continue) => {
+                    use konst_kernel::string::__find_prev_char_boundary;
+
                     let bytes = self.this.as_bytes();
-                    let next_char = string::find_prev_char_boundary(bytes, bytes.len());
+                    let next_char = __find_prev_char_boundary(bytes, bytes.len());
                     let (rem, next_char) = string::split_at(self.this, next_char);
                     self.this = rem;
                     Some((next_char, self))

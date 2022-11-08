@@ -1,10 +1,31 @@
 use konst::string;
 
-#[cfg(feature = "rust_1_55")]
 use super::test_utils::must_panic;
 
-#[cfg(feature = "rust_1_64")]
+#[cfg(feature = "iter")]
+mod string_chars_tests;
+
+mod string_concatenation;
+
+#[cfg(feature = "iter")]
 mod string_splitting;
+
+#[test]
+fn starts_with_char() {
+    assert!(!string::starts_with("foo", '个'));
+    assert!(!string::starts_with("foo个", '个'));
+    assert!(string::starts_with("个 foo", '个'));
+    assert!(string::starts_with("a foo", 'a'));
+}
+
+#[test]
+fn ends_with_char() {
+    assert!(string::ends_with("fooñ", 'ñ'));
+    assert!(string::ends_with("foo个", '个'));
+    assert!(!string::ends_with("foo", '个'));
+    assert!(!string::ends_with("个 foo", '个'));
+    assert!(!string::ends_with("a foo", 'a'));
+}
 
 // 0..1: 'f'
 // 1..2: 'o'
@@ -19,21 +40,31 @@ mod string_splitting;
 // 18..19: 'b'
 // 19..20: 'a'
 // 20..21: 'z'
-#[cfg(feature = "rust_1_55")]
 const CHAR_LENS: &str = "fooñ个人bar\u{100000}baz";
 
-#[cfg(feature = "rust_1_55")]
 const LEN: usize = CHAR_LENS.len();
 
-#[cfg(feature = "rust_1_55")]
 const INVALID_INDICES: &[usize] = &[4, 6, 7, 9, 10, 15, 16, 17];
 
-#[cfg(feature = "rust_1_55")]
 const OOB_INDICES: &[usize] = &[LEN + 1, LEN + 10, !0 - 1, !0];
 
 #[test]
-#[cfg(feature = "rust_1_55")]
-// #[cfg(not(miri))] // miri got too slow to test this
+fn is_char_boundary_test() {
+    for i in 0..=CHAR_LENS.len() + 10 {
+        assert_eq!(
+            CHAR_LENS.is_char_boundary(i),
+            string::is_char_boundary(CHAR_LENS, i),
+            "i: {i}",
+        );
+    }
+
+    assert_eq!(
+        CHAR_LENS.is_char_boundary(usize::MAX),
+        string::is_char_boundary(CHAR_LENS, usize::MAX),
+    );
+}
+
+#[test]
 fn test_char_boundary_inside() {
     for start in 0..=CHAR_LENS.len() {
         for end in 0..=CHAR_LENS.len() {
@@ -71,7 +102,6 @@ fn test_char_boundary_inside() {
     }
 }
 
-#[cfg(feature = "rust_1_55")]
 fn get_valid_indices() -> Vec<usize> {
     CHAR_LENS
         .char_indices()
@@ -81,7 +111,6 @@ fn get_valid_indices() -> Vec<usize> {
 }
 
 #[test]
-#[cfg(feature = "rust_1_55")]
 fn test_in_bounds() {
     let valid_indices = get_valid_indices();
     for start in valid_indices.iter().copied() {
@@ -106,7 +135,6 @@ fn test_in_bounds() {
 }
 
 #[test]
-#[cfg(feature = "rust_1_55")]
 fn test_out_of_bounds() {
     let valid_indices = get_valid_indices();
 
@@ -136,39 +164,7 @@ fn test_out_of_bounds() {
     }
 }
 
-// This doesn't run any unsafe code, so no need to test it in miri
-#[cfg(not(miri))]
 #[test]
-fn test_from_utf8_is_ok() {
-    use rand::rngs::SmallRng;
-    use rand::{Rng, SeedableRng};
-
-    let mut rng = SmallRng::seed_from_u64(6249204433781597762);
-
-    let mut arr = [0u8; 9];
-
-    for _ in 0..100000 {
-        let len: usize = rng.gen_range(0..=arr.len());
-        let slice = &mut arr[..len];
-        rng.fill(slice);
-        let slice = &*slice;
-
-        let res_std = std::str::from_utf8(slice);
-        let res_mine = konst::string::__priv_check_utf8(slice);
-
-        assert_eq!(
-            res_std.is_ok(),
-            res_mine.is_ok(),
-            "slice:\n{:?}\n\nstd:\n{:?}\n\nmin:\n{:?}",
-            slice,
-            res_std,
-            res_mine,
-        );
-    }
-}
-
-#[test]
-#[cfg(feature = "rust_1_55")]
 fn test_split_at() {
     const IN: &str = "foo bar baz";
 
@@ -209,49 +205,18 @@ fn test_split_at() {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-fn from_utf8_unwrap<E>(s: &[u8]) -> Result<&str, E> {
-    Ok(std::str::from_utf8(s).unwrap())
+const fn bytes_to_string(s: &[u8]) -> &str {
+    konst::result::unwrap_ctx!(string::from_utf8(s))
 }
 
-const S0: &[u8] = b"helloworldfoobar";
-
-const S1: &[u8] = b"hello\x99worldfoobar";
-
+// this only needs to test that errors can be unwrapped in const contexts
 #[test]
-fn test_from_utf8_macro() {
-    const RESULTS: &[Result<&str, string::Utf8Error>] =
-        &[string::from_utf8!(S0), string::from_utf8!(S1)];
-
-    assert_eq!(RESULTS[0], from_utf8_unwrap(S0));
-    assert_eq!(RESULTS[1].as_ref().unwrap_err().valid_up_to(), 5);
+fn from_utf8_test() {
+    const _: &str = bytes_to_string(b"foo bar");
 }
 
-#[cfg(feature = "rust_1_55")]
 #[test]
-fn test_from_utf8_both() {
-    const fn mapper<const N: usize>(in_: [&[u8]; N]) -> [[Result<&str, string::Utf8Error>; 2]; N] {
-        const DEF_RESULT: [Result<&str, string::Utf8Error>; 2] = [Ok(""), Ok("")];
-
-        let mut arr = [DEF_RESULT; N];
-
-        konst::for_range! {i in 0..N =>
-            arr[i] = [string::from_utf8!(in_[i]), string::from_utf8(in_[i])];
-        }
-
-        arr
-    }
-
-    let results = mapper([S0, S1]);
-    let expecteds = vec![from_utf8_unwrap(S0), Err(5)];
-
-    for ([l, r], expected) in results.iter().cloned().zip(expecteds) {
-        assert_eq!(l, r);
-
-        match expected {
-            Ok(x) => assert_eq!(l.unwrap(), x),
-            Err(valid_up_to) => assert_eq!(l.unwrap_err().valid_up_to(), valid_up_to),
-        }
-    }
+#[should_panic]
+fn from_utf8_panics() {
+    let _ = bytes_to_string(&[255, 255, 255]);
 }

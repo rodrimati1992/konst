@@ -1,0 +1,13 @@
+error: invalid where clause syntax
+  --> tests/misc_tests/type_eq_ui_tests/invalid_where_clause_err.rs:4:1
+   |
+4  | / type_eq_projection_fn!{
+5  | |     ///
+6  | |     fn project_option(T) -> Option<T>
+7  | |     where
+...  |
+11 | |     fn foo() {}
+12 | | }
+   | |_^
+   |
+   = note: this error originates in the macro `$crate::__assert_replaced_type_param_and_where_clause` which comes from the expansion of the macro `type_eq_projection_fn` (in Nightly builds, run with -Z macro-backtrace for more info)

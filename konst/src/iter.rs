@@ -1,20 +1,31 @@
 //! Const equivalent of iterators with a specific `next` function signature.
 //!
-//! The docs for [`IntoIterKind`] has more information on
+//! The docs for [`ConstIntoIter`] has more information on
 //! const equivalents of IntoIterator and Iterator.
 //!
 
-#[cfg(any(not(doctest), feature = "rust_1_56"))]
+mod iterator_adaptors;
 pub mod iterator_dsl;
 
-/// Iterates over all elements of an [iterator](crate::iter#iterator),
+pub use iterator_adaptors::*;
+
+/// Iterates over all elements of an [iterator](crate::iter::ConstIntoIter),
 /// const equivalent of [`Iterator::for_each`]
 ///
-/// # Iterator methods
+/// # Syntax
+///
+/// ```text
+/// for_each!{
+///     $pattern:pat in $iterator:expr
+///         $(,$iterator_method:ident ($($method_args:tt)*) )*
+///         $(,)?
+///     =>
+///     $($code:tt)*
+/// }
+/// ```
 ///
 /// This macro supports emulating iterator methods by expanding to equivalent code.
-///
-/// The supported iterator methods are documented in the [`iterator_dsl`] module,
+/// They are documented in the [`iterator_dsl`] module,
 /// because they are also supported by other `konst::iter` macros.
 ///
 /// # Examples
@@ -22,11 +33,15 @@ pub mod iterator_dsl;
 /// ### Custom iterator
 ///
 /// ```rust
-/// use konst::iter::{IntoIterKind, IsIteratorKind};
+/// use konst::iter::{ConstIntoIter, IsIteratorKind};
 ///
 /// struct Upto10(u8);
 ///
-/// impl IntoIterKind for Upto10 { type Kind = IsIteratorKind; }
+/// impl ConstIntoIter for Upto10 {
+///     type Kind = IsIteratorKind;
+///     type IntoIter = Self;
+///     type Item = u8;
+/// }
 ///
 /// impl Upto10 {
 ///     const fn next(mut self) -> Option<(u8, Self)> {
@@ -54,10 +69,7 @@ pub mod iterator_dsl;
 ///
 /// ### Summing pairs
 ///
-/// This example requires the `"rust_1_51"` feature, because it uses const generics.
-///
-#[cfg_attr(feature = "rust_1_51", doc = "```rust")]
-#[cfg_attr(not(feature = "rust_1_51"), doc = "```ignore")]
+/// ```rust
 /// use konst::iter::for_each;
 ///     
 /// const fn add_pairs<const N: usize>(l: [u32; N], r: [u32; N]) -> [u32; N] {
@@ -77,42 +89,161 @@ pub mod iterator_dsl;
 /// ```
 ///
 /// [`iterator_dsl`]: crate::iter::iterator_dsl
-pub use konst_macro_rules::for_each;
+pub use konst_kernel::for_each;
 
-/// Wrapper for `IntoIterKind` implementors,
+/// Wrapper for `ConstIntoIter` implementors,
 /// that defines different methods depending on the
-/// value of `<T as IntoIterKind>::Kind`.
+/// value of `K`.
 #[doc(inline)]
-pub use konst_macro_rules::into_iter::IntoIterWrapper;
+pub use konst_kernel::into_iter::IntoIterWrapper;
 
-/// Marker type for proving that `T: IntoIterKind<Kind = K>`
+/// Marker type for proving that `T: ConstIntoIter<Kind = K>`
 #[doc(inline)]
-pub use konst_macro_rules::into_iter::IsIntoIterKind;
+pub use konst_kernel::into_iter::IsConstIntoIter;
 
-/// Macro for converting [`IntoIterKind`] implementors into const iterators.
+/// Macro for converting [`ConstIntoIter`] implementors into const iterators.
+///
+/// # Behavior
+///
+/// For std types (`ConstIntoIter<Kind = IsStdKind>`),
+/// this converts those types to their iterator.
+/// [(example below)](#std-type-example)
+///
+/// For user-defined into-iterators (`ConstIntoIter<Kind = IsIntoIterKind>`),
+/// this calls their `const_into_iter` inherent method to convert them to an iterator.
+/// [(example below)](#into-iter-example)
+///
+/// For iterators (`ConstIntoIter<Kind = IsIteratorKind>`),
+/// this returns the iterator untouched.
+/// [(example below)](#iterator-example)
+///
+/// # Examples
+///
+/// <span id="std-type-example"></span>
+/// ### Std type
+///
+/// This example demonstrates passing a `ConstIntoIter<Kind = IsStdKind>` in.
+///
+/// ```rust
+/// use konst::{iter, slice};
+///
+/// let mut elem;
+/// let mut iter: slice::Iter<'_, u8> = iter::into_iter!(&[3, 5, 8]);
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, &3);
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, &5);
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, &8);
+///
+/// assert!(iter.next().is_none());
+///
+/// ```
+///
+/// <span id="into-iter-example"></span>
+/// ### IntoIterator type
+///
+/// This example demonstrates passing a `ConstIntoIter<Kind = IsIntoIterKind>` in.
+///
+/// ```rust
+/// use konst::{iter, string};
+///
+/// let mut iter: Countdown = iter::into_iter!(Number(3));
+/// let mut elem;
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, 2);
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, 1);
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, 0);
+///
+/// assert!(iter.next().is_none());
+///
+///
+/// struct Number(u32);
+///
+/// impl iter::ConstIntoIter for Number {
+///     type Kind = iter::IsIntoIterKind;
+///     type Item = u32;
+///     type IntoIter = Countdown;
+/// }
+///
+/// impl Number {
+///     const fn const_into_iter(self) -> Countdown {
+///         Countdown(self.0)
+///     }
+/// }
+///
+/// struct Countdown(u32);
+///
+/// impl iter::ConstIntoIter for Countdown {
+///     type Kind = iter::IsIteratorKind;
+///     type Item = u32;
+///     type IntoIter = Self;
+/// }
+///
+/// impl Countdown {
+///     const fn next(self) -> Option<(u32, Self)> {
+///         let next = konst::try_opt!(self.0.checked_sub(1));
+///         Some((next, Countdown(next)))
+///     }
+/// }
+///
+///
+/// ```
+///
+/// <span id="iterator-example"></span>
+/// ### Iterator type
+///
+/// This example demonstrates passing a `ConstIntoIter<Kind = IsIteratorKind>` in.
+///
+/// ```rust
+/// use konst::{iter, string};
+///
+/// let iter: string::Split<'_, '_, char> = string::split("foo bar baz", ' ');
+///
+/// // `iter::into_iter` is an identity function when passed iterators
+/// let mut iter: string::Split<'_, '_, char> = iter::into_iter!(iter);
+/// let mut elem;
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, "foo");
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, "bar");
+///
+/// (elem, iter) = iter.next().unwrap();
+/// assert_eq!(elem, "baz");
+///
+/// assert!(iter.next().is_none());
+/// ```
+///
 ///
 #[doc(inline)]
-pub use konst_macro_rules::into_iter_macro as into_iter;
+pub use konst_kernel::into_iter_macro as into_iter;
 
 /// Const analog of the [`IntoIterator`] trait.
 ///
 /// # Implementor
 ///
-/// Implementors are expected to be:
+/// Implementors are expected to be one of these:
 ///
-/// - [Types that have an associated iterator](#isnoniteratorkind),
-///   that have [`IsNonIteratorKind`](crate::iter::IsNonIteratorKind)
-///   as the [`IntoIterKind::Kind`] associated type.
-///
-/// - [Iterators themselves](#isiteratorkind),
-/// that have [`IsIteratorKind`](crate::iter::IsIteratorKind)
-/// as the [`IntoIterKind::Kind`] associated type.
-///
+/// - [`IsIntoIterKind` kind](#isintoiterkind)
+/// - [`IsIteratorKind` kind](#isiteratorkind)
 /// - Standard library types, of the [`IsStdKind`] kind
 ///
-/// ### `IsNonIteratorKind`
+/// ### `IsIntoIterKind`
 ///
-/// These types are expected to define this inherent method for converting to
+/// These are user-defined types convertible to const iterators.
+///
+/// These implement `ConstIntoIter<Kind = `[`IsIntoIterKind`]`>`
+/// and are expected to define this inherent method for converting to
 /// a const iterator:
 ///
 /// ```rust
@@ -129,7 +260,10 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 ///
 /// ### `IsIteratorKind`
 ///
-/// These types are expected to have this inherent method:
+/// These are const iterator types.
+///
+/// These implement `ConstIntoIter<Kind = `[`IsIteratorKind`]`>`
+/// and are expected to define this inherent method:
 ///
 /// ```rust
 /// # struct SomeIterator;
@@ -156,7 +290,7 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 ///     // ... some code...
 /// }
 ///
-/// // Reverses the itereator, equivalent to `Iterator::rev`
+/// // Reverses the iterator, equivalent to `Iterator::rev`
 /// const fn rev(self) -> SomeIteratorRev {
 /// #   loop{}
 ///     // ... some code...
@@ -169,15 +303,16 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 /// }
 /// # }
 /// ```
-/// Where `SomeIteratorRev` should be a `IntoIterKind<Kind = IsIteratorKind>`
-/// which has the same inherent methods for iteration.
+/// Where `SomeIteratorRev` should be a `ConstIntoIter<Kind = IsIteratorKind>`
+/// which has the same inherent methods for iteration,
+/// and returns the same `Item` type.
 ///
 /// [full example below](#iter-example)
 ///
 /// # Examples
 ///
 /// <span id = "non-iter-example"></span>
-/// ### Implementing for a non-iterator
+/// ### Implementing for an into-iterator
 ///
 /// ```rust
 /// use konst::{iter, slice};
@@ -187,8 +322,10 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 ///     up_to: usize,
 /// }
 ///
-/// impl<T> iter::IntoIterKind for GetSlice<'_, T> {
-///     type Kind = iter::IsNonIteratorKind;
+/// impl<'a, T> iter::ConstIntoIter for GetSlice<'a, T> {
+///     type Kind = iter::IsIntoIterKind;
+///     type IntoIter = konst::slice::Iter<'a, T>;
+///     type Item = &'a T;
 /// }
 ///
 /// impl<'a, T> GetSlice<'a, T> {
@@ -215,15 +352,16 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 /// <span id = "iter-example"></span>
 /// ### Implementing for an iterator
 ///
-/// This example requires Rust 1.47.0 (because of `u8::checked_sub`)
-///
-#[cfg_attr(feature = "rust_1_51", doc = "```rust")]
-#[cfg_attr(not(feature = "rust_1_51"), doc = "```ignore")]
-/// use konst::iter::{self, IntoIterKind};
+/// ```rust
+/// use konst::iter::{self, ConstIntoIter};
 ///
 /// struct Countdown(u8);
 ///
-/// impl IntoIterKind for Countdown { type Kind = iter::IsIteratorKind; }
+/// impl ConstIntoIter for Countdown {
+///     type Kind = iter::IsIteratorKind;
+///     type IntoIter = Self;
+///     type Item = u8;
+/// }
 ///
 /// impl Countdown {
 ///     const fn next(mut self) -> Option<(u8, Self)> {
@@ -274,8 +412,10 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 ///     end: u8,
 /// }
 ///
-/// impl iter::IntoIterKind for Hours {
+/// impl iter::ConstIntoIter for Hours {
 ///     type Kind = iter::IsIteratorKind;
+///     type IntoIter = Self;
+///     type Item = u8;
 /// }
 ///
 /// impl Hours {
@@ -316,8 +456,10 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 ///
 /// struct HoursRev(Hours);
 ///
-/// impl iter::IntoIterKind for HoursRev {
+/// impl iter::ConstIntoIter for HoursRev {
 ///     type Kind = iter::IsIteratorKind;
+///     type IntoIter = Self;
+///     type Item = u8;
 /// }
 ///
 /// impl HoursRev {
@@ -342,22 +484,15 @@ pub use konst_macro_rules::into_iter_macro as into_iter;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_macro_rules::into_iter::IntoIterKind;
+pub use konst_kernel::into_iter::ConstIntoIter;
 
-/// For marking some type as being from std
-/// in its [`IntoIterKind::Kind`] associated type.
-#[doc(inline)]
-pub use konst_macro_rules::into_iter::IsStdKind;
+#[doc(no_inline)]
+pub use crate::polymorphism::kinds::{IsIntoIterKind, IsIteratorKind, IsStdKind};
 
-/// For marking some type as being convertible to an iterator
-/// in its [`IntoIterKind::Kind`] associated type.
-#[doc(inline)]
-pub use konst_macro_rules::into_iter::IsNonIteratorKind;
-
-/// For marking some type as being an iterator
-/// in its [`IntoIterKind::Kind`] associated type.
-#[doc(inline)]
-pub use konst_macro_rules::into_iter::IsIteratorKind;
+/// Trait for all the types that can be iterated over with ranges.
+///
+/// This trait is sealed and can only be implemented by `konst`
+pub use konst_kernel::step_kk::Step;
 
 include! {"./iter/collect_const.rs"}
 include! {"./iter/iter_eval.rs"}

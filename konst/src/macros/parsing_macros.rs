@@ -61,8 +61,8 @@
 ///
 /// const XX: [Struct; 2] = {
 ///     [
-///         parse_struct(Parser::from_str("foo,1000")).0,
-///         parse_struct(Parser::from_str("bar,")).0,
+///         parse_struct(Parser::new("foo,1000")).0,
+///         parse_struct(Parser::new("bar,")).0,
 ///     ]
 /// };
 ///
@@ -76,15 +76,15 @@
 ///
 ///
 /// ```
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
 #[macro_export]
 macro_rules! rebind_if_ok {
     (
-        $pattern:tt = $expression:expr
+        $pattern:tt $(:$ty:ty)? = $expression:expr
         $( => $($code:tt)* )?
     ) => {
         if let $crate::__::v::Ok(tuple) = $expression {
-            $crate::__priv_ai_preprocess_pattern!( tuple, ($pattern) );
+            $crate::__priv_ai_preprocess_pattern!{tuple, ($pattern $(:$ty)?)}
             $($($code)*)?
         }
     };
@@ -94,29 +94,36 @@ macro_rules! rebind_if_ok {
 #[macro_export]
 macro_rules! __priv_ai_preprocess_pattern {
     ( $var:ident, (($($pat:tt)*))) => {
-        $crate::__priv_assign_tuple!($var, (0 1 2 3 4 5) , $($pat)*)
+        $crate::__priv_assign_tuple!{$var, (0 1 2 3 4 5) , $($pat)*}
     };
     ( $var:ident, ($($pat:tt)*)) => {
-        $crate::__priv_assign_tuple!($var, (0 1 2 3 4 5) , $($pat)*)
+        $crate::__priv_assign_tuple!{$var, (0 1 2 3 4 5) , $($pat)*}
     };
 }
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_assign_tuple {
     ($var:ident, $fields:tt, let $pat:tt: $ty:ty $(, $($rem:tt)*)?) => {
-        $crate::__priv_next_ai_access!(
+        $crate::__priv_next_ai_access!{
             (let $pat: $ty) $var, $fields, $($($rem)*)?
-        )
+        }
     };
-    ($var:ident, $fields:tt, let $pat:pat $(, $($rem:tt)*)?) => {
-        $crate::__priv_next_ai_access!(
+    ($var:ident, $fields:tt, let $pat:pat_param $(, $($rem:tt)*)?) => {
+        $crate::__priv_next_ai_access!{
             (let $pat) $var, $fields, $($($rem)*)?
-        )
+        }
     };
     ($var:ident, $fields:tt, _ $(: $ty:ty)? $(, $($rem:tt)*)?) => {
-        $crate::__priv_next_ai_access!(
+        $crate::__priv_next_ai_access!{
             (let _ $(: $ty)? ) $var, $fields, $($($rem)*)?
-        )
+        }
+    };
+    ($var:ident, $fields:tt, $e:tt $(: $ty:ty)? $(, $($rem:tt)*)?) => {
+        $(let _: $ty = $var;)?
+
+        $crate::__priv_next_ai_access!{
+            ($e) $var, $fields, $($($rem)*)?
+        }
     };
     ($var:ident, $fields:tt, $e:expr $(, $($rem:tt)*)?) => {
         $crate::__priv_next_ai_access!(
@@ -146,19 +153,6 @@ macro_rules! __priv_next_ai_access {
 /// but also reassigns variables with the value in the `Ok` variant.
 ///
 /// Note: the `Ok` variant can only be destructured into a single variable or a tuple.
-///
-/// # Mapping errors
-///
-/// You can optionally map the returned error like this:
-/// ```text
-/// try_rebind!{foo = bar(), map_err = |e| convert_this_error(e)}
-/// ```
-/// or
-/// ```text
-/// try_rebind!{foo = bar(), map_err = convert_this_error}
-/// ```
-/// The `convert_this_error` function is expected to return the error type that
-/// the current function returns.
 ///
 /// # Let pattern
 ///
@@ -190,7 +184,7 @@ macro_rules! __priv_next_ai_access {
 ///     // (this also happens in every other invocation of `try_rebind` in this example)
 ///     try_rebind!{(let aa, parser) = parser.parse_u64()}
 ///
-///     try_rebind!{parser = parser.strip_prefix_u8(b',')}
+///     try_rebind!{parser = parser.strip_prefix(',')}
 ///
 ///     try_rebind!{(let bb, parser) = parser.parse_u64()}
 ///
@@ -198,7 +192,7 @@ macro_rules! __priv_next_ai_access {
 /// }
 ///
 /// const PAIR: (u64, u64) = {
-///     let parser = Parser::from_str("100,200");
+///     let parser = Parser::new("100,200");
 ///     unwrap_ctx!(parse_int_pair(parser)).0
 /// };
 ///
@@ -206,35 +200,17 @@ macro_rules! __priv_next_ai_access {
 ///
 /// ```
 ///
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_no_proc")))]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
 #[macro_export]
 macro_rules! try_rebind {
     (
-        $pattern:tt = $expression:expr $(, $($map_err:tt)* )?
+        $pattern:tt = $expression:expr $(,)?
     ) => {
         let tuple = match $expression {
             $crate::__::v::Ok(tuple) => tuple,
-            $crate::__::v::Err(_e) => return $crate::__::v::Err(
-                $crate::__priv_try_map_err!(_e $(, $($map_err)* )? )
-            ),
+            $crate::__::v::Err(_e) => return $crate::__::v::Err(_e),
         };
-        $crate::__priv_ai_preprocess_pattern!( tuple, ($pattern) );
-    };
-}
-
-#[macro_export]
-#[doc(hidden)]
-macro_rules! __priv_try_map_err {
-    ($error:ident, map_err = |$pat:pat| $map_err:expr ) => {{
-        let $pat = $error;
-        $map_err
-    }};
-    ($error:ident, map_err = $map_err:path ) => {{
-        let $pat = $error;
-        $map_err($error)
-    }};
-    ($error:ident $(,)?) => {
-        $error
+        $crate::__priv_ai_preprocess_pattern!(tuple, ($pattern));
     };
 }
 
@@ -273,17 +249,19 @@ macro_rules! try_parsing {
         $parser.parse_direction = ParseDirection::$parse_direction;
         let copy = $parser;
 
-        let ($($ret),*) = 'ret: loop {
+        let ($($ret),*) = 'ret: {
             partial!{throw = throw_out!(copy, $parse_direction,)}
-            partial!{ret_ = return_!('ret,)}
 
             #[allow(unreachable_code)]
-            break {
+            {
                 $($code)*
-            };
+            }
         };
 
-        update_offset!($parser, copy, $parse_direction);
+        enable_if_start!{$parse_direction,
+            $parser.start_offset += (copy.str.len() - $parser.str.len()) as u32;
+        }
+
         Ok(($($ret,)* $parser))
     })
 }
@@ -295,15 +273,12 @@ macro_rules! parsing {
         $parser.parse_direction = ParseDirection::$parse_direction;
         enable_if_start!{$parse_direction, let copy = $parser; }
 
-        let ($($ret),*) = 'ret: loop {
-            partial!{ret_ = return_!('ret,)}
+        let ($($ret),*) = { $($code)* };
 
-            break {
-                $($code)*
-            };
-        };
+        enable_if_start!{$parse_direction,
+            $parser.start_offset += (copy.str.len() - $parser.str.len()) as u32;
+        }
 
-        update_offset!($parser, copy, $parse_direction);
         ($($ret,)* $parser)
     })
 }
@@ -316,20 +291,13 @@ macro_rules! throw_out {
         return Err($func(crate::parsing::ParseError::new($copy, $kind)))
     };
 }
-macro_rules! return_ {
-    ($ret:lifetime, $($val:expr)?) => {{
-        break $ret $($val)?
-    }};
-}
-macro_rules! update_offset {
-    ($parser:ident, $copy:ident, FromStart) => {
-        $parser.start_offset += ($copy.bytes.len() - $parser.bytes.len()) as u32;
-    };
-    ($parser:ident, $copy:ident, FromEnd) => {};
-}
+
 macro_rules! enable_if_start{
     (FromEnd, $($tokens:tt)*) => { };
     (FromStart, $($tokens:tt)*) => {
+        $($tokens)*
+    };
+    (FromBoth, $($tokens:tt)*) => {
         $($tokens)*
     };
 }
