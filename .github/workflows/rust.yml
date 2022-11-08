@@ -13,7 +13,8 @@ jobs:
       max-parallel: 2
       matrix:
         rust: [
-            stable,
+            # reenable when github updates its stable version
+            # stable,
             beta,
             nightly,
             # the MSRV of konst
