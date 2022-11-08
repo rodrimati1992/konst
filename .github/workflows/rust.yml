@@ -12,7 +12,15 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        rust: [stable, beta, nightly, 1.65.0]
+        rust: [
+            stable,
+            beta,
+            nightly,
+            # the MSRV of konst
+            1.65.0,
+            # the MSRV of konst_kernel
+            1.57.0,
+        ]
 
     steps:
     - uses: actions/checkout@v2
@@ -25,8 +33,18 @@ jobs:
         cd "${{github.workspace}}/konst_kernel/"
         cargo test --no-default-features 
         cargo test --no-default-features --features "debug"
+
+    - uses: actions/checkout@v2
+    - name: ci-MSRV-versions
+      if: ${{ matrix.rust != '1.57.0' }}
+      run: |
+        set -x
+        rustup override set ${{ matrix.rust }}
+        cargo update
+
+        cd "${{github.workspace}}/konst_kernel/"
         cargo test --no-default-features --features "debug __for_konst"
-          
+
         cd "${{github.workspace}}/konst_proc_macros/"
         cargo build
         

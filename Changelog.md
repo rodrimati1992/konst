@@ -6,9 +6,12 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 Removed `konst::array::try_into_array` macro (it's superceeded by the function of the same name)
 
+Removed  functions
+
 Removed these functions because the std equivalent is stably const:
 - `konst::maybe_uninit::{as_ptr, assume_init, assume_init_ref}`
 - `konst::ptr::{deref, deref_mut}`
+- `konst::slice::{first, last, split_first, split_last}`
 
 Removed extra `from` parameter of:
 - `konst::slice::{bytes_contain, bytes_rcontain, bytes_find,  bytes_rfind}`
@@ -52,7 +55,11 @@ Moved all `Is*Kind` field-less structs to `konst::polymorphism::kinds`, made the
 
 Removed `ConstCmp::This` associated type, now it's derived with `ConstCmpUnref`.
 
-Added `Pattern` trait, implemented for `char` and `&str`
+Added `konst::slice::BytesPattern` trait, implemented for `char`, `[u8]`, `[u8; N]`, and `str`.
+
+Made the second parameter of `konst::slice::bytes_*` functions take a generic `BytesPattern`.
+
+Added `konst::string::Pattern` trait, implemented for `char` and `&str`
 
 Made `string` functions take `P: Pattern<'s>` as the pattern argument.
 
@@ -68,7 +75,7 @@ Added `konst::iter::{repeat, Repeat}`.
 
 Added iteration over ranges of non-usize integers and `char`.
     
-Added `konst::iter::step` module with the `Step` trait and `StepWitness` type.
+Added `konst::iter::Step` trait.
 
 Added `konst::ffi::cstr` module.
 
@@ -109,11 +116,21 @@ Added these `Parser` methods:
 - `split`
 - `skip`
 - `skip_back`
+- `trim`
+- `trim_matches`
 - `with_start_offset`
 
 Added `ParseError::other_error` function for constructing `Other` errors with custom error messages.
 
+Added `FromBoth` variant to `konst::parser::ParseDirection`
+
+Renamed `ParserFor` trait to `HasParser`
+
 Added `SplitExhausted`,`DelimiterNotFound` variants to `konst::parsing::ErrorKind`
+
+Removed `map_err` capability of `try_rebind` due to being untested and unused.
+
+Removed `unwrap_opt_or` and `unwrap_res_or` macros (they are superceeded by other macros).
 
 Made `array::map` and iterator-taking macros support specifying an explicit return type.
 
