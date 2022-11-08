@@ -64,18 +64,47 @@ where
     T: HasTypeWitness<TheWitness<T, N>>
 {
     match T::WITNESS {
-        TheWitness::U8(te, ter) => ter.to_left(te.to_right(arg).to_le_bytes()),
-        TheWitness::U16(te, ter) => ter.to_left(te.to_right(arg).to_le_bytes()),
-        TheWitness::I8(te, ter) => ter.to_left(te.to_right(arg).to_le_bytes()),
-        TheWitness::I16(te, ter) => ter.to_left(te.to_right(arg).to_le_bytes()),
+        TheWitness::U8{te, ter} => {
+            // the type annotations are for the reader
+            let num: u8 = te.to_right(arg);
+            let ret: [u8; 1] = num.to_le_bytes();
+            ter.to_left(ret)
+        },
+        TheWitness::U16{te, ter} => {
+            let num: u16 = te.to_right(arg);
+            let ret: [u8; 2] = num.to_le_bytes();
+            ter.to_left(ret)
+        },
+        TheWitness::I8{te, ter} => {
+            let num: i8 = te.to_right(arg);
+            let ret: [u8; 1] = num.to_le_bytes();
+            ter.to_left(ret)
+        },
+        TheWitness::I16{te, ter} => {
+            let num: i16 = te.to_right(arg);
+            let ret: [u8; 2] = num.to_le_bytes();
+            ter.to_left(ret)
+        },
     }
 }
 
 enum TheWitness<T, const N: usize> {
-    U8(TypeEq<T, u8>, TypeEq<[u8; N], [u8; 1]>),
-    U16(TypeEq<T, u16>, TypeEq<[u8; N], [u8; 2]>),
-    I8(TypeEq<T, i8>, TypeEq<[u8; N], [u8; 1]>),
-    I16(TypeEq<T, i16>, TypeEq<[u8; N], [u8; 2]>),
+    U8{
+        te: TypeEq<T, u8>,
+        ter: TypeEq<[u8; N], [u8; 1]>,
+    },
+    U16{
+        te: TypeEq<T, u16>,
+        ter: TypeEq<[u8; N], [u8; 2]>,
+    },
+    I8{
+        te: TypeEq<T, i8>,
+        ter: TypeEq<[u8; N], [u8; 1]>,
+    },
+    I16{
+        te: TypeEq<T, i16>,
+        ter: TypeEq<[u8; N], [u8; 2]>,
+    },
 }
 
 impl<T, const N: usize> TypeWitnessTypeArg for TheWitness<T, N> {
@@ -83,19 +112,19 @@ impl<T, const N: usize> TypeWitnessTypeArg for TheWitness<T, N> {
 }
 
 impl MakeTypeWitness for TheWitness<u8, 1> {
-    const MAKE: Self = Self::U8(TypeEq::NEW, TypeEq::NEW);
+    const MAKE: Self = Self::U8{te: TypeEq::NEW, ter: TypeEq::NEW};
 }
 
 impl MakeTypeWitness for TheWitness<u16, 2> {
-    const MAKE: Self = Self::U16(TypeEq::NEW, TypeEq::NEW);
+    const MAKE: Self = Self::U16{te: TypeEq::NEW, ter: TypeEq::NEW};
 }
 
 impl MakeTypeWitness for TheWitness<i8, 1> {
-    const MAKE: Self = Self::I8(TypeEq::NEW, TypeEq::NEW);
+    const MAKE: Self = Self::I8{te: TypeEq::NEW, ter: TypeEq::NEW};
 }
 
 impl MakeTypeWitness for TheWitness<i16, 2> {
-    const MAKE: Self = Self::I16(TypeEq::NEW, TypeEq::NEW);
+    const MAKE: Self = Self::I16{te: TypeEq::NEW, ter: TypeEq::NEW};
 }
 ```
 
