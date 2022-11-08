@@ -158,7 +158,7 @@ where
     P: Pattern<'a>,
 {
     let pat = PatternNorm::new(pat);
-    crate::slice::bytes_start_with(left.as_bytes(), pat.as_bytes())
+    crate::slice::__bytes_start_with(left.as_bytes(), pat.as_bytes())
 }
 
 /// A const equivalent of
@@ -185,7 +185,7 @@ where
     P: Pattern<'a>,
 {
     let pat = PatternNorm::new(pat);
-    crate::slice::bytes_end_with(left.as_bytes(), pat.as_bytes())
+    crate::slice::__bytes_end_with(left.as_bytes(), pat.as_bytes())
 }
 
 /// A const equivalent of
@@ -213,7 +213,7 @@ where
     P: Pattern<'a>,
 {
     let pat = PatternNorm::new(pat);
-    crate::slice::bytes_find(left.as_bytes(), pat.as_bytes())
+    crate::slice::__bytes_find(left.as_bytes(), pat.as_bytes())
 }
 
 /// A const equivalent of
@@ -242,7 +242,7 @@ where
 {
     let pat = PatternNorm::new(pat);
     matches!(
-        crate::slice::bytes_find(left.as_bytes(), pat.as_bytes()),
+        crate::slice::__bytes_find(left.as_bytes(), pat.as_bytes()),
         Some(_)
     )
 }
@@ -271,7 +271,7 @@ where
     P: Pattern<'a>,
 {
     let pat = PatternNorm::new(pat);
-    crate::slice::bytes_rfind(left.as_bytes(), pat.as_bytes())
+    crate::slice::__bytes_rfind(left.as_bytes(), pat.as_bytes())
 }
 
 /// A const equivalent of
@@ -298,7 +298,7 @@ where
 {
     let pat = PatternNorm::new(pat);
     matches!(
-        crate::slice::bytes_rfind(left.as_bytes(), pat.as_bytes()),
+        crate::slice::__bytes_rfind(left.as_bytes(), pat.as_bytes()),
         Some(_)
     )
 }
@@ -661,7 +661,7 @@ where
     // Safety: because `pat` is a `Pattern`, removing it should result in a valid `&str`
     unsafe {
         crate::option::map!(
-            crate::slice::bytes_strip_prefix(string.as_bytes(), pat.as_bytes()),
+            crate::slice::__bytes_strip_prefix(string.as_bytes(), pat.as_bytes()),
             __from_u8_subslice_of_str,
         )
     }
@@ -706,7 +706,7 @@ where
     // Safety: because `suffix` is a `&str`, removing it should result in a valid `&str`
     unsafe {
         crate::option::map!(
-            crate::slice::bytes_strip_suffix(string.as_bytes(), pat.as_bytes()),
+            crate::slice::__bytes_strip_suffix(string.as_bytes(), pat.as_bytes()),
             __from_u8_subslice_of_str,
         )
     }
@@ -788,7 +788,7 @@ where
     P: Pattern<'p>,
 {
     let needle = PatternNorm::new(needle);
-    let trimmed = crate::slice::bytes_trim_matches(this.as_bytes(), needle.as_bytes());
+    let trimmed = crate::slice::__bytes_trim_matches(this.as_bytes(), needle.as_bytes());
     // safety:
     // because bytes_trim_matches was passed `&str`s casted to `&[u8]`s,
     // it returns a valid utf8 sequence.
@@ -816,7 +816,7 @@ where
     P: Pattern<'p>,
 {
     let needle = PatternNorm::new(needle);
-    let trimmed = crate::slice::bytes_trim_start_matches(this.as_bytes(), needle.as_bytes());
+    let trimmed = crate::slice::__bytes_trim_start_matches(this.as_bytes(), needle.as_bytes());
     // safety:
     // because bytes_trim_start_matches was passed `&str`s casted to `&[u8]`s,
     // it returns a valid utf8 sequence.
@@ -844,7 +844,7 @@ where
     P: Pattern<'p>,
 {
     let needle = PatternNorm::new(needle);
-    let trimmed = crate::slice::bytes_trim_end_matches(this.as_bytes(), needle.as_bytes());
+    let trimmed = crate::slice::__bytes_trim_end_matches(this.as_bytes(), needle.as_bytes());
     // safety:
     // because bytes_trim_end_matches was passed `&str`s casted to `&[u8]`s,
     // it returns a valid utf8 sequence.
@@ -885,7 +885,7 @@ where
     let needle = PatternNorm::new(needle);
     unsafe {
         crate::option::map!(
-            crate::slice::bytes_find_skip(this.as_bytes(), needle.as_bytes()),
+            crate::slice::__bytes_find_skip(this.as_bytes(), needle.as_bytes()),
             // safety:
             // because bytes_find_skip was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
@@ -928,7 +928,7 @@ where
     let needle = PatternNorm::new(needle);
     unsafe {
         crate::option::map!(
-            crate::slice::bytes_find_keep(this.as_bytes(), needle.as_bytes()),
+            crate::slice::__bytes_find_keep(this.as_bytes(), needle.as_bytes()),
             // safety:
             // because bytes_find_keep was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
@@ -971,7 +971,7 @@ where
     let needle = PatternNorm::new(needle);
     unsafe {
         crate::option::map!(
-            crate::slice::bytes_rfind_skip(this.as_bytes(), needle.as_bytes()),
+            crate::slice::__bytes_rfind_skip(this.as_bytes(), needle.as_bytes()),
             // safety:
             // because bytes_rfind_skip was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
@@ -1014,7 +1014,7 @@ where
     let needle = PatternNorm::new(needle);
     unsafe {
         crate::option::map!(
-            crate::slice::bytes_rfind_keep(this.as_bytes(), needle.as_bytes()),
+            crate::slice::__bytes_rfind_keep(this.as_bytes(), needle.as_bytes()),
             // safety:
             // because bytes_rfind_keep was passed `&str`s casted to `&[u8]`s,
             // it returns a valid utf8 sequence.
