@@ -14,6 +14,8 @@ use konst::{
     },
 };
 
+mod bytes_fns_tests;
+
 mod slice_concatenation_tests;
 
 #[cfg(feature = "iter")]
