@@ -1,4 +1,4 @@
-use konst::slice::{self, bytes_find, bytes_rfind, slice_from, slice_up_to};
+use konst::slice;
 
 macro_rules! slice_splitting_test {
     (

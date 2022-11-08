@@ -21,9 +21,7 @@ fn array_assume_init_test() {
 
 #[test]
 fn uninit_array_test() {
-    use konst::maybe_uninit as mu;
-
-    use std::mem::{self, MaybeUninit};
+    use std::mem::MaybeUninit;
 
     let mut reffs: [MaybeUninit<&u8>; 2] = maybe_uninit::uninit_array::<&u8, 2>();
 

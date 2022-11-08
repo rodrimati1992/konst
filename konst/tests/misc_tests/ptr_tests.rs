@@ -74,10 +74,10 @@ fn nonnull_new_test() {
 #[cfg(feature = "mut_refs")]
 fn nonnull_new_mut_test() {
     let slice = &mut [3u8, 5, 8, 13][..];
-    let mut str_ptr: Option<NonNull<[u8]>> = nonnull::new(slice);
+    let str_ptr: Option<NonNull<[u8]>> = nonnull::new(slice);
 
     let array = &mut [21, 34, 55, 89];
-    let mut array_ptr: Option<NonNull<[u8; 4]>> = nonnull::new(array);
+    let array_ptr: Option<NonNull<[u8; 4]>> = nonnull::new(array);
 
     let null_ptr: Option<NonNull<u8>> = nonnull::new(null_mut());
 
@@ -110,10 +110,10 @@ fn nonnull_as_ref_test() {
 #[cfg(feature = "mut_refs")]
 fn nonnull_as_mut_test() {
     let slice = &mut [3u8, 5, 8, 13][..];
-    let mut str_ptr: Option<NonNull<[u8]>> = nonnull::new(slice);
+    let str_ptr: Option<NonNull<[u8]>> = nonnull::new(slice);
 
     let array = &mut [21, 34, 55, 89];
-    let mut array_ptr: Option<NonNull<[u8; 4]>> = nonnull::new(array);
+    let array_ptr: Option<NonNull<[u8; 4]>> = nonnull::new(array);
 
     let null_ptr: Option<NonNull<u8>> = nonnull::new(null_mut());
 
@@ -142,10 +142,10 @@ fn nonnull_from_ref_test() {
 #[cfg(feature = "mut_refs")]
 fn nonnull_from_mut_test() {
     let slice = &mut [3u8, 5, 8, 13][..];
-    let mut str_ptr: NonNull<[u8]> = nonnull::from_mut(slice);
+    let str_ptr: NonNull<[u8]> = nonnull::from_mut(slice);
 
     let array = &mut [21, 34, 55, 89];
-    let mut array_ptr: NonNull<[u8; 4]> = nonnull::from_mut(array);
+    let array_ptr: NonNull<[u8; 4]> = nonnull::from_mut(array);
 
     unsafe {
         nonnull::as_mut(str_ptr)[2] += 10;

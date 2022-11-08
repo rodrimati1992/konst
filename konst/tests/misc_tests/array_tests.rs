@@ -2,6 +2,7 @@ use crate::misc_tests::test_utils::assert_type;
 
 #[test]
 #[should_panic]
+#[allow(unreachable_code)]
 fn array_map_break() {
     konst::array::map!([(); 3], |_| break);
 }
@@ -125,6 +126,7 @@ fn array_from_fn_tests() {
 
 #[test]
 #[should_panic]
+#[allow(unreachable_code)]
 fn array_from_fn_break() {
     konst::array::from_fn!([(); 3] => |_| break);
 }

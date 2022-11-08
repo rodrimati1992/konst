@@ -151,6 +151,7 @@ fn trim_start_end_matches_test() {
 }
 
 #[test]
+#[allow(unreachable_code)]
 fn find_skip_test() {
     #[track_caller]
     fn empty<'p>(s: &str) {

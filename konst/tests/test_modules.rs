@@ -1,3 +1,5 @@
+#![deny(unused_mut)]
+
 mod misc_tests {
     #[macro_use]
     mod test_macros;

@@ -11,7 +11,7 @@ use core::{ffi::CStr, fmt};
 
 /// Error returned by [`from_bytes_until_nul`] when the input slice either
 /// does not terminate with nul.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FromBytesUntilNulError(());
 
 impl FromBytesUntilNulError {
@@ -40,7 +40,7 @@ impl fmt::Display for FromBytesUntilNulError {
 
 /// Error returned by [`from_bytes_with_nul`] when the input slice either
 /// does not terminate with nul, or contains inner nul bytes.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FromBytesWithNulError {
     kind: HuntNulError,
 }
@@ -88,7 +88,7 @@ impl fmt::Display for FromBytesWithNulError {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum HuntNulError {
     InternalNul(usize),
     NotNulTerminated,

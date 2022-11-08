@@ -1,4 +1,4 @@
-use crate::chr::{self, encode_utf8, Utf8Encoded};
+use crate::chr::{self, encode_utf8};
 
 #[test]
 fn test_chars_as_str() {

@@ -10,8 +10,8 @@ fn from_bytes_until_nul_errs_test() {
         assert_eq!(cs.to_str().unwrap(), "hello");
     }
 
-    cstr::from_bytes_until_nul(b"helloworld").unwrap_err();
-    cstr::from_bytes_until_nul(b"").unwrap_err();
+    let _ = cstr::from_bytes_until_nul(b"helloworld").unwrap_err();
+    let _ = cstr::from_bytes_until_nul(b"").unwrap_err();
 }
 
 #[test]
@@ -34,8 +34,9 @@ fn from_bytes_with_nul_errs_test() {
         (b"hello\0aaa\0", 5),
     ] {
         let err = cstr::from_bytes_with_nul(string).unwrap_err();
-        assert!(
-            matches!(err.kind, cstr::HuntNulError::InternalNul(pos)),
+        assert_eq!(
+            err.kind,
+            cstr::HuntNulError::InternalNul(pos),
             "{err:?} {string:?}",
         );
     }

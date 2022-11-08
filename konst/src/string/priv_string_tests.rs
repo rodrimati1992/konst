@@ -15,21 +15,33 @@ const B: &[u8] = S.as_bytes();
 #[should_panic]
 fn invalid_start() {
     // SAFETY: this is a slice of a string
-    unsafe { super::__from_u8_subslice_of_str(&B[1..]) };
+    let _ = unsafe { super::__from_u8_subslice_of_str(&B[1..]) };
 }
 
 #[test]
 #[should_panic]
 fn invalid_end() {
     // SAFETY: this is a slice of a string
-    unsafe { super::__from_u8_subslice_of_str(&B[..B.len() - 1]) };
+    let _ = unsafe { super::__from_u8_subslice_of_str(&B[..B.len() - 1]) };
 }
 
 #[test]
 #[should_panic]
 fn invalid_both() {
     // SAFETY: this is a slice of a string
-    unsafe { super::__from_u8_subslice_of_str(&B[1..B.len() - 1]) };
+    let _ = unsafe { super::__from_u8_subslice_of_str(&B[1..B.len() - 1]) };
+}
+
+#[test]
+#[cfg(feature = "iter")]
+fn str_to_char_test() {
+    assert_eq!(string_to_char("🧡"), '🧡');
+    assert_eq!(string_to_char("🧠"), '🧠');
+    assert_eq!(string_to_char("₀"), '₀');
+    assert_eq!(string_to_char("₁"), '₁');
+    assert_eq!(string_to_char("o"), 'o');
+    assert_eq!(string_to_char("ñ"), 'ñ');
+    assert_eq!(string_to_char("个"), '个');
 }
 
 #[test]
@@ -38,8 +50,9 @@ fn invalid_both() {
 fn str_to_codepoint_test() {
     for c in '\0'..=char::MAX {
         let mut arr = [0u8; 8];
+        let string = c.encode_utf8(&mut arr);
 
-        let found = core::char::from_u32(string_to_usv(c.encode_utf8(&mut arr))).unwrap();
+        let found = core::char::from_u32(string_to_usv(string)).unwrap();
         assert_eq!(found, c, "{c:?}");
     }
 }

@@ -1,6 +1,6 @@
 // Shamelessly copy pasted test cases from the const_format crate.
 
-use konst::{option, string};
+use konst::string;
 
 #[track_caller]
 fn split_case(string: &str, delim: &str, expected: &[&str]) {

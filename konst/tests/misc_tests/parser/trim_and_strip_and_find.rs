@@ -1,4 +1,4 @@
-use konst::parsing::{ErrorKind, ParseDirection, ParseError, Parser};
+use konst::parsing::{ErrorKind, ParseDirection, Parser};
 
 use konst::string;
 
