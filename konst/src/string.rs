@@ -22,6 +22,10 @@ pub use self::pattern::Pattern;
 
 pub(crate) use self::pattern::PatternNorm;
 
+mod split_once;
+
+pub use split_once::*;
+
 #[cfg(feature = "iter")]
 mod splitting;
 

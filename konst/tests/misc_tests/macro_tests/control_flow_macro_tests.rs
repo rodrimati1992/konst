@@ -1,3 +1,4 @@
+#[cfg(feature = "parsing")]
 use konst::rebind_if_ok;
 
 #[test]
@@ -24,6 +25,7 @@ fn for_range_break_continue() {
     }
 }
 
+#[cfg(feature = "parsing")]
 #[test]
 fn rebind_if_ok_test() {
     {

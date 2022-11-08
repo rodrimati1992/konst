@@ -57,7 +57,10 @@ macro_rules! cmp_assertc_docs {
 ///
 /// ### Zipping slices
 ///
-/// ```rust
+/// This example requires the `"iter"` feature
+///
+#[cfg_attr(feature = "iter", doc = "```rust")]
+#[cfg_attr(not(feature = "iter"), doc = "```ignore")]
 /// use konst::{iter, slice};
 ///
 /// const A: &[u8] = &[3, 5, 8, 13];

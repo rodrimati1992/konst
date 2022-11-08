@@ -106,10 +106,10 @@
 //!
 //! This example demonstrates how a key-value pair format can be parsed into a struct.
 //!
-//! This requires the `"parsing"` feature (enabled by default).
+//! This requires the `"parsing_proc"` feature (enabled by default).
 //!
-#![cfg_attr(feature = "parsing", doc = "```rust")]
-#![cfg_attr(not(feature = "parsing"), doc = "```ignore")]
+#![cfg_attr(feature = "parsing_proc", doc = "```rust")]
+#![cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
 //! use konst::{
 //!     parsing::{Parser, ParseValueResult},
 //!     eq_str,

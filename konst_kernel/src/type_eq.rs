@@ -45,11 +45,13 @@ pub trait MakeTypeWitness: TypeWitnessTypeArg {
 mod type_eq {
     use core::marker::PhantomData;
 
-    pub struct TypeEq<L: ?Sized, R: ?Sized>(
-        PhantomData<(
-            fn(PhantomData<L>) -> PhantomData<L>,
-            fn(PhantomData<R>) -> PhantomData<R>,
-        )>,
+    pub struct TypeEq<L: ?Sized, R: ?Sized>(PhantomData<TypeEqHelper<L, R>>);
+
+    // Declared to work around this error in old Rust versions:
+    // > error[E0658]: function pointers cannot appear in constant functions
+    struct TypeEqHelper<L: ?Sized, R: ?Sized>(
+        fn(PhantomData<L>) -> PhantomData<L>,
+        fn(PhantomData<R>) -> PhantomData<R>,
     );
 
     impl<L: ?Sized> TypeEq<L, L> {

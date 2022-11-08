@@ -1,3 +1,4 @@
+#[cfg(feature = "iter")]
 use crate::string::chars_methods::{string_to_char, string_to_usv};
 
 // index: 00 char: '🧡' len_utf8: 4

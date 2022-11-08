@@ -425,8 +425,8 @@ impl<'a> Parser<'a> {
     ///
     /// This example requires the `"parsing_proc"` feature.
     ///
-    #[cfg_attr(feature = "parsing", doc = "```rust")]
-    #[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
+    #[cfg_attr(feature = "parsing_proc", doc = "```rust")]
+    #[cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
     ///
     /// use konst::{
     ///     parsing::{Parser, ParseValueResult},

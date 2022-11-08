@@ -189,7 +189,7 @@ pub const fn write<T>(md: &mut MaybeUninit<T>, value: T) -> &mut T {
 ///     let ptr = mu::as_mut_ptr(&mut mu).cast::<MaybeUninit<Discr>>();
 ///     unsafe{
 ///         *ptr = MaybeUninit::new(Discr::Bar);
-///         mu::assume_init(mu)
+///         mu.assume_init()
 ///     }
 /// };
 ///
