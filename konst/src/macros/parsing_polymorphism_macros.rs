@@ -54,6 +54,7 @@
 /// [`Parser`]: ./parsing/struct.Parser.html
 /// [`HasParser`]: ./parsing/trait.HasParser.html
 #[macro_export]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
 macro_rules! parse_with {
     ($parser:expr, $type:ty $(,)*) => {
         match $parser {
