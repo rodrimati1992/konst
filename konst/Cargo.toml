@@ -25,7 +25,7 @@ path = "../konst_proc_macros"
 optional = true
 
 [dependencies.konst_kernel]
-version = "=0.0.0"
+version = "=0.3.0"
 path = "../konst_kernel"
 features = ["rust_1_64", "__for_konst"]
 

@@ -15,15 +15,3 @@ include = [
     "src/**/*.rs", 
     "LICENSE-ZLIB.md", 
 ]
-
-[dependencies.konst_kernel]
-version = "=0.0.0"
-path = "../konst_kernel"
-
-[dependencies.const_panic]
-version = "0.2.6"
-default-features = false
-
-[features]
-nightly_mut_refs = []
-mut_refs = []

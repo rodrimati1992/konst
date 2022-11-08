@@ -251,7 +251,6 @@ macro_rules! try_parsing {
 
         let ($($ret),*) = 'ret: {
             partial!{throw = throw_out!(copy, $parse_direction,)}
-            partial!{ret_ = return_!('ret,)}
 
             #[allow(unreachable_code)]
             {
@@ -274,11 +273,7 @@ macro_rules! parsing {
         $parser.parse_direction = ParseDirection::$parse_direction;
         enable_if_start!{$parse_direction, let copy = $parser; }
 
-        let ($($ret),*) = 'ret: {
-            partial!{ret_ = return_!('ret,)}
-
-            $($code)*
-        };
+        let ($($ret),*) = { $($code)* };
 
         enable_if_start!{$parse_direction,
             $parser.start_offset += (copy.str.len() - $parser.str.len()) as u32;
@@ -295,11 +290,6 @@ macro_rules! throw_out {
     ($copy:ident, $parse_direction:ident, $kind:expr, map_err = $func:ident) => {
         return Err($func(crate::parsing::ParseError::new($copy, $kind)))
     };
-}
-macro_rules! return_ {
-    ($ret:lifetime, $($val:expr)?) => {{
-        break $ret $($val)?
-    }};
 }
 
 macro_rules! enable_if_start{

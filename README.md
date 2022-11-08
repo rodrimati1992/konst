@@ -301,6 +301,6 @@ need to be explicitly enabled with crate features.
 [`polymorphism`]: https://docs.rs/konst/*/konst/polymorphism/index.html
 [`parsing`]: https://docs.rs/konst/*/konst/parsing/index.html
 [`primitive`]: https://docs.rs/konst/*/konst/primitive/index.html
-[`parse_any`]: https://docs.rs/konst/*/konst/macro.parse_any.html
+[`parser_method`]: https://docs.rs/konst/*/konst/macro.parser_method.html
 [`Parser`]: https://docs.rs/konst/*/konst/parsing/struct.Parser.html
 [`Parser::parse_u128`]: https://docs.rs/konst/*/konst/parsing/struct.Parser.html#method.parse_u128
