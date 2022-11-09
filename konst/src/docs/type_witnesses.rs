@@ -50,82 +50,98 @@ This example demonstrates how `konst` does polymorphic functions,
 which would otherwise require that traits methods are callable in `const fn`s.
 
 ```rust
-use konst::polymorphism::{HasTypeWitness, TypeWitnessTypeArg, MakeTypeWitness, TypeEq};
+use std::ops::Range;
 
+use konst::{
+    polymorphism::{HasTypeWitness, MakeTypeWitness, TypeEq, TypeWitnessTypeArg},
+    slice::slice_range,
+};
 
-assert_eq!(to_le_bytes(3u8), [3u8]);
-assert_eq!(to_le_bytes(5i8), [5u8]);
-assert_eq!(to_le_bytes(258u16), [2u8, 1]);
-assert_eq!(to_le_bytes(259i16), [3u8, 1]);
+fn main() {
+    let array = [3, 5, 8, 13, 21, 34, 55, 89];
 
+    assert_eq!(index(&array, 0), &3);
+    assert_eq!(index(&array, 3), &13);
+    assert_eq!(index(&array, 0..4), [3, 5, 8, 13]);
+    assert_eq!(index(&array, 3..5), [13, 21]);
+}
 
-const fn to_le_bytes<T, const N: usize>(arg: T) -> [u8; N]
+const fn index<T, I>(slice: &[T], index: I) -> &I::Returns
 where
-    T: HasTypeWitness<TheWitness<T, N>>
+    I: SliceIndex<T>,
 {
-    match T::WITNESS {
-        TheWitness::U8{te, ter} => {
-            // the type annotations are for the reader
-            let num: u8 = te.to_right(arg);
-            let ret: [u8; 1] = num.to_le_bytes();
-            ter.to_left(ret)
-        },
-        TheWitness::U16{te, ter} => {
-            let num: u16 = te.to_right(arg);
-            let ret: [u8; 2] = num.to_le_bytes();
-            ter.to_left(ret)
-        },
-        TheWitness::I8{te, ter} => {
-            let num: i8 = te.to_right(arg);
-            let ret: [u8; 1] = num.to_le_bytes();
-            ter.to_left(ret)
-        },
-        TheWitness::I16{te, ter} => {
-            let num: i16 = te.to_right(arg);
-            let ret: [u8; 2] = num.to_le_bytes();
-            ter.to_left(ret)
-        },
+    match I::WITNESS {
+        IndexWitness::Usize { arg_te, ret_te } => {
+            // `arg_te` (a `TypeEq<I, usize>`) allows coercing between `I` and `usize`,
+            // because `TypeEq` is a value-level proof that both types are the same.
+            let index: usize = arg_te.to_right(index);
+
+            let ret: &T = &slice[index];
+
+            // `.in_ref()` converts `TypeEq<L, R>` into `TypeEq<&L, &R>`
+            let ret_te: TypeEq<&I::Returns, &T> = ret_te.in_ref();
+
+            ret_te.to_left(ret)
+        }
+        IndexWitness::Range { arg_te, ret_te } => {
+            let range: Range<usize> = arg_te.to_right(index);
+
+            let ret: &[T] = slice_range(slice, range.start, range.end);
+
+            ret_te.in_ref().to_left(ret)
+        }
     }
 }
 
-enum TheWitness<T, const N: usize> {
-    U8{
-        te: TypeEq<T, u8>,
-        ter: TypeEq<[u8; N], [u8; 1]>,
+
+trait SliceIndex<T>: HasTypeWitness<IndexWitness<Self, T>> + Sized {
+    type Returns: ?Sized;
+}
+
+
+enum IndexWitness<I: SliceIndex<T>, T> {
+    Usize {
+        arg_te: TypeEq<I, usize>,
+        ret_te: TypeEq<I::Returns, T>,
     },
-    U16{
-        te: TypeEq<T, u16>,
-        ter: TypeEq<[u8; N], [u8; 2]>,
-    },
-    I8{
-        te: TypeEq<T, i8>,
-        ter: TypeEq<[u8; N], [u8; 1]>,
-    },
-    I16{
-        te: TypeEq<T, i16>,
-        ter: TypeEq<[u8; N], [u8; 2]>,
+    Range {
+        arg_te: TypeEq<I, Range<usize>>,
+        ret_te: TypeEq<I::Returns, [T]>,
     },
 }
 
-impl<T, const N: usize> TypeWitnessTypeArg for TheWitness<T, N> {
-    type Arg = T;
+impl<I, T> TypeWitnessTypeArg for IndexWitness<I, T>
+where
+    I: SliceIndex<T>,
+{
+    type Arg = I;
 }
 
-impl MakeTypeWitness for TheWitness<u8, 1> {
-    const MAKE: Self = Self::U8{te: TypeEq::NEW, ter: TypeEq::NEW};
+
+impl<T> SliceIndex<T> for usize {
+    type Returns = T;
 }
 
-impl MakeTypeWitness for TheWitness<u16, 2> {
-    const MAKE: Self = Self::U16{te: TypeEq::NEW, ter: TypeEq::NEW};
+impl<T> MakeTypeWitness for IndexWitness<usize, T> {
+    const MAKE: Self = Self::Usize {
+        arg_te: TypeEq::NEW,
+        ret_te: TypeEq::NEW,
+    };
 }
 
-impl MakeTypeWitness for TheWitness<i8, 1> {
-    const MAKE: Self = Self::I8{te: TypeEq::NEW, ter: TypeEq::NEW};
+
+impl<T> SliceIndex<T> for Range<usize> {
+    type Returns = [T];
 }
 
-impl MakeTypeWitness for TheWitness<i16, 2> {
-    const MAKE: Self = Self::I16{te: TypeEq::NEW, ter: TypeEq::NEW};
+impl<T> MakeTypeWitness for IndexWitness<Range<usize>, T> {
+    const MAKE: Self = Self::Range {
+        arg_te: TypeEq::NEW,
+        ret_te: TypeEq::NEW,
+    };
 }
+
+
 ```
 
 [`TypeEq`]: crate::polymorphism::TypeEq

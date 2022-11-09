@@ -1,6 +1,6 @@
 [package]
 name = "konst"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 rust-version = "1.65.0"
 edition = "2021"
