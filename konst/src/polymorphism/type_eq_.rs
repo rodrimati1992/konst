@@ -210,9 +210,12 @@ pub use konst_kernel::type_eq::MakeTypeWitness;
 
 /// Value-level proof that `L` is the same type as `R`
 ///
-/// <details>
-/// <summary><b>item docs</b></summary>
-/// <p>
+#[cfg_attr(not(feature = "docsrs"), doc = "\
+    <details>\
+    <summary><b>item docs</b></summary>\
+    <p>\
+")]
+/// 
 ///
 /// This type can be used to prove that `L` and `R` are the same type,
 /// because it can only be safely constructed with 
@@ -267,10 +270,15 @@ pub use konst_kernel::type_eq::MakeTypeWitness;
 /// ```
 /// 
 /// 
-/// </p>
-/// </details>
+#[cfg_attr(not(feature = "docsrs"), doc = "\
+    </p>\
+    </details>\
+    (the docs are hidden to work around a rustdoc bug)
+")]
+/// 
+/// 
 ///
-/// (the docs are hidden to work around a rustdoc bug)
+/// 
 #[doc(inline)]
 pub use konst_kernel::type_eq::TypeEq;
 

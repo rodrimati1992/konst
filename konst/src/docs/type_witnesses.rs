@@ -18,13 +18,55 @@ which can coerce between a type parameter and as many types as they have variant
 Type witnesses are used by `konst` to emulate polymorphism inside of `const fn`s,
 because trait methods cannot be called in `const fn`s on stable(as of Rust 1.65.0).
 
-The only other approach for emulating polymorphism is:
+### Alternative: Inherent method dispatch
+
+Another approach for emulating polymorphism is
 constructing a generic struct, then calling an inherent method on that struct.
-<br>
-This inherent method approach is not as good as the other approach from a user's perspective,
-since it has worse compile-time errors
-and requires an unusual way of calling functions
-(`Function(arg0, arg1).call()`).
+
+This inherent method approach has these disadvantages:
+- it requires an unusual way of calling functions (`Struct(arg0, arg1).call()`)
+- the type it is dispatched over must be concrete
+(whereas the type witness approach can be used with bounded type parameters)
+- it has worse inference, since the argument type can't be inferred from the return type
+
+<details>
+<summary> Example of inherent method dispatch  </summary>
+
+```rust
+
+assert_eq!(Negate(3i8).call(), -3i8);
+assert_eq!(Negate(-3i8).call(), 3i8);
+
+assert_eq!(Negate(5i16).call(), -5i16);
+assert_eq!(Negate(-5i16).call(), 5i16);
+
+assert_eq!(Negate(8i32).call(), -8i32);
+assert_eq!(Negate(-8i32).call(), 8i32);
+
+assert_eq!(Negate('c').call(), 'c');
+
+
+struct Negate<T>(T);
+
+impl Negate<i8> {
+    const fn call(self) -> i8 {
+        -self.0
+    }
+}
+impl Negate<i16> {
+    const fn call(self) -> i16 {
+        -self.0
+    }
+}
+impl Negate<i32> {
+    const fn call(self) -> i32 {
+        -self.0
+    }
+}
+
+```
+
+</details>
 
 # Limitations
 
