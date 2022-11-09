@@ -44,7 +44,7 @@ These are the main items for type witnesses:
 # Examples
 
 <span id="example0"></span>
-### Integer polymorphism
+### Indexing polymorphism
 
 This example demonstrates how `konst` does polymorphic functions,
 which would otherwise require that traits methods are callable in `const fn`s.
@@ -143,6 +143,31 @@ impl<T> MakeTypeWitness for IndexWitness<Range<usize>, T> {
 
 
 ```
+
+When the wrong type is passed for the index,
+the compile-time error is the same as with normal generic functions:
+```text
+error[E0277]: the trait bound `RangeFull: SliceIndex<{integer}>` is not satisfied
+  --> src/docs/type_witnesses.rs:66:30
+   |
+17 |     assert_eq!(index(&array, ..), [13, 21]);
+   |                -----         ^^ the trait `SliceIndex<{integer}>` is not implemented for `RangeFull`
+   |                |
+   |                required by a bound introduced by this call
+   |
+   = help: the following other types implement trait `SliceIndex<T>`:
+             std::ops::Range<usize>
+             usize
+note: required by a bound in `index`
+  --> src/docs/type_witnesses.rs:71:8
+   |
+20 | const fn index<T, I>(slice: &[T], index: I) -> &I::Returns
+   |          ----- required by a bound in this
+21 | where
+22 |     I: SliceIndex<T>,
+   |        ^^^^^^^^^^^^^ required by this bound in `index`
+```
+
 
 [`TypeEq`]: crate::polymorphism::TypeEq
 
