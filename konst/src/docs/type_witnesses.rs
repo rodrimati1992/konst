@@ -43,8 +43,6 @@ assert_eq!(Negate(-5i16).call(), 5i16);
 assert_eq!(Negate(8i32).call(), -8i32);
 assert_eq!(Negate(-8i32).call(), 8i32);
 
-assert_eq!(Negate('c').call(), 'c');
-
 
 struct Negate<T>(T);
 
