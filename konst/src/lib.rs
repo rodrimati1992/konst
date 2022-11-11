@@ -306,6 +306,7 @@
 // clippy's opinionated BS
 #![allow(clippy::needless_doctest_main)]
 #![allow(clippy::init_numbered_fields)]
+#![forbid(clippy::missing_const_for_fn)]
 ////////////
 #![cfg_attr(
     feature = "nightly_mut_refs",
