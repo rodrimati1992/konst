@@ -50,6 +50,8 @@ impl<'a, T> ConstIntoIter for &&'a [T] {
 }
 
 impl<'a, T> IntoIterWrapper<&&'a [T], IsStdKind> {
+    // clippy suggests a change that doesn't compile
+    #[allow(clippy::explicit_auto_deref)]
     pub const fn const_into_iter(self) -> Iter<'a, T> {
         Iter {
             slice: *ManuallyDrop::into_inner(self.iter),

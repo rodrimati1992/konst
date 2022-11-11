@@ -5,6 +5,8 @@ mod tests;
 
 pub use char_formatting::*;
 
+// this isn't documented at all, so this lint seems redundant here <_<
+#[allow(clippy::missing_safety_doc)]
 pub const unsafe fn from_u32_unchecked(n: u32) -> char {
     core::mem::transmute(n)
 }

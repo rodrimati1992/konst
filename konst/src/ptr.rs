@@ -95,7 +95,8 @@ pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
 ///
 ///
 /// ```
-pub const fn is_null<'a, T: ?Sized>(ptr: *const T) -> bool {
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
+pub const fn is_null<T: ?Sized>(ptr: *const T) -> bool {
     unsafe {
         matches!(
             core::mem::transmute::<*const T, Option<NonNull<T>>>(ptr),
@@ -125,6 +126,7 @@ pub mod nonnull {
     ///
     ///
     /// ```
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     pub const fn new<T: ?Sized>(ptr: *mut T) -> Option<NonNull<T>> {
         unsafe { core::mem::transmute(ptr) }
     }

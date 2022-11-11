@@ -1,6 +1,6 @@
 [package]
 name = "konst_kernel"
-version = "0.3.0"
+version = "0.3.4"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 rust-version = "1.57.0"
 edition = "2021"

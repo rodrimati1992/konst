@@ -8,6 +8,8 @@
 #![cfg_attr(feature = "nightly_mut_refs", feature(const_mut_refs))]
 #![cfg_attr(feature = "docsrs", feature(doc_cfg))]
 #![deny(unused_results)]
+#![allow(clippy::type_complexity)]
+#![forbid(clippy::missing_const_for_fn)]
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
