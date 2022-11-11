@@ -42,7 +42,7 @@ pub trait MakeTypeWitness: TypeWitnessTypeArg {
     const MAKE: Self;
 }
 
-mod type_eq {
+mod type_eq_ {
     use core::marker::PhantomData;
 
     pub struct TypeEq<L: ?Sized, R: ?Sized>(PhantomData<TypeEqHelper<L, R>>);
@@ -87,7 +87,7 @@ mod type_eq {
         }
     }
 }
-pub use type_eq::TypeEq;
+pub use type_eq_::TypeEq;
 
 impl<L: ?Sized, R: ?Sized> Copy for TypeEq<L, R> {}
 

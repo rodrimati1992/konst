@@ -2,6 +2,10 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.3
 
+### 0.3.4
+
+Fixed `Parser::parse_direction`'s `const`-ness by making it a const fn.
+
 ### 0.3.0
 
 Removed `konst::array::try_into_array` macro (it's superceeded by the function of the same name)

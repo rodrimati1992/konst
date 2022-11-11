@@ -111,7 +111,7 @@ impl<'a> Parser<'a> {
     }
 
     /// The direction that the parser was last mutated from.
-    pub fn parse_direction(self) -> ParseDirection {
+    pub const fn parse_direction(self) -> ParseDirection {
         self.parse_direction
     }
 

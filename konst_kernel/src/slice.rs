@@ -8,14 +8,17 @@ pub use self::slice_for_konst::*;
 #[macro_export]
 macro_rules! __slice_from_impl {
     ($slice:ident, $start:ident, $as_ptr:ident, $from_raw_parts:ident, $on_overflow:expr) => {{
-        #[allow(unused_variables)]
+        #[allow(unused_variables, clippy::ptr_offset_with_cast)]
         let (rem, overflowed) = $slice.len().overflowing_sub($start);
 
         if overflowed {
             return $on_overflow;
         }
 
-        unsafe { core::slice::$from_raw_parts($slice.$as_ptr().offset($start as _), rem) }
+        #[allow(clippy::ptr_offset_with_cast)]
+        unsafe {
+            core::slice::$from_raw_parts($slice.$as_ptr().offset($start as _), rem)
+        }
     }};
 }
 

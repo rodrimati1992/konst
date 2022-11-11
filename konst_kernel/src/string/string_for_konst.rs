@@ -1,3 +1,5 @@
+#![allow(clippy::len_without_is_empty)]
+
 use crate::chr::{encode_utf8, Utf8Encoded};
 
 #[doc(hidden)]

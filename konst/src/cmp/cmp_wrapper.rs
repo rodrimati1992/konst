@@ -36,7 +36,7 @@ use crate::cmp::{ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
 /// }
 ///
 /// ```
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct CmpWrapper<T>(pub T);
 
 impl<'a, T> CmpWrapper<&'a [T]> {
