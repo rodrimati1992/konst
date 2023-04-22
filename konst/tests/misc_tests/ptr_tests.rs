@@ -129,8 +129,8 @@ fn nonnull_as_mut_test() {
 
 #[test]
 fn nonnull_from_ref_test() {
-    let str_ptr: NonNull<str> = nonnull::from_ref("hello");
-    let array_ptr: NonNull<[u8; 4]> = nonnull::from_ref(&[3, 5, 8, 13]);
+    let str_ptr: NonNull<str> = unsafe { nonnull::from_ref("hello") };
+    let array_ptr: NonNull<[u8; 4]> = unsafe { nonnull::from_ref(&[3, 5, 8, 13]) };
 
     unsafe {
         assert_eq!(nonnull::as_ref(str_ptr), "hello");
@@ -142,10 +142,10 @@ fn nonnull_from_ref_test() {
 #[cfg(feature = "mut_refs")]
 fn nonnull_from_mut_test() {
     let slice = &mut [3u8, 5, 8, 13][..];
-    let str_ptr: NonNull<[u8]> = nonnull::from_mut(slice);
+    let str_ptr: NonNull<[u8]> = unsafe { nonnull::from_mut(slice) };
 
     let array = &mut [21, 34, 55, 89];
-    let array_ptr: NonNull<[u8; 4]> = nonnull::from_mut(array);
+    let array_ptr: NonNull<[u8; 4]> = unsafe { nonnull::from_mut(array) };
 
     unsafe {
         nonnull::as_mut(str_ptr)[2] += 10;

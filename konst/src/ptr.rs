@@ -218,7 +218,7 @@ pub mod nonnull {
     ///     assert_eq!(W.as_ref(), "world");
     /// }
     /// ```
-    pub const fn from_ref<T: ?Sized>(reff: &T) -> NonNull<T> {
+    pub const unsafe fn from_ref<T: ?Sized>(reff: &T) -> NonNull<T> {
         unsafe { NonNull::new_unchecked(reff as *const _ as *mut _) }
     }
 
@@ -255,7 +255,7 @@ pub mod nonnull {
     ///
     #[cfg(feature = "mut_refs")]
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
-    pub const fn from_mut<T: ?Sized>(mutt: &mut T) -> NonNull<T> {
+    pub const unsafe fn from_mut<T: ?Sized>(mutt: &mut T) -> NonNull<T> {
         unsafe { NonNull::new_unchecked(mutt) }
     }
 }
