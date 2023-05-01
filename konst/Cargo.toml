@@ -1,6 +1,6 @@
 [package]
 name = "konst"
-version = "0.3.4"
+version = "0.3.5"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 rust-version = "1.65.0"
 edition = "2021"
@@ -25,7 +25,7 @@ path = "../konst_proc_macros"
 optional = true
 
 [dependencies.konst_kernel]
-version = "=0.3.4"
+version = "=0.3.5"
 path = "../konst_kernel"
 features = ["rust_1_64", "__for_konst"]
 
@@ -38,6 +38,10 @@ features = ["small_rng"]
 [dependencies.trybuild]
 version = "1.0"
 optional = true
+
+[dependencies.typewit]
+version = "1.1"
+features = ["rust_1_61"]
 
 [dependencies.const_panic]
 version = "0.2.6"
