@@ -159,7 +159,7 @@ pub mod nonnull {
     /// ```
     ///
     pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: NonNull<T>) -> &'a T {
-        &*ptr.as_ptr()
+        &*(ptr.as_ptr() as *const T)
     }
 
     /// Const equivalent of [`NonNull::as_mut`](core::ptr::NonNull::as_mut).
