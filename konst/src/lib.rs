@@ -340,8 +340,6 @@ pub mod chr;
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub mod cmp;
 
-pub mod docs;
-
 #[cfg(feature = "iter")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub mod iter;

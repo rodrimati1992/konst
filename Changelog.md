@@ -2,6 +2,17 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.3
 
+### 0.3.5
+
+Added `typewit = "1.1"` dependency.
+
+Removed `konst::docs` module.
+
+Replaced `konst::polymorphism::{HasTypeWitness,MakeTypeWitness,TypeWitnessTypeArg,TypeEq}` from the same-named items in `typewit`
+
+Added reexport of `typewit::{self, CallFn, simple_type_witness,TypeFn,type_fn}` in `konst::polymorphism`
+
+
 ### 0.3.4
 
 Fixed `Parser::parse_direction`'s `const`-ness by making it a const fn.

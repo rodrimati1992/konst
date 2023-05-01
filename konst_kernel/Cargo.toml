@@ -1,6 +1,6 @@
 [package]
 name = "konst_kernel"
-version = "0.3.4"
+version = "0.3.5"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 rust-version = "1.57.0"
 edition = "2021"
@@ -17,9 +17,8 @@ include = [
 ]
 
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+[dependencies.typewit]
+version = "1.1"
 
 
 [dev-dependencies.arrayvec]
@@ -31,7 +30,7 @@ version = "0.7"
 debug = []
 alloc = []
 iter = []
-rust_1_64 = []
+rust_1_64 = ["typewit/rust_1_61"]
 docsrs = []
 nightly_mut_refs = []
 mut_refs = []
