@@ -24,7 +24,7 @@ declare_generic_const! {
     /// # Example
     ///
     /// ```rust
-    /// use konst::maybe_uninit::UNINIT;
+    /// use konst::maybe_uninit::{self as mu, UNINIT};
     ///
     /// use std::mem::{self, MaybeUninit};
     ///
@@ -37,7 +37,7 @@ declare_generic_const! {
     ///     konst::for_range!{i in 0..5=>
     ///         uninits[i] = MaybeUninit::new(NonCopy(i as u8 * 3));
     ///     }
-    ///     unsafe{ mem::transmute(uninits) }
+    ///     unsafe{ mu::array_assume_init(uninits) }
     /// };
     ///
     /// assert_eq!(INITS, [NonCopy(0), NonCopy(3), NonCopy(6), NonCopy(9), NonCopy(12)]);
@@ -57,7 +57,7 @@ declare_generic_const! {
     /// use std::mem::{self, MaybeUninit};
     ///
     /// const INITS: [[u8; 2]; 2] = {
-    ///     let mut uninits = [UNINIT_ARRAY::<u8, 2>::V; 2];
+    ///     let mut uninits: [[MaybeUninit<u8>; 2]; 2] = [UNINIT_ARRAY::<u8, 2>::V; 2];
     ///
     ///     uninits[0] = [MaybeUninit::new(3), MaybeUninit::new(5)];
     ///     uninits[1] = [MaybeUninit::new(8), MaybeUninit::new(13)];

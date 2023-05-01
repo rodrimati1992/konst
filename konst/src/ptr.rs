@@ -159,7 +159,7 @@ pub mod nonnull {
     /// ```
     ///
     pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: NonNull<T>) -> &'a T {
-        core::mem::transmute(ptr)
+        &*ptr.as_ptr()
     }
 
     /// Const equivalent of [`NonNull::as_mut`](core::ptr::NonNull::as_mut).
@@ -196,7 +196,7 @@ pub mod nonnull {
     #[cfg(feature = "mut_refs")]
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
     pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: NonNull<T>) -> &'a mut T {
-        core::mem::transmute(ptr)
+        &mut *ptr.as_ptr()
     }
 
     /// Const equivalent of
@@ -219,6 +219,7 @@ pub mod nonnull {
     /// }
     /// ```
     pub const fn from_ref<T: ?Sized>(reff: &T) -> NonNull<T> {
+        // SAFETY: `&T` is non-null, which is all that `NonNull::new_unchecked` requires
         unsafe { NonNull::new_unchecked(reff as *const _ as *mut _) }
     }
 
@@ -256,6 +257,7 @@ pub mod nonnull {
     #[cfg(feature = "mut_refs")]
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
     pub const fn from_mut<T: ?Sized>(mutt: &mut T) -> NonNull<T> {
+        // SAFETY: `&mut T` is non-null, which is all that `NonNull::new_unchecked` requires
         unsafe { NonNull::new_unchecked(mutt) }
     }
 }
