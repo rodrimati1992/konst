@@ -158,8 +158,8 @@
 /// // ) -> TypeEq<::foo::Ty<'a, 'b, L, N>, ::foo::Ty<'a, 'b, R, N>>
 /// // where
 /// //     'b: 'a,
-/// //     L: 'a + Debug,
-/// //     R: 'a + Debug,
+/// //     L: 'b + Debug,
+/// //     R: 'b + Debug,
 /// //     [u32; N]: 'a + core::fmt::Debug
 /// type_eq_projection_fn!{
 ///     /// Documentation for the generated function
@@ -171,7 +171,7 @@
 ///         'a,
 ///         'b: 'a,
 ///         // trait bounds in the type parameter list must be parenthesized
-///         T: ('a +  Debug), 
+///         T: ('b +  Debug), 
 ///         const N: usize,
 ///     >
 ///     where

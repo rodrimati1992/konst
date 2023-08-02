@@ -10,7 +10,7 @@ fn test_when_all_generic_args_are_passed() {
     struct Ty<'a, 'b: 'a, T: 'a + Debug, const N: usize>(&'a &'b [T; N]);
 
     type_eq_projection_fn! {
-        fn project(T) -> Ty<'a, 'b: 'a, T: 'a + (Debug), const N: usize>
+        fn project(T) -> Ty<'a, 'b: 'a, T: 'b + (Debug), const N: usize>
     }
 
     fn inner<'a, 'b: 'a, T: 'a + Debug, const N: usize>(
