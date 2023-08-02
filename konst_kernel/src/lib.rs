@@ -64,7 +64,9 @@ pub mod utils;
 
 #[doc(hidden)]
 pub mod __ {
-    pub use crate::type_eq::{HasTypeWitness, MakeTypeWitness, TypeEq, TypeWitnessTypeArg};
+    pub use typewit::{
+        HasTypeWitness, Identity, MakeTypeWitness, TypeEq, TypeFn, TypeWitnessTypeArg,
+    };
 
     #[cfg(feature = "__for_konst")]
     pub use crate::{
@@ -81,6 +83,7 @@ pub mod __ {
 
     pub use core::{
         assert, compile_error, concat,
+        marker::PhantomData,
         mem::{ManuallyDrop, MaybeUninit},
         ops::Range,
         option::Option::{self, None, Some},

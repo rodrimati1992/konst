@@ -231,7 +231,7 @@ macro_rules! __make_projection_fn {
 
             $($prefix)*
             <$($gen_params)*> (
-                $param: $crate::__::TypeEq<$L, $R>
+                param: $crate::__::TypeEq<$L, $R>
             ) -> $crate::__::TypeEq<
                 $($type_name)* <$($lt_arg,)* $($gen_arg_before,)* $L, $($($gen_arg_after,)*)?>,
                 $($type_name)* <$($lt_arg,)* $($gen_arg_before,)* $R, $($($gen_arg_after,)*)?>,
@@ -241,9 +241,40 @@ macro_rules! __make_projection_fn {
                 $R: $($($rep_ty_bound)*)?,
                 $($($where_preds)*)?
             {
-                unsafe {
-                    $crate::__::TypeEq::new_unchecked()
+                struct __Projector<T: ?Sized>($crate::__::PhantomData<T>);
+
+                impl<$($gen_params)*> $crate::__::TypeFn<$L>
+                for __Projector<
+                    $($type_name)* <
+                        $($lt_arg,)*
+                        $($gen_arg_before,)*
+                        $R,
+                        $($($gen_arg_after,)*)?
+                    >,
+                >
+                where
+                    $L: $($($rep_ty_bound)*)?,
+                    $R: $($($rep_ty_bound)*)?,
+                    $($($where_preds)*)?
+                {
+                    type Output = $($type_name)* <
+                        $($lt_arg,)*
+                        $($gen_arg_before,)*
+                        $L,
+                        $($($gen_arg_after,)*)?
+                    >;
                 }
+
+                param.project::<
+                    __Projector<
+                        $($type_name)* <
+                            $($lt_arg,)*
+                            $($gen_arg_before,)*
+                            $R,
+                            $($($gen_arg_after,)*)?
+                        >
+                    >
+                >()
             }
 
         }
