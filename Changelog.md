@@ -2,6 +2,10 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.3
 
+### 0.3.6
+
+Changed `type_eq_projection_fn` macro to not use any `unsafe`, this may require fixing bounds in your code.
+
 ### 0.3.5
 
 Added `typewit = "1.1"` dependency.
