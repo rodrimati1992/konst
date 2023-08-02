@@ -241,7 +241,7 @@ macro_rules! __make_projection_fn {
                 $R: $($($rep_ty_bound)*)?,
                 $($($where_preds)*)?
             {
-                struct __Projector<T>($crate::__::PhantomData<T>);
+                struct __Projector<T: ?Sized>($crate::__::PhantomData<T>);
 
                 impl<$($gen_params)*> $crate::__::TypeFn<$L>
                 for __Projector<
