@@ -19,6 +19,7 @@
 pub mod cmp;
 
 mod bytes_pattern;
+mod slice_array_chunks;
 mod slice_concatenation;
 mod slice_const_methods;
 
@@ -29,8 +30,9 @@ pub use bytes_pattern::BytesPattern;
 
 pub(crate) use bytes_pattern::PatternNorm;
 
-pub use slice_concatenation::*;
-pub use slice_const_methods::*;
+pub use self::slice_array_chunks::*;
+pub use self::slice_concatenation::*;
+pub use self::slice_const_methods::*;
 
 #[cfg(feature = "iter")]
 pub use slice_iter_methods::*;
