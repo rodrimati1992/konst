@@ -261,6 +261,97 @@ mod requires_rust_1_64 {
     ///////////////////////////////////////////////////////////////////////////
 
     /// Const equivalent of
+    /// [`<[T]>::array_chunks`
+    /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.array_chunks)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::slice;
+    ///
+    /// let arr = [3, 5, 8, 13, 21, 34, 55];
+    ///
+    /// let iter = slice::array_chunks::<_, 2>(&arr);
+    ///
+    /// let (val0, iter) = iter.next().unwrap();
+    /// let (val1, iter) = iter.next().unwrap();
+    /// let (val2, iter) = iter.next().unwrap();
+    ///
+    /// let out: [[u8; 2]; 3] = [*val0, *val1, *val2];
+    /// assert_eq!(out, [[3, 5], [8, 13], [21, 34]]);
+    ///
+    /// assert_eq!(iter.remainder(), &[55][..]);
+    /// ```
+    pub const fn array_chunks<'a, T, const N: usize>(slice: &'a [T]) -> ArrayChunks<'a, T, N> {
+        let (arrays, rem) = slice::as_chunks(slice);
+
+        ArrayChunks { arrays, rem }
+    }
+
+    macro_rules! array_chunks_shared {
+        (is_forward = $is_forward:ident) => {
+            iterator_shared! {
+                is_forward = $is_forward,
+                item = &'a [T; N],
+                iter_forward = ArrayChunks<'a, T, N>,
+                iter_reversed = ArrayChunksRev<'a, T, N>,
+                next(self) {
+                    match self.arrays {
+                        [elem, arrays @ ..] => Some((elem, Self {arrays, rem: self.rem})),
+                        [] => None,
+                    }
+                },
+                next_back {
+                    match self.arrays {
+                        [arrays @ .., elem] => Some((elem, Self {arrays, rem: self.rem})),
+                        [] => None,
+                    }
+                },
+                fields = {arrays, rem},
+            }
+        };
+    }
+
+    /// Const equivalent of [`core::slice::ArrayChunks`]
+    pub struct ArrayChunks<'a, T, const N: usize> {
+        arrays: &'a [[T; N]],
+        rem: &'a [T],
+    }
+    impl<'a, T, const N: usize> ConstIntoIter for ArrayChunks<'a, T, N> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T; N];
+    }
+
+    /// Const equivalent of `core::iter::Rev<core::slice::ArrayChunks>`
+    pub struct ArrayChunksRev<'a, T, const N: usize> {
+        arrays: &'a [[T; N]],
+        rem: &'a [T],
+    }
+    impl<'a, T, const N: usize> ConstIntoIter for ArrayChunksRev<'a, T, N> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T; N];
+    }
+
+    impl<'a, T, const N: usize> ArrayChunks<'a, T, N> {
+        array_chunks_shared! {is_forward = true}
+
+        /// Accesses the trailing part of the slice that's not returned by the iterator,
+        /// because it's shorter than `Ǹ` elements long.
+        pub const fn remainder(&self) -> &'a [T] {
+            self.rem
+        }
+    }
+
+    impl<'a, T, const N: usize> ArrayChunksRev<'a, T, N> {
+        array_chunks_shared! {is_forward = false}
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    /// Const equivalent of
     /// [`<[T]>::chunks`](https://doc.rust-lang.org/std/primitive.slice.html#method.chunks)
     ///
     /// # Example
