@@ -382,12 +382,12 @@ mod requires_rust_1_64 {
     }
 
     macro_rules! chunks_shared {
-        (is_forward = $is_forward:ident) => {
+        (is_forward = $is_forward:ident, $Chunks:ident, $ChunksRev:ident) => {
             iterator_shared! {
                 is_forward = $is_forward,
                 item = &'a [T],
-                iter_forward = Chunks<'a, T>,
-                iter_reversed = ChunksRev<'a, T>,
+                iter_forward = $Chunks<'a, T>,
+                iter_reversed = $ChunksRev<'a, T>,
                 next(self) {
                     option::map!(self.slice, |slice| {
                         let (ret, next) = slice::split_at(slice, self.size);
@@ -449,11 +449,11 @@ mod requires_rust_1_64 {
     }
 
     impl<'a, T> Chunks<'a, T> {
-        chunks_shared! {is_forward = true}
+        chunks_shared! {is_forward = true, Chunks, ChunksRev}
     }
 
     impl<'a, T> ChunksRev<'a, T> {
-        chunks_shared! {is_forward = false}
+        chunks_shared! {is_forward = false, Chunks, ChunksRev}
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -483,10 +483,17 @@ mod requires_rust_1_64 {
     ///
     #[track_caller]
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
-    pub const fn chunks_exact<T>(slice: &[T], size: usize) -> ChunksExact<'_, T> {
-        assert!(size != 0, "chunk size must be non-zero");
+    pub const fn chunks_exact<T>(slice: &[T], chunk_size: usize) -> ChunksExact<'_, T> {
+        assert!(chunk_size != 0, "chunk size must be non-zero");
 
-        ChunksExact { slice, size }
+        let at = slice.len() - slice.len() % chunk_size;
+        let (slice, rem) = slice::split_at(slice, at);
+
+        ChunksExact {
+            slice,
+            rem,
+            chunk_size,
+        }
     }
 
     macro_rules! chunks_exact_shared {
@@ -497,31 +504,31 @@ mod requires_rust_1_64 {
                 iter_forward = ChunksExact<'a, T>,
                 iter_reversed = ChunksExactRev<'a, T>,
                 next(self) {
-                    if self.slice.len() < self.size {
+                    if self.slice.is_empty() {
                         None
                     } else {
-                        let (ret, next) = slice::split_at(self.slice, self.size);
+                        let (ret, next) = slice::split_at(self.slice, self.chunk_size);
                         self.slice = next;
                         Some((ret, self))
                     }
                 },
                 next_back {
-                    if let Some(mut at) = self.slice.len().checked_sub(self.size) {
-                        at = at / self.size * self.size;
+                    if self.slice.is_empty() {
+                        None
+                    } else {
+                        let at = self.slice.len() - self.chunk_size;
                         let (next, ret) = slice::split_at(self.slice, at);
                         self.slice = next;
-                        Some((slice::slice_up_to(ret, self.size), self))
-                    } else {
-                        None
+                        Some((ret, self))
                     }
                 },
-                fields = {slice, size},
+                fields = {slice, rem, chunk_size},
             }
 
             /// Returns the remainder of the slice that's not returned by [`next`](Self::next),
             /// because it is shorter than the chunk size.
             pub const fn remainder(&self) -> &'a [T] {
-                self.slice
+                self.rem
             }
         };
     }
@@ -538,7 +545,8 @@ mod requires_rust_1_64 {
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub struct ChunksExact<'a, T> {
         slice: &'a [T],
-        size: usize,
+        rem: &'a [T],
+        chunk_size: usize,
     }
     impl<'a, T> ConstIntoIter for ChunksExact<'a, T> {
         type Kind = IsIteratorKind;
@@ -558,7 +566,8 @@ mod requires_rust_1_64 {
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub struct ChunksExactRev<'a, T> {
         slice: &'a [T],
-        size: usize,
+        rem: &'a [T],
+        chunk_size: usize,
     }
     impl<'a, T> ConstIntoIter for ChunksExactRev<'a, T> {
         type Kind = IsIteratorKind;

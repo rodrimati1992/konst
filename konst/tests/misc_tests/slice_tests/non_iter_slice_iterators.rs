@@ -180,12 +180,37 @@ fn slice_chunks_exact_const_callable() {
 
 #[test]
 fn chunks_exact_basic() {
-    let slice: &[u8] = &[3, 5, 8, 13, 21];
+    let slice: &[u8] = &[3, 5, 8, 13, 21, 34, 55];
 
     must_panic(file_span!(), || konst::slice::chunks_exact(&[0; 0], 0)).unwrap();
     must_panic(file_span!(), || konst::slice::chunks_exact(slice, 0)).unwrap();
 
     for size in 1..10 {
+        {
+            let mut citer = slice::chunks_exact(slice, size);
+            let mut iter = slice.chunks_exact(size);
+
+            assert_eq!(citer.remainder(), iter.remainder());
+
+            for _ in &mut iter {
+                citer = citer.next().unwrap().1;
+            }
+
+            assert_eq!(citer.remainder(), iter.remainder());
+        }
+        {
+            let mut citer = slice::chunks_exact(slice, size).rev();
+            let mut iter = slice.chunks_exact(size);
+
+            assert_eq!(citer.remainder(), iter.remainder());
+
+            for _ in iter.by_ref().rev() {
+                citer = citer.next().unwrap().1;
+            }
+
+            assert_eq!(citer.remainder(), iter.remainder());
+        }
+
         assert_eq!(
             collect_const_iter!(slice::chunks_exact(slice, size)),
             slice.chunks_exact(size).collect::<Vec<_>>(),
