@@ -207,6 +207,7 @@ fn rchunks_basic() {
 fn rchunks_mixed_direction() {
     compare_with_std!(rchunks)
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //                  chunks_exact iterator
 
@@ -280,4 +281,80 @@ fn chunks_exact_basic() {
 #[test]
 fn chunks_exact_mixed_direction() {
     compare_with_std!(chunks_exact)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//                  rchunks_exact iterator
+
+#[test]
+fn slice_rchunks_exact_const_callable() {
+    const fn __<'a>(slice: &'a [u8]) {
+        let _: konst::slice::RChunksExact<'a, u8> = konst::slice::rchunks_exact(slice, 3);
+        konst::slice::rchunks_exact(slice, 3).next();
+        konst::slice::rchunks_exact(slice, 3).next_back();
+        konst::slice::rchunks_exact(slice, 3).copy();
+
+        let rev: konst::slice::RChunksExactRev<'a, u8> =
+            konst::slice::rchunks_exact(slice, 3).rev();
+
+        rev.copy();
+        let _: konst::slice::RChunksExact<'a, u8> = rev.copy().rev();
+        rev.copy().next();
+        rev.copy().next_back();
+    }
+}
+
+#[test]
+fn rchunks_exact_basic() {
+    let slice: &[u8] = &[3, 5, 8, 13, 21, 34, 55];
+
+    must_panic(file_span!(), || konst::slice::rchunks_exact(&[0; 0], 0)).unwrap();
+    must_panic(file_span!(), || konst::slice::rchunks_exact(slice, 0)).unwrap();
+
+    for size in 1..10 {
+        {
+            let mut citer = slice::rchunks_exact(slice, size);
+            let mut iter = slice.rchunks_exact(size);
+
+            assert_eq!(citer.remainder(), iter.remainder());
+
+            for _ in &mut iter {
+                citer = citer.next().unwrap().1;
+            }
+
+            assert_eq!(citer.remainder(), iter.remainder());
+        }
+        {
+            let mut citer = slice::rchunks_exact(slice, size).rev();
+            let mut iter = slice.rchunks_exact(size);
+
+            assert_eq!(citer.remainder(), iter.remainder());
+
+            for _ in iter.by_ref().rev() {
+                citer = citer.next().unwrap().1;
+            }
+
+            assert_eq!(citer.remainder(), iter.remainder());
+        }
+
+        assert_eq!(
+            collect_const_iter!(slice::rchunks_exact(slice, size)),
+            slice.rchunks_exact(size).collect::<Vec<_>>(),
+            "size: {}",
+            size,
+        );
+        assert_eq!(
+            collect_const_iter!(slice::rchunks_exact(slice, size).rev()),
+            slice.rchunks_exact(size).rev().collect::<Vec<_>>(),
+            "size: {}",
+            size,
+        );
+    }
+}
+
+// expensive, and doesn't use unsafe, so no need for miri checking
+#[cfg(not(miri))]
+#[test]
+fn rchunks_exact_mixed_direction() {
+    compare_with_std!(rchunks_exact)
 }

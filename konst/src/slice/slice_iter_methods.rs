@@ -575,7 +575,7 @@ mod requires_rust_1_64 {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{for_range, option, slice};
+    /// use konst::{option, slice};
     ///
     /// const FOUND: [&[u8]; 3] = {
     ///     let iter = slice::chunks_exact(&[3, 5, 8, 13, 21, 34, 55, 89], 3);
@@ -690,6 +690,132 @@ mod requires_rust_1_64 {
 
     impl<'a, T> ChunksExactRev<'a, T> {
         chunks_exact_shared! {is_forward = false}
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    /// Const equivalent of
+    /// [`<[T]>::rchunks_exact`
+    /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.rchunks_exact)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{option, slice};
+    ///
+    /// const FOUND: [&[u8]; 3] = {
+    ///     let iter = slice::rchunks_exact(&[3, 5, 8, 13, 21, 34, 55, 89], 3);
+    ///     let (elem0, iter) = option::unwrap!(iter.next());
+    ///     let (elem1, iter) = option::unwrap!(iter.next());
+    ///     [elem0, elem1, iter.remainder()]
+    /// };
+    ///
+    /// let expected: [&[u8]; 3] = [&[34, 55, 89], &[8, 13, 21], &[3, 5]];
+    ///
+    /// assert_eq!(FOUND, expected);
+    ///
+    /// ```
+    ///
+    #[track_caller]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub const fn rchunks_exact<T>(slice: &[T], chunk_size: usize) -> RChunksExact<'_, T> {
+        assert!(chunk_size != 0, "chunk size must be non-zero");
+
+        let (rem, slice) = slice::split_at(slice, slice.len() % chunk_size);
+
+        RChunksExact {
+            slice,
+            rem,
+            chunk_size,
+        }
+    }
+
+    macro_rules! rchunks_exact_shared {
+        (is_forward = $is_forward:ident) => {
+            iterator_shared! {
+                is_forward = $is_forward,
+                item = &'a [T],
+                iter_forward = RChunksExact<'a, T>,
+                iter_reversed = RChunksExactRev<'a, T>,
+                next(self) {
+                    if self.slice.is_empty() {
+                        None
+                    } else {
+                        let at = self.slice.len() - self.chunk_size;
+                        let (next, ret) = slice::split_at(self.slice, at);
+                        self.slice = next;
+                        Some((ret, self))
+                    }
+                },
+                next_back {
+                    if self.slice.is_empty() {
+                        None
+                    } else {
+                        let (ret, next) = slice::split_at(self.slice, self.chunk_size);
+                        self.slice = next;
+                        Some((ret, self))
+                    }
+                },
+                fields = {slice, rem, chunk_size},
+            }
+
+            /// Returns the remainder of the slice that's not returned by [`next`](Self::next),
+            /// because it is shorter than the chunk size.
+            pub const fn remainder(&self) -> &'a [T] {
+                self.rem
+            }
+        };
+    }
+
+    /// Const equivalent of [`core::slice::RChunksExact`]
+    ///
+    /// This is constructed with [`rchunks_exact`] like this:
+    /// ```rust
+    /// # let slice = &[3];
+    /// # let _ =
+    /// konst::slice::rchunks_exact(slice, 1)
+    /// # ;
+    /// ```
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub struct RChunksExact<'a, T> {
+        slice: &'a [T],
+        rem: &'a [T],
+        chunk_size: usize,
+    }
+    impl<'a, T> ConstIntoIter for RChunksExact<'a, T> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
+    }
+
+    /// Const equivalent of `core::iter::Rev<core::slice::RChunksExact>`
+    ///
+    /// This is constructed with [`rchunks_exact`] like this:
+    /// ```rust
+    /// # let slice = &[3];
+    /// # let _ =
+    /// konst::slice::rchunks_exact(slice, 1).rev()
+    /// # ;
+    /// ```
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub struct RChunksExactRev<'a, T> {
+        slice: &'a [T],
+        rem: &'a [T],
+        chunk_size: usize,
+    }
+    impl<'a, T> ConstIntoIter for RChunksExactRev<'a, T> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
+    }
+
+    impl<'a, T> RChunksExact<'a, T> {
+        rchunks_exact_shared! {is_forward = true}
+    }
+
+    impl<'a, T> RChunksExactRev<'a, T> {
+        rchunks_exact_shared! {is_forward = false}
     }
 }
 
