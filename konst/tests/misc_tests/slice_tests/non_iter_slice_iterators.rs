@@ -159,6 +159,55 @@ fn chunks_mixed_direction() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+//                  rchunks iterator
+
+#[test]
+fn slice_rchunks_const_callable() {
+    const fn __<'a>(slice: &'a [u8]) {
+        let _: konst::slice::RChunks<'a, u8> = konst::slice::rchunks(slice, 3);
+        konst::slice::rchunks(slice, 3).next();
+        konst::slice::rchunks(slice, 3).next_back();
+        konst::slice::rchunks(slice, 3).copy();
+
+        let rev: konst::slice::RChunksRev<'a, u8> = konst::slice::rchunks(slice, 3).rev();
+
+        rev.copy();
+        let _: konst::slice::RChunks<'a, u8> = rev.copy().rev();
+        rev.copy().next();
+        rev.copy().next_back();
+    }
+}
+
+#[test]
+fn rchunks_basic() {
+    let slice: &[u8] = &[3, 5, 8, 13, 21];
+
+    must_panic(file_span!(), || konst::slice::rchunks(&[0; 0], 0)).unwrap();
+    must_panic(file_span!(), || konst::slice::rchunks(slice, 0)).unwrap();
+
+    for size in 1..10 {
+        assert_eq!(
+            collect_const_iter!(slice::rchunks(slice, size)),
+            slice.rchunks(size).collect::<Vec<_>>(),
+            "size: {}",
+            size,
+        );
+        assert_eq!(
+            collect_const_iter!(slice::rchunks(slice, size).rev()),
+            slice.rchunks(size).rev().collect::<Vec<_>>(),
+            "size: {}",
+            size,
+        );
+    }
+}
+
+// expensive, and doesn't use unsafe, so no need for miri checking
+#[cfg(not(miri))]
+#[test]
+fn rchunks_mixed_direction() {
+    compare_with_std!(rchunks)
+}
+////////////////////////////////////////////////////////////////////////////////
 //                  chunks_exact iterator
 
 #[test]

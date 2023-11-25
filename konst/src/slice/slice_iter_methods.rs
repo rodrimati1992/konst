@@ -372,38 +372,38 @@ mod requires_rust_1_64 {
     ///
     #[track_caller]
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
-    pub const fn chunks<T>(slice: &[T], size: usize) -> Chunks<'_, T> {
-        assert!(size != 0, "chunk size must be non-zero");
+    pub const fn chunks<T>(slice: &[T], chunk_size: usize) -> Chunks<'_, T> {
+        assert!(chunk_size != 0, "chunk size must be non-zero");
 
         Chunks {
             slice: some_if_nonempty(slice),
-            size,
+            chunk_size,
         }
     }
 
     macro_rules! chunks_shared {
-        (is_forward = $is_forward:ident, $Chunks:ident, $ChunksRev:ident) => {
+        (is_forward = $is_forward:ident) => {
             iterator_shared! {
                 is_forward = $is_forward,
                 item = &'a [T],
-                iter_forward = $Chunks<'a, T>,
-                iter_reversed = $ChunksRev<'a, T>,
+                iter_forward = Chunks<'a, T>,
+                iter_reversed = ChunksRev<'a, T>,
                 next(self) {
                     option::map!(self.slice, |slice| {
-                        let (ret, next) = slice::split_at(slice, self.size);
+                        let (ret, next) = slice::split_at(slice, self.chunk_size);
                         self.slice = some_if_nonempty(next);
                         (ret, self)
                     })
                 },
                 next_back{
                     option::map!(self.slice, |slice| {
-                        let at = (slice.len() - 1) / self.size * self.size;
+                        let at = (slice.len() - 1) / self.chunk_size * self.chunk_size;
                         let (next, ret) = slice::split_at(slice, at);
                         self.slice = some_if_nonempty(next);
                         (ret, self)
                     })
                 },
-                fields = {slice, size},
+                fields = {slice, chunk_size},
             }
         };
     }
@@ -420,7 +420,7 @@ mod requires_rust_1_64 {
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub struct Chunks<'a, T> {
         slice: Option<&'a [T]>,
-        size: usize,
+        chunk_size: usize,
     }
     impl<'a, T> ConstIntoIter for Chunks<'a, T> {
         type Kind = IsIteratorKind;
@@ -440,7 +440,7 @@ mod requires_rust_1_64 {
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub struct ChunksRev<'a, T> {
         slice: Option<&'a [T]>,
-        size: usize,
+        chunk_size: usize,
     }
     impl<'a, T> ConstIntoIter for ChunksRev<'a, T> {
         type Kind = IsIteratorKind;
@@ -449,11 +449,120 @@ mod requires_rust_1_64 {
     }
 
     impl<'a, T> Chunks<'a, T> {
-        chunks_shared! {is_forward = true, Chunks, ChunksRev}
+        chunks_shared! {is_forward = true}
     }
 
     impl<'a, T> ChunksRev<'a, T> {
-        chunks_shared! {is_forward = false, Chunks, ChunksRev}
+        chunks_shared! {is_forward = false}
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    /// Const equivalent of
+    /// [`<[T]>::rchunks`](https://doc.rust-lang.org/std/primitive.slice.html#method.rchunks)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::iter::collect_const;
+    /// use konst::slice;
+    ///
+    /// const CHUNKS: [&[u8]; 3] = collect_const!{&[u8] =>
+    ///     slice::rchunks(&[3, 5, 8, 13, 21, 34, 55, 89], 3)
+    /// };
+    ///
+    /// let expected: &[&[u8]] = &[&[34, 55, 89], &[8, 13, 21], &[3, 5]];
+    ///
+    /// assert_eq!(CHUNKS, expected)
+    ///
+    /// ```
+    #[track_caller]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub const fn rchunks<T>(slice: &[T], chunk_size: usize) -> RChunks<'_, T> {
+        assert!(chunk_size != 0, "chunk size must be non-zero");
+
+        RChunks {
+            slice: some_if_nonempty(slice),
+            chunk_size,
+        }
+    }
+
+    macro_rules! rchunks_shared {
+        (is_forward = $is_forward:ident) => {
+            iterator_shared! {
+                is_forward = $is_forward,
+                item = &'a [T],
+                iter_forward = RChunks<'a, T>,
+                iter_reversed = RChunksRev<'a, T>,
+                next(self) {
+                    option::map!(self.slice, |slice| {
+                        let at = slice.len().saturating_sub(self.chunk_size);
+                        let (next, ret) = slice::split_at(slice, at);
+                        self.slice = some_if_nonempty(next);
+                        (ret, self)
+                    })
+                },
+                next_back{
+                    option::map!(self.slice, |slice| {
+                        let rem = slice.len() % self.chunk_size;
+                        let at = if rem == 0 { self.chunk_size } else { rem };
+                        let (ret, next) = slice::split_at(slice, at);
+                        self.slice = some_if_nonempty(next);
+                        (ret, self)
+                    })
+                },
+                fields = {slice, chunk_size},
+            }
+        };
+    }
+
+    /// Const equivalent of [`core::slice::RChunks`]
+    ///
+    /// This is constructed with [`rchunks`] like this:
+    /// ```rust
+    /// # let slice = &[3];
+    /// # let _ =
+    /// konst::slice::rchunks(slice, 1)
+    /// # ;
+    /// ```
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub struct RChunks<'a, T> {
+        slice: Option<&'a [T]>,
+        chunk_size: usize,
+    }
+    impl<'a, T> ConstIntoIter for RChunks<'a, T> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
+    }
+
+    /// Const equivalent of `core::iter::Rev<core::slice::RChunks>`
+    ///
+    /// This is constructed with [`rchunks`] like this:
+    /// ```rust
+    /// # let slice = &[3];
+    /// # let _ =
+    /// konst::slice::rchunks(slice, 1).rev()
+    /// # ;
+    /// ```
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub struct RChunksRev<'a, T> {
+        slice: Option<&'a [T]>,
+        chunk_size: usize,
+    }
+    impl<'a, T> ConstIntoIter for RChunksRev<'a, T> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a [T];
+    }
+
+    impl<'a, T> RChunks<'a, T> {
+        rchunks_shared! {is_forward = true}
+    }
+
+    impl<'a, T> RChunksRev<'a, T> {
+        rchunks_shared! {is_forward = false}
     }
 
     ///////////////////////////////////////////////////////////////////////////
