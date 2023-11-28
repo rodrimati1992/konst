@@ -14,6 +14,9 @@ use konst::{
     },
 };
 
+#[cfg(feature = "iter")]
+mod array_chunks_tests;
+
 mod bytes_fns_tests;
 
 mod slice_concatenation_tests;

@@ -2,6 +2,24 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.3
 
+### 0.3.7
+
+Fixed `ChunksExact::remainder`'s implementation, it used to return the entire uniterated-over slice, when it should only return the part of the slice that the iterator never yields.
+
+Added these items to `konst::slice` module:
+- `ArrayChunksRev` struct
+- `ArrayChunks` struct
+- `RChunksExactRev` struct
+- `RChunksExact` struct
+- `RChunksRev` struct
+- `RChunks` struct
+- `array_chunks` function
+- `as_chunks` function
+- `as_rchunks` function
+- `rchunks_exact` function
+- `rchunks` function
+
+
 ### 0.3.6
 
 Changed `type_eq_projection_fn` macro to not use any `unsafe`, this may require fixing bounds in your code.
