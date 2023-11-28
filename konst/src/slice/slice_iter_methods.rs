@@ -155,6 +155,10 @@ mod requires_rust_1_64 {
     /// [`<[T]>::windows`
     /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.windows)
     ///
+    /// # Panics
+    ///
+    /// Panics if `size == 0`.
+    ///
     /// # Example
     ///
     /// ```rust
@@ -264,6 +268,10 @@ mod requires_rust_1_64 {
     /// [`<[T]>::array_chunks`
     /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.array_chunks)
     ///
+    /// # Panics
+    ///
+    /// Panics if `N == 0`.
+    ///
     /// # Example
     ///
     /// ```rust
@@ -353,6 +361,10 @@ mod requires_rust_1_64 {
 
     /// Const equivalent of
     /// [`<[T]>::chunks`](https://doc.rust-lang.org/std/primitive.slice.html#method.chunks)
+    ///
+    /// # Panics
+    ///
+    /// Panics if `chunk_size == 0`.
     ///
     /// # Example
     ///
@@ -461,6 +473,10 @@ mod requires_rust_1_64 {
 
     /// Const equivalent of
     /// [`<[T]>::rchunks`](https://doc.rust-lang.org/std/primitive.slice.html#method.rchunks)
+    ///
+    /// # Panics
+    ///
+    /// Panics if `chunk_size == 0`.
     ///
     /// # Example
     ///
@@ -571,6 +587,10 @@ mod requires_rust_1_64 {
     /// Const equivalent of
     /// [`<[T]>::chunks_exact`
     /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.chunks_exact)
+    ///
+    /// # Panics
+    ///
+    /// Panics if `chunk_size == 0`.
     ///
     /// # Example
     ///
@@ -698,6 +718,10 @@ mod requires_rust_1_64 {
     /// Const equivalent of
     /// [`<[T]>::rchunks_exact`
     /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.rchunks_exact)
+    ///
+    /// # Panics
+    ///
+    /// Panics if `chunk_size == 0`.
     ///
     /// # Example
     ///

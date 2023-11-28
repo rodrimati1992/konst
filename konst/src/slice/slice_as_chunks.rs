@@ -3,6 +3,10 @@ use crate::slice;
 /// Const equivalent of
 /// [`<[T]>::as_chunks`](https://doc.rust-lang.org/std/primitive.slice.html#method.as_chunks)
 ///
+/// # Panics
+///
+/// Panics if `N == 0`.
+///
 /// # Example
 ///
 /// ```rust
@@ -31,6 +35,10 @@ pub const fn as_chunks<'a, T, const N: usize>(this: &[T]) -> (&[[T; N]], &[T]) {
 
 /// Const equivalent of
 /// [`<[T]>::as_rchunks`](https://doc.rust-lang.org/std/primitive.slice.html#method.as_rchunks)
+///
+/// # Panics
+///
+/// Panics if `N == 0`.
 ///
 /// # Example
 ///
