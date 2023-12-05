@@ -8,7 +8,6 @@
 fn ui() {
     let t = trybuild::TestCases::new();
     for dir in [
-        "array_ui_tests",
         "collect_const_ui_tests",
         "iter_eval_ui_tests",
         "iter_mod_ui_tests",

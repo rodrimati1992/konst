@@ -15,7 +15,7 @@ fn array_map_break() {
 #[test]
 fn array_map_non_copy() {
     const fn map_foos<const N: usize>(input: [NonCopy<u8>; N]) -> [NonCopy<i8>; N] {
-        array::map!(input, |(NonCopy(x))| NonCopy(x as i8))
+        array::map!(input, |NonCopy(x)| NonCopy(x as i8))
     }
 
     assert_eq!(
@@ -27,7 +27,7 @@ fn array_map_non_copy() {
 #[test]
 fn array_map_non_copy_ref_pat() {
     const fn map_foos<const N: usize>(input: [NonCopy<u8>; N]) -> [NonCopy<i8>; N] {
-        array::map!(input, |(ref x)| NonCopy(x.0 as i8))
+        array::map!(input, |ref x| NonCopy(x.0 as i8))
     }
 
     assert_eq!(
@@ -52,10 +52,42 @@ fn array_map_nonlocal_return() {
 
 #[test]
 fn array_map_type_annotation() {
-    // ensuring that the type annotation is used
-    const SQUARED: [u32; 3] = array::map!([3, 5, 8], |x: u32| x.pow(2));
+    macro_rules! with_comma {
+        (($($p:tt)*) ($($e:tt)*)) => ({
+            // ensuring that the type annotation is used
+            const SQUARED: [u32; 3] =
+                array::map!([3, 5, 8], |x: u32 $($p)*| x.pow(2) $($e)*);
 
-    assert_eq!(SQUARED, [9, 25, 64]);
+            assert_eq!(SQUARED, [9, 25, 64]);
+        })
+    }
+
+    with_comma! {() ()}
+    with_comma! {(,) ()}
+    with_comma! {() (,)}
+    with_comma! {(,) (,)}
+}
+
+#[test]
+fn array_map_pattern_param() {
+    struct Foo(u32, u32);
+
+    macro_rules! with_comma {
+        (($($p:tt)*) ($($e:tt)*)) => ({
+            // ensuring that the type annotation is used
+            const FIBB: [u32; 3] = array::map!(
+                [Foo(3, 5), Foo(8, 13), Foo(21, 34)],
+                |Foo(l, r) $($p)*| l + r $($e)*
+            );
+
+            assert_eq!(FIBB, [8, 21, 55]);
+        })
+    }
+
+    with_comma! {() ()}
+    with_comma! {(,) ()}
+    with_comma! {() (,)}
+    with_comma! {(,) (,)}
 }
 
 #[test]
@@ -68,13 +100,11 @@ fn array_map_pass_function_as_arg() {
 }
 
 #[test]
-fn array_map_more_tests() {
+fn array_map_with_type_annotation() {
     use konst::array::map;
 
-    {
-        let mapped = map!([(); 3], |_| -> u32 { Default::default() });
-        assert_type::<_, [u32; 3]>(&mapped);
-    }
+    let mapped = map!([(); 3], |_| -> u32 { Default::default() });
+    assert_type::<_, [u32; 3]>(&mapped);
 }
 
 #[test]

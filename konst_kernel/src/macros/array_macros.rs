@@ -22,14 +22,14 @@ macro_rules! __array_map {
     (
         $array:ident,
         |$i:ident| $get_input:expr,
-        |$param:tt $(: $type:ty)? $(,)?| $(-> $ret:ty)? $mapper:block $(,)?
+        ($($pattern:tt)*) $(-> $ret:ty)? $mapper:block $(,)?
     ) => ({
         let len = $array.len();
         let mut out = $crate::__::uninit_array_of_len(&$array);
 
         let mut $i = 0usize;
         while $i < len {
-            let $param $(: $type)? = $get_input;
+            let $($pattern)* = $get_input;
             out[$i] = $crate::__::MaybeUninit $(::<$ret>)? ::new($mapper);
             $i += 1;
         }
