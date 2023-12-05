@@ -10,7 +10,7 @@ Removed most `Copy` restriction of these macros:
 - `konst::iter::collect_const`
 The pattern of the closure passed to `konst::array::map` is still required not to move out of the input array.
 
-Improved `konst::array::{from_fn, map}` macros by allowing its closure parameter to take more unparenthesized parameters.
+Improved `konst::array::{from_fn, map}` macros by allowing its closure parameter to take more unparenthesized patterns.
 
 Improved the `konst::iter::{collect_const, eval, for_each}` macros by allowing single-parameter closures passed to the macro to annotate the type of the parameter.
 
