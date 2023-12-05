@@ -231,6 +231,7 @@ macro_rules! str_from_iter {
     ($($rem:tt)*) => {{
         $crate::__collect_const_iter_with!{
             $crate::__::u8,
+            {},
             |array, written_length, item| {
                 let byteser = $crate::string::__ElemDispatch(item).as_bytesable();
                 let bytes = byteser.as_bytes();

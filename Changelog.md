@@ -2,6 +2,14 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.3
 
+### 0.3.8
+
+Removed most `Copy` restriction of these macros:
+- `konst::array::from_fn`
+- `konst::array::map`
+- `konst::iter::collect_const`
+The pattern of the closure passed to `konst::array::map` is still required not to move out of the input array.
+
 ### 0.3.7
 
 Fixed `ChunksExact::remainder`'s implementation, it used to return the entire uniterated-over slice, when it should only return the part of the slice that the iterator never yields.

@@ -25,6 +25,18 @@ fn array_map_non_copy() {
 }
 
 #[test]
+fn array_map_non_copy_ref_pat() {
+    const fn map_foos<const N: usize>(input: [NonCopy<u8>; N]) -> [NonCopy<i8>; N] {
+        array::map!(input, |(ref x)| NonCopy(x.0 as i8))
+    }
+
+    assert_eq!(
+        map_foos([0, 1, 255u8].map(NonCopy)),
+        [0, 1, -1i8].map(NonCopy)
+    );
+}
+
+#[test]
 fn array_map_nonlocal_return() {
     const fn map_evens<const N: usize>(input: [u8; N]) -> Option<[u8; N]> {
         Some(array::map!(input, |x| if x % 2 == 0 {

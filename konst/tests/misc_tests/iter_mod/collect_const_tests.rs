@@ -1,6 +1,26 @@
 use konst::{iter::collect_const, slice};
 
 #[test]
+fn collect_const_droppable() {
+    #[derive(Debug, PartialEq)]
+    struct Foo(u32);
+
+    impl Drop for Foo {
+        fn drop(&mut self) {}
+    }
+
+    const STRINGS: [String; 2] = collect_const! {String =>
+        0..2,map(|_| String::new())
+    };
+    assert_eq!(STRINGS, [String::new(), String::new()]);
+
+    const FOOS: [Foo; 5] = collect_const! {Foo =>
+        0..5,map(|i| Foo(1u32 << i))
+    };
+    assert_eq!(FOOS, [1, 2, 4, 8, 16].map(Foo));
+}
+
+#[test]
 fn collect_const_zip() {
     {
         const ARR: [(&u8, usize); 4] = collect_const!((&u8, usize) => &[3u8, 5, 8, 13],zip(100..));

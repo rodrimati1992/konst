@@ -25,7 +25,8 @@ macro_rules! iter_collect_const {
     ) => {{
         $crate::__collect_const_iter_with!{
             $Item ,
-            |array, length, item| array[length] = $crate::__::MaybeUninit::new(item),
+            {let item = $crate::__::MaybeUninit::new(item);},
+            |array, length, item| array[length] = item,
             elem_length = 1,
             =>
             $($rem)*
@@ -40,6 +41,7 @@ macro_rules! iter_collect_const {
 macro_rules! __collect_const_iter_with {
     (
         $Item:ty,
+        $reassign_item:tt,
         |$array:ident, $length:ident, $item:ident| $elem_initer:expr,
         elem_length = $elem_length:expr,
         =>
@@ -53,7 +55,7 @@ macro_rules! __collect_const_iter_with {
 
             $crate::__process_iter_args!{
                 ($crate::__iter_collect_const)
-                (cmd, $length, $elem_length, $elem_initer;)
+                (cmd, $length, $elem_length, $reassign_item, $elem_initer;)
                 (
                     $item,
                     'zxe7hgbnjs,
@@ -95,10 +97,15 @@ macro_rules! __collect_const_iter_with {
 macro_rules! __iter_collect_const {
     (
         @each
-        $cmd:ident, $length:ident, $elem_length:expr, $elem_initer:expr;
+        $cmd:ident,
+        $length:ident,
+        $elem_length:expr,
+        {$($reassign_item:tt)*},
+        $elem_initer:expr;
         ($item:ident adapter),
         $(,)*
-    ) => {
+    ) => ({
+        $($reassign_item)*
         if let $crate::__::CollectorCmd::BuildArray(teq) = $cmd {
             teq.reachability_hint(());
 
@@ -106,6 +113,6 @@ macro_rules! __iter_collect_const {
         }
 
         $length += $elem_length;
-    };
+    });
     (@end $($tt:tt)*) => {};
 }
