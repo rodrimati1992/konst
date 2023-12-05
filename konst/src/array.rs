@@ -19,7 +19,18 @@ macro_rules! leak_warning {
 ///
 #[doc = leak_warning!()]
 ///
+/// # Limitations
+///
+/// This macro supports mapping from non-Copy arrays if any of these
+/// conditions are met about the parameter of the passed-in closure:
+/// 1. it's a pattern that only copies Copy fields of each array element
+/// 2. it's a `ref` pattern
+///
+/// [examples of both of the above conditions below](#map-noncopy-example)
+///
 /// # Example
+///
+/// ### Basic
 ///
 /// ```rust
 /// use konst::array;
@@ -38,6 +49,34 @@ macro_rules! leak_warning {
 ///     let output = array::map!(input, |x| -> u64 { x + 2 });
 ///     assert_eq!(output, [5, 7, 10]);
 /// }
+///
+/// ```
+///
+/// <span id="map-noncopy-example"> </span>
+/// ### Map from non-Copy array
+///
+/// Demonstrates both ways to map from a non-Copy array.
+///
+/// ```rust
+/// use konst::array;
+///
+/// struct NonCopy(u32, u32);
+///
+/// const PRIME_SUMS: [u32; 3] = {
+///     let input = [NonCopy(2, 3), NonCopy(5, 7), NonCopy(11, 13)];
+///     
+///     // demonstrates the first way to map from non-Copy elements
+///     array::map!(input, |NonCopy(l, r)| l + r)
+/// };
+/// assert_eq!(PRIME_SUMS, [5, 12, 24]);
+///
+/// const FIBB_SUMS: [u32; 3] = {
+///     let input = [NonCopy(2, 3), NonCopy(5, 8), NonCopy(13, 21)];
+///     
+///     // demonstrates the second way to map from non-Copy elements
+///     array::map!(input, |ref nc| nc.0 + nc.1)
+/// };
+/// assert_eq!(FIBB_SUMS, [5, 13, 34]);
 ///
 /// ```
 ///
