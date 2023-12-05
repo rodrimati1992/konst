@@ -25,7 +25,7 @@ macro_rules! __array_map {
         |$param:tt $(: $type:ty)? $(,)?| $(-> $ret:ty)? $mapper:block $(,)?
     ) => ({
         let len = $array.len();
-        let mut out = $crate::__::uninit_copy_array_of_len(&$array);
+        let mut out = $crate::__::uninit_array_of_len(&$array);
 
         let mut $i = 0usize;
         while $i < len {
@@ -33,7 +33,7 @@ macro_rules! __array_map {
             out[$i] = $crate::__::MaybeUninit $(::<$ret>)? ::new($mapper);
             $i += 1;
         }
-        // protecting against malicious `$mapper`s
+        // protecting against malicious `$mapper`s that break out of the `while` loop
         $crate::__::assert!($i == len);
 
         unsafe{
@@ -72,10 +72,7 @@ pub const fn assert_array<T, const N: usize>(array: &[T; N]) -> &[T; N] {
 }
 
 #[inline(always)]
-pub const fn uninit_copy_array_of_len<T, U, const N: usize>(_input: &[T; N]) -> [MaybeUninit<U>; N]
-where
-    U: Copy,
-{
+pub const fn uninit_array_of_len<T, U, const N: usize>(_input: &[T; N]) -> [MaybeUninit<U>; N] {
     crate::maybe_uninit::uninit_array()
 }
 

@@ -1,10 +1,23 @@
 //! Const equivalents of array functions.
 
+macro_rules! leak_warning {
+    () => {
+        concat!(
+            "# Warning\n",
+            "\n",
+            "This macro leaks the initialized part of the array\n",
+            "if the closure passed to this macro panics or returns early.\n",
+            "\n",
+            "note: this warning is not relevant if the elements don't need dropping",
+            "(e.g: by implementing `Copy`).\n"
+        )
+    };
+}
+
 /// Const equivalent of
 /// [`array::map`](https://doc.rust-lang.org/std/primitive.array.html#method.map).
 ///
-/// **Limitation:** requires `$array` and the elements
-/// returned by the passed-in function to be `Copy`.
+#[doc = leak_warning!()]
 ///
 /// # Example
 ///
@@ -32,9 +45,9 @@ pub use konst_kernel::array_map as map;
 
 /// Const equivalent of [`array::from_fn`](core::array::from_fn).
 ///
-/// # Limitations
+#[doc = leak_warning!()]
 ///
-/// This macro requires the element type to be `Copy`.
+/// # Limitations
 ///
 /// When the array type is annotated, the array type must be one of:
 /// - Square brackets (e.g: `from_fn!([usize; 10] => |i| i)`)
