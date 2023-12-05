@@ -7,7 +7,7 @@ macro_rules! array_map {
             ref array => {
                 let array = $crate::__::assert_array(array);
 
-                $crate::utils::__alt_parse_closure_1!{
+                $crate::utils::__parse_closure_1!{
                     ($crate::__array_map) (array, |i| array[i],) (array_map),
                     $($closure)*
                 }
@@ -49,7 +49,7 @@ macro_rules! array_from_fn {
     ($type:tt => $($closure:tt)*) => ({
         let input = $crate::__::unit_array();
         let arr: $crate::__unparenthesize!($type) =
-            $crate::utils::__alt_parse_closure_1!{
+            $crate::utils::__parse_closure_1!{
                 ($crate::__array_map) (input, |i| i,) (array_from_fn),
                 $($closure)*
             };
@@ -57,7 +57,7 @@ macro_rules! array_from_fn {
     });
     ($($closure:tt)*) => ({
         let input = $crate::__::unit_array();
-        $crate::utils::__alt_parse_closure_1!{
+        $crate::utils::__parse_closure_1!{
             ($crate::__array_map) (input, |i| i,) (array_from_fn),
             $($closure)*
         }

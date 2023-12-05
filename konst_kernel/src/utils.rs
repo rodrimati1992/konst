@@ -165,12 +165,6 @@ macro_rules! make_parse_closure_macro {
 }
 
 make_parse_closure_macro! {
-    $ __parse_closure_1 1
-    (aaa)
-    ($aaa:pat_param $(,)?)
-    ($aaa)
-}
-make_parse_closure_macro! {
     $ __parse_closure_2 2
     (aaa bbb)
     ($aaa:pat_param, $bbb:pat_param $(,)?)
@@ -181,7 +175,7 @@ make_parse_closure_macro! {
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __alt_parse_closure_1 {
+macro_rules! __parse_closure_1 {
     (
         $macro:tt $args:tt $usage_site:tt,
         ||  $(,)?
@@ -191,21 +185,21 @@ macro_rules! __alt_parse_closure_1 {
     (
         $macro:tt $args:tt $usage_site:tt,
         |$pat:tt $(: $pat_ty:ty)? $(,)?| $($rem:tt)*
-    ) => ({
+    ) => (
         $crate::__alt_parse_closure_1_parse_expr! {
             $usage_site $macro $args ($pat $(: $pat_ty)?),
             $($rem)*
         }
-    });
+    );
     (
         $macro:tt $args:tt $usage_site:tt,
         |$pat:pat_param $(,)?| $($rem:tt)*
-    ) => ({
+    ) => (
         $crate::__alt_parse_closure_1_parse_expr! {
             $usage_site $macro $args ($pat),
             $($rem)*
         }
-    });
+    );
     ($macro:tt $args:tt $usage_site:tt, | $($anything:tt)* ) => {
         $crate::__parse_closure_emit_error!{1 $usage_site}
     };
@@ -232,7 +226,7 @@ macro_rules! __alt_parse_closure_1 {
     };
 }
 
-pub use __alt_parse_closure_1;
+pub use __parse_closure_1;
 
 #[doc(hidden)]
 #[macro_export]
@@ -254,7 +248,7 @@ macro_rules! __alt_parse_closure_1_parse_expr {
 
         $($macro)* ! {
             $($args)*
-            $pattern -> _ { $v }
+            $pattern { $v }
         }
     });
 
