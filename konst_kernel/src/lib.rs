@@ -84,7 +84,7 @@ pub mod __ {
     pub use core::{
         assert, compile_error, concat,
         marker::PhantomData,
-        mem::{ManuallyDrop, MaybeUninit},
+        mem::{forget, ManuallyDrop, MaybeUninit},
         ops::Range,
         option::Option::{self, None, Some},
         panic,

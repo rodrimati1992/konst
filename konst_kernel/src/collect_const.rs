@@ -66,6 +66,7 @@ macro_rules! __collect_const_iter_with {
 
             match cmd {
                 $crate::__::CollectorCmd::ComputeLength(teq) => {
+                    $crate::__::forget($array);
                     teq.to_right($length)
                 }
                 $crate::__::CollectorCmd::BuildArray(teq) => {
