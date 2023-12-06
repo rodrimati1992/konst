@@ -821,3 +821,75 @@ fn skip_while_retty_test() {
 
     assert_eq!(vect, [3, 4, 5]);
 }
+
+#[test]
+fn test_type_annotate_param() {
+    assert!(!iter::eval!(
+        &[3, 5],
+        any(|x: &u128| x.wrapping_add(2) % 2 == 0)
+    ));
+
+    assert!(iter::eval!(
+        &[4, 6],
+        all(|x: &u32| x.wrapping_add(2) % 2 == 0)
+    ));
+
+    assert_eq!(
+        iter::eval!(
+            &[8, 12, 15, 18, 23],
+            find(|x: &u32| x.wrapping_add(2) % 2 == 1)
+        ),
+        Some(&15)
+    );
+
+    assert_eq!(
+        iter::eval!(
+            &[8, 12, 15, 18, 23],
+            filter(|x: &u32| x.wrapping_add(2) % 2 == 1),
+            nth(1)
+        ),
+        Some(&23)
+    );
+
+    assert_eq!(
+        iter::eval!(
+            &[8, 12, 15, 18],
+            position(|x: &u32| x.wrapping_add(2) % 2 == 1)
+        ),
+        Some(2)
+    );
+
+    assert_eq!(
+        iter::collect_const!(u32 => &[3, 5, 8],map(|x: &u32| x.pow(3))),
+        [27, 125, 512],
+    );
+
+    assert_eq!(
+        iter::collect_const!(u8 => &[3, 5, 8],filter_map(|x: &u8| x.checked_pow(3))),
+        [27, 125],
+    );
+
+    assert_eq!(
+        iter::collect_const!(u8 => &[3, 5, 8],flat_map(|x: &u8| &[*x]),copied()),
+        [3, 5, 8],
+    );
+
+    assert_eq!(
+        iter::eval!(
+            &[8, 12, 15, 18, 23],
+            skip_while(|x: &&u32| **x < 18),
+            find(|x: &u32| x.wrapping_add(2) % 2 == 1),
+        ),
+        Some(&23)
+    );
+
+    assert_eq!(
+        iter::collect_const!(u64 =>
+            &[8, 12, 15, 18, 23],
+                take_while(|x: &&u32| **x < 18),
+                filter(|x: &u32| x.wrapping_add(2) % 2 == 1),
+                map(|x| *x as u64),
+        ),
+        [15],
+    );
+}

@@ -158,10 +158,10 @@ macro_rules! __iter_eval {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_for_each {
-    ($fixed:tt $item:ident, |$elem:pat_param| $(-> $ret_ty:ty)? $value:block) => {
+    ($fixed:tt $item:ident, ($($elem:tt)*) $(-> $ret_ty:ty)? $value:block) => {
         $crate::__ie_output! {
             $fixed
-            {let $elem = $item; $crate::__annotate_type!($($ret_ty)? => $value);}
+            {let $($elem)* = $item; $crate::__annotate_type!($($ret_ty)? => $value);}
         }
     };
 }
@@ -169,11 +169,11 @@ macro_rules! __ie_for_each {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_any {
-    ($fixed:tt ($cond:ident) $item:ident, |$elem:pat_param| $(-> $ret_ty:ty)? $v:block) => {
+    ($fixed:tt ($cond:ident) $item:ident, ($($elem:tt)*) $(-> $ret_ty:ty)? $v:block) => {
         $crate::__ie_output! {
             $fixed
             {
-                let $elem = $item;
+                let $($elem)* = $item;
                 let cond: $crate::__::bool = $crate::__annotate_type!($($ret_ty)? => $v);
                 if cond {
                     $cond = true;
@@ -187,11 +187,11 @@ macro_rules! __ie_any {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_all {
-    ($fixed:tt ($cond:ident) $item:ident, |$elem:pat_param| $(-> $ret_ty:ty)? $v:block) => {
+    ($fixed:tt ($cond:ident) $item:ident, ($($elem:tt)*) $(-> $ret_ty:ty)? $v:block) => {
         $crate::__ie_output! {
             $fixed
             {
-                let $elem = $item;
+                let $($elem)* = $item;
                 let cond: $crate::__::bool = $crate::__annotate_type!($($ret_ty)? => $v);
                 if !cond {
                     $cond = false;
@@ -207,12 +207,12 @@ macro_rules! __ie_all {
 macro_rules! __ie_position {
     (
         $fixed:tt ($i:ident $position:ident) $item:ident,
-        |$elem:pat_param| $(-> $ret_ty:ty)? $v:block
+        ($($elem:tt)*) $(-> $ret_ty:ty)? $v:block
     ) => {
         $crate::__ie_output! {
             $fixed
             {
-                let $elem = $item;
+                let $($elem)* = $item;
                 let cond: $crate::__::bool = $crate::__annotate_type!($($ret_ty)? => $v);
                 if cond {
                     $position = $crate::__::Some($i);
@@ -228,11 +228,11 @@ macro_rules! __ie_position {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_find_map {
-    ($fixed:tt ($ret:ident) $item:ident, |$elem:pat_param| $(-> $ret_ty:ty)? $v:block) => {
+    ($fixed:tt ($ret:ident) $item:ident, ($($elem:tt)*) $(-> $ret_ty:ty)? $v:block) => {
         $crate::__ie_output! {
             $fixed
             {
-                let $elem = $item;
+                let $($elem)* = $item;
                 $ret = $crate::__annotate_type!($($ret_ty)? => $v);
                 if let $crate::__::Some(_) = $ret {
                     $crate::__ie_break!{$fixed}
@@ -245,11 +245,11 @@ macro_rules! __ie_find_map {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __ie_find {
-    ($fixed:tt ($ret:ident) $item:ident, |$elem:pat_param| $(-> $ret_ty:ty)? $v:block) => {
+    ($fixed:tt ($ret:ident) $item:ident, ($($elem:tt)*) $(-> $ret_ty:ty)? $v:block) => {
         $crate::__ie_output! {
             $fixed
             {
-                let $elem = &$item;
+                let $($elem)* = &$item;
                 let cond: $crate::__::bool = $crate::__annotate_type!($($ret_ty)? => $v);
                 if cond {
                     $ret = $crate::__::Some($item);

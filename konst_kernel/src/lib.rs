@@ -70,7 +70,7 @@ pub mod __ {
 
     #[cfg(feature = "__for_konst")]
     pub use crate::{
-        macros::array_macros::{assert_array, uninit_copy_array_of_len, unit_array},
+        macros::array_macros::{assert_array, uninit_array_of_len, unit_array},
         maybe_uninit::{array_assume_init, uninit_array},
         type_eq::make_project_fn::__make_projection_parse_generics,
     };
@@ -84,7 +84,7 @@ pub mod __ {
     pub use core::{
         assert, compile_error, concat,
         marker::PhantomData,
-        mem::{ManuallyDrop, MaybeUninit},
+        mem::{forget, ManuallyDrop, MaybeUninit},
         ops::Range,
         option::Option::{self, None, Some},
         panic,

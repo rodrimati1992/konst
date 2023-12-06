@@ -165,24 +165,110 @@ macro_rules! make_parse_closure_macro {
 }
 
 make_parse_closure_macro! {
-    $ __parse_closure_1 1
-    (aaa)
-    ($aaa:pat_param $(,)?)
-    ($aaa)
-}
-make_parse_closure_macro! {
     $ __parse_closure_2 2
     (aaa bbb)
     ($aaa:pat_param, $bbb:pat_param $(,)?)
     ($aaa, $bbb)
 }
 
-make_parse_closure_macro! {
-    $ __alt_parse_closure_1 1
-    (aaa)
-    ($aaa:tt $(: $param_ty:ty)? $(,)?)
-    ($aaa $(: $param_ty)?)
+////////////////////////////////////////////////////////////////////////////////////
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __parse_closure_1 {
+    (
+        $macro:tt $args:tt $usage_site:tt,
+        ||  $(,)?
+    ) => {
+        $crate::__parse_closure_no_expr_error!{$usage_site}
+    };
+    (
+        $macro:tt $args:tt $usage_site:tt,
+        |$pat:tt $(: $pat_ty:ty)? $(,)?| $($rem:tt)*
+    ) => (
+        $crate::__alt_parse_closure_1_parse_expr! {
+            $usage_site $macro $args ($pat $(: $pat_ty)?),
+            $($rem)*
+        }
+    );
+    (
+        $macro:tt $args:tt $usage_site:tt,
+        |$pat:pat_param $(,)?| $($rem:tt)*
+    ) => (
+        $crate::__alt_parse_closure_1_parse_expr! {
+            $usage_site $macro $args ($pat),
+            $($rem)*
+        }
+    );
+    ($macro:tt $args:tt $usage_site:tt, | $($anything:tt)* ) => {
+        $crate::__parse_closure_emit_error!{1 $usage_site}
+    };
+    ($macro:tt $args:tt $usage_site:tt, || $($anything:tt)* ) => {
+        $crate::__parse_closure_emit_error!{1 $usage_site}
+    };
+    (
+        ($($macro:tt)*) ($($args:tt)*) $usage_site:tt,
+        $v:expr $(,)?
+    ) => {
+        match $v {func => {
+            $($macro)* ! {
+                $($args)*
+                (__x) -> _ {func(__x)}
+            }
+        }}
+    };
+    ($macro:tt $args:tt $usage_site:tt $($rem:tt)*) => {
+        $crate::__parse_closure_emit_error!{1 $usage_site}
+    };
+
+    ( $($anything:tt)* ) => {
+        $crate::__::compile_error!("expected a closure argument")
+    };
 }
+
+pub use __parse_closure_1;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __alt_parse_closure_1_parse_expr {
+    (
+        $usage_site:tt ($($macro:tt)*) ($($args:tt)*) ($($pattern:tt)*),
+        $(,)?
+    ) => {
+        $crate::__parse_closure_no_expr_error!{$usage_site}
+    };
+
+    (
+        $usage_site:tt ($($macro:tt)*) ($($args:tt)*) $pattern:tt,
+        $v:expr $(, $($rem:expr $(, $($rem_tt:tt)*)? )? )?
+    ) => ({
+        $($(
+            $crate::__parse_closure_trailing_expr_error!{$usage_site $rem}
+        )?)?
+
+        $($macro)* ! {
+            $($args)*
+            $pattern { $v }
+        }
+    });
+
+    (
+        $usage_site:tt
+        ($($macro:tt)*) ($($args:tt)*) $pattern:tt,
+        -> $ret_ty:ty $v:block $(, $($rem:expr $(, $($rem_tt:tt)*)? )? )?
+    ) => ({
+        $($(
+            $crate::__parse_closure_trailing_expr_error!{$usage_site $rem}
+        )?)?
+
+        $($macro)* ! {
+            $($args)*
+            $pattern -> $ret_ty { $v }
+        }
+    });
+}
+
+////////////////////////////////////////////////////////////////////////////////////
 
 #[doc(hidden)]
 #[macro_export]
