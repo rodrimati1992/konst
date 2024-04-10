@@ -17,10 +17,10 @@ macro_rules! min {
     ($left:expr, $right:expr) => {
         match ($left, $right) {
             (left, right) => {
-                if let $crate::__::Less = $crate::const_cmp!(left, right) {
-                    left
-                } else {
+                if let $crate::__::Greater = $crate::const_cmp!(left, right) {
                     right
+                } else {
+                    left
                 }
             }
         }
@@ -46,10 +46,10 @@ macro_rules! max {
     ($left:expr, $right:expr) => {
         match ($left, $right) {
             (left, right) => {
-                if let $crate::__::Greater = $crate::const_cmp!(left, right) {
-                    left
-                } else {
+                if let $crate::__::Less = $crate::const_cmp!(left, right) {
                     right
+                } else {
+                    left
                 }
             }
         }
@@ -79,13 +79,13 @@ macro_rules! max {
 #[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 macro_rules! min_by {
-    ($left:expr, $right:expr, $($closure:tt)*) => {
+    ($left:expr, $right:expr, $($comparator:tt)*) => {
         $crate::__::__parse_closure_2!{
             ($crate::__minmax_by)
-            ($left, $right, Less,)
+            ($left, $right, Greater,)
             (min_by),
 
-            $($closure)*
+            $($comparator)*
         }
     };
 }
@@ -111,13 +111,13 @@ macro_rules! min_by {
 #[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 macro_rules! max_by {
-    ($left:expr, $right:expr, $($closure:tt)*) => {
+    ($left:expr, $right:expr, $($comparator:tt)*) => {
         $crate::__::__parse_closure_2!{
             ($crate::__minmax_by)
-            ($left, $right, Greater,)
+            ($left, $right, Less,)
             (max_by),
 
-            $($closure)*
+            $($comparator)*
         }
     };
 }
@@ -135,9 +135,102 @@ macro_rules! __minmax_by {
                 let $left_p = &left;
                 let $right_p = &right;
                 if let $crate::__::$ord = $ret_val {
-                    left
-                } else {
                     right
+                } else {
+                    left
+                }
+            }
+        }
+    };
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Const equivalent of [`std::cmp::min_by_key`]
+///
+/// The type returned by the comparator must implement the [`ConstCmp`] trait.
+/// Non-standard library types must define a `const_eq` method taking a reference.
+///
+/// # Example
+///
+/// ```rust
+/// // passing a pseudo-closure as the comparator
+/// const AAA: u32 = konst::min_by_key!(3u32, 10, |x| *x % 4);
+/// assert_eq!(AAA, 10);
+///
+///
+/// // passing a function as the comparator
+/// const BBB: &str = konst::min_by_key!("foo", "he", str::len);
+/// assert_eq!(BBB, "he");
+/// ```
+#[macro_export]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
+macro_rules! min_by_key {
+    ($left:expr, $right:expr, $($comparator:tt)*) => {
+        $crate::__::__parse_closure_1!{
+            ($crate::__minmax_by_key)
+            ($left, $right, Greater,)
+            (min_by_key),
+
+            $($comparator)*
+        }
+    };
+}
+
+/// Const equivalent of [`std::cmp::max_by_key`]
+///
+/// The type returned by the comparator must implement the [`ConstCmp`] trait.
+/// Non-standard library types must define a `const_eq` method taking a reference.
+///
+/// # Example
+///
+/// ```rust
+/// // passing a pseudo-closure as the comparator
+/// const AAA: u32 = konst::max_by_key!(3u32, 10, |x| *x % 4);
+/// assert_eq!(AAA, 3);
+///
+/// // passing a function as the comparator
+/// const BBB: &str = konst::max_by_key!("he", "bar", str::len);
+/// assert_eq!(BBB, "bar");
+/// ```
+#[macro_export]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
+macro_rules! max_by_key {
+    ($left:expr, $right:expr, $($comparator:tt)*) => {
+        $crate::__::__parse_closure_1!{
+            ($crate::__minmax_by_key)
+            ($left, $right, Less,)
+            (max_by_key),
+
+            $($comparator)*
+        }
+    };
+}
+
+#[macro_export]
+#[doc(hidden)]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
+macro_rules! __minmax_by_key {
+    (
+        $left:expr, $right:expr, $ord:ident,
+        ($($elem:tt)*) $(-> $ret_ty:ty)? $v:block
+    ) => {
+        match [$left, $right] {
+            [left, right] => {
+                let left_key = {
+                    let $($elem)* = &left;
+                    $v
+                };
+
+                let right_key = {
+                    let $($elem)* = &right;
+                    $v
+                };
+
+                if let $crate::__::$ord = $crate::const_cmp!(left_key, right_key) {
+                    right
+                } else {
+                    left
                 }
             }
         }
