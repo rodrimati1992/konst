@@ -7,6 +7,10 @@ mod const_eq_macros;
 #[macro_use]
 mod const_ord_macros;
 
+#[cfg(feature = "cmp")]
+#[macro_use]
+mod minmax_macros;
+
 #[macro_use]
 mod control_flow;
 
