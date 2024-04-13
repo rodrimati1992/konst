@@ -11,12 +11,17 @@ use core::marker::PhantomData;
 /// Types that implement this trait are also expected to implement at least one of
 /// these inherent methods:
 ///
-/// ```ignore
-/// // use std::cmp::Ordering;
+/// ```rust
+/// use std::cmp::Ordering;
 ///
+/// # struct Foo;
+/// # impl Foo {
 /// const fn const_eq(&self, other: &Self) -> bool
+/// # { true }
 ///
 /// const fn const_cmp(&self, other: &Self) -> Ordering
+/// # { Ordering::Equal }
+/// # }
 ///
 /// ```
 ///
