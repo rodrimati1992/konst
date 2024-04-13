@@ -1,7 +1,9 @@
-/// Const equivalent of [`std::cmp::min`]
+/// Const equivalent of [`std::cmp::min`](core::cmp::min)
 ///
 /// The arguments must implement the [`ConstCmp`] trait.
 /// Non-standard library types must define a `const_eq` method taking a reference.
+///
+/// Returns the `$left` argument if both compare equal.
 ///
 /// # Example
 ///
@@ -27,10 +29,12 @@ macro_rules! min {
     };
 }
 
-/// Const equivalent of [`std::cmp::max`]
+/// Const equivalent of [`std::cmp::max`](core::cmp::max)
 ///
 /// The arguments must implement the [`ConstCmp`] trait.
 /// Non-standard library types must define a `const_eq` method taking a reference.
+///
+/// Returns the `$right` argument if both compare equal.
 ///
 /// # Example
 ///
@@ -46,10 +50,10 @@ macro_rules! max {
     ($left:expr, $right:expr) => {
         match ($left, $right) {
             (left, right) => {
-                if let $crate::__::Less = $crate::const_cmp!(left, right) {
-                    right
-                } else {
+                if let $crate::__::Greater = $crate::const_cmp!(left, right) {
                     left
+                } else {
+                    right
                 }
             }
         }
@@ -58,7 +62,9 @@ macro_rules! max {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Const equivalent of [`std::cmp::min_by`]
+/// Const equivalent of [`std::cmp::min_by`](core::cmp::min_by)
+///
+/// Returns the `$left` argument if both compare equal.
 ///
 /// # Example
 ///
@@ -81,8 +87,8 @@ macro_rules! max {
 macro_rules! min_by {
     ($left:expr, $right:expr, $($comparator:tt)*) => {
         $crate::__::__parse_closure_2!{
-            ($crate::__minmax_by)
-            ($left, $right, Greater,)
+            ($crate::__min_by)
+            ($left, $right,)
             (min_by),
 
             $($comparator)*
@@ -90,7 +96,9 @@ macro_rules! min_by {
     };
 }
 
-/// Const equivalent of [`std::cmp::max_by`]
+/// Const equivalent of [`std::cmp::max_by`](core::cmp::max_by)
+///
+/// Returns the `$right` argument if both compare equal.
 ///
 /// # Example
 ///
@@ -113,8 +121,8 @@ macro_rules! min_by {
 macro_rules! max_by {
     ($left:expr, $right:expr, $($comparator:tt)*) => {
         $crate::__::__parse_closure_2!{
-            ($crate::__minmax_by)
-            ($left, $right, Less,)
+            ($crate::__max_by)
+            ($left, $right,)
             (max_by),
 
             $($comparator)*
@@ -124,17 +132,16 @@ macro_rules! max_by {
 
 #[macro_export]
 #[doc(hidden)]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
-macro_rules! __minmax_by {
+macro_rules! __min_by {
     (
-        $left:expr, $right:expr, $ord:ident,
+        $left:expr, $right:expr,
         |$left_p:pat_param, $right_p:pat_param| $(-> $ret_ty:ty)? $ret_val:block
     ) => {
-        match ($left, $right) {
-            (left, right) => {
+        match [$left, $right] {
+            [left, right] => {
                 let $left_p = &left;
                 let $right_p = &right;
-                if let $crate::__::$ord = $ret_val {
+                if let $crate::__::Greater = $ret_val {
                     right
                 } else {
                     left
@@ -144,12 +151,35 @@ macro_rules! __minmax_by {
     };
 }
 
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __max_by {
+    (
+        $left:expr, $right:expr,
+        |$left_p:pat_param, $right_p:pat_param| $(-> $ret_ty:ty)? $ret_val:block
+    ) => {
+        match [$left, $right] {
+            [left, right] => {
+                let $left_p = &left;
+                let $right_p = &right;
+                if let $crate::__::Greater = $ret_val {
+                    left
+                } else {
+                    right
+                }
+            }
+        }
+    };
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Const equivalent of [`std::cmp::min_by_key`]
+/// Const equivalent of [`std::cmp::min_by_key`](core::cmp::min_by_key)
 ///
 /// The type returned by the comparator must implement the [`ConstCmp`] trait.
 /// Non-standard library types must define a `const_eq` method taking a reference.
+///
+/// Returns the `$left` argument if both compare equal.
 ///
 /// # Example
 ///
@@ -163,6 +193,8 @@ macro_rules! __minmax_by {
 /// const BBB: &str = konst::min_by_key!("foo", "he", str::len);
 /// assert_eq!(BBB, "he");
 /// ```
+///
+/// [`ConstCmp`]: crate::cmp::ConstCmp
 #[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 macro_rules! min_by_key {
@@ -177,10 +209,12 @@ macro_rules! min_by_key {
     };
 }
 
-/// Const equivalent of [`std::cmp::max_by_key`]
+/// Const equivalent of [`std::cmp::max_by_key`](core::cmp::max_by_key)
 ///
 /// The type returned by the comparator must implement the [`ConstCmp`] trait.
 /// Non-standard library types must define a `const_eq` method taking a reference.
+///
+/// Returns the `$right` argument if both compare equal.
 ///
 /// # Example
 ///
@@ -193,13 +227,15 @@ macro_rules! min_by_key {
 /// const BBB: &str = konst::max_by_key!("he", "bar", str::len);
 /// assert_eq!(BBB, "bar");
 /// ```
+///
+/// [`ConstCmp`]: crate::cmp::ConstCmp
 #[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 macro_rules! max_by_key {
     ($left:expr, $right:expr, $($comparator:tt)*) => {
         $crate::__::__parse_closure_1!{
             ($crate::__minmax_by_key)
-            ($left, $right, Less,)
+            ($right, $left, Less,)
             (max_by_key),
 
             $($comparator)*

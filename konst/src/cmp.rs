@@ -11,3 +11,9 @@ pub use self::{
 
 #[doc(no_inline)]
 pub use crate::polymorphism::kinds::{IsNotStdKind, IsRefKind, IsStdKind};
+
+#[doc(no_inline)]
+pub use crate::{
+    coerce_to_cmp, const_cmp, const_cmp_for, const_eq, const_eq_for, impl_cmp, max, max_by,
+    max_by_key, min, min_by, min_by_key,
+};

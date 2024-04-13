@@ -98,8 +98,8 @@ fn max_custom_test() {
     assert_eq!(maxx(Mod10(13), Mod10(15)), Mod10(15));
 
     // max returns the first argument when both arguments compare equal
-    assert_eq!(maxx(Mod10(5), Mod10(15)), Mod10(5));
-    assert_eq!(maxx(Mod10(15), Mod10(5)), Mod10(15));
+    assert_eq!(maxx(Mod10(5), Mod10(15)), Mod10(15));
+    assert_eq!(maxx(Mod10(15), Mod10(5)), Mod10(5));
 
     assert_eq!(maxx(Mod10(5), Mod10(3)), Mod10(5));
     assert_eq!(maxx(Mod10(5), Mod10(13)), Mod10(5));
@@ -116,6 +116,14 @@ const fn cmp_nc_mod10(l: &NonCopy, r: &NonCopy) -> std::cmp::Ordering {
 
 const fn mod10(n: &NonCopy) -> u32 {
     n.0 % 10
+}
+
+#[test]
+fn min_by_closure_arg_order() {
+    let _ = konst::min_by!(3u32, 10, |&l, &r| {
+        assert_eq!((l, r), (3, 10));
+        std::cmp::Ordering::Greater
+    });
 }
 
 #[test]
@@ -142,6 +150,14 @@ fn min_by_test() {
 }
 
 #[test]
+fn max_by_closure_arg_order() {
+    let _ = konst::max_by!(3u32, 10, |&l, &r| {
+        assert_eq!((l, r), (3, 10));
+        std::cmp::Ordering::Greater
+    });
+}
+
+#[test]
 fn max_by_test() {
     const fn maxx(l: NonCopy, r: NonCopy) -> NonCopy {
         let ret = konst::max_by!(l.copy(), r.copy(), cmp_nc_mod10);
@@ -155,8 +171,8 @@ fn max_by_test() {
     assert_eq!(maxx(NonCopy(13), NonCopy(15)), NonCopy(15));
 
     // max returns the first argument when both arguments compare equal
-    assert_eq!(maxx(NonCopy(5), NonCopy(15)), NonCopy(5));
-    assert_eq!(maxx(NonCopy(15), NonCopy(5)), NonCopy(15));
+    assert_eq!(maxx(NonCopy(5), NonCopy(15)), NonCopy(15));
+    assert_eq!(maxx(NonCopy(15), NonCopy(5)), NonCopy(5));
 
     assert_eq!(maxx(NonCopy(5), NonCopy(3)), NonCopy(5));
     assert_eq!(maxx(NonCopy(5), NonCopy(13)), NonCopy(5));
@@ -201,8 +217,8 @@ fn max_by_key_test() {
     assert_eq!(maxx(NonCopy(13), NonCopy(15)), NonCopy(15));
 
     // max returns the first argument when both arguments compare equal
-    assert_eq!(maxx(NonCopy(5), NonCopy(15)), NonCopy(5));
-    assert_eq!(maxx(NonCopy(15), NonCopy(5)), NonCopy(15));
+    assert_eq!(maxx(NonCopy(5), NonCopy(15)), NonCopy(15));
+    assert_eq!(maxx(NonCopy(15), NonCopy(5)), NonCopy(5));
 
     assert_eq!(maxx(NonCopy(5), NonCopy(3)), NonCopy(5));
     assert_eq!(maxx(NonCopy(5), NonCopy(13)), NonCopy(5));
