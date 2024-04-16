@@ -265,13 +265,12 @@ macro_rules! __ie_find {
 macro_rules! __ie_fold {
     (
         $fixed:tt ($accum:ident) $item:ident,
-        |$accum_pat:pat_param, $elem:pat_param| $(-> $ret_ty:ty)? $v:block
+        ($($closure_params:tt)*) $(-> $ret_ty:ty)? $v:block
     ) => {
         $crate::__ie_output! {
             $fixed
             {
-                let $accum_pat = $accum;
-                let $elem = $item;
+                let $($closure_params)* = ($accum, $item);
                 $accum = $crate::__annotate_type!($($ret_ty)? => $v);
             }
         }

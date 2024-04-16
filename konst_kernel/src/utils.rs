@@ -79,97 +79,64 @@ pub union Dereference<'a, T: ?Sized> {
     pub reff: &'a T,
 }
 
-macro_rules! make_parse_closure_macro {
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __parse_closure_2 {
     (
-        $_:tt $macro_name:ident $arg_count:tt
-        ($($pat_var:ident)*)
-        ($($pat_macro_vars:tt)*)
-        ($($pat_params:tt)*)
+        $macro:tt $args:tt $usage_site:tt,
+        ||  $(,)?
     ) => {
-        #[doc(hidden)]
-        #[macro_export]
-        macro_rules! $macro_name {
+        $crate::__parse_closure_no_expr_error!{$usage_site}
+    };
+    (
+        $macro:tt $args:tt $usage_site:tt,
+        |$pat1:tt $(: $pat1_ty:ty)?, $pat2:tt $(: $pat2_ty:ty)? $(,)?| $($rem:tt)*
+    ) => (
+        $crate::__parse_closure_expr! {
+            $usage_site $macro $args
             (
-                $macro:tt $args:tt $usage_site:tt,
-                |$($pat_macro_vars)*|  $_(,)?
-            ) => {
-                $crate::__parse_closure_no_expr_error!{$usage_site}
-            };
-            (
-                ($_($macro:tt)*) ($_($args:tt)*)
-                $usage_site:tt,
-                |$($pat_macro_vars)*| $v:expr
-                $_(, $_($rem:expr $_(, $_($rem_tt:tt)*)? )? )?
-            ) => ({
-                $_($_(
-                    $crate::__parse_closure_trailing_expr_error!{$usage_site $rem}
-                )?)?
-
-                $_($macro)* ! {
-                    $_($args)*
-                    |$($pat_params)*| { $v }
-                }
-            });
-            (
-                ($_($macro:tt)*) ($_($args:tt)*)
-                $usage_site:tt,
-                |$($pat_macro_vars)*| -> $ret_ty:ty $v:block
-                $_(, $_($rem:expr $_(, $_($rem_tt:tt)*)? )? )?
-            ) => ({
-                $_($_(
-                    $crate::__parse_closure_trailing_expr_error!{$usage_site $rem}
-                )?)?
-
-                $_($macro)* ! {
-                    $_($args)*
-                    |$($pat_params)*| -> $ret_ty $v
-                }
-            });
-            ($macro:tt $args:tt $usage_site:tt, | $_($anything:tt)* ) => {
-                $crate::__parse_closure_emit_error!{
-                    $arg_count
-                    $usage_site
-                }
-            };
-            ($macro:tt $args:tt $usage_site:tt, || $_($anything:tt)* ) => {
-                $crate::__parse_closure_emit_error!{
-                    $arg_count
-                    $usage_site
-                }
-            };
-            (
-                ($_($macro:tt)*) ($_($args:tt)*)
-                $usage_site:tt, $v:expr $_(,)?
-            ) => {
-                match $v {func => {
-                    $_($macro)* ! {
-                        $_($args)*
-                        |$($pat_var),*| {func($($pat_var),*)}
-                    }
-                }}
-            };
-            ($macro:tt $args:tt $usage_site:tt $_($rem:tt)*) => {
-                $crate::__parse_closure_emit_error!{
-                    $arg_count
-                    $usage_site
-                }
-            };
-
-            ( $_($anything:tt)* ) => {
-                $crate::__::compile_error!("expected a closure argument")
-            };
+                ($crate::__unparen_pat!($pat1), $crate::__unparen_pat!($pat2)):
+                ($crate::__ty_or_und!($($pat1_ty)?), $crate::__ty_or_und!($($pat2_ty)?))
+            ),
+            $($rem)*
         }
+    );
+    (
+        $macro:tt $args:tt $usage_site:tt,
+        |$pat1:pat_param, $pat2:pat_param $(,)?| $($rem:tt)*
+    ) => (
+        $crate::__parse_closure_expr! {
+            $usage_site $macro $args (($pat1, $pat2)),
+            $($rem)*
+        }
+    );
+    ($macro:tt $args:tt $usage_site:tt, | $($anything:tt)* ) => {
+        $crate::__parse_closure_emit_error!{2 $usage_site}
+    };
+    ($macro:tt $args:tt $usage_site:tt, || $($anything:tt)* ) => {
+        $crate::__parse_closure_emit_error!{2 $usage_site}
+    };
+    (
+        ($($macro:tt)*) ($($args:tt)*) $usage_site:tt,
+        $v:expr $(,)?
+    ) => {
+        match $v {func => {
+            $($macro)* ! {
+                $($args)*
+                ((__x, __y)) -> _ {func(__x, __y)}
+            }
+        }}
+    };
+    ($macro:tt $args:tt $usage_site:tt $($rem:tt)*) => {
+        $crate::__parse_closure_emit_error!{2 $usage_site}
+    };
 
-        pub use $macro_name;
-    }
+    ( $($anything:tt)* ) => {
+        $crate::__::compile_error!("expected a closure argument")
+    };
 }
 
-make_parse_closure_macro! {
-    $ __parse_closure_2 2
-    (aaa bbb)
-    ($aaa:pat_param, $bbb:pat_param $(,)?)
-    ($aaa, $bbb)
-}
+pub use __parse_closure_2;
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -186,7 +153,7 @@ macro_rules! __parse_closure_1 {
         $macro:tt $args:tt $usage_site:tt,
         |$pat:tt $(: $pat_ty:ty)? $(,)?| $($rem:tt)*
     ) => (
-        $crate::__alt_parse_closure_1_parse_expr! {
+        $crate::__parse_closure_expr! {
             $usage_site $macro $args ($pat $(: $pat_ty)?),
             $($rem)*
         }
@@ -195,7 +162,7 @@ macro_rules! __parse_closure_1 {
         $macro:tt $args:tt $usage_site:tt,
         |$pat:pat_param $(,)?| $($rem:tt)*
     ) => (
-        $crate::__alt_parse_closure_1_parse_expr! {
+        $crate::__parse_closure_expr! {
             $usage_site $macro $args ($pat),
             $($rem)*
         }
@@ -230,7 +197,7 @@ pub use __parse_closure_1;
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __alt_parse_closure_1_parse_expr {
+macro_rules! __parse_closure_expr {
     (
         $usage_site:tt ($($macro:tt)*) ($($args:tt)*) ($($pattern:tt)*),
         $(,)?

@@ -135,12 +135,11 @@ macro_rules! max_by {
 macro_rules! __min_by {
     (
         $left:expr, $right:expr,
-        |$left_p:pat_param, $right_p:pat_param| $(-> $ret_ty:ty)? $ret_val:block
+        ($($closure_params:tt)*) $(-> $ret_ty:ty)? $ret_val:block
     ) => {
         match [$left, $right] {
             [left, right] => {
-                let $left_p = &left;
-                let $right_p = &right;
+                let $($closure_params)* = (&left, &right);
                 if let $crate::__::Greater = $ret_val {
                     right
                 } else {
@@ -156,12 +155,11 @@ macro_rules! __min_by {
 macro_rules! __max_by {
     (
         $left:expr, $right:expr,
-        |$left_p:pat_param, $right_p:pat_param| $(-> $ret_ty:ty)? $ret_val:block
+        ($($closure_params:tt)*) $(-> $ret_ty:ty)? $ret_val:block
     ) => {
         match [$left, $right] {
             [left, right] => {
-                let $left_p = &left;
-                let $right_p = &right;
+                let $($closure_params)* = (&left, &right);
                 if let $crate::__::Greater = $ret_val {
                     left
                 } else {

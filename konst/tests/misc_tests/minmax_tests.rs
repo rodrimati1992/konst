@@ -5,6 +5,8 @@ use konst::{
 
 use std::cmp::Ordering;
 
+use crate::misc_tests::test_utils::assert_type;
+
 #[derive(Debug, PartialEq, Eq)]
 struct Mod10(u32);
 
@@ -128,9 +130,33 @@ fn min_by_closure_arg_order() {
 
 #[test]
 fn min_by_test() {
+    assert_eq!(
+        konst::min_by!(5, 8, |l: &u128, r: &u128| {
+            assert_type::<_, &u128>(&l);
+            assert_type::<_, &u128>(&r);
+            konst::const_cmp!(l, r)
+        }),
+        5,
+    );
+
     const fn minn(l: NonCopy, r: NonCopy) -> NonCopy {
+        use NonCopy as NC;
+
         let ret = konst::min_by!(l.copy(), r.copy(), cmp_nc_mod10);
+
         assert!(konst::min_by!(l.0, r.0, |l, r| cmp_mod10(l, r)) == ret.0);
+        assert!(konst::min_by!(l.0, r.0, |l: &u32, r: &u32| cmp_mod10(l, r)) == ret.0);
+
+        // mix of patterns and type annotations
+        assert!(konst::min_by!(&l, &r, |l: &NC, r| cmp_mod10(&l.0, &r.0)).0 == ret.0);
+        assert!(konst::min_by!(&l, &r, |l: &NC, r: &NC| cmp_mod10(&l.0, &r.0)).0 == ret.0);
+        assert!(konst::min_by!(&l, &r, |l: &NC, (NC(r))| cmp_mod10(&l.0, r)).0 == ret.0);
+        assert!(konst::min_by!(&l, &r, |(NC(l)), r: &NC| cmp_mod10(l, &r.0)).0 == ret.0);
+        assert!(konst::min_by!(&l, &r, |(NC(l)), (NC(r))| cmp_mod10(l, r)).0 == ret.0);
+
+        // only patterns are used
+        assert!(konst::min_by!(&l, &r, |NC(l), NC(r)| cmp_mod10(l, r)).0 == ret.0);
+
         ret
     }
 
@@ -159,9 +185,32 @@ fn max_by_closure_arg_order() {
 
 #[test]
 fn max_by_test() {
+    assert_eq!(
+        konst::max_by!(5, 8, |l: &u128, r: &u128| {
+            assert_type::<_, &u128>(&l);
+            assert_type::<_, &u128>(&r);
+            konst::const_cmp!(l, r)
+        }),
+        8,
+    );
+
     const fn maxx(l: NonCopy, r: NonCopy) -> NonCopy {
+        use NonCopy as NC;
+
         let ret = konst::max_by!(l.copy(), r.copy(), cmp_nc_mod10);
         assert!(konst::max_by!(l.0, r.0, |l, r| cmp_mod10(l, r)) == ret.0);
+        assert!(konst::max_by!(l.0, r.0, |l: &u32, r: &u32| cmp_mod10(l, r)) == ret.0);
+
+        // mix of patterns and type annotations
+        assert!(konst::max_by!(&l, &r, |l: &NC, r| cmp_mod10(&l.0, &r.0)).0 == ret.0);
+        assert!(konst::max_by!(&l, &r, |l: &NC, r: &NC| cmp_mod10(&l.0, &r.0)).0 == ret.0);
+        assert!(konst::max_by!(&l, &r, |l: &NC, (NC(r))| cmp_mod10(&l.0, r)).0 == ret.0);
+        assert!(konst::max_by!(&l, &r, |(NC(l)), r: &NC| cmp_mod10(l, &r.0)).0 == ret.0);
+        assert!(konst::max_by!(&l, &r, |(NC(l)), (NC(r))| cmp_mod10(l, r)).0 == ret.0);
+
+        // only patterns are used
+        assert!(konst::max_by!(&l, &r, |NC(l), NC(r)| cmp_mod10(l, r)).0 == ret.0);
+
         ret
     }
 
@@ -182,9 +231,20 @@ fn max_by_test() {
 
 #[test]
 fn min_by_key_test() {
+    assert!(
+        konst::min_by_key!(5, 8, |n: &u128| {
+            assert_type::<_, &u128>(&n);
+            n
+        }) == 5
+    );
+
     const fn minn(l: NonCopy, r: NonCopy) -> NonCopy {
         let ret = konst::min_by_key!(l.copy(), r.copy(), mod10);
+
         assert!(konst::min_by_key!(l.0, r.0, |n| *n % 10) == ret.0);
+        assert!(konst::min_by_key!(l.0, r.0, |n: &u32| *n % 10) == ret.0);
+        assert!(konst::min_by_key!(&l, &r, |NonCopy(n)| *n % 10).0 == ret.0);
+
         ret
     }
 
@@ -205,9 +265,20 @@ fn min_by_key_test() {
 
 #[test]
 fn max_by_key_test() {
+    assert!(
+        konst::max_by_key!(5, 8, |n: &u128| {
+            assert_type::<_, &u128>(&n);
+            n
+        }) == 8
+    );
+
     const fn maxx(l: NonCopy, r: NonCopy) -> NonCopy {
         let ret = konst::max_by_key!(l.copy(), r.copy(), mod10);
+
         assert!(konst::max_by_key!(l.0, r.0, |n| *n % 10) == ret.0);
+        assert!(konst::max_by_key!(l.0, r.0, |n: &u32| *n % 10) == ret.0);
+        assert!(konst::max_by_key!(&l, &r, |NonCopy(n)| *n % 10).0 == ret.0);
+
         ret
     }
 

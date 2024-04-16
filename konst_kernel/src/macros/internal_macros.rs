@@ -7,6 +7,25 @@ macro_rules! __unparenthesize {
 
 #[doc(hidden)]
 #[macro_export]
+macro_rules! __unparen_pat {
+    (($(|)? $($pat:pat_param)|+)) => { ($($pat)|+) };
+    (($($stuff:tt)*)) => { $($stuff)* };
+    ($($stuff:tt)*) => { $($stuff)* };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __ty_or_und {
+    () => {
+        _
+    };
+    ($ty:ty) => {
+        $ty
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
 macro_rules! __annotate_type {
     (=> $expr:expr) => {
         $expr
