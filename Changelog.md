@@ -2,6 +2,29 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.3
 
+### 0.3.9
+
+Defined these macros `max`, `max_by`, `max_by_key`, `min`, `min_by`, and `min_by_key` macros.
+
+Re-exported these macros in the `konst::cmp` module:
+- `coerce_to_cmp`
+- `const_cmp`
+- `const_cmp_for`
+- `const_eq`
+- `const_eq_for`
+- `impl_cmp`
+- `max`
+- `max_by`
+- `max_by_key`
+- `min`
+- `min_by`
+- `min_by_key`
+
+
+Now the `fold` and `foldr` methods in `konst::iter::eval` can take closures with type-annotated parameters (e.g: `|accum: Bar, element: Qux| {`)
+
+
+
 ### 0.3.8
 
 Removed most `Copy` restriction of these macros:
