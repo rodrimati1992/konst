@@ -73,6 +73,9 @@ macro_rules! max {
 /// const AAA: u32 = konst::min_by!(3u32, 10, |&l, &r| konst::const_cmp!(l, r / 4));
 /// assert_eq!(AAA, 10);
 ///
+/// // Both arguments compare equal, so the first argument (`12`) is returned.
+/// const MIN_OF_EQ: u32 = konst::min_by!(12, 6, |l, r: &u32| konst::const_cmp!(*l % 3, *r % 3));
+/// assert_eq!(MIN_OF_EQ, 12);
 ///
 /// const fn cmp_len(l: &str, r: &str) -> std::cmp::Ordering {
 ///     konst::const_cmp!(l.len(), r.len())
@@ -107,6 +110,9 @@ macro_rules! min_by {
 /// const AAA: u32 = konst::max_by!(3u32, 10, |&l, &r| konst::const_cmp!(l, r / 4));
 /// assert_eq!(AAA, 3);
 ///
+/// // Both arguments compare equal, so the second argument (`6`) is returned.
+/// const MAX_OF_EQ: u32 = konst::max_by!(12, 6, |l: &u32, r| konst::const_cmp!(*l % 3, *r % 3));
+/// assert_eq!(MAX_OF_EQ, 6);
 ///
 /// const fn cmp_len(l: &str, r: &str) -> std::cmp::Ordering {
 ///     konst::const_cmp!(l.len(), r.len())
@@ -186,6 +192,9 @@ macro_rules! __max_by {
 /// const AAA: u32 = konst::min_by_key!(3u32, 10, |x| *x % 4);
 /// assert_eq!(AAA, 10);
 ///
+/// // Both arguments compare equal, so the first argument (`16`) is returned.
+/// const MIN_OF_EQ: u32 = konst::min_by_key!(16u32, 8, |x| *x % 4);
+/// assert_eq!(MIN_OF_EQ, 16);
 ///
 /// // passing a function as the comparator
 /// const BBB: &str = konst::min_by_key!("foo", "he", str::len);
@@ -220,6 +229,10 @@ macro_rules! min_by_key {
 /// // passing a pseudo-closure as the comparator
 /// const AAA: u32 = konst::max_by_key!(3u32, 10, |x| *x % 4);
 /// assert_eq!(AAA, 3);
+///
+/// // Both arguments compare equal, so the second argument (`6`) is returned.
+/// const MAX_OF_EQ: u32 = konst::max_by_key!(12, 6, |x: &u32| *x % 4);
+/// assert_eq!(MAX_OF_EQ, 6);
 ///
 /// // passing a function as the comparator
 /// const BBB: &str = konst::max_by_key!("he", "bar", str::len);
