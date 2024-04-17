@@ -40,6 +40,9 @@ mod misc_tests {
     mod range_and_nonzero_tests;
 
     #[cfg(feature = "cmp")]
+    mod minmax_tests;
+
+    #[cfg(feature = "cmp")]
     mod primitive_tests;
 
     mod type_eq_tests;

@@ -434,10 +434,10 @@ fn fold_test() {
     const fn ret_on_0(slice: &[u8]) -> Option<u8> {
         Some(iter::eval!(
             slice,
-            fold(0, |accum, &elem| if elem == 0 {
+            fold(0, |accum, elem: &u8| if *elem == 0 {
                 return None;
             } else {
-                accum + elem
+                accum + *elem
             })
         ))
     }
@@ -483,7 +483,7 @@ fn rfold_test() {
     const fn ret_on_0(slice: &[u8]) -> Option<u8> {
         Some(iter::eval!(
             slice,
-            rfold(0, |accum, &elem| if elem == 0 {
+            rfold(0, |accum: u8, (&elem)| if elem == 0 {
                 return None;
             } else {
                 accum + elem
