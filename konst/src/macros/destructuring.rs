@@ -82,6 +82,14 @@ pub const fn make_phantom<T>(_: *mut T) -> PhantomData<T> {
 /// This macro works around a limitation as of Rust 1.83,
 /// where a non-Copy type can't be destructured into its elements/fields in a const context.
 ///
+/// Even simple cases like this don't work:
+///
+/// ```rust,compile_fail
+/// const fn foo<T>((a, b): (T, T)) -> [T; 2] {
+///     [a, b]
+/// }
+/// ```
+///
 /// # Requirements/Limitations
 ///
 /// This macro has these requirements and limitations:
@@ -158,20 +166,30 @@ pub const fn make_phantom<T>(_: *mut T) -> PhantomData<T> {
 /// }
 /// ```
 ///
+/// ### Tuple
+///
+/// ```rust
+///
+/// assert_eq!(PAIR, (5, String::new()));
+///
+/// const PAIR: (u32, String) = swap_pair((String::new(), 5));
+///
+/// const fn swap_pair<T, U>(pair: (T, U)) -> (U, T) {
+///     konst::destructure!{(a, b) = pair}
+///     (b, a)
+/// }
+/// ```
+///
 #[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 macro_rules! destructure {
     // braced struct struct
-    (
-        $struct_path:path $(,)? {$($braced:tt)*} $($rem:tt)*
-    ) => (
+    ($struct_path:path $(,)? {$($braced:tt)*} $($rem:tt)*) => (
         $crate::__destructure_struct! {$struct_path, {$($braced)*} $($rem)*}
     );
 
     // tuple struct
-    (
-        $($(@$is_path:tt)? ::)? $($path:ident)::* $(,)? ($($tupled:tt)*) $($rem:tt)*
-    ) => (
+    ($($(@$is_path:tt)? ::)? $($path:ident)::+ $(,)? ($($tupled:tt)*) $($rem:tt)*) => (
         $crate::__destructure__tuple_struct_field_names!{
             ($($(@$is_path)? ::)? $($path)::*, $($rem)*)
             ()
@@ -179,11 +197,19 @@ macro_rules! destructure {
             (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
         }
     );
-    (
-        $struct_path:path, ($($tupled:tt)*) $($rem:tt)*
-    ) => (
+    ($struct_path:path, ($($tupled:tt)*) $($rem:tt)*) => (
         $crate::__destructure__tuple_struct_field_names!{
             ($struct_path, $($rem)*)
+            ()
+            ($($tupled)*)
+            (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
+        }
+    );
+    
+    // tuple 
+    (($($tupled:tt)*) $($rem:tt)*) => (
+        $crate::__destructure__tuple_field_names!{
+            ($($rem)*)
             ()
             ($($tupled)*)
             (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
@@ -265,10 +291,64 @@ macro_rules! __destructure_struct {
     )
 }
 
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __destructure__tuple_field_names {
+    (($($rem:tt)*) ($($patterns:tt)*) () ($($fnames:tt)*)) => {
+        $crate::__destructure_tuple!{($($patterns)*) $($rem)*}
+    };
+    (
+        $fixed:tt
+        ($($prev_patterns:tt)*)
+        ($pattern:pat $(, $($next_pattern:tt)*)?)
+        ($fname:tt $($next_fnames:tt)*)
+    ) => {
+        $crate::__destructure__tuple_field_names!{
+            $fixed
+            ($($prev_patterns)* $fname:$pattern,)
+            ($($($next_pattern)*)?)
+            ($($next_fnames)*)
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __destructure_tuple {
+    (($($field:tt: $pattern:pat,)*) $(:$tuple_ty:ty)? = $val:expr) => (
+
+        // assert that the tuple has precisely the element count that the user passed
+        let val @ ($($crate::__first_pat!(_, $field),)*)
+            : $crate::__first_ty!($($tuple_ty,)? ($($crate::__first_ty!(_, $field),)*),) 
+            = $val;
+
+        let mut val = $crate::__::ManuallyDrop::new(val);
+
+        let ptr = $crate::macros::destructuring::cast_manuallydrop_ptr(&raw mut val);
+
+        $(
+            // SAFETY: the value being wrapped in a ManuallyDrop,
+            //         and the asserts above, ensure that these reads are safe.
+            let $pattern = unsafe { $crate::__::ptr::read(&raw mut (*ptr).$field) };
+        )*
+    )
+}
+
+
+
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __first_pat {
     ($first:pat, $($rem:tt)* ) => {
+        $first
+    };
+}
+
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __first_ty {
+    ($first:ty, $($rem:tt)* ) => {
         $first
     };
 }
