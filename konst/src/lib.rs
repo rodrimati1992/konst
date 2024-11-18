@@ -414,6 +414,7 @@ pub mod __ {
         mem::ManuallyDrop,
         ops::Range,
         option::Option::{self, None, Some},
+        primitive::usize,
         ptr,
         result::Result::{self, Err, Ok},
     };

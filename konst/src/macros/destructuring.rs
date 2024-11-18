@@ -61,6 +61,15 @@ pub const fn cast_manuallydrop_ptr<T>(ptr: *mut ManuallyDrop<T>) -> *mut T {
 
 #[doc(hidden)]
 #[inline(always)]
+/// Gets a pointer to the first elem in a ManuallyDrop array
+pub const fn cast_manuallydrop_array_ptr<T, const N: usize>(
+    ptr: *mut ManuallyDrop<[T; N]>
+) -> *mut T {
+    ptr.cast()
+}
+
+#[doc(hidden)]
+#[inline(always)]
 pub const fn fake_read<T>(_: *mut T) -> T {
     loop {}
 }
@@ -97,10 +106,11 @@ pub const fn make_phantom<T>(_: *mut T) -> PhantomData<T> {
 /// because they would be leaked if they weren't mentioned.
 /// - it requires that the passed-in type does not impl `Drop`
 /// (like built-in destructuring does)
-/// - you'll need to invoke this macro multiple times
+/// - this macro needs to be invoked multiple times
 /// to destructure nested structs/tuples/arrays that have Drop elements/fields.
 /// - this macro only supports tuple structs and tuples up to 16 elements (inclusive)
-///
+/// - this macro does not support `..` patterns to ignore any 
+/// fields/elements of the destructured value.
 ///
 /// # Syntax
 ///
@@ -180,6 +190,20 @@ pub const fn make_phantom<T>(_: *mut T) -> PhantomData<T> {
 /// }
 /// ```
 ///
+/// ### Array
+///
+/// ```rust
+///
+/// assert_eq!(PAIR, [None, Some(String::new())]);
+///
+/// const PAIR: [Option<String>; 2] = swap_pair([Some(String::new()), None]);
+///
+/// const fn swap_pair<T>(pair: [T; 2]) -> [T; 2] {
+///     konst::destructure!{[a, b] = pair}
+///     [b, a]
+/// }
+/// ```
+///
 #[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 macro_rules! destructure {
@@ -214,6 +238,32 @@ macro_rules! destructure {
             ($($tupled)*)
             (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
         }
+    );
+
+    // array
+    ([$($($pattern:pat),+)? $(,)?] $(:$array_ty:ty)? = $val:expr) => (
+        const __LEN_IWRHQLPNNIEU8C6W: $crate::__::usize = 
+            [$($($crate::__first_expr!((), $pattern)),+)?].len();
+
+        let array $(: $array_ty)? = $val;
+
+        // length assertion
+        let _: [_; __LEN_IWRHQLPNNIEU8C6W] = array;
+
+        let mut array = $crate::__::ManuallyDrop::new(array);        
+
+        $(
+            let ptr = $crate::macros::destructuring::cast_manuallydrop_array_ptr(&raw mut array);
+            let mut i = 0;
+
+            $(
+                // SAFETY: the array being wrapped in a ManuallyDrop,
+                //         and the length assertion above, ensure that these reads are safe.
+                let $pattern = unsafe { $crate::__::ptr::read(ptr.add(i)) };
+                
+                i += 1;
+            )+
+        )?
     );
 }
 
@@ -349,6 +399,14 @@ macro_rules! __first_pat {
 #[doc(hidden)]
 macro_rules! __first_ty {
     ($first:ty, $($rem:tt)* ) => {
+        $first
+    };
+}
+
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __first_expr {
+    ($first:expr, $($rem:tt)* ) => {
         $first
     };
 }
