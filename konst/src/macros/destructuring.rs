@@ -75,25 +75,55 @@ pub const fn make_phantom<T>(_: *mut T) -> PhantomData<T> {
 
 /// Destructures a struct/tuple/array into all of its elements/fields.
 ///
+/// [**for examples look here**](#examples)
+///
 /// # Motivation
 ///
 /// This macro works around a limitation as of Rust 1.83,
-/// where non-Copy type can't be destructured into its elements/fields in a const context.
+/// where a non-Copy type can't be destructured into its elements/fields in a const context.
 ///
-/// # Requirements
+/// # Requirements/Limitations
 ///
-/// This macro has these requirements:
+/// This macro has these requirements and limitations:
 /// - it requires writing all elements/fields,
 /// because they would be leaked if they weren't mentioned.
 /// - it requires that the passed-in type does not impl `Drop`
 /// (like built-in destructuring does)
+/// - you'll need to invoke this macro multiple times
+/// to destructure nested structs/tuples/arrays that have Drop elements/fields.
+/// - this macro only supports tuple structs and tuples up to 16 elements (inclusive)
 ///
-/// # Example
+///
+/// # Syntax
+///
+/// This section uses a pseudo-macro_rules syntax for each type of input.
+///
+/// ### Braced structs
+///
+/// ```text
+/// $struct_path:path $(,)? {$($field:tt $(: $pattern:pat)?),* $(,)?}
+/// $(:$struct_ty:ty)?
+/// = $val:expr
+/// ```
+///
+/// ### Tuple structs
+///
+/// ```text
+/// $struct_path:tuple_path ( $($pattern:pat),* $(,)? )
+/// $(:$struct_ty:ty)?
+/// = $val:expr
+/// ```
+///
+/// Where a `:tuple_path` can be either:
+/// - `$(::)? $($path:ident)::* $(,)?`
+/// - `$struct_path:path ,`
+///
+/// # Examples
+///
+/// These examples demonstrate destructuring non-Copy types in const,
+/// which can't be done with built-in destructuring as of Rust 1.83.
 ///
 /// ### Braced Struct
-///
-/// This example demonstrates destructuring a non-Copy struct in const,
-/// which can't be done with built-in destructuring as of Rust 1.83.
 ///
 /// ```rust
 /// use std::ops::Range;
@@ -109,14 +139,81 @@ pub const fn make_phantom<T>(_: *mut T) -> PhantomData<T> {
 /// }
 /// ```
 ///
+/// ### Tuple Struct
+///
+/// ```rust
+///
+/// assert_eq!(PAIR, [8, 13]);
+///
+/// const PAIR: [u32; 2] = Pair(8, 13).into_inner();
+///
+/// struct Pair<T>(T, T);
+///
+/// impl<T> Pair<T> {
+///     const fn into_inner(self) -> [T; 2] {
+///         konst::destructure!{Self(first, second) = self}
+///     
+///         [first, second]
+///     }
+/// }
+/// ```
+///
 #[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 macro_rules! destructure {
+    // braced struct struct
     (
         $struct_path:path $(,)? {$($braced:tt)*} $($rem:tt)*
     ) => (
         $crate::__destructure_struct! {$struct_path, {$($braced)*} $($rem)*}
-    )
+    );
+
+    // tuple struct
+    (
+        $($(@$is_path:tt)? ::)? $($path:ident)::* $(,)? ($($tupled:tt)*) $($rem:tt)*
+    ) => (
+        $crate::__destructure__tuple_struct_field_names!{
+            ($($(@$is_path)? ::)? $($path)::*, $($rem)*)
+            ()
+            ($($tupled)*)
+            (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
+        }
+    );
+    (
+        $struct_path:path, ($($tupled:tt)*) $($rem:tt)*
+    ) => (
+        $crate::__destructure__tuple_struct_field_names!{
+            ($struct_path, $($rem)*)
+            ()
+            ($($tupled)*)
+            (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
+        }
+    );
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __destructure__tuple_struct_field_names {
+    (($struct_path:path, $($rem:tt)*) ($($patterns:tt)*) () ($($fnames:tt)*)) => {
+        $crate::__destructure_struct!{
+            $struct_path,
+            {$($patterns)*}
+            $($rem)*
+        }
+    };
+    (
+        $fixed:tt
+        ($($prev_patterns:tt)*)
+        ($pattern:pat $(, $($next_pattern:tt)*)?)
+        ($fname:tt $($next_fnames:tt)*)
+    ) => {
+        $crate::__destructure__tuple_struct_field_names!{
+            $fixed
+            ($($prev_patterns)* $fname:$pattern,)
+            ($($($next_pattern)*)?)
+            ($($next_fnames)*)
+        }
+    };
 }
 
 #[doc(hidden)]
