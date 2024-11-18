@@ -15,6 +15,11 @@ mod minmax_macros;
 mod control_flow;
 
 #[macro_use]
+#[doc(hidden)]
+#[cfg(feature = "rust_1_83")]
+pub mod destructuring;
+
+#[macro_use]
 mod declare_cmp_fn_macros;
 
 #[macro_use]

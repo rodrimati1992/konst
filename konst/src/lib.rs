@@ -321,7 +321,8 @@ extern crate alloc;
 include! {"./root_module_macros.rs"}
 
 #[macro_use]
-mod macros;
+#[doc(hidden)]
+pub mod macros;
 
 #[doc(hidden)]
 pub mod __for_cmp_impls;
@@ -410,8 +411,10 @@ pub mod __ {
     pub use core::{
         cmp::Ordering::{self, Equal, Greater, Less},
         compile_error, matches,
+        mem::ManuallyDrop,
         ops::Range,
         option::Option::{self, None, Some},
+        ptr,
         result::Result::{self, Err, Ok},
     };
 
