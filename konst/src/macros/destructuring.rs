@@ -3,6 +3,8 @@
 use core::marker::PhantomData;
 use core::mem::ManuallyDrop;
 
+//////
+
 #[doc(hidden)]
 pub trait __GetImplsHelper {
     type T: ?Sized;
@@ -70,6 +72,12 @@ pub const fn cast_manuallydrop_array_ptr<T, const N: usize>(
 
 #[doc(hidden)]
 #[inline(always)]
+pub const fn make_it<T>() -> T {
+    loop {}
+}
+
+#[doc(hidden)]
+#[inline(always)]
 pub const fn fake_read<T>(_: *mut T) -> T {
     loop {}
 }
@@ -78,6 +86,13 @@ pub const fn fake_read<T>(_: *mut T) -> T {
 #[inline(always)]
 pub const fn make_phantom<T>(_: *mut T) -> PhantomData<T> {
     PhantomData
+}
+
+#[doc(hidden)]
+#[inline(always)]
+pub const fn assert_same_type<T>(this: T, that: T) {
+    core::mem::forget(this);
+    core::mem::forget(that);
 }
 
 //////
@@ -208,14 +223,32 @@ pub const fn make_phantom<T>(_: *mut T) -> PhantomData<T> {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 macro_rules! destructure {
     // braced struct struct
+    ($($(@$is_path:tt)? ::)? $($path:ident)::+ $(,)?{$($braced:tt)*} $($rem:tt)*) => (
+        $crate::__destructure_struct! {
+            {$($braced)*}
+            ($($(@$is_path)? ::)? $($path)::*) 
+            path
+            $($rem)*
+        }
+    );
+
     ($struct_path:path $(,)? {$($braced:tt)*} $($rem:tt)*) => (
-        $crate::__destructure_struct! {$struct_path, {$($braced)*} $($rem)*}
+        $crate::__destructure_struct! {
+            {$($braced)*} 
+            ($struct_path) 
+            type
+            $($rem)*
+        }
     );
 
     // tuple struct
     ($($(@$is_path:tt)? ::)? $($path:ident)::+ $(,)? ($($tupled:tt)*) $($rem:tt)*) => (
         $crate::__destructure__tuple_struct_field_names!{
-            ($($(@$is_path)? ::)? $($path)::*, $($rem)*)
+            (
+                ($($(@$is_path)? ::)? $($path)::+) 
+                path
+                $($rem)*
+            )
             ()
             ($($tupled)*)
             (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
@@ -223,7 +256,11 @@ macro_rules! destructure {
     );
     ($struct_path:path, ($($tupled:tt)*) $($rem:tt)*) => (
         $crate::__destructure__tuple_struct_field_names!{
-            ($struct_path, $($rem)*)
+            (
+                ($struct_path)
+                type
+                $($rem)*
+            )
             ()
             ($($tupled)*)
             (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
@@ -270,9 +307,8 @@ macro_rules! destructure {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __destructure__tuple_struct_field_names {
-    (($struct_path:path, $($rem:tt)*) ($($patterns:tt)*) () ($($fnames:tt)*)) => {
+    (($($rem:tt)*) ($($patterns:tt)*) () ($($fnames:tt)*)) => {
         $crate::__destructure_struct!{
-            $struct_path,
             {$($patterns)*}
             $($rem)*
         }
@@ -296,20 +332,24 @@ macro_rules! __destructure__tuple_struct_field_names {
 #[macro_export]
 macro_rules! __destructure_struct {
     (
-        $struct_path:path, {$($field:tt $(: $pattern:pat)?),* $(,)?}
+        {$($field:tt $(: $pattern:pat)?),* $(,)?}
+        ($($struct_path:tt)*)
+        $path_kind:ident
         $(:$struct_ty:ty)?
         = $val:expr
     ) => (
-
         // assert that `$struct_path` has precisely the fields that the user listed
-        let val @ $struct_path {$($field: _),*} $(: $struct_ty)? = $val;
+        let val @ $($struct_path)* {$($field: _),*} $(: $struct_ty)? = $val;
+        $crate::__destructuring__type_sasert!{($path_kind $($struct_path)*) val}
+
         let mut val = $crate::__::ManuallyDrop::new(val);
 
         let ptr = $crate::macros::destructuring::cast_manuallydrop_ptr(&raw mut val);
 
+
         if false {
             _ = ||{
-                use $crate::macros::destructuring::{__GetImplsHelper as _};
+                use $crate::macros::destructuring::__GetImplsHelper as _;
 
                 // assert that the struct doesn't impl Drop
                 // (its fields can, just not the struct itself)
@@ -339,6 +379,24 @@ macro_rules! __destructure_struct {
             };
         )*
     )
+}
+
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __destructuring__type_sasert {
+    ((path $($path:tt)*) $variable:ident) => {
+        if false {
+            loop {}
+
+            let expected @ $($path)* {..};
+
+            $crate::macros::destructuring::assert_same_type(expected, $variable)
+        }
+    };
+    ((type $type:ty) $variable:ident) => {
+        let _: $type = $variable;
+    };
 }
 
 
