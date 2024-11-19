@@ -151,32 +151,36 @@ pub const fn assert_same_type<T>(this: T, that: T) {
 /// to destructure nested structs/tuples/arrays that have Drop elements/fields.
 /// - this macro only supports tuple structs and tuples up to 16 elements (inclusive)
 /// - this macro does not support `..` patterns in tuples or structs, 
-/// but it does support it in arrays.
+/// but it does support `@ ..` in arrays, to bind the rest of the array.
 ///
 /// # Syntax
 ///
 /// This section uses a pseudo-macro_rules syntax for each type of input.
 ///
-/// Common pseudo-metavariable types:
-/// - `:a_path` is a path, and can be either of:
-///     - `$(::)? $($path:ident)::* $(,)?`
-///     - `$struct_path:path ,`
-///
 /// ### Braced structs
 ///
 /// ```text
-/// $struct_path:a_path $(,)? {$($field:tt $(: $pattern:pat)?),* $(,)?}
+/// $struct_path:brace_path {$($field:tt $(: $pattern:pat)?),* $(,)?}
 /// $(:$struct_ty:ty)?
 /// = $val:expr
 /// ```
+///
+/// Where `:brace_path` can be either of:
+/// - `$(::)? $($path:ident)::* $(,)?`
+/// - `$struct_path:path $(,)?`
 ///
 /// ### Tuple structs
 ///
 /// ```text
-/// $struct_path:a_path ( $($pattern:pat),* $(,)? )
+/// $struct_path:tuple_path ( $($pattern:pat),* $(,)? )
 /// $(:$struct_ty:ty)?
 /// = $val:expr
 /// ```
+///
+/// Where `:tuple_path` can be either of:
+/// - `$(::)? $($path:ident)::* $(,)?`
+/// - `$struct_path:path ,` (braced struct patterns don't need the `,`)
+///
 ///
 /// ### Tuples
 ///
@@ -386,7 +390,7 @@ macro_rules! __destructure_struct {
         //   it would allow passing a reference to a struct when `$struct_ty == &Struct`.
         // - `$($struct_path)*` is guaranteed to be a struct due to it being used 
         //   in the pattern above
-        $crate::__destructuring__type_sasert!{($path_kind $($struct_path)*) val}
+        $crate::__destructuring__type_assert!{($path_kind $($struct_path)*) val}
 
         let mut val = $crate::__::ManuallyDrop::new(val);
 
@@ -430,8 +434,9 @@ macro_rules! __destructure_struct {
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __destructuring__type_sasert {
+macro_rules! __destructuring__type_assert {
     ((path $($path:tt)*) $variable:ident) => {
+        #[allow(unreachable_code)]
         if false {
             loop {}
 
@@ -512,6 +517,7 @@ macro_rules! __destructure_array {
 
         // asserts the length of the array,
         // and computes the length of the array produced by `@ ..` patterns
+        #[allow(unreachable_code)]
         if false {
             loop {}
 
@@ -519,10 +525,10 @@ macro_rules! __destructure_array {
             _ = $crate::macros::destructuring::array_into_phantom(array);
 
             let [
-                $($pat_prefix,)* 
+                $($crate::__first_pat!(_, $pat_prefix),)* 
                 $( 
                     $crate::__first_pat!(rem @ .., $pat_rem), 
-                    $($pat_suffix,)*
+                    $($crate::__first_pat!(_, $pat_suffix),)*
                 )?
             ] = array;
 
