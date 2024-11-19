@@ -94,6 +94,7 @@ impl Error {
 
 ///////////////////////////////////////////////////////
 
+#[allow(dead_code)]
 pub(crate) trait TokenTreeExt: Sized {
     fn into_token_tree(self) -> TokenTree;
 
@@ -117,6 +118,7 @@ impl TokenTreeExt for TokenTree {
     }
 }
 
+#[allow(dead_code)]
 pub trait TokenStreamExt: Sized {
     fn into_token_stream(self) -> TokenStream;
 

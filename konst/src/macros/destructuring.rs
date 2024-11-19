@@ -273,19 +273,10 @@ pub const fn assert_same_type<T>(this: T, that: T) {
 macro_rules! destructure {
     // braced struct struct
     ($($(@$is_path:tt)? ::)? $($path:ident)::+ $(,)?{$($braced:tt)*} $($rem:tt)*) => (
-        $crate::__destructure_struct! {
+        $crate::__destructure__braced_struct_prepare_fields! {
             {$($braced)*}
             ($($(@$is_path)? ::)? $($path)::*) 
             path
-            $($rem)*
-        }
-    );
-
-    ($struct_path:path $(,)? {$($braced:tt)*} $($rem:tt)*) => (
-        $crate::__destructure_struct! {
-            {$($braced)*} 
-            ($struct_path) 
-            type
             $($rem)*
         }
     );
@@ -303,6 +294,18 @@ macro_rules! destructure {
             (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
         }
     );
+
+    // braced struct struct
+    ($struct_path:path $(,)? {$($braced:tt)*} $($rem:tt)*) => (
+        $crate::__destructure__braced_struct_prepare_fields! {
+            {$($braced)*} 
+            ($struct_path) 
+            type
+            $($rem)*
+        }
+    );
+
+    // tuple struct
     ($struct_path:path, ($($tupled:tt)*) $($rem:tt)*) => (
         $crate::__destructure__tuple_struct_field_names!{
             (
@@ -346,11 +349,31 @@ macro_rules! destructure {
 
 #[doc(hidden)]
 #[macro_export]
+macro_rules! __destructure__braced_struct_prepare_fields {
+    (
+        {$($field:tt $(: $pattern:pat)?),* $(,)?}
+        $($rem:tt)*
+    ) => {
+        $crate::__destructure_struct!{
+            {$($field ($field) $(: $pattern)?,)*}
+
+            $($rem)*
+        }
+    }
+}
+
+#[doc(hidden)]
+#[macro_export]
 macro_rules! __destructure__tuple_struct_field_names {
     (($($rem:tt)*) ($($patterns:tt)*) () ($($fnames:tt)*)) => {
         $crate::__destructure_struct!{
             {$($patterns)*}
             $($rem)*
+        }
+    };
+    ($fixed:tt $prev_patterns:tt (.. $($next_pattern:tt)*) $fnames:tt) => {
+        $crate::__::compile_error!{
+            "`..` patterns are not supported in top-level tuple struct patterns"
         }
     };
     (
@@ -361,7 +384,7 @@ macro_rules! __destructure__tuple_struct_field_names {
     ) => {
         $crate::__destructure__tuple_struct_field_names!{
             $fixed
-            ($($prev_patterns)* $fname:$pattern,)
+            ($($prev_patterns)* $fname ($fname):$pattern,)
             ($($($next_pattern)*)?)
             ($($next_fnames)*)
         }
@@ -372,12 +395,19 @@ macro_rules! __destructure__tuple_struct_field_names {
 #[macro_export]
 macro_rules! __destructure_struct {
     (
-        {$($field:tt $(: $pattern:pat)?),* $(,)?}
+        {   
+            $(
+                $field:tt 
+                ($($_fa0:ident)? $($_fa1:literal)? $(.. $($has_rem_pat:tt)?)?) 
+                $(: $pattern:pat)?
+            ),* 
+            $(,)?
+        }
         ($($struct_path:tt)*)
         $path_kind:ident
         $(:$struct_ty:ty)?
         = $val:expr
-    ) => (
+    ) => ($crate::__assert_no_rem_pat! {($($(.. $($has_rem_pat)?)?)*)
         // assert that `$struct_path` has precisely the fields that the user listed
         let val @ $($struct_path)* {$($field: _),*} $(: $struct_ty)? = $val;
 
@@ -394,7 +424,7 @@ macro_rules! __destructure_struct {
 
         let mut val = $crate::__::ManuallyDrop::new(val);
 
-        let ptr = $crate::macros::destructuring::cast_manuallydrop_ptr(&raw mut val);
+        let ptr: *mut _ = $crate::macros::destructuring::cast_manuallydrop_ptr(&raw mut val);
 
 
         if false {
@@ -428,7 +458,21 @@ macro_rules! __destructure_struct {
                 $crate::__::ptr::read_unaligned(&raw mut (*ptr).$field)
             };
         )*
-    )
+    })
+}
+
+
+#[macro_export]
+#[doc(hidden)]
+macro_rules! __assert_no_rem_pat {
+    (() $($then:tt)*) => { $($then)* };
+    (() $($then:tt)*) => { $($then)* };
+    ((.. $($rem:tt)*)) => {
+        compile_error!{"`..` patterns are not supported in top-level struct patterns"}
+    };
+    ((..) $($rem:tt)*) => {
+        compile_error!{"`..` patterns are not supported in top-level struct patterns"}
+    };
 }
 
 
@@ -456,6 +500,9 @@ macro_rules! __destructuring__type_assert {
 macro_rules! __destructure__tuple_field_names {
     (($($rem:tt)*) ($($patterns:tt)*) () ($($fnames:tt)*)) => {
         $crate::__destructure_tuple!{($($patterns)*) $($rem)*}
+    };
+    ($fixed:tt $prev_patterns:tt (.. $($next_pattern:tt)*) $fnames:tt) => {
+        $crate::__::compile_error!{"`..` patterns are not supported in top-level tuple patterns"}
     };
     (
         $fixed:tt
@@ -583,7 +630,6 @@ macro_rules! __destructure_array__read_elems {
         )*
     }
 }
-
 
 
 #[macro_export]

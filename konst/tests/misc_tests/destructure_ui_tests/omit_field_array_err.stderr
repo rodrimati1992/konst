@@ -1,0 +1,39 @@
+error: `..` patterns are not allowed here
+ --> tests/misc_tests/destructure_ui_tests/omit_field_array_err.rs:9:31
+  |
+9 |     konst::destructure!{[bar, ..] = foo}
+  |                               ^^
+  |
+  = note: only allowed in tuple, tuple struct, and slice patterns
+
+error: `..` patterns are not allowed here
+  --> tests/misc_tests/destructure_ui_tests/omit_field_array_err.rs:14:31
+   |
+14 |     konst::destructure!{[bar, ..] = foo}
+   |                               ^^
+   |
+   = note: only allowed in tuple, tuple struct, and slice patterns
+
+error[E0527]: pattern requires 1 element but array has 4
+ --> tests/misc_tests/destructure_ui_tests/omit_field_array_err.rs:4:5
+  |
+4 |     konst::destructure!{[bar] = foo}
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected 4 elements
+  |
+  = note: this error originates in the macro `$crate::__destructure_array` which comes from the expansion of the macro `konst::destructure` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0527]: pattern requires 2 elements but array has 4
+ --> tests/misc_tests/destructure_ui_tests/omit_field_array_err.rs:9:5
+  |
+9 |     konst::destructure!{[bar, ..] = foo}
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected 4 elements
+  |
+  = note: this error originates in the macro `$crate::__destructure_array` which comes from the expansion of the macro `konst::destructure` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0527]: pattern requires 2 elements but array has 4
+  --> tests/misc_tests/destructure_ui_tests/omit_field_array_err.rs:14:5
+   |
+14 |     konst::destructure!{[bar, ..] = foo}
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected 4 elements
+   |
+   = note: this error originates in the macro `$crate::__destructure_array` which comes from the expansion of the macro `konst::destructure` (in Nightly builds, run with -Z macro-backtrace for more info)

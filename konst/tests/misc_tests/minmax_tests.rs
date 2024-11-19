@@ -15,6 +15,7 @@ impl ConstCmp for Mod10 {
 }
 
 impl Mod10 {
+    #[allow(dead_code)]
     const fn const_eq(&self, other: &Self) -> bool {
         const_eq!(self.0 % 10, other.0 % 10)
     }
@@ -34,14 +35,6 @@ impl ConstCmp for NonCopy {
 impl NonCopy {
     const fn copy(&self) -> Self {
         Self(self.0)
-    }
-
-    const fn const_eq(&self, other: &Self) -> bool {
-        const_eq!(self.0, other.0)
-    }
-
-    const fn const_cmp(&self, other: &Self) -> Ordering {
-        const_cmp!(self.0, other.0)
     }
 }
 

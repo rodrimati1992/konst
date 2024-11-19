@@ -53,7 +53,7 @@ impl Utf8Encoded {
     }
 }
 
-#[cfg(all(tests, not(miri)))]
+#[cfg(all(test, not(miri)))]
 mod tests {
     use super::{encode_utf8, Utf8Encoded};
 

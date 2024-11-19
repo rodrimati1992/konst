@@ -1,0 +1,25 @@
+error: `..` patterns are not supported in top-level tuple patterns
+ --> tests/misc_tests/destructure_ui_tests/omit_field_tuple_err.rs:9:5
+  |
+9 |     konst::destructure!{(bar, ..) = foo}
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__destructure__tuple_field_names` which comes from the expansion of the macro `konst::destructure` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0425]: cannot find value `bar` in this scope
+  --> tests/misc_tests/destructure_ui_tests/omit_field_tuple_err.rs:10:5
+   |
+10 |     bar
+   |     ^^^ not found in this scope
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/destructure_ui_tests/omit_field_tuple_err.rs:4:33
+  |
+4 |     konst::destructure!{(bar) = foo}
+  |     ----------------------------^^^-
+  |     |                           |
+  |     |                           expected a tuple with 1 element, found one with 3 elements
+  |     expected due to this
+  |
+  = note: expected tuple `(_,)`
+             found tuple `(String, String, String)`

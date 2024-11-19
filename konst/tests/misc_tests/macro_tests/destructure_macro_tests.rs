@@ -282,8 +282,6 @@ fn test_array_destructuring_rem_pat() {
 
 #[test]
 fn test_ignore_array_elem() {
-    let s = |x: u32| x.to_string();
-
     const fn func<T: Copy>(val: [T; 3]) -> (T, T) {
         destructure!{[foo, _, baz]: [T; 3] = val}
 
@@ -306,8 +304,6 @@ fn test_array_ignore_rem_pat() {
 
             (bar, baz)
         }
-
-        let (a, b) = rem_at_start(val());
 
         assert_eq!{rem_at_start(val()), (13, 21)}
 

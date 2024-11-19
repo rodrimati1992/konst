@@ -13,6 +13,7 @@ macro_rules! leak_warning {
         )
     };
 }
+use leak_warning;
 
 /// Const equivalent of
 /// [`array::map`](https://doc.rust-lang.org/std/primitive.array.html#method.map).
