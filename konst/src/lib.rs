@@ -411,6 +411,7 @@ pub mod __ {
     pub use core::{
         cmp::Ordering::{self, Equal, Greater, Less},
         compile_error, matches,
+        marker::PhantomData,
         mem::ManuallyDrop,
         ops::Range,
         option::Option::{self, None, Some},

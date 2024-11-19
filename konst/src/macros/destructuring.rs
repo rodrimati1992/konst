@@ -15,12 +15,12 @@ pub trait __GetImplsHelper {
 //////
 
 #[doc(hidden)]
-pub struct __ImplsDrop<T: ?Sized>(PhantomData<fn() -> T>);
+pub struct __ImplsDrop<T: ?Sized>(PhantomData<fn(T) -> T>);
 
 //////
 
 #[doc(hidden)]
-pub struct __DoesNotImplDrop<T: ?Sized>(PhantomData<fn() -> T>);
+pub struct __DoesNotImplDrop<T: ?Sized>(PhantomData<fn(T) -> T>);
 
 impl<T: ?Sized> __DoesNotImplDrop<T> {
     pub const fn new(_: *mut T) -> Self {
@@ -31,7 +31,7 @@ impl<T: ?Sized> __DoesNotImplDrop<T> {
 //////
 
 #[doc(hidden)]
-pub struct __GetImpls_IWRHQLPNNIEU8C6W<T: ?Sized>(pub PhantomData<T>);
+pub struct __GetImpls_IWRHQLPNNIEU8C6W<T: ?Sized>(pub PhantomData<fn(T) -> T>);
 
 impl<T> __GetImplsHelper for __GetImpls_IWRHQLPNNIEU8C6W<T> {
     type T = T;
@@ -72,6 +72,23 @@ pub const fn cast_manuallydrop_array_ptr<T, const N: usize>(
 
 #[doc(hidden)]
 #[inline(always)]
+pub const fn cast_ptr_with_phantom<T, U>(
+    ptr: *mut T,
+    _phantom: PhantomData<fn(U) -> U>
+) -> *mut U {
+    ptr.cast()
+}
+
+#[doc(hidden)]
+#[inline(always)]
+pub const fn get_phantom_len<T, const N: usize>(
+    _phantom: PhantomData<fn([T; N]) -> [T; N]>
+) -> usize {
+    N
+}
+
+#[doc(hidden)]
+#[inline(always)]
 pub const fn make_it<T>() -> T {
     loop {}
 }
@@ -84,7 +101,16 @@ pub const fn fake_read<T>(_: *mut T) -> T {
 
 #[doc(hidden)]
 #[inline(always)]
-pub const fn make_phantom<T>(_: *mut T) -> PhantomData<T> {
+pub const fn make_phantom<T>(_: *mut T) -> PhantomData<fn(T) -> T> {
+    PhantomData
+}
+
+#[doc(hidden)]
+#[inline(always)]
+pub const fn array_into_phantom<T, const N: usize>(
+    val: [T; N]
+) -> PhantomData<fn([T; N]) -> [T; N]> {
+    core::mem::forget(val);
     PhantomData
 }
 
@@ -124,17 +150,22 @@ pub const fn assert_same_type<T>(this: T, that: T) {
 /// - this macro needs to be invoked multiple times
 /// to destructure nested structs/tuples/arrays that have Drop elements/fields.
 /// - this macro only supports tuple structs and tuples up to 16 elements (inclusive)
-/// - this macro does not support `..` patterns to ignore any 
-/// fields/elements of the destructured value.
+/// - this macro does not support `..` patterns in tuples or structs, 
+/// but it does support it in arrays.
 ///
 /// # Syntax
 ///
 /// This section uses a pseudo-macro_rules syntax for each type of input.
 ///
+/// Common pseudo-metavariable types:
+/// - `:a_path` is a path, and can be either of:
+///     - `$(::)? $($path:ident)::* $(,)?`
+///     - `$struct_path:path ,`
+///
 /// ### Braced structs
 ///
 /// ```text
-/// $struct_path:path $(,)? {$($field:tt $(: $pattern:pat)?),* $(,)?}
+/// $struct_path:a_path $(,)? {$($field:tt $(: $pattern:pat)?),* $(,)?}
 /// $(:$struct_ty:ty)?
 /// = $val:expr
 /// ```
@@ -142,14 +173,26 @@ pub const fn assert_same_type<T>(this: T, that: T) {
 /// ### Tuple structs
 ///
 /// ```text
-/// $struct_path:tuple_path ( $($pattern:pat),* $(,)? )
+/// $struct_path:a_path ( $($pattern:pat),* $(,)? )
 /// $(:$struct_ty:ty)?
 /// = $val:expr
 /// ```
 ///
-/// Where a `:tuple_path` can be either:
-/// - `$(::)? $($path:ident)::* $(,)?`
-/// - `$struct_path:path ,`
+/// ### Tuples
+///
+/// ```text
+/// ( $($pattern:pat),* $(,)? ) $(:$tuple_ty:ty)? = $val:expr
+/// ```
+///
+/// ### Arrays
+///
+/// ```text
+/// [$( $pat:tt $(@ ..)? ),* $(,)?] $(:$array_ty:ty)? = $val:expr
+/// ```
+///
+/// Because each element pattern is a `:tt`,
+/// non-trivial patterns must be wrapped in parentheses.
+/// (trivial patterns being `_` and identifiers)
 ///
 /// # Examples
 ///
@@ -209,13 +252,15 @@ pub const fn assert_same_type<T>(this: T, that: T) {
 ///
 /// ```rust
 ///
-/// assert_eq!(PAIR, [None, Some(String::new())]);
+/// assert_eq!(SPLIT, (Some(String::new()), [None, None, Some(String::new())]));
 ///
-/// const PAIR: [Option<String>; 2] = swap_pair([Some(String::new()), None]);
+/// const SPLIT: (Option<String>, [Option<String>; 3]) = 
+///     split_first([Some(String::new()), None, None, Some(String::new())]);
 ///
-/// const fn swap_pair<T>(pair: [T; 2]) -> [T; 2] {
-///     konst::destructure!{[a, b] = pair}
-///     [b, a]
+/// const fn split_first<T>(pair: [T; 4]) -> (T, [T; 3]) {
+///     konst::destructure!{[a, rem @ ..] = pair}
+///     
+///     (a, rem)
 /// }
 /// ```
 ///
@@ -278,29 +323,20 @@ macro_rules! destructure {
     );
 
     // array
-    ([$($($pattern:pat),+)? $(,)?] $(:$array_ty:ty)? = $val:expr) => (
-        const __LEN_IWRHQLPNNIEU8C6W: $crate::__::usize = 
-            [$($($crate::__first_expr!((), $pattern)),+)?].len();
+    ([] $(:$array_ty:ty)? = $val:expr) => (
+        let []: $array_ty = $val;
+    );
 
-        let array $(: $array_ty)? = $val;
+    (
+        [$( $pat:tt $(@ $dotdot:tt)? ),* $(,)?] 
 
-        // length assertion
-        let _: [_; __LEN_IWRHQLPNNIEU8C6W] = array;
+        $($rem:tt)*
+    ) => (
+        $crate::__destructure_array!{
+            [$( (($(rem $dotdot)? elem) $pat) )*]
 
-        let mut array = $crate::__::ManuallyDrop::new(array);        
-
-        $(
-            let ptr = $crate::macros::destructuring::cast_manuallydrop_array_ptr(&raw mut array);
-            let mut i = 0;
-
-            $(
-                // SAFETY: the array being wrapped in a ManuallyDrop,
-                //         and the length assertion above, ensure that these reads are safe.
-                let $pattern = unsafe { $crate::__::ptr::read(ptr.add(i)) };
-                
-                i += 1;
-            )+
-        )?
+            $($rem)*
+        }
     );
 }
 
@@ -340,6 +376,16 @@ macro_rules! __destructure_struct {
     ) => (
         // assert that `$struct_path` has precisely the fields that the user listed
         let val @ $($struct_path)* {$($field: _),*} $(: $struct_ty)? = $val;
+
+        // asserts that `val` is not a reference, 
+        // protects against match ergonomics allowing `$val` to be a references.
+        //
+        // This always uses `$($struct_path)*`, even if `$struct_ty` is passed,
+        // because:
+        // - if this tested the type using `$struct_ty`,
+        //   it would allow passing a reference to a struct when `$struct_ty == &Struct`.
+        // - `$($struct_path)*` is guaranteed to be a struct due to it being used 
+        //   in the pattern above
         $crate::__destructuring__type_sasert!{($path_kind $($struct_path)*) val}
 
         let mut val = $crate::__::ManuallyDrop::new(val);
@@ -441,6 +487,95 @@ macro_rules! __destructure_tuple {
             let $pattern = unsafe { $crate::__::ptr::read(&raw mut (*ptr).$field) };
         )*
     )
+}
+
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __destructure_array {
+    (
+        [
+            $( ((elem $($__0:tt)*) $pat_prefix:tt) )*
+            $( 
+                ((rem .. $($__1:tt)*) $pat_rem:tt)
+
+                $( ((elem $($__2:tt)*) $pat_suffix:tt) )*
+            )?
+        ]
+
+        $(:$array_ty:ty)? 
+        = $val:expr
+    ) => {
+        let array $(: $array_ty)? = $val;
+
+        $(  let $crate::__first_pat!(rem_ty_phantom, $pat_rem) = $crate::__::PhantomData; )?
+
+        // asserts the length of the array,
+        // and computes the length of the array produced by `@ ..` patterns
+        if false {
+            loop {}
+
+            // assert that `array` is an array, not a reference to an array
+            _ = $crate::macros::destructuring::array_into_phantom(array);
+
+            let [
+                $($pat_prefix,)* 
+                $( 
+                    $crate::__first_pat!(rem @ .., $pat_rem), 
+                    $($pat_suffix,)*
+                )?
+            ] = array;
+
+            $(
+                rem_ty_phantom = $crate::macros::destructuring::array_into_phantom(
+                    $crate::__first_expr!(rem, $pat_rem)
+                ); 
+            )?
+
+        }
+
+        let mut array = $crate::__::ManuallyDrop::new(array);        
+
+        let ptr = $crate::macros::destructuring::cast_manuallydrop_array_ptr(&raw mut array);
+        let mut i = 0;
+
+        
+        $crate::__destructure_array__read_elems!{unsafe, ptr, i, [$($pat_prefix),*]}
+
+        $(
+
+            // SAFETY: the array being wrapped in a ManuallyDrop,
+            //         and the length assertion above, ensure that these reads are safe.
+            let $pat_rem = unsafe { 
+                let rem_ptr = $crate::macros::destructuring::cast_ptr_with_phantom(
+                    ptr.add(i),
+                    rem_ty_phantom,
+                );
+
+                $crate::__::ptr::read(rem_ptr) 
+            };
+
+            i += $crate::macros::destructuring::get_phantom_len(rem_ty_phantom);
+
+
+            $crate::__destructure_array__read_elems!{unsafe, ptr, i, [$($pat_suffix),*]}
+        )?
+    }
+}
+
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __destructure_array__read_elems {
+    ($unsafe:ident, $ptr:ident, $i:ident, [$($pattern:pat),*]) => {
+        $(
+            // SAFETY: the array being wrapped in a ManuallyDrop,
+            //         and the length assertion above, ensure that these reads are safe.
+            let $pattern = $unsafe { $crate::__::ptr::read($ptr.add($i)) };
+            
+            $i += 1;
+        )*
+    }
 }
 
 
