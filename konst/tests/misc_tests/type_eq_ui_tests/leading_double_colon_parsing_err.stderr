@@ -3,3 +3,31 @@ error[E0433]: failed to resolve: could not find `option` in `core`
    |
 10 |     pub(crate) fn project_opt(T) -> core::option::Option<T>
    |                                           ^^^^^^ could not find `option` in `core`
+   |
+help: consider importing one of these modules
+   |
+3  + use std::option;
+   |
+3  + use ::core::option;
+   |
+help: if you import `option`, refer to it directly
+   |
+10 -     pub(crate) fn project_opt(T) -> core::option::Option<T>
+10 +     pub(crate) fn project_opt(T) -> option::Option<T>
+   |
+
+error[E0433]: failed to resolve: could not find `option` in `core`
+  --> tests/misc_tests/type_eq_ui_tests/leading_double_colon_parsing_err.rs:10:43
+   |
+10 |     pub(crate) fn project_opt(T) -> core::option::Option<T>
+   |                                           ^^^^^^ could not find `option` in `core`
+   |
+help: consider importing this module
+   |
+3  + use std::option;
+   |
+help: if you import `option`, refer to it directly
+   |
+10 -     pub(crate) fn project_opt(T) -> core::option::Option<T>
+10 +     pub(crate) fn project_opt(T) -> option::Option<T>
+   |

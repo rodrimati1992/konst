@@ -129,10 +129,11 @@ pub const fn assert_same_type<T>(this: T, that: T) {
 ///
 /// # Motivation
 ///
-/// This macro works around a limitation as of Rust 1.83,
-/// where a non-Copy type can't be destructured into its elements/fields in a const context.
+/// This macro works around a limitation of Rust as of 1.83,
+/// where in a const context, a non-`Drop` type can't be destructured into its elements/fields 
+/// if any of them is `Drop`.
 ///
-/// Even simple cases like this don't work:
+/// Even simple cases like this don't compile:
 ///
 /// ```rust,compile_fail
 /// const fn foo<T>((a, b): (T, T)) -> [T; 2] {
@@ -143,15 +144,14 @@ pub const fn assert_same_type<T>(this: T, that: T) {
 /// # Requirements/Limitations
 ///
 /// This macro has these requirements and limitations:
-/// - it requires writing all elements/fields,
-/// because they would be leaked if they weren't mentioned.
-/// - it requires that the passed-in type does not impl `Drop`
-/// (like built-in destructuring does)
-/// - this macro needs to be invoked multiple times
-/// to destructure nested structs/tuples/arrays that have Drop elements/fields.
-/// - this macro only supports tuple structs and tuples up to 16 elements (inclusive)
-/// - this macro does not support `..` patterns in tuples or structs, 
+/// - it does not support `..` patterns in tuples or structs, 
 /// but it does support `@ ..` in arrays, to bind the rest of the array.
+/// - it requires that passed-in structs do not impl `Drop`
+/// (like built-in destructuring does),
+/// but any field can impl `Drop`.
+/// - it needs to be invoked multiple times
+/// to destructure nested structs/tuples/arrays that have `Drop` elements/fields.
+/// - it only supports tuple structs and tuples up to 16 elements (inclusive)
 ///
 /// # Syntax
 ///
@@ -261,8 +261,8 @@ pub const fn assert_same_type<T>(this: T, that: T) {
 /// const SPLIT: (Option<String>, [Option<String>; 3]) = 
 ///     split_first([Some(String::new()), None, None, Some(String::new())]);
 ///
-/// const fn split_first<T>(pair: [T; 4]) -> (T, [T; 3]) {
-///     konst::destructure!{[a, rem @ ..] = pair}
+/// const fn split_first<T>(array: [T; 4]) -> (T, [T; 3]) {
+///     konst::destructure!{[a, rem @ ..] = array}
 ///     
 ///     (a, rem)
 /// }

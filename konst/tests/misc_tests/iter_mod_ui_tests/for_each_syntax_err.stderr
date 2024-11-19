@@ -3,12 +3,24 @@ error: unexpected end of macro invocation
   |
 1 | const _: () = konst::iter::for_each!{};
   |               ^^^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+  |
+note: while trying to match meta-variable `$pattern:pat_param`
+ --> $WORKSPACE/konst_kernel/src/iter.rs
+  |
+  |     ($pattern:pat_param in $($rem:tt)*) => ({
+  |      ^^^^^^^^^^^^^^^^^^
 
 error: unexpected end of macro invocation
  --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:3:39
   |
 3 | const _: () = konst::iter::for_each!{_};
   |                                       ^ missing tokens in macro arguments
+  |
+note: while trying to match `in`
+ --> $WORKSPACE/konst_kernel/src/iter.rs
+  |
+  |     ($pattern:pat_param in $($rem:tt)*) => ({
+  |                         ^^
 
 error: expected iterator argument
  --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:5:15
