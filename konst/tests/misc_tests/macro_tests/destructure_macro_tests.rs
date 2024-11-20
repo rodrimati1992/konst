@@ -296,40 +296,44 @@ fn test_ignore_array_elem() {
 
 #[test]
 fn test_array_ignore_rem_pat() {
-    let val = || [3, 5, 8, 13, 21];
+    macro_rules! dry {($($prefix:tt)*) => ({
+        let val = || [3, 5, 8, 13, 21];
 
-    {
-        const fn rem_at_start<T: Copy>(val: [T; 5]) -> (T, T) {
-            destructure!{[_ @ .., bar, baz] = val}
+        {
+            const fn rem_at_start<T: Copy>(val: [T; 5]) -> (T, T) {
+                destructure!{[$($prefix)* .., bar, baz] = val}
 
-            (bar, baz)
+                (bar, baz)
+            }
+
+            assert_eq!{rem_at_start(val()), (13, 21)}
+
         }
 
-        assert_eq!{rem_at_start(val()), (13, 21)}
+        {
+            const fn rem_at_middle<T: Copy>(val: [T; 5]) -> (T, T, T) {
+                destructure!{[a, b, $($prefix)* .., c] = val}
 
-    }
+                (a, b, c)
+            }
 
-    {
-        const fn rem_at_middle<T: Copy>(val: [T; 5]) -> (T, T, T) {
-            destructure!{[a, b, _ @ .., c] = val}
-
-            (a, b, c)
+            assert_eq!{rem_at_middle(val()), (3, 5, 21)}
         }
 
-        assert_eq!{rem_at_middle(val()), (3, 5, 21)}
-    }
 
+        {
+            const fn rem_at_end<T: Copy>(val: [T; 5]) -> (T, T) {
+                destructure!{[a, b, $($prefix)* ..] = val}
 
-    {
-        const fn rem_at_end<T: Copy>(val: [T; 5]) -> (T, T) {
-            destructure!{[a, b, _ @ ..] = val}
+                (a, b)
+            }
 
-            (a, b)
+            assert_eq!{rem_at_end(val()), (3, 5)}
         }
+    })}
 
-        assert_eq!{rem_at_end(val()), (3, 5)}
-    }
-
+    dry!{}
+    dry!{_ @}
 
 }
 

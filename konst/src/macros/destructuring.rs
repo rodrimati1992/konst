@@ -145,7 +145,7 @@ pub const fn assert_same_type<T>(this: T, that: T) {
 ///
 /// This macro has these requirements and limitations:
 /// - it does not support `..` patterns in tuples or structs, 
-/// but it does support `@ ..` in arrays, to bind the rest of the array.
+/// but it is supported in arrays.
 /// - it requires that passed-in structs do not impl `Drop`
 /// (like built-in destructuring does),
 /// but any field can impl `Drop`.
@@ -339,8 +339,8 @@ macro_rules! destructure {
 
         $($rem:tt)*
     ) => (
-        $crate::__destructure_array!{
-            [$( (($(rem $dotdot)? elem) $pat) )*]
+        $crate::__destructure_array__process_fields!{
+            [$( ($pat) ($($dotdot $dotdot)?) ,)*]
 
             $($rem)*
         }
@@ -355,7 +355,7 @@ macro_rules! __destructure__braced_struct_prepare_fields {
         $($rem:tt)*
     ) => {
         $crate::__destructure_struct!{
-            {$($field ($field) $(: $pattern)?,)*}
+            {$(($field) $field $(: $pattern)?,)*}
 
             $($rem)*
         }
@@ -384,7 +384,7 @@ macro_rules! __destructure__tuple_struct_field_names {
     ) => {
         $crate::__destructure__tuple_struct_field_names!{
             $fixed
-            ($($prev_patterns)* $fname ($fname):$pattern,)
+            ($($prev_patterns)* ($fname) $fname:$pattern,)
             ($($($next_pattern)*)?)
             ($($next_fnames)*)
         }
@@ -396,18 +396,14 @@ macro_rules! __destructure__tuple_struct_field_names {
 macro_rules! __destructure_struct {
     (
         {   
-            $(
-                $field:tt 
-                ($($_fa0:ident)? $($_fa1:literal)? $(.. $($has_rem_pat:tt)?)?) 
-                $(: $pattern:pat)?
-            ),* 
+            $(($($_fa0:ident)? $($_fa1:literal)?) $field:tt $(: $pattern:pat)?),* 
             $(,)?
         }
         ($($struct_path:tt)*)
         $path_kind:ident
         $(:$struct_ty:ty)?
         = $val:expr
-    ) => ($crate::__assert_no_rem_pat! {($($(.. $($has_rem_pat)?)?)*)
+    ) => (
         // assert that `$struct_path` has precisely the fields that the user listed
         let val @ $($struct_path)* {$($field: _),*} $(: $struct_ty)? = $val;
 
@@ -458,22 +454,21 @@ macro_rules! __destructure_struct {
                 $crate::__::ptr::read_unaligned(&raw mut (*ptr).$field)
             };
         )*
-    })
+    );
+    (
+        {   
+            $(($($_fa0:ident)? $($_fa1:literal)?) $field0:tt $(: $_0:pat)? ,)* 
+            $(
+                (..) $field1:tt $(: $_1:pat)? ,
+                $($field2:tt ($($_fa2:ident)? $($_fa3:literal)?) $(: $_2:pat)? ,)* 
+            )*
+        }
+        $($_3:tt)*
+    ) => (
+        compile_error!{"`..` patterns are not supported in top-level struct patterns"}
+    )
 }
 
-
-#[macro_export]
-#[doc(hidden)]
-macro_rules! __assert_no_rem_pat {
-    (() $($then:tt)*) => { $($then)* };
-    (() $($then:tt)*) => { $($then)* };
-    ((.. $($rem:tt)*)) => {
-        compile_error!{"`..` patterns are not supported in top-level struct patterns"}
-    };
-    ((..) $($rem:tt)*) => {
-        compile_error!{"`..` patterns are not supported in top-level struct patterns"}
-    };
-}
 
 
 #[doc(hidden)]
@@ -544,12 +539,49 @@ macro_rules! __destructure_tuple {
 
 #[doc(hidden)]
 #[macro_export]
+macro_rules! __destructure_array__process_fields {
+    (
+        [$(
+            (
+                $( _ $($is_underscore:lifetime)? )?
+                $( $ident:ident)?
+                $( ($parenthesized:pat) )?
+                $( .. $($has_rem_elems1:lifetime)? )?
+            )
+            ($(.. $rem_elems:tt $($has_rem_elems2:lifetime)?)?),
+        )*]
+
+        $($rem:tt)*
+    ) => {
+        $crate::__destructure_array! {
+            [$(
+                (
+                    (
+                        $(rem $($has_rem_elems1)?)?  
+                        $(rem $($has_rem_elems2)?)?
+                        elem
+                    )
+
+                    $(_ $($is_underscore)?)?
+                    $(_ $($has_rem_elems1)?)?  
+                    $( $ident )?
+                    $( $parenthesized )?
+                )
+            )*]
+
+            $($rem)*
+        }
+    }
+}
+
+#[doc(hidden)]
+#[macro_export]
 macro_rules! __destructure_array {
     (
         [
             $( ((elem $($__0:tt)*) $pat_prefix:tt) )*
             $( 
-                ((rem .. $($__1:tt)*) $pat_rem:tt)
+                ((rem $($__1:tt)*) $pat_rem:tt)
 
                 $( ((elem $($__2:tt)*) $pat_suffix:tt) )*
             )?

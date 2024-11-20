@@ -4,7 +4,7 @@ error: `..` patterns are not supported in top-level struct patterns
 14 |     konst::destructure!{Braced{bar, ..}: Braced = foo}
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::__assert_no_rem_pat` which comes from the expansion of the macro `konst::destructure` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::__destructure_struct` which comes from the expansion of the macro `konst::destructure` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0425]: cannot find value `bar` in this scope
   --> tests/misc_tests/destructure_ui_tests/omit_field_braced_struct_err.rs:15:5
