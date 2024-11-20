@@ -1,0 +1,10 @@
+error[E0382]: use of moved value: `foo`
+  --> tests/misc_tests/destructure_ui_tests/moved_out_braced_struct_err.rs:10:22
+   |
+7  | const fn to_bar(foo: Braced) -> (String, String, String) {
+   |                 --- move occurs because `foo` has type `Braced`, which does not implement the `Copy` trait
+8  |     konst::destructure!{Braced{bar, baz, qux} = foo}
+   |     ------------------------------------------------ value moved here
+9  |
+10 |     std::mem::forget(foo);
+   |                      ^^^ value used here after move

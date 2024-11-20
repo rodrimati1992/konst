@@ -1,0 +1,8 @@
+error[E0493]: destructor of `Tuple` cannot be evaluated at compile-time
+ --> tests/misc_tests/destructure_ui_tests/drop_empty_tupled_struct_err.rs:7:17
+  |
+7 | const fn to_bar(foo: Tuple)  {
+  |                 ^^^ the destructor for this type cannot be evaluated in constant functions
+8 |     konst::destructure!{Tuple() = foo}
+9 | }
+  | - value is dropped here
