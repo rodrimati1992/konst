@@ -1,0 +1,7 @@
+error[E0527]: pattern requires 1 element but array has 4
+ --> tests/misc_tests/destructure_ui_tests/omit_field_array_err.rs:4:5
+  |
+4 |     konst::destructure!{[bar] = foo}
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected 4 elements
+  |
+  = note: this error originates in the macro `$crate::__destructure_array` which comes from the expansion of the macro `konst::destructure` (in Nightly builds, run with -Z macro-backtrace for more info)

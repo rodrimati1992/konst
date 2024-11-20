@@ -9,7 +9,7 @@ struct NonCopy<T>(T);
 #[should_panic]
 #[allow(unreachable_code)]
 fn array_map_break() {
-    konst::array::map!([(); 3], |_| break);
+    konst::array::map!([(); 3], |_| -> () { break });
 }
 
 #[test]

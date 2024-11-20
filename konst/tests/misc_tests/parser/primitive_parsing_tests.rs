@@ -9,7 +9,7 @@ use std::{
 fn check_parse<T, F>(num: T, method: F)
 where
     T: PartialEq + Display + Debug,
-    F: for<'a> Fn(Parser<'a>) -> Result<(T, Parser<'a>), ParseError>,
+    F: for<'a> Fn(Parser<'a>) -> Result<(T, Parser<'a>), ParseError<'a>>,
 {
     for suffix in ["", ";", "-", "--"].iter().copied() {
         let mut string = num.to_string();
@@ -28,7 +28,7 @@ where
 fn check_type<T, F>(min: T, max: T, method: F)
 where
     T: PartialEq + Display + Debug + Copy,
-    F: for<'a> Fn(Parser<'a>) -> Result<(T, Parser<'a>), ParseError>,
+    F: for<'a> Fn(Parser<'a>) -> Result<(T, Parser<'a>), ParseError<'a>>,
 {
     for num in [min, max].iter().copied() {
         check_parse(num, &method);

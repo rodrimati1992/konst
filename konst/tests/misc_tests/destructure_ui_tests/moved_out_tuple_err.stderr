@@ -1,0 +1,10 @@
+error[E0382]: use of moved value: `foo`
+ --> tests/misc_tests/destructure_ui_tests/moved_out_tuple_err.rs:6:22
+  |
+3 | const fn to_bar(foo: Tuple) -> impl Sized {
+  |                 --- move occurs because `foo` has type `(String, String, String)`, which does not implement the `Copy` trait
+4 |     konst::destructure!{(bar, baz, qux) = foo}
+  |     ------------------------------------------ value moved here
+5 |
+6 |     std::mem::forget(foo);
+  |                      ^^^ value used here after move

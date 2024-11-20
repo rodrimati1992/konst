@@ -13,6 +13,7 @@ pub type ThreadError = Box<dyn Any + Send + 'static>;
 
 #[derive(Debug, Clone)]
 pub struct ShouldHavePanickedAt {
+    #[allow(dead_code)]
     pub span: FileSpan,
 }
 

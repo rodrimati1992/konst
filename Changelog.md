@@ -2,6 +2,14 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.3
 
+### 0.3.10
+
+Added `"rust_1_83"` feature, which enables the `"mut_refs"` feature. 
+
+Added `"destructure"` macro (requires the `"rust_1_83"` feature)
+
+Fixed future compatibility warnings
+
 ### 0.3.9
 
 Defined these macros `max`, `max_by`, `max_by_key`, `min`, `min_by`, and `min_by_key` macros.

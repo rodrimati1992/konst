@@ -1,0 +1,29 @@
+error[E0308]: mismatched types
+ --> tests/misc_tests/destructure_ui_tests/from_ref_tuple_err.rs:4:43
+  |
+4 |     konst::destructure!{(foo, bar, baz) = foo}
+  |     --------------------------------------^^^-
+  |     |                                     |
+  |     |                                     expected `(_, _, _)`, found `&(u8, u8, u8)`
+  |     expected due to this
+  |
+  = note:  expected tuple `(_, _, _)`
+          found reference `&(u8, u8, u8)`
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/destructure_ui_tests/from_ref_tuple_err.rs:9:5
+  |
+9 |     konst::destructure!{(foo, bar, baz): &Tuple = foo}
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |     |
+  |     expected `(_, _, _)`, found `&(u8, u8, u8)`
+  |     arguments to this function are incorrect
+  |
+  = note:  expected tuple `(_, _, _)`
+          found reference `&(u8, u8, u8)`
+note: function defined here
+ --> src/macros/destructuring.rs
+  |
+  | pub const fn assert_same_type<T>(this: T, that: T) {
+  |              ^^^^^^^^^^^^^^^^
+  = note: this error originates in the macro `$crate::__destructure_tuple` which comes from the expansion of the macro `konst::destructure` (in Nightly builds, run with -Z macro-backtrace for more info)

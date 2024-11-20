@@ -4,11 +4,7 @@
 
 extern crate proc_macro;
 
-#[cfg(not(feature = "proc_macro2_"))]
 use proc_macro as used_proc_macro;
-
-#[cfg(feature = "proc_macro2_")]
-use proc_macro2 as used_proc_macro;
 
 use std::iter;
 

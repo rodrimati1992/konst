@@ -91,8 +91,9 @@ jobs:
 
         cd "${{github.workspace}}/konst/"
         
-        cargo test --no-default-features --features "debug nightly_mut_refs"
-        cargo test --no-default-features --features "debug __cp_derive alloc cmp iter parsing_proc rust_latest_stable nightly_mut_refs"
+        # TODO: remove rust_1_83 feature when Rust stable is 1.83.0
+        cargo test --no-default-features --features "debug rust_1_83"
+        cargo test --no-default-features --features "debug __cp_derive alloc cmp iter parsing_proc rust_latest_stable rust_1_83"
 
         MIRI_NIGHTLY=nightly-$(curl -s https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/miri)
         echo "Installing latest nightly with Miri"
@@ -105,6 +106,7 @@ jobs:
 
         cargo clean 
 
+        # TODO: remove rust_1_83 feature when Rust stable is 1.83.0
         env RUST_BACKTRACE=0 MIRIFLAGS="-Zmiri-disable-isolation " \
             cargo miri test --no-default-features \
-            --features "alloc debug cmp iter parsing_proc rust_latest_stable nightly_mut_refs"
+            --features "alloc debug cmp iter parsing_proc rust_latest_stable rust_1_83"
