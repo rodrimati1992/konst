@@ -307,6 +307,7 @@
 //!
 #![deny(missing_docs)]
 #![deny(unused_results)]
+#![allow(rustdoc::redundant_explicit_links)]
 // clippy's opinionated BS
 #![allow(clippy::needless_doctest_main)]
 #![allow(clippy::init_numbered_fields)]

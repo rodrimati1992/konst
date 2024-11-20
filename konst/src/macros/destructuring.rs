@@ -135,7 +135,7 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 /// # Motivation
 ///
 /// This macro works around a limitation of Rust as of 1.83,
-/// where in a const context, a non-`Drop` type can't be destructured into its elements/fields 
+/// where in a const context, a non-`Drop` type can't be destructurezd into its elements/fields 
 /// if any of them is `Drop`.
 ///
 /// Even simple cases like this don't compile:
@@ -149,13 +149,15 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 /// # Requirements/Limitations
 ///
 /// This macro has these requirements and limitations:
-/// - it does not support `..` patterns in tuples or structs, 
-/// but it is supported in arrays.
+/// - it does not support `..` patterns in tuples or structs
+/// (because unmentioned fields would be leaked), 
+/// but `..` patterns are supported in arrays.
 /// - it requires that passed-in structs do not impl `Drop`
 /// (like built-in destructuring does),
 /// but any field can impl `Drop`.
 /// - it needs to be invoked multiple times
 /// to destructure nested structs/tuples/arrays that have `Drop` elements/fields.
+/// [(example)](#nested-destructuring)
 /// - it only supports tuple structs and tuples up to 16 elements (inclusive)
 ///
 /// # Syntax
@@ -174,6 +176,8 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 /// - `$(::)? $($path:ident)::* $(,)?`
 /// - `$struct_path:path $(,)?`
 ///
+/// [example below](#braced-struct)
+///
 /// ### Tuple structs
 ///
 /// ```text
@@ -186,22 +190,27 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 /// - `$(::)? $($path:ident)::* $(,)?`
 /// - `$struct_path:path ,` (braced struct patterns don't need the `,`)
 ///
+/// [example below](#tuple-struct)
 ///
 /// ### Tuples
 ///
 /// ```text
 /// ( $($pattern:pat),* $(,)? ) $(:$tuple_ty:ty)? = $val:expr
 /// ```
+/// [example below](#tuple)
 ///
 /// ### Arrays
 ///
 /// ```text
-/// [$( $pat:tt $(@ ..)? ),* $(,)?] $(:$array_ty:ty)? = $val:expr
-/// ```
+/// [$( $pat:elem_pat $(@ ..)? ),* $(,)?] $(:$array_ty:ty)? = $val:expr
 ///
-/// Because each element pattern is a `:tt`,
-/// non-trivial patterns must be wrapped in parentheses.
-/// (trivial patterns being `_` and identifiers)
+/// Where `:elem_pat` can be any of:
+/// - `_`
+/// - `..`
+/// - `$ident:ident`
+/// - `($pattern:pat)`: any pattern inside of parentheses
+/// ```
+/// [example below](#array)
 ///
 /// # Examples
 ///
@@ -253,6 +262,7 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 ///
 /// const fn swap_pair<T, U>(pair: (T, U)) -> (U, T) {
 ///     konst::destructure!{(a, b) = pair}
+///
 ///     (b, a)
 /// }
 /// ```
@@ -272,6 +282,25 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 ///     (a, rem)
 /// }
 /// ```
+///
+/// ### Nested Destructuring
+///
+/// ```rust
+///
+/// assert_eq!(TRIPLE, [3, 5, 8]);
+///
+/// const TRIPLE: [u8; 3] = flatten((3, (5, 8)));
+///
+/// const fn flatten<T>(tup: (T, (T, T))) -> [T; 3] {
+///     // `tail` can't be destructured inline into `(b, c)`,
+///     // it must be destructured separately
+///     konst::destructure!{(a, tail) = tup}
+///     
+///     konst::destructure!{(b, c) = tail}
+/// 
+///     [a, b, c]
+/// }
+///
 ///
 #[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
@@ -538,6 +567,10 @@ macro_rules! __destructure_tuple {
     (($($field:tt: $pattern:pat,)*) $(:$tuple_ty:ty)? = $val:expr) => (
 
         // assert that the tuple has precisely the element count that the user passed
+        // 
+        // $tuple_ty being passed is not enough of an assertion,
+        // because it might be a tuple with more elements,
+        // so we construct a pattern to assert it.
         let val @ ($($crate::__first_pat!(_, $field),)*)
             : $crate::__first_ty!($($tuple_ty,)? ($($crate::__first_ty!(_, $field),)*),) 
             = $val;
@@ -658,7 +691,7 @@ macro_rules! __destructure_array {
         $(
 
             // SAFETY: the array being wrapped in a ManuallyDrop,
-            //         and the length assertion above, ensure that these reads are safe.
+            //         and the assertions above, ensure that these reads are safe.
             let $pat_rem = unsafe { 
                 let rem_ptr = $crate::macros::destructuring::cast_ptr_with_phantom(
                     <*mut _>::add(ptr, i),
@@ -683,7 +716,7 @@ macro_rules! __destructure_array__read_elems {
     ($unsafe:ident, $ptr:ident, $i:ident, [$($pattern:pat),*]) => {
         $(
             // SAFETY: the array being wrapped in a ManuallyDrop,
-            //         and the length assertion above, ensure that these reads are safe.
+            //         and the assertions above, ensure that these reads are safe.
             let $pattern = $unsafe { $crate::__::ptr::read(<*mut _>::add($ptr, $i)) };
             
             $i += 1;
