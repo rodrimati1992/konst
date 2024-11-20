@@ -19,6 +19,18 @@ fn test_braced_struct_destructuring() {
         (foo, bar, baz)
     }
 
+    const fn no_type_annotation_trailing_comma<T>(val: BracedStruct<T>) -> (String, T, T) {
+        destructure!{BracedStruct {foo, bar, baz,} = val}
+
+        (foo, bar, baz)
+    }
+
+    const fn no_type_annotation_comma<T>(val: BracedStruct<T>) -> (String, T, T) {
+        destructure!{BracedStruct, {foo, bar, baz} = val}
+
+        (foo, bar, baz)
+    }
+
     const fn with_type_annotation<T>(val: BracedStruct<T>) -> (String, T, T) {
         destructure!{BracedStruct {foo, bar, baz}: BracedStruct<T> = val}
 
@@ -27,6 +39,12 @@ fn test_braced_struct_destructuring() {
 
     const fn with_typed_pattern<T>(val: BracedStruct<T>) -> (String, T, T) {
         destructure!{BracedStruct<T> {foo, bar, baz}: BracedStruct<T> = val}
+
+        (foo, bar, baz)
+    }
+
+    const fn with_typed_pattern_comma<T>(val: BracedStruct<T>) -> (String, T, T) {
+        destructure!{BracedStruct<T>, {foo, bar, baz}: BracedStruct<T> = val}
 
         (foo, bar, baz)
     }
@@ -40,7 +58,10 @@ fn test_braced_struct_destructuring() {
 
     for func in [
         no_type_annotation,
+        no_type_annotation_trailing_comma,
+        no_type_annotation_comma,
         with_type_annotation,
+        with_typed_pattern_comma,
         with_typed_pattern,
         renamed_fields,
     ] {
@@ -54,6 +75,26 @@ fn test_braced_struct_destructuring() {
     }
 }
 
+#[test]
+fn test_empty_braced_struct() {
+    #[derive(Copy, Clone)]
+    struct Empty<const N: usize> {}
+
+    const fn inner() {
+        type Empty1 = Empty<1>;
+
+        let empty1 = Empty::<1>{};
+        let empty1b = Empty{};
+        let empty2 = Empty{};
+        let empty3 = Empty{};
+        konst::destructure!{ Empty {} = empty1 }
+        konst::destructure!{ Empty1 {} = empty1b }
+        konst::destructure!{ Empty {}: Empty<2> = empty2 }
+        konst::destructure!{ Empty<3> {} = empty3 }
+    }
+
+    inner()
+}
 
 #[test]
 fn test_braced_struct_other_patterns() {
@@ -110,6 +151,18 @@ fn test_packed_tuple_struct_destructuring() {
         (foo, bar, baz)
     }
 
+    const fn no_type_annotation_trailing_comma<T>(val: TupleStruct<T>) -> (String, T, T) {
+        destructure!{TupleStruct (foo, bar, baz,) = val}
+
+        (foo, bar, baz)
+    }
+
+    const fn no_type_annotation_comma<T>(val: TupleStruct<T>) -> (String, T, T) {
+        destructure!{TupleStruct, (foo, bar, baz) = val}
+
+        (foo, bar, baz)
+    }
+
     const fn with_type_annotation<T>(val: TupleStruct<T>) -> (String, T, T) {
         destructure!{TupleStruct (foo, bar, baz): TupleStruct<T> = val}
 
@@ -124,6 +177,8 @@ fn test_packed_tuple_struct_destructuring() {
 
     for func in [
         no_type_annotation,
+        no_type_annotation_trailing_comma,
+        no_type_annotation_comma,
         with_type_annotation,
         with_typed_pattern,
     ] {
@@ -133,6 +188,25 @@ fn test_packed_tuple_struct_destructuring() {
     }
 }
 
+#[test]
+fn test_empty_tuple_struct() {
+    struct Empty<const N: usize>();
+
+    const fn inner() {
+        type Empty1 = Empty<1>;
+
+        let empty1 = Empty::<1>();
+        let empty1b = Empty();
+        let empty2 = Empty();
+        let empty3 = Empty();
+        konst::destructure!{ Empty () = empty1 }
+        konst::destructure!{ Empty1 () = empty1b }
+        konst::destructure!{ Empty (): Empty<2> = empty2 }
+        konst::destructure!{ Empty<3>, () = empty3 }
+    }
+
+    inner()
+}
 
 #[test]
 fn test_ignore_tuple_struct_field() {
@@ -163,6 +237,12 @@ fn test_tuple_destructuring() {
         (bar, foo, baz)
     }
 
+    const fn no_type_annotation_trailing_comma<T>(val: Tuple<T>) -> (T, String, T) {
+        destructure!{(foo, bar, baz,) = val}
+
+        (bar, foo, baz)
+    }
+
     const fn with_type_annotation<T>(val: Tuple<T>) -> (T, String, T) {
         destructure!{(foo, bar, baz): Tuple<T> = val}
 
@@ -171,12 +251,24 @@ fn test_tuple_destructuring() {
 
     for func in [
         no_type_annotation,
+        no_type_annotation_trailing_comma,
         with_type_annotation,
     ] {
         let val = ("hello".to_string(), 3, 5);
 
         assert_eq!(func(val), (3, "hello".to_string(), 5));
     }
+}
+
+
+#[test]
+fn test_unit() {
+    const fn inner() {
+        konst::destructure!{() = ()}
+        konst::destructure!{(): () = ()}
+    }
+
+    inner()
 }
 
 
@@ -210,6 +302,12 @@ fn test_array_destructuring_individuals() {
         (bar, foo, baz)
     }
 
+    const fn no_type_annotation_trailing_comma<T>(val: [T; 3]) -> (T, T, T) {
+        destructure!{[foo, bar, baz,] = val}
+
+        (bar, foo, baz)
+    }
+
     const fn with_type_annotation<T>(val: [T; 3]) -> (T, T, T) {
         destructure!{[foo, bar, baz]: [T; 3] = val}
 
@@ -218,6 +316,7 @@ fn test_array_destructuring_individuals() {
 
     for func in [
         no_type_annotation,
+        no_type_annotation_trailing_comma,
         with_type_annotation,
     ] {
         let val = [s("hello"), s("3"), s("5")];
@@ -279,6 +378,25 @@ fn test_array_destructuring_rem_pat() {
 
 }
 
+#[test]
+fn test_empty() {
+    const fn repeat<const N: usize>() -> [u8; N] {
+        [0; N]
+    }
+
+    const fn inner() {
+        let empty1 = [0u8; 0];
+        let empty2 = repeat();
+        let empty3 = repeat();
+
+        konst::destructure!{[] = empty1}
+        konst::destructure!{[] = empty2}
+        konst::destructure!{[..]: [u8; 0] = empty3}
+        konst::destructure!{[..]: [u8; 0] = []}
+    }
+
+    inner()
+}
 
 #[test]
 fn test_ignore_array_elem() {

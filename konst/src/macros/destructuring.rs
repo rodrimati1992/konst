@@ -123,6 +123,11 @@ pub const fn assert_same_type<T>(this: T, that: T) {
 
 //////
 
+#[doc(hidden)]
+pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
+
+//////
+
 /// Destructures a struct/tuple/array into all of its elements/fields.
 ///
 /// [**for examples look here**](#examples)
@@ -320,6 +325,9 @@ macro_rules! destructure {
     );
     
     // tuple 
+    (() $(:$tuple_ty:ty)? = $val:expr) => (
+        let () $(: $tuple_ty)? = $val;
+    );
     (($($tupled:tt)*) $($rem:tt)*) => (
         $crate::__destructure__tuple_field_names!{
             ($($rem)*)
@@ -331,7 +339,7 @@ macro_rules! destructure {
 
     // array
     ([] $(:$array_ty:ty)? = $val:expr) => (
-        let []: $array_ty = $val;
+        let [] $(: $array_ty)? = $val;
     );
 
     (
@@ -394,6 +402,15 @@ macro_rules! __destructure__tuple_struct_field_names {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __destructure_struct {
+    (
+        { /* no fields */ $(,)? }
+        ($($struct_path:tt)*)
+        $path_kind:ident
+        $(:$struct_ty:ty)?
+        = $val:expr
+    ) => (
+        let $($struct_path)* {} $(: $struct_ty)? = $val;
+    );
     (
         {   
             $(($($_fa0:ident)? $($_fa1:literal)?) $field:tt $(: $pattern:pat)?),* 
@@ -460,8 +477,8 @@ macro_rules! __destructure_struct {
             $(($($_fa0:ident)? $($_fa1:literal)?) $field0:tt $(: $_0:pat)? ,)* 
             $(
                 (..) $field1:tt $(: $_1:pat)? ,
-                $($field2:tt ($($_fa2:ident)? $($_fa3:literal)?) $(: $_2:pat)? ,)* 
-            )*
+                $($__anything:tt)*
+            )?
         }
         $($_3:tt)*
     ) => (
@@ -475,6 +492,7 @@ macro_rules! __destructure_struct {
 #[macro_export]
 macro_rules! __destructuring__type_assert {
     ((path $($path:tt)*) $variable:ident) => {
+        // assert that `$variable` is a struct, not a reference to a struct
         #[allow(unreachable_code)]
         if false {
             loop {}
@@ -523,6 +541,16 @@ macro_rules! __destructure_tuple {
         let val @ ($($crate::__first_pat!(_, $field),)*)
             : $crate::__first_ty!($($tuple_ty,)? ($($crate::__first_ty!(_, $field),)*),) 
             = $val;
+
+        // assert that `val` is a tuple, not a reference to a tuple
+        #[allow(unreachable_code)]
+        if false {
+            loop {}
+
+            let expected @ ($($crate::__first_pat!(_, $field),)*);
+
+            $crate::macros::destructuring::assert_same_type(expected, val)
+        }
 
         let mut val = $crate::__::ManuallyDrop::new(val);
 
@@ -619,7 +647,7 @@ macro_rules! __destructure_array {
 
         }
 
-        let mut array = $crate::__::ManuallyDrop::new(array);        
+        let mut array = $crate::macros::destructuring::__ArrayManuallyDrop::new(array);        
 
         let ptr = $crate::macros::destructuring::cast_manuallydrop_array_ptr(&raw mut array);
         let mut i = 0;
@@ -633,7 +661,7 @@ macro_rules! __destructure_array {
             //         and the length assertion above, ensure that these reads are safe.
             let $pat_rem = unsafe { 
                 let rem_ptr = $crate::macros::destructuring::cast_ptr_with_phantom(
-                    ptr.add(i),
+                    <*mut _>::add(ptr, i),
                     rem_ty_phantom,
                 );
 
@@ -656,7 +684,7 @@ macro_rules! __destructure_array__read_elems {
         $(
             // SAFETY: the array being wrapped in a ManuallyDrop,
             //         and the length assertion above, ensure that these reads are safe.
-            let $pattern = $unsafe { $crate::__::ptr::read($ptr.add($i)) };
+            let $pattern = $unsafe { $crate::__::ptr::read(<*mut _>::add($ptr, $i)) };
             
             $i += 1;
         )*
