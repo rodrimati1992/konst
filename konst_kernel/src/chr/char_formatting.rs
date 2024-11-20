@@ -58,7 +58,7 @@ mod tests {
     use super::{encode_utf8, Utf8Encoded};
 
     fn as_bytes(fmt: &Utf8Encoded) -> &[u8] {
-        &fmt.encoded()[..fmt.len()]
+        &fmt.encoded[..fmt.len as usize]
     }
 
     #[test]
@@ -72,8 +72,10 @@ mod tests {
             assert_eq!(utf8_std.as_bytes(), utf8_konst.as_bytes());
 
             {
-                core::str::from_utf8(utf8_std.as_bytes()).unwrap();
-                assert_eq!(utf8_std, utf8_konst.as_str());
+                assert_eq!(
+                    core::str::from_utf8(utf8_std.as_bytes()).unwrap(),
+                    utf8_konst.as_str(),
+                );
             }
         }
     }
