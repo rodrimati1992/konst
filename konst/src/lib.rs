@@ -269,6 +269,9 @@
 //! - `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature(there's currently none).
 //! Only recommendable if you can update the Rust compiler every stable release.
 //!
+//! - `"rust_1_83"`: enables the `"mut_refs"` feature and [`destructure`] macro
+//! (this feature isn't enabled by `"rust_latest_stable"` because Rust 1.83.0 isn't stable as of this konst release)
+//!
 //! - `"mut_refs"`(disabled by default):
 //! Enables const functions that take mutable references.
 //! Use this whenever mutable references in const contexts are stabilized.
@@ -300,6 +303,7 @@
 //! [`parser_method`]: macro.parser_method.html
 //! [`Parser`]: ./parsing/struct.Parser.html
 //! [`Parser::parse_u128`]: ./parsing/struct.Parser.html#method.parse_u128
+//! [`destructure`]: ./macro.destructure.html
 //!
 #![deny(missing_docs)]
 #![deny(unused_results)]
