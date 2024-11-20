@@ -1,6 +1,6 @@
 [package]
 name = "konst"
-version = "0.3.10"
+version = "0.3.11"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 rust-version = "1.65.0"
 edition = "2021"
@@ -77,5 +77,5 @@ docsrs = ["konst_kernel/docsrs"]
 
 
 [package.metadata.docs.rs]
-features = ["docsrs", "alloc", "cmp", "parsing_proc", "rust_latest_stable", "nightly_mut_refs"]
+features = ["docsrs", "alloc", "cmp", "parsing_proc", "rust_1_83", "rust_latest_stable", "nightly_mut_refs"]
 
