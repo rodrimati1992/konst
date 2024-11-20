@@ -1,6 +1,21 @@
 use konst::destructure;
 
 
+// for testing that structural macro uses the leading `::` in paths
+mod std {
+    pub mod ops {
+        pub struct Range {
+            pub foo: u32,
+            pub bar: u32,
+        }
+    }
+
+    pub mod num {
+        pub struct Wrapping(pub String, pub String);
+    }
+}
+
+
 ////////////////////////////////////////////////////////////////////////
 //                  Braced Structs
 ////////////////////////////////////////////////////////////////////////
@@ -73,6 +88,23 @@ fn test_braced_struct_destructuring() {
 
         assert_eq!(func(val), ("hello".to_string(), 3, 5));
     }
+}
+
+#[test]
+fn test_braced_struct_leading_double_colon() {
+    const fn with_leading(range: ::std::ops::Range<u8>) -> (u8, u8) {
+        konst::destructure!{::std::ops::Range{start, end} = range}
+        (start, end)
+    }
+
+    assert_eq!(with_leading(0..10), (0, 10));
+
+    const fn no_leading(range: std::ops::Range) -> (u32, u32) {
+        konst::destructure!{std::ops::Range{foo, bar} = range}
+        (foo, bar)
+    }
+
+    assert_eq!(no_leading(std::ops::Range{foo: 3, bar: 5}), (3, 5));
 }
 
 #[test]
@@ -206,6 +238,24 @@ fn test_empty_tuple_struct() {
     }
 
     inner()
+}
+
+#[test]
+fn test_tuple_struct_leading_double_colon() {
+    const fn with_leading<T>(val: ::std::num::Wrapping<T>) -> T {
+        konst::destructure!{::std::num::Wrapping(n) = val}
+        n
+    }
+
+    assert_eq!(with_leading(::std::num::Wrapping(3)), 3);
+
+    const fn no_leading(val: std::num::Wrapping) -> (String, String) {
+        konst::destructure!{std::num::Wrapping(foo, bar) = val}
+        (foo, bar)
+    }
+
+    let nl = std::num::Wrapping("foo".to_string(), "bar".to_string());
+    assert_eq!(no_leading(nl), ("foo".to_string(), "bar".to_string()));
 }
 
 #[test]
