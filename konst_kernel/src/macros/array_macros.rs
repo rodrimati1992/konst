@@ -70,7 +70,6 @@ macro_rules! __array_from_fn_inner {
     });
 }
 
-
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __split_array_type_and_closure {
@@ -84,8 +83,6 @@ macro_rules! __split_array_type_and_closure {
         $crate::__split_array_type_and_closure! {$callback ($($before)* $token) ($($rem)*)}
     };
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -103,4 +100,3 @@ pub const fn uninit_array_of_len<T, U, const N: usize>(_input: &[T; N]) -> [Mayb
 pub const fn unit_array<const N: usize>() -> [(); N] {
     [(); N]
 }
-

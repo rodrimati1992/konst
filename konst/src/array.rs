@@ -83,15 +83,13 @@ use leak_warning;
 ///
 pub use konst_kernel::array_map as map;
 
-
 #[cfg(feature = "rust_1_83")]
 #[doc(hidden)]
 pub mod __array_macros_2;
 
-
 #[cfg(feature = "rust_1_83")]
 macro_rules! drop_warning {
-    ()=> {
+    () => {
         concat!(
             "# Note",
             "\n\n",
@@ -103,26 +101,25 @@ macro_rules! drop_warning {
             "The same applies to `?`, ",
             "and labelled `break`/`continue` into labels from outside the closure.",
         )
-    }
+    };
 }
 
 #[cfg(feature = "rust_1_83")]
 use drop_warning;
 
-
-/// Const equivalent of 
+/// Const equivalent of
 /// [`array::map`](https://doc.rust-lang.org/std/primitive.array.html#method.map)
-/// 
+///
 #[doc = drop_warning!()]
 ///
 /// # Example
 ///
 /// ```rust
 /// assert_eq!(PAIRS, [(3, "hello"), (5, "world"), (8, "foo")]);
-/// 
-/// const PAIRS: [(u8, &str); 3] = 
+///
+/// const PAIRS: [(u8, &str); 3] =
 ///     swap_pairs([("hello", 3), ("world", 5), ("foo", 8)]);
-/// 
+///
 /// const fn swap_pairs<T, U, const N: usize>(pairs: [(T, U); N]) -> [(U, T); N] {
 ///     konst::array::map_!(pairs, |pair: (T, U)| {
 ///         // need to use `destructure` to destructure types that may contain Drop fields
@@ -131,14 +128,11 @@ use drop_warning;
 ///     })
 /// }
 /// ```
-/// 
+///
 #[doc(inline)]
 #[cfg(feature = "rust_1_83")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub use crate::__array_map_by_val as map_;
-
-
-
 
 /// Superceeded by [`from_fn_`], const version of
 /// [`array::from_fn`](core::array::from_fn).
@@ -164,8 +158,6 @@ pub use crate::__array_map_by_val as map_;
 /// ```
 ///
 pub use konst_kernel::array_from_fn as from_fn;
-
-
 
 /// Const equivalent of [`array::from_fn`](core::array::from_fn).
 ///

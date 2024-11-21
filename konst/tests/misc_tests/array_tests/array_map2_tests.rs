@@ -5,8 +5,6 @@ use konst::array;
 use std::cell::RefCell;
 use std::collections::BTreeSet;
 
-
-
 #[derive(Debug, PartialEq)]
 struct NonCopy<T>(T);
 
@@ -41,7 +39,6 @@ fn array_map_non_copy_ref_pat() {
     );
 }
 
-
 #[derive(Debug, PartialEq)]
 struct ToSet<'a>(u128, &'a RefCell<BTreeSet<u128>>);
 
@@ -50,7 +47,6 @@ impl Drop for ToSet<'_> {
         self.1.borrow_mut().insert(self.0);
     }
 }
-
 
 #[test]
 fn array_map_nonlocal_return() {
@@ -65,7 +61,6 @@ fn array_map_nonlocal_return() {
             return None;
         }))
     }
-
 
     const LEN: usize = 4;
     for break_at in 0..LEN {
@@ -95,7 +90,7 @@ fn array_map_nonlocal_return() {
         assert!(ret.is_some());
 
         assert!(set.borrow().iter().eq(&[]), "{set:?}");
-        
+
         drop(ret);
 
         assert!(set.borrow().iter().eq(&[103, 104, 105]), "{set:?}");
@@ -158,7 +153,6 @@ fn array_map_with_return_type_annotation() {
     let mapped = map_!([(); 3], |_| -> u32 { Default::default() });
     assert_type::<_, [u32; 3]>(&mapped);
 }
-
 
 #[test]
 fn array_map_infer_returned_length() {
@@ -255,7 +249,6 @@ const fn usize_to_str(i: usize) -> &'static str {
 
 type Array<T, const N: usize> = [T; N];
 
-
 #[test]
 fn array_from_fn_non_copy() {
     assert_eq!(
@@ -267,7 +260,7 @@ fn array_from_fn_non_copy() {
 #[test]
 fn array_from_fn_nonlocal_return() {
     fn inner<const N: usize>(
-        set: &RefCell<BTreeSet<u128>>, 
+        set: &RefCell<BTreeSet<u128>>,
         break_at: usize,
     ) -> Option<[ToSet<'_>; N]> {
         Some(konst::array::from_fn_!(|i| if i < break_at {
@@ -277,14 +270,16 @@ fn array_from_fn_nonlocal_return() {
         }))
     }
 
-
     const LEN: usize = 4;
     for break_at in 0..LEN {
         let set = RefCell::new(BTreeSet::from([]));
-    
+
         assert_eq!(inner::<LEN>(&set, break_at), None);
 
-        assert!(set.borrow().iter().copied().eq(0..break_at as u128), "{set:?}\n{break_at}");
+        assert!(
+            set.borrow().iter().copied().eq(0..break_at as u128),
+            "{set:?}\n{break_at}"
+        );
     }
 
     {
@@ -294,10 +289,9 @@ fn array_from_fn_nonlocal_return() {
 
         assert!(ret.is_some());
         assert!(set.borrow().iter().eq(&[]), "{set:?}");
-        
+
         drop(ret);
 
         assert!(set.borrow().iter().copied().eq(0..LEN as u128), "{set:?}");
     }
 }
-

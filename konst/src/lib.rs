@@ -269,9 +269,9 @@
 //! - `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature(there's currently none).
 //! Only recommendable if you can update the Rust compiler every stable release.
 //!
-//! - `"rust_1_83"`: enables the `"mut_refs"` feature, 
+//! - `"rust_1_83"`: enables the `"mut_refs"` feature,
 //! newer array macros, and [`destructure`] macro
-//! (this feature isn't enabled by `"rust_latest_stable"` 
+//! (this feature isn't enabled by `"rust_latest_stable"`
 //! because Rust 1.83.0 isn't stable as of this konst release)
 //!
 //! - `"mut_refs"`(disabled by default):
@@ -417,8 +417,9 @@ pub struct ReadmeTest;
 pub mod __ {
     pub use core::{
         cmp::Ordering::{self, Equal, Greater, Less},
-        compile_error, matches,
+        compile_error,
         marker::PhantomData,
+        matches,
         mem::{self, ManuallyDrop},
         ops::Range,
         option::Option::{self, None, Some},
@@ -436,10 +437,9 @@ pub mod __ {
 
     pub use crate::__for_cmp_impls::U8Ordering;
 
-
     pub use konst_kernel::utils::{__parse_closure_1, __parse_closure_2};
-    pub use konst_kernel::{__priv_transmute, __split_array_type_and_closure, __unparenthesize_ty};
     pub use konst_kernel::__::unit_array;
+    pub use konst_kernel::{__priv_transmute, __split_array_type_and_closure, __unparenthesize_ty};
 
     #[cfg(feature = "cmp")]
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]

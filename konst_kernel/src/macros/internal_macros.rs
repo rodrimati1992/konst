@@ -1,9 +1,12 @@
-
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __unparenthesize_ty {
-    (($type:ty)) => { $type };
-    ($type:ty) => { $type };
+    (($type:ty)) => {
+        $type
+    };
+    ($type:ty) => {
+        $type
+    };
 }
 
 #[doc(hidden)]

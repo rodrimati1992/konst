@@ -1,14 +1,12 @@
 use core::mem::{ManuallyDrop, MaybeUninit};
 
-
-
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __array_map_by_val {
     ($array:expr, $($closure:tt)* ) => (
         $crate::__::__parse_closure_1!{
             ($crate::__array_map2__with_parsed_closure)
-            ($array,) 
+            ($array,)
             (array_map),
             $($closure)*
         }
@@ -23,8 +21,8 @@ macro_rules! __array_map2__with_parsed_closure {
         ($($pattern:tt)*) $(-> $ret:ty)? $mapper:block $(,)?
     ) => (match $crate::array::__array_macros_2::ArrayConsumer::new($array) {
         mut consumer => {
-    
-            let mut builder = 
+
+            let mut builder =
                 $crate::array::__array_macros_2::ArrayBuilder::__new $(::<$ret>)? ();
 
             builder.infer_length_from_consumer(&consumer);
@@ -41,7 +39,6 @@ macro_rules! __array_map2__with_parsed_closure {
     })
 }
 
-
 #[macro_export]
 macro_rules! __array_from_fn2 {
     ($($args:tt)*) => ({
@@ -57,19 +54,19 @@ macro_rules! __array_from_fn2 {
 macro_rules! __array_from_fn2__splitted_type_and_closure {
     ($type:tt $($closure_unparsed:tt)*) => {
         $crate::__::__parse_closure_1!{
-            ($crate::__array_from_fn_with_parsed_closure) 
+            ($crate::__array_from_fn_with_parsed_closure)
             ($type)
             (from_fn_),
 
             $($closure_unparsed)*
-        }        
+        }
     }
 }
 
 #[macro_export]
 macro_rules! __array_from_fn_with_parsed_closure {
     (
-        ($($($type:tt)+)?) 
+        ($($($type:tt)+)?)
 
         ($($pattern:tt)*) $(-> $ret:ty)? $mapper:block $(,)?
     ) => ({
@@ -77,7 +74,7 @@ macro_rules! __array_from_fn_with_parsed_closure {
 
         let arr $(: $crate::__::__unparenthesize_ty!($($type)*))? =
             $crate::__array_map2__with_parsed_closure!{
-                $crate::__::unit_array(), 
+                $crate::__::unit_array(),
                 (()) $(-> $ret)? {
                     let $($pattern)* = i;
                     i+=1;
@@ -88,7 +85,6 @@ macro_rules! __array_from_fn_with_parsed_closure {
         arr
     });
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -107,15 +103,14 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
 
     pub const fn __next(&mut self) -> Option<ManuallyDrop<T>> {
         if self.taken >= N {
-            return None
+            return None;
         }
 
-
-        // SAFETY: self.array[self.taken] is guaranteed initialized by the fact that 
+        // SAFETY: self.array[self.taken] is guaranteed initialized by the fact that
         //         each element is taken in lockstep with incrementing self.taken by 1,
         //         and the assertion above.
         let ret = unsafe { take_elem(&mut self.array, self.taken) };
-        
+
         self.taken += 1;
 
         Some(ret)
@@ -129,12 +124,10 @@ impl<T, const N: usize> Drop for ArrayConsumer<T, N> {
 
             let ptr = self.array.as_mut_ptr().cast::<T>();
 
-            core::ptr::slice_from_raw_parts_mut(ptr.add(self.taken), left)
-                .drop_in_place();
+            core::ptr::slice_from_raw_parts_mut(ptr.add(self.taken), left).drop_in_place();
         }
     }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -158,16 +151,19 @@ impl<T, const N: usize> ArrayBuilder<T, N> {
 
     pub const fn push(&mut self, val: T) {
         assert!(self.inited < N, "trying to add an element to full array");
-        
+
         self.array[self.inited] = MaybeUninit::new(val);
-        
+
         self.inited += 1;
     }
 
     pub const fn into_array(self) -> [T; N] {
-        assert!(self.inited == N, "trying to unwrap a non-fully-initialized array");
+        assert!(
+            self.inited == N,
+            "trying to unwrap a non-fully-initialized array"
+        );
 
-        // SAFETY: self.array is guaranteed fully initialized by the fact that 
+        // SAFETY: self.array is guaranteed fully initialized by the fact that
         //         each element is inited in lockstep with incrementing self.inited by 1,
         //         and the assertion above.
         unsafe {
@@ -187,34 +183,30 @@ impl<T, const N: usize> Drop for ArrayBuilder<T, N> {
 
             let ptr = self.array.as_mut_ptr().cast::<T>();
 
-            core::ptr::slice_from_raw_parts_mut(ptr, inited)
-                .drop_in_place();
+            core::ptr::slice_from_raw_parts_mut(ptr, inited).drop_in_place();
         }
     }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #[doc(hidden)]
 const fn array_into_mu<T, const N: usize>(arr: [T; N]) -> [MaybeUninit<T>; N] {
     unsafe {
-        crate::__::__priv_transmute!{[T; N], [MaybeUninit<T>; N], arr}
+        crate::__::__priv_transmute! {[T; N], [MaybeUninit<T>; N], arr}
     }
 }
 
 // # Safety
-// 
+//
 // arr[i] must be initialized as `T`
 const unsafe fn take_elem<T, const N: usize>(
     arr: &mut [MaybeUninit<T>; N],
-    i: usize
+    i: usize,
 ) -> ManuallyDrop<T> {
-    crate::__::__priv_transmute!{
-        MaybeUninit<T>, 
-        ManuallyDrop<T>, 
+    crate::__::__priv_transmute! {
+        MaybeUninit<T>,
+        ManuallyDrop<T>,
         core::mem::replace(&mut arr[i], MaybeUninit::uninit())
     }
 }
-
-
