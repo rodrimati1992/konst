@@ -165,3 +165,139 @@ fn array_map_infer_returned_length() {
     let mapped: &[_] = &konst::array::map_!([3, 5, 8], |x| x * 2);
     assert_eq!(mapped, &[6, 10, 16][..]);
 }
+
+/////////////////////////////////////////////////
+// from_fn_ tests
+
+#[test]
+fn array_from_fn_tests() {
+    use konst::array::from_fn_;
+
+    {
+        const fn evens<const N: usize>() -> [usize; N] {
+            from_fn_!(|i| i * 2)
+        }
+
+        assert_eq!(evens::<0>(), [0usize; 0]);
+        assert_eq!(evens::<1>(), [0usize]);
+        assert_eq!(evens::<2>(), [0usize, 2]);
+        assert_eq!(evens::<3>(), [0usize, 2, 4]);
+    }
+
+    // closure with explicit parameter type
+    {
+        const XS: [usize; 3] = from_fn_!(|x: usize| x * 2);
+
+        assert_eq!(XS, [0, 2, 4]);
+    }
+
+    // closure with explicit return type
+    {
+        let xs: [_; 3] = from_fn_!(|_| -> &str { Default::default() });
+        assert_type::<_, [&str; 3]>(&xs);
+    }
+
+    // explicit array type, infer elem type
+    {
+        let xs = from_fn_!([_; 3] => |x| (x as u32).pow(2));
+        assert_eq!(xs, [0, 1, 4]);
+    }
+
+    // explicit array type
+    {
+        let xs = from_fn_!([u32; 3] => |x| x as _);
+        assert_eq!(xs, [0, 1, 2]);
+    }
+
+    // explicit array type, parenthesized
+    {
+        let xs = from_fn_!((Array<u32, 3>) => |x| x as _);
+        assert_eq!(xs, [0, 1, 2]);
+    }
+
+    // explicit array type, unparenthesized
+    {
+        let xs = from_fn_!(Array<u32, 3> => |x| x as _);
+        assert_eq!(xs, [0, 1, 2]);
+    }
+
+    // explicit array type, parenthesized, infer elem type
+    {
+        let xs = from_fn_!((Array<_, 3>) => |x| x);
+        assert_eq!(xs, [0, 1, 2]);
+    }
+
+    // explicit array type, single ident
+    {
+        type Arr = [u32; 3];
+
+        let xs = from_fn_!(Arr => |x| x as _);
+        assert_eq!(xs, [0, 1, 2]);
+    }
+
+    // ensuring that functions can be used
+    {
+        let xs: [_; 3] = from_fn_!(usize_to_str);
+        assert_eq!(xs, ["zero", "one", "two"]);
+    }
+    // ensuring that functions can be used, and also explicit array type
+    {
+        assert_eq!(
+            from_fn_!([_; 4] => usize_to_str),
+            ["zero", "one", "two", "three"]
+        );
+    }
+}
+
+const fn usize_to_str(i: usize) -> &'static str {
+    ["zero", "one", "two", "three", "four"][i]
+}
+
+type Array<T, const N: usize> = [T; N];
+
+
+#[test]
+fn array_from_fn_non_copy() {
+    assert_eq!(
+        konst::array::from_fn_!([NonCopy<usize>; 3] => NonCopy),
+        [0usize, 1, 2].map(NonCopy),
+    );
+}
+
+#[test]
+fn array_from_fn_nonlocal_return() {
+    fn inner<const N: usize>(
+        set: &RefCell<BTreeSet<u128>>, 
+        break_at: usize,
+    ) -> Option<[ToSet<'_>; N]> {
+        Some(konst::array::from_fn_!(|i| if i < break_at {
+            ToSet(i as u128, &set)
+        } else {
+            return None;
+        }))
+    }
+
+
+    const LEN: usize = 4;
+    for break_at in 0..LEN {
+        let set = RefCell::new(BTreeSet::from([]));
+    
+        assert_eq!(inner::<LEN>(&set, break_at), None);
+
+        assert!(set.borrow().iter().copied().eq(0..break_at as u128), "{set:?}\n{break_at}");
+    }
+
+    {
+        let set = RefCell::new(BTreeSet::from([]));
+
+        let ret = inner::<LEN>(&set, usize::MAX);
+
+        assert!(ret.is_some());
+        assert!(set.borrow().iter().eq(&[]), "{set:?}");
+        
+        drop(ret);
+
+        assert!(set.borrow().iter().copied().eq(0..LEN as u128), "{set:?}");
+    }
+}
+
