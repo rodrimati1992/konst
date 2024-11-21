@@ -190,4 +190,6 @@ pub use konst_kernel::array_from_fn as from_fn;
 /// );
 /// ```
 ///
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub use crate::__array_from_fn2 as from_fn_;

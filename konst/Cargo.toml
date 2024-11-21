@@ -1,6 +1,6 @@
 [package]
 name = "konst"
-version = "0.3.11"
+version = "0.3.12"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 rust-version = "1.65.0"
 edition = "2021"
@@ -25,7 +25,7 @@ path = "../konst_proc_macros"
 optional = true
 
 [dependencies.konst_kernel]
-version = "=0.3.10"
+version = "=0.3.12"
 path = "../konst_kernel"
 features = ["rust_1_64", "__for_konst"]
 
