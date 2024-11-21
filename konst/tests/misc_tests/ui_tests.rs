@@ -8,8 +8,13 @@
 fn ui() {
     let t = trybuild::TestCases::new();
     for dir in [
-        "collect_const_ui_tests",
+        #[cfg(feature = "rust_1_83")]
+        "array_macros2_ui_tests",
+
+        #[cfg(feature = "rust_1_83")]
         "destructure_ui_tests",
+
+        "collect_const_ui_tests",
         "iter_eval_ui_tests",
         "iter_mod_ui_tests",
         "parser_ui_tests",

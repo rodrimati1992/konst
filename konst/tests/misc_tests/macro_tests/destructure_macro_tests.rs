@@ -108,6 +108,26 @@ fn test_braced_struct_leading_double_colon() {
 }
 
 #[test]
+fn test_braced_shadowing() {
+    struct BracedPair<T, U> {
+        val: T,
+        other: U,
+    }
+
+    const fn inner<T>(val: BracedPair<([T; 4], u128), u8>) -> impl AsRef<[T]> {
+        destructure!{BracedPair{val, other: _} = val}
+        destructure!{(val, _) = val}
+        val
+    }
+
+    assert_eq!(
+        inner(BracedPair{val: ([8, 13, 21, 34], 3), other: 5}).as_ref(),
+        &[8, 13, 21, 34][..]
+    );
+}
+
+
+#[test]
 fn test_empty_braced_struct() {
     #[derive(Copy, Clone)]
     struct Empty<const N: usize> {}
@@ -221,6 +241,22 @@ fn test_packed_tuple_struct_destructuring() {
 }
 
 #[test]
+fn test_tuple_struct_shadowing() {
+    struct TuplePair<T, U>(T, U);
+
+    const fn inner<T>(val: TuplePair<([T; 4], u128), u8>) -> impl AsRef<[T]> {
+        destructure!{TuplePair(val, _) = val}
+        destructure!{(val, _) = val}
+        val
+    }
+
+    assert_eq!(
+        inner(TuplePair(([8, 13, 21, 34], 3), 5)).as_ref(),
+        &[8, 13, 21, 34][..]
+    );
+}
+
+#[test]
 fn test_empty_tuple_struct() {
     struct Empty<const N: usize>();
 
@@ -308,6 +344,20 @@ fn test_tuple_destructuring() {
 
         assert_eq!(func(val), (3, "hello".to_string(), 5));
     }
+}
+
+#[test]
+fn test_tuple_shadowing() {
+    const fn inner<T>(val: (([T; 4], u128), u8)) -> impl AsRef<[T]> {
+        destructure!{(val, _) = val}
+        destructure!{(val, _) = val}
+        val
+    }
+
+    assert_eq!(
+        inner((([8, 13, 21, 34], 3), 5)).as_ref(),
+        &[8, 13, 21, 34][..]
+    );
 }
 
 
@@ -426,6 +476,21 @@ fn test_array_destructuring_rem_pat() {
     }
 
 
+}
+
+
+#[test]
+fn test_array_shadowing() {
+    const fn inner<T>(val: [([T; 4], u128); 1]) -> impl AsRef<[T]> {
+        destructure!{[val] = val}
+        destructure!{(val, _) = val}
+        val
+    }
+
+    assert_eq!(
+        inner([([8, 13, 21, 34], 3)]).as_ref(),
+        &[8, 13, 21, 34][..]
+    );
 }
 
 #[test]
