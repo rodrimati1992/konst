@@ -417,7 +417,7 @@ pub mod __ {
         cmp::Ordering::{self, Equal, Greater, Less},
         compile_error, matches,
         marker::PhantomData,
-        mem::ManuallyDrop,
+        mem::{self, ManuallyDrop},
         ops::Range,
         option::Option::{self, None, Some},
         primitive::usize,
@@ -435,6 +435,7 @@ pub mod __ {
     pub use crate::__for_cmp_impls::U8Ordering;
 
     pub use konst_kernel::utils::{__parse_closure_1, __parse_closure_2};
+    pub use konst_kernel::__priv_transmute;
 
     #[cfg(feature = "cmp")]
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]

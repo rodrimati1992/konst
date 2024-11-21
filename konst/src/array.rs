@@ -15,8 +15,8 @@ macro_rules! leak_warning {
 }
 use leak_warning;
 
-/// Const equivalent of
-/// [`array::map`](https://doc.rust-lang.org/std/primitive.array.html#method.map).
+/// Superceeded by [`map_`],
+/// const version of [`array::map`](https://doc.rust-lang.org/std/primitive.array.html#method.map).
 ///
 #[doc = leak_warning!()]
 ///
@@ -82,6 +82,47 @@ use leak_warning;
 /// ```
 ///
 pub use konst_kernel::array_map as map;
+
+
+#[cfg(feature = "rust_1_83")]
+#[doc(hidden)]
+pub mod __array_macros_2;
+
+
+/// Const equivalent of 
+/// [`array::map`](https://doc.rust-lang.org/std/primitive.array.html#method.map)
+/// 
+/// # Note
+/// 
+/// `return` inside the closure passed to this macro returns from the function 
+/// where this macro is called.
+/// 
+/// The same applies to `?`, and labelled `break`/`continue`.
+///
+/// # Example
+///
+/// ```rust
+/// assert_eq!(PAIRS, [(3, "hello"), (5, "world"), (8, "foo")]);
+/// 
+/// const PAIRS: [(u8, &str); 3] = 
+///     swap_pairs([("hello", 3), ("world", 5), ("foo", 8)]);
+/// 
+/// const fn swap_pairs<T, U, const N: usize>(pairs: [(T, U); N]) -> [(U, T); N] {
+///     konst::array::map_!(pairs, |pair: (T, U)| {
+///         // need to use `destructure` to destructure types that may contain Drop fields
+///         konst::destructure!{(a, b) = pair}
+///         (b, a)
+///     })
+/// }
+/// ```
+/// 
+#[doc(inline)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
+pub use crate::__array_map_by_val as map_;
+
+
+
 
 /// Const equivalent of [`array::from_fn`](core::array::from_fn).
 ///
