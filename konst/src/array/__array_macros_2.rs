@@ -6,42 +6,89 @@ use core::mem::{ManuallyDrop, MaybeUninit};
 #[macro_export]
 macro_rules! __array_map_by_val {
     ($array:expr, $($closure:tt)* ) => (
-        match $crate::array::__array_macros_2::ArrayConsumer::new($array) {
-            mut consumer => {
-                $crate::__::__parse_closure_1!{
-                    ($crate::__array_map2)
-                    (consumer,) 
-                    (array_map),
-                    $($closure)*
-                }
-            }
+        $crate::__::__parse_closure_1!{
+            ($crate::__array_map2__with_parsed_closure)
+            ($array,) 
+            (array_map),
+            $($closure)*
         }
     );
 }
 
-
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __array_map2 {
+macro_rules! __array_map2__with_parsed_closure {
     (
-        $consumer:ident,
+        $array:expr,
         ($($pattern:tt)*) $(-> $ret:ty)? $mapper:block $(,)?
-    ) => ({
-        let mut builder = 
-            $crate::array::__array_macros_2::ArrayBuilder::__new $(::<$ret>)? ();
+    ) => (match $crate::array::__array_macros_2::ArrayConsumer::new($array) {
+        mut consumer => {
+    
+            let mut builder = 
+                $crate::array::__array_macros_2::ArrayBuilder::__new $(::<$ret>)? ();
 
-        builder.infer_length_from_consumer(&$consumer);
+            builder.infer_length_from_consumer(&consumer);
 
-        while let Some(elem) = $consumer.__next() {
-            let val = $crate::__::ManuallyDrop::into_inner(elem);
-            let $($pattern)* = val;
-            builder.push($mapper);
+            while let Some(elem) = consumer.__next() {
+                let elem = $crate::__::ManuallyDrop::into_inner(elem);
+                let $($pattern)* = elem;
+                builder.push($mapper);
+            }
+            $crate::__::mem::forget(consumer);
+
+            builder.into_array()
         }
-        $crate::__::mem::forget($consumer);
-
-        builder.into_array()
     })
 }
+
+
+#[macro_export]
+macro_rules! __array_from_fn2 {
+    ($($args:tt)*) => ({
+        $crate::__::__split_array_type_and_closure!{
+            (($crate::__array_from_fn2__splitted_type_and_closure) ())
+            ()
+            ($($args)*)
+        }
+    });
+}
+
+#[macro_export]
+macro_rules! __array_from_fn2__splitted_type_and_closure {
+    ($type:tt $($closure_unparsed:tt)*) => {
+        $crate::__::__parse_closure_1!{
+            ($crate::__array_from_fn_with_parsed_closure) 
+            ($type)
+            (from_fn_),
+
+            $($closure_unparsed)*
+        }        
+    }
+}
+
+#[macro_export]
+macro_rules! __array_from_fn_with_parsed_closure {
+    (
+        ($($($type:tt)+)?) 
+
+        ($($pattern:tt)*) $(-> $ret:ty)? $mapper:block $(,)?
+    ) => ({
+        let mut i = 0usize;
+
+        let arr $(: $crate::__::__unparenthesize_ty!($($type)*))? =
+            $crate::__array_map2__with_parsed_closure!{
+                $crate::__::unit_array(), 
+                (()) $(-> $ret)? {
+                    let $($pattern)* = i;
+                    i+=1;
+                    $mapper
+                }
+            };
+
+        arr
+    });
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

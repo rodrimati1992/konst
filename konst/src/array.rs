@@ -89,15 +89,31 @@ pub use konst_kernel::array_map as map;
 pub mod __array_macros_2;
 
 
+#[cfg(feature = "rust_1_83")]
+macro_rules! drop_warning {
+    ()=> {
+        concat!(
+            "# Note",
+            "\n\n",
+            "`return` inside the closure passed to this macro ",
+            "attempts to return from the function where this macro is called, ",
+            "which drops the array elements, ",
+            "and dropping isn't allowed in const as of Rust 1.83.0.",
+            "\n\n",
+            "The same applies to `?`, ",
+            "and labelled `break`/`continue` into labels from outside the closure.",
+        )
+    }
+}
+
+#[cfg(feature = "rust_1_83")]
+use drop_warning;
+
+
 /// Const equivalent of 
 /// [`array::map`](https://doc.rust-lang.org/std/primitive.array.html#method.map)
 /// 
-/// # Note
-/// 
-/// `return` inside the closure passed to this macro returns from the function 
-/// where this macro is called.
-/// 
-/// The same applies to `?`, and labelled `break`/`continue`.
+#[doc = drop_warning!()]
 ///
 /// # Example
 ///
@@ -124,16 +140,10 @@ pub use crate::__array_map_by_val as map_;
 
 
 
-/// Const equivalent of [`array::from_fn`](core::array::from_fn).
+/// Superceeded by [`from_fn_`], const version of
+/// [`array::from_fn`](core::array::from_fn).
 ///
 #[doc = leak_warning!()]
-///
-/// # Limitations
-///
-/// When the array type is annotated, the array type must be one of:
-/// - Square brackets (e.g: `from_fn!([usize; 10] => |i| i)`)
-/// - A parenthesized type (e.g: `from_fn!((foo::ArrayAlias) => |i| i * 2)`)
-/// - A single identifier (e.g: `from_fn!(ArrayAlias => |i| func(i))`)
 ///
 /// # Example
 ///
@@ -154,3 +164,30 @@ pub use crate::__array_map_by_val as map_;
 /// ```
 ///
 pub use konst_kernel::array_from_fn as from_fn;
+
+
+
+/// Const equivalent of [`array::from_fn`](core::array::from_fn).
+///
+#[doc = drop_warning!()]
+///
+///
+/// # Example
+///
+/// ```rust
+/// use konst::array;
+///
+/// {
+///     const POWERS: [u64; 5] = array::from_fn_!(|i| 2u64.pow(i as u32));
+///
+///     assert_eq!(POWERS, [1, 2, 4, 8, 16]);
+/// }
+///
+/// // Annotating the array type
+/// assert_eq!(
+///     array::from_fn_!([&str; 6] => |i| konst::string::str_up_to("hello", i)),
+///     ["", "h", "he", "hel", "hell", "hello"],
+/// );
+/// ```
+///
+pub use crate::__array_from_fn2 as from_fn_;

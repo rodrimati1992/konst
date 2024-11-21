@@ -434,8 +434,10 @@ pub mod __ {
 
     pub use crate::__for_cmp_impls::U8Ordering;
 
+
     pub use konst_kernel::utils::{__parse_closure_1, __parse_closure_2};
-    pub use konst_kernel::__priv_transmute;
+    pub use konst_kernel::{__priv_transmute, __split_array_type_and_closure, __unparenthesize_ty};
+    pub use konst_kernel::__::unit_array;
 
     #[cfg(feature = "cmp")]
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]

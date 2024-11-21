@@ -1,8 +1,9 @@
+
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __unparenthesize {
-    (($($stuff:tt)*)) => { $($stuff)* };
-    ($($stuff:tt)*) => { $($stuff)* };
+macro_rules! __unparenthesize_ty {
+    (($type:ty)) => { $type };
+    ($type:ty) => { $type };
 }
 
 #[doc(hidden)]
