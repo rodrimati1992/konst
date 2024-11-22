@@ -2,6 +2,14 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.3
 
+### 0.3.12
+
+Changed `konst::array::from_fn` macro to allow unparenthesized type to the left of the `=>
+
+Added these macros in `konst::array` (which require the `"rust_1_83"` feature):
+- `map_`
+- `from_fn_`
+
 ### 0.3.10
 
 Added `"rust_1_83"` feature, which enables the `"mut_refs"` feature. 

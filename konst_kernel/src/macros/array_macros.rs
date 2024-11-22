@@ -46,22 +46,42 @@ macro_rules! __array_map {
 
 #[macro_export]
 macro_rules! array_from_fn {
-    ($type:tt => $($closure:tt)*) => ({
-        let input = $crate::__::unit_array();
-        let arr: $crate::__unparenthesize!($type) =
-            $crate::utils::__parse_closure_1!{
-                ($crate::__array_map) (input, |i| i,) (array_from_fn),
-                $($closure)*
-            };
-        arr
-    });
-    ($($closure:tt)*) => ({
-        let input = $crate::__::unit_array();
-        $crate::utils::__parse_closure_1!{
-            ($crate::__array_map) (input, |i| i,) (array_from_fn),
-            $($closure)*
+    ($($args:tt)*) => ({
+        $crate::__split_array_type_and_closure!{
+            (($crate::__array_from_fn_inner) ())
+            ()
+            ($($args)*)
         }
     });
+}
+
+#[macro_export]
+macro_rules! __array_from_fn_inner {
+    (($($($type:tt)+)?) $($closure_unparsed:tt)*) => ({
+        let input = $crate::__::unit_array();
+
+        let arr $(: $crate::__unparenthesize_ty!($($type)*))? =
+            $crate::utils::__parse_closure_1!{
+                ($crate::__array_map) (input, |i| i,) (array_from_fn),
+                $($closure_unparsed)*
+            };
+
+        arr
+    });
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __split_array_type_and_closure {
+    ((($($callback:tt)*) ($($args:tt)*)) $before:tt (=> $($rem:tt)*)) => {
+        $($callback)* ! {$($args)* $before $($rem)*}
+    };
+    ((($($callback:tt)*) ($($args:tt)*)) ($($before:tt)*) ($(| $($rem:tt)*)?)) => {
+        $($callback)* ! {$($args)* () $($before)* $(| $($rem)*)?}
+    };
+    ($callback:tt ($($before:tt)*) ($token:tt $($rem:tt)*)) => {
+        $crate::__split_array_type_and_closure! {$callback ($($before)* $token) ($($rem)*)}
+    };
 }
 
 ////////////////////////////////////////////////////////////////////////////////

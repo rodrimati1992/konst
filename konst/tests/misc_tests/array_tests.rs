@@ -2,6 +2,9 @@ use crate::misc_tests::test_utils::assert_type;
 
 use konst::array;
 
+#[cfg(feature = "rust_1_83")]
+mod array_map2_tests;
+
 #[derive(Debug, PartialEq)]
 struct NonCopy<T>(T);
 
@@ -107,6 +110,9 @@ fn array_map_with_type_annotation() {
     assert_type::<_, [u32; 3]>(&mapped);
 }
 
+////////////////////////////////////////////////////////////////
+// from_fn tests
+
 #[test]
 fn array_from_fn_tests() {
     use konst::array::from_fn;
@@ -150,6 +156,12 @@ fn array_from_fn_tests() {
     // explicit array type, parenthesized
     {
         let xs = from_fn!((Array<u32, 3>) => |x| x as _);
+        assert_eq!(xs, [0, 1, 2]);
+    }
+
+    // explicit array type, unparenthesized
+    {
+        let xs = from_fn!(Array<u32, 3> => |x| x as _);
         assert_eq!(xs, [0, 1, 2]);
     }
 

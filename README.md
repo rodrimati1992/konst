@@ -272,8 +272,10 @@ None of thse features are enabled by default.
 - `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature(there's currently none).
 Only recommendable if you can update the Rust compiler every stable release.
 
-- `"rust_1_83"`: enables the `"mut_refs"` feature and [`destructure`] macro
-(this feature isn't enabled by `"rust_latest_stable"` because Rust 1.83.0 isn't stable as of this konst release)
+- `"rust_1_83"`: enables the `"mut_refs"` feature, 
+newer array macros, and [`destructure`] macro
+(this feature isn't enabled by `"rust_latest_stable"` 
+because Rust 1.83.0 isn't stable as of this konst release)
 
 - `"mut_refs"`(disabled by default):
 Enables const functions that take mutable references.
