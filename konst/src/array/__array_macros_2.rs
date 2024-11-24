@@ -39,6 +39,7 @@ macro_rules! __array_map2__with_parsed_closure {
     })
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! __array_from_fn2 {
     ($($args:tt)*) => ({
@@ -50,6 +51,7 @@ macro_rules! __array_from_fn2 {
     });
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! __array_from_fn2__splitted_type_and_closure {
     ($type:tt $($closure_unparsed:tt)*) => {
@@ -63,6 +65,7 @@ macro_rules! __array_from_fn2__splitted_type_and_closure {
     }
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! __array_from_fn_with_parsed_closure {
     (

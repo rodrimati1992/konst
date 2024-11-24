@@ -2,6 +2,10 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.3
 
+### 0.3.14
+
+Fixed accidental inclusion of private macros in docs.
+
 ### 0.3.12
 
 Changed `konst::array::from_fn` macro to allow unparenthesized type to the left of the `=>
