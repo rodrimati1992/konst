@@ -7,8 +7,7 @@
 //!
 //! - `deref`: raw pointers can be dereferenced since Rust 1.58.0
 //!
-//! - `deref_mut`: the unstable feature for using mutable references
-//! also allows dereferencing mutable pointers.
+//! - `deref_mut`: Rust 1.83.0 allows dereferencing mutable pointers.
 //!
 
 use core::ptr::NonNull;

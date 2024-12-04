@@ -1,4 +1,4 @@
-/// Emulates the [inline const feature], eg: `const{ foo() }`,
+/// Emulates the [inline const feature](`const{ ... }`) in pre-1.79 versions.
 ///
 /// As opposed to inline const, you must pass the type that the expression evaluates to.
 ///
@@ -22,9 +22,11 @@
 ///
 /// ```
 ///
+/// [Rust 1.79.0]: 
+/// https://blog.rust-lang.org/2024/06/13/Rust-1.79.0.html#inline-const-expressions
 ///
-/// [inline const feature]:
-/// https://doc.rust-lang.org/1.50.0/unstable-book/language-features/inline-const.html
+/// [inline const feature]: 
+/// https://blog.rust-lang.org/2024/06/13/Rust-1.79.0.html#inline-const-expressions
 #[macro_export]
 macro_rules! konst {
     ($type:ty, $expr:expr $(,)*) => {{
