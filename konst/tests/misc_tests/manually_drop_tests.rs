@@ -16,7 +16,7 @@ fn as_inner_test() {
 }
 
 #[test]
-#[cfg(feature = "mut_refs")]
+#[cfg(feature = "rust_1_83")]
 fn as_inner_mut_test() {
     let mut reff = ManuallyDrop::new(&0u32);
     let mut booll = ManuallyDrop::new(true);

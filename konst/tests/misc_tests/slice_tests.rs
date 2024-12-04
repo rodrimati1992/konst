@@ -190,7 +190,7 @@ fn try_into_array_fn_test() {
 }
 
 #[test]
-#[cfg(feature = "mut_refs")]
+#[cfg(feature = "rust_1_83")]
 fn try_into_array_mut_test() {
     use konst::slice::try_into_array_mut;
 

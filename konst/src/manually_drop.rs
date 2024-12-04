@@ -40,7 +40,6 @@ pub const fn as_inner<T>(md: &ManuallyDrop<T>) -> &T {
 /// # Example
 ///
 /// ```rust
-/// # #![feature(const_mut_refs)]
 /// use std::mem::ManuallyDrop;
 /// use konst::manually_drop;
 ///
@@ -59,8 +58,8 @@ pub const fn as_inner<T>(md: &ManuallyDrop<T>) -> &T {
 ///
 /// assert_eq!(*FOO, 305);
 /// ```
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 #[inline(always)]
 pub const fn as_inner_mut<T>(md: &mut ManuallyDrop<T>) -> &mut T {
     unsafe { &mut *(md as *mut ManuallyDrop<T> as *mut T) }

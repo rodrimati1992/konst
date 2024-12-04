@@ -266,21 +266,12 @@
 //!
 //! None of thse features are enabled by default.
 //!
-//! - `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature(there's currently none).
+//! - `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature.
 //! Only recommendable if you can update the Rust compiler every stable release.
 //!
-//! - `"rust_1_83"`: enables the `"mut_refs"` feature,
-//! newer array macros, and [`destructure`] macro
-//! (this feature isn't enabled by `"rust_latest_stable"`
-//! because Rust 1.83.0 isn't stable as of this konst release)
-//!
-//! - `"mut_refs"`(disabled by default):
-//! Enables const functions that take mutable references.
-//! Use this whenever mutable references in const contexts are stabilized.
-//! Also enables the `"rust_latest_stable"` feature.
-//!
-//! - `"nightly_mut_refs"`(disabled by default):
-//! Enables the `"mut_refs"` feature. Requires Rust nightly.
+//! - `"rust_1_83"`: 
+//! Enables const functions that take mutable references,
+//! `array::{from_fn_, map_}` macros, and [`destructure`] macro.
 //!
 //! # No-std support
 //!
@@ -315,10 +306,6 @@
 #![allow(clippy::init_numbered_fields)]
 ////////////
 #![forbid(clippy::missing_const_for_fn)]
-#![cfg_attr(
-    feature = "nightly_mut_refs",
-    feature(const_mut_refs, const_slice_from_raw_parts_mut)
-)]
 #![cfg_attr(feature = "docsrs", feature(doc_cfg))]
 #![no_std]
 

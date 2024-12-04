@@ -132,7 +132,7 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 /// # Motivation
 ///
 /// This macro works around a limitation of Rust as of 1.83,
-/// where in a const context, a non-`Drop` type can't be destructurezd into its elements/fields
+/// where in a const context, a non-`Drop` type can't be destructured into its elements/fields
 /// if any of them is `Drop`.
 ///
 /// Even simple cases like this don't compile:

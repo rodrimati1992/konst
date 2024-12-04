@@ -21,6 +21,7 @@ jobs:
             stable,
             beta,
             nightly,
+            1.83.0,
             # the MSRV of konst
             1.65.0,
             # the MSRV of konst_kernel
@@ -28,6 +29,21 @@ jobs:
         ]
 
     steps:
+    - uses: actions/checkout@v2
+    - name: ci-MSRV-version-env_vars
+      if: ${{ matrix.rust == '1.65.0' }}
+      run: echo "rustv=" >> $GITHUB_ENV
+
+    - uses: actions/checkout@v2
+    - name: ci-1-83-version-env_vars
+      if: ${{ matrix.rust == '1.83.0' }}
+      run: echo "rustv=rust_1_83" >> $GITHUB_ENV
+
+    - uses: actions/checkout@v2
+    - name: ci-stable-or-later-env_vars
+      if: ${{ matrix.rust == 'stable' || matrix.rust == 'beta' || matrix.rust == 'nightly' }}
+      run: echo "rustv=rust_latest_stable" >> $GITHUB_ENV
+
     - uses: actions/checkout@v2
     - name: ci-all-versions
       run: |
@@ -54,28 +70,13 @@ jobs:
         cargo build
         
         cd "${{github.workspace}}/konst/"
-        cargo test --no-default-features --features "debug"
-        cargo test --no-default-features --features "debug cmp"
-        cargo test --no-default-features --features "debug iter"
-        cargo test --no-default-features --features "debug parsing_proc"
-        cargo test --no-default-features --features "debug parsing"
-        cargo test --no-default-features --features "debug __cp_derive"
-        cargo test --no-default-features --features "debug __cp_derive alloc cmp iter parsing_proc"
-
-    - uses: actions/checkout@v2
-    - name: ci-stable-or-later
-      if: ${{ matrix.rust == 'stable' || matrix.rust == 'beta' || matrix.rust == 'nightly' }}
-      run: |
-        set -ex
-        rustup override set ${{ matrix.rust }}
-        cargo update
-        cd "${{github.workspace}}/konst/"
-        cargo test --no-default-features --features "debug rust_latest_stable cmp"
-        cargo test --no-default-features --features "debug rust_latest_stable iter"
-        cargo test --no-default-features --features "debug rust_latest_stable parsing"
-        cargo test --no-default-features --features "debug rust_latest_stable parsing_proc"
-        cargo test --no-default-features --features "debug rust_latest_stable __cp_derive"
-        cargo test --no-default-features --features "debug rust_latest_stable __cp_derive alloc cmp iter parsing_proc"
+        cargo test --no-default-features --features "debug ${{env.rustv}} "
+        cargo test --no-default-features --features "debug ${{env.rustv}} cmp"
+        cargo test --no-default-features --features "debug ${{env.rustv}} iter"
+        cargo test --no-default-features --features "debug ${{env.rustv}} parsing_proc"
+        cargo test --no-default-features --features "debug ${{env.rustv}} parsing"
+        cargo test --no-default-features --features "debug ${{env.rustv}} __cp_derive"
+        cargo test --no-default-features --features "debug ${{env.rustv}} __cp_derive alloc cmp iter parsing_proc"
 
     - uses: actions/checkout@v2
     - name: ci-nighly
@@ -91,9 +92,8 @@ jobs:
 
         cd "${{github.workspace}}/konst/"
         
-        # TODO: remove rust_1_83 feature when Rust stable is 1.83.0
-        cargo test --no-default-features --features "debug rust_1_83"
-        cargo test --no-default-features --features "debug __cp_derive alloc cmp iter parsing_proc rust_latest_stable rust_1_83"
+        cargo test --no-default-features --features "debug rust_latest_stable"
+        cargo test --no-default-features --features "debug __cp_derive alloc cmp iter parsing_proc rust_latest_stable"
 
         MIRI_NIGHTLY=nightly-$(curl -s https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/miri)
         echo "Installing latest nightly with Miri"
@@ -106,7 +106,6 @@ jobs:
 
         cargo clean 
 
-        # TODO: remove rust_1_83 feature when Rust stable is 1.83.0
         env RUST_BACKTRACE=0 MIRIFLAGS="-Zmiri-disable-isolation " \
             cargo miri test --no-default-features \
-            --features "alloc debug cmp iter parsing_proc rust_latest_stable rust_1_83"
+            --features "alloc debug cmp iter parsing_proc rust_latest_stable"
