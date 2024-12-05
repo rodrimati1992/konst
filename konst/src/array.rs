@@ -87,6 +87,18 @@ pub use konst_kernel::array_map as map;
 #[doc(hidden)]
 pub mod __array_macros_2;
 
+mod array_builder;
+mod array_consumer;
+
+#[cfg(feature = "rust_1_83")]
+pub use self::{
+    array_builder::ArrayBuilder,
+    array_consumer::ArrayConsumer,
+};
+
+
+
+
 #[cfg(feature = "rust_1_83")]
 macro_rules! drop_warning {
     () => {
