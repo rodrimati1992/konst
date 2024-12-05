@@ -52,6 +52,17 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
     }
 
     /// Constructs an already-consumed ArrayConsumer.
+    /// 
+    /// # Example
+    /// 
+    /// ```rust
+    /// use konst::array::ArrayConsumer;
+    /// 
+    /// let mut iter = ArrayConsumer::<u8, 4>::empty();
+    /// 
+    /// assert_eq!(iter.next(), None);
+    /// 
+    /// ```
     pub const fn empty() -> Self {
         Self {
             array: crate::maybe_uninit::uninit_array(),
@@ -70,6 +81,27 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
 
     /// Asserts that the ArrayConsumer is empty,
     /// allows using ArrayConsumer in const.
+    /// 
+    /// # Example
+    /// 
+    /// ```rust
+    /// use konst::array::ArrayConsumer;
+    /// 
+    /// use core::mem::ManuallyDrop as MD;
+    /// 
+    /// assert_eq!(SUM, 16);
+    /// 
+    /// const SUM: u64 = summer(ArrayConsumer::new([3, 5, 8]));
+    /// 
+    /// const fn summer<const N: usize>(mut iter: ArrayConsumer<u64, N>) -> u64 {
+    ///     let mut sum = 0u64;
+    ///     while let Some(item) = iter.next() {
+    ///         sum += MD::into_inner(item);
+    ///     }
+    ///     iter.assert_is_empty();
+    ///     sum
+    /// }
+    /// ```
     #[track_caller]
     pub const fn assert_is_empty(self) {
         assert!(self.is_empty());
@@ -78,6 +110,28 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
     }
 
     /// Gets the remainder of the array as a slice
+    /// 
+    /// # Example
+    /// 
+    /// ```rust
+    /// use konst::array::ArrayConsumer;
+    /// 
+    /// let mut iter = ArrayConsumer::new([3, 5, 8]);
+    /// 
+    /// assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
+    /// 
+    /// assert!(iter.next().is_some());
+    /// assert_eq!(iter.as_slice(), &[5, 8][..]);
+    /// 
+    /// assert!(iter.next().is_some());
+    /// assert_eq!(iter.as_slice(), &[8][..]);
+    /// 
+    /// assert!(iter.next().is_some());
+    /// assert_eq!(iter.as_slice(), &[][..]);
+    /// 
+    /// assert_eq!(iter.next(), None);
+    /// assert_eq!(iter.as_slice(), &[][..]);
+    /// ```
     pub const fn as_slice(&self) -> &[T] {
         // SAFETY: self.array is guaranteed initialized starting from self.taken_front
         //         up to `N - self.taken_back`
@@ -88,6 +142,28 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
     }
 
     /// Gets the remainder of the array as a mutable slice
+    /// 
+    /// # Example
+    /// 
+    /// ```rust
+    /// use konst::array::ArrayConsumer;
+    /// 
+    /// let mut iter = ArrayConsumer::new([3, 5, 8]);
+    /// 
+    /// assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
+    /// 
+    /// assert!(iter.next().is_some());
+    /// assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
+    /// 
+    /// assert!(iter.next().is_some());
+    /// assert_eq!(iter.as_mut_slice(), &mut [8][..]);
+    /// 
+    /// assert!(iter.next().is_some());
+    /// assert_eq!(iter.as_mut_slice(), &mut [][..]);
+    /// 
+    /// assert_eq!(iter.next(), None);
+    /// assert_eq!(iter.as_mut_slice(), &mut [][..]);
+    /// ```
     pub const fn as_mut_slice(&mut self) -> &mut [T] {
         // SAFETY: self.array is guaranteed initialized starting from self.taken_front
         //         up to `N - self.taken_back`
@@ -102,6 +178,30 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
     /// Due to limitations of const eval as of Rust 1.83.0,
     /// this function returns a `ManuallyDrop<T>` to be able to return a `T: Drop` in an `Option`,
     /// you'll need to call [`ManuallyDrop::into_inner`] to get `T` and avoid leaking it. 
+    /// 
+    /// # Example
+    /// 
+    /// ```rust
+    /// use konst::array::ArrayConsumer;
+    /// 
+    /// use std::mem::ManuallyDrop as MD;
+    /// 
+    /// let mut iter = ArrayConsumer::new([3, 5, 8]);
+    /// 
+    /// assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
+    /// 
+    /// assert_eq!(iter.next(), Some(MD::new(3)));
+    /// assert_eq!(iter.as_slice(), &[5, 8][..]);
+    /// 
+    /// assert_eq!(iter.next(), Some(MD::new(5)));
+    /// assert_eq!(iter.as_slice(), &[8][..]);
+    /// 
+    /// assert_eq!(iter.next(), Some(MD::new(8)));
+    /// assert_eq!(iter.as_slice(), &[][..]);
+    /// 
+    /// assert_eq!(iter.next(), None);
+    /// assert_eq!(iter.as_slice(), &[][..]);
+    /// ```
     pub const fn next(&mut self) -> Option<ManuallyDrop<T>> {
         if self.is_empty() {
             return None;
@@ -120,6 +220,30 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
     /// Due to limitations of const eval as of Rust 1.83.0,
     /// this function returns a `ManuallyDrop<T>` to be able to return a `T: Drop` in an `Option`,
     /// you'll need to call [`ManuallyDrop::into_inner`] to get `T` and avoid leaking it. 
+    /// 
+    /// # Example
+    /// 
+    /// ```rust
+    /// use konst::array::ArrayConsumer;
+    /// 
+    /// use std::mem::ManuallyDrop as MD;
+    /// 
+    /// let mut iter = ArrayConsumer::new([3, 5, 8]);
+    /// 
+    /// assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
+    /// 
+    /// assert_eq!(iter.next_back(), Some(MD::new(8)));
+    /// assert_eq!(iter.as_slice(), &[3, 5][..]);
+    /// 
+    /// assert_eq!(iter.next_back(), Some(MD::new(5)));
+    /// assert_eq!(iter.as_slice(), &[3][..]);
+    /// 
+    /// assert_eq!(iter.next_back(), Some(MD::new(3)));
+    /// assert_eq!(iter.as_slice(), &[][..]);
+    /// 
+    /// assert_eq!(iter.next_back(), None);
+    /// assert_eq!(iter.as_slice(), &[][..]);
+    /// ```
     pub const fn next_back(&mut self) -> Option<ManuallyDrop<T>> {
         if self.is_empty() {
             return None;
