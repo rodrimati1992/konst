@@ -136,6 +136,10 @@ pub mod nonnull {
     /// This has [the same safety requirements as `NonNull::as_ref`
     /// ](https://doc.rust-lang.org/1.55.0/core/ptr/struct.NonNull.html#safety-3)
     ///
+    /// # Const stabilization
+    ///
+    /// The equivalent std function was const-stabilized in Rust 1.73.0.
+    ///
     /// # Example
     ///
     /// ```rust
@@ -167,10 +171,13 @@ pub mod nonnull {
     /// This has [the same safety requirements as `NonNull::as_mut`
     /// ](https://doc.rust-lang.org/1.55.0/std/ptr/struct.NonNull.html#safety-4)
     ///
+    /// # Const stabilization
+    ///
+    /// The equivalent std function was const-stabilized in Rust 1.83.0.
+    ///
     /// # Example
     ///
     /// ```rust
-
     /// use konst::ptr::nonnull;
     ///
     /// use core::ptr::NonNull;

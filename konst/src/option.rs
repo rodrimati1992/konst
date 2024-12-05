@@ -2,6 +2,10 @@
 
 /// A const equivalent of [`Option::unwrap`]
 ///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.83.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -200,6 +204,10 @@ pub use konst_kernel::opt_or_else as or_else;
 
 /// A const equivalent of [`Option::flatten`]
 ///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.83.0.
+///
 /// # Example
 ///
 /// ```
@@ -247,6 +255,10 @@ pub use konst_kernel::opt_flatten as flatten;
 pub use konst_kernel::opt_filter as filter;
 
 /// A const equivalent of the [`Option::copied`] method.
+///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.83.0.
 ///
 /// # Example
 ///

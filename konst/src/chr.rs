@@ -19,6 +19,10 @@ pub use konst_kernel::chr::Utf8Encoded;
 
 /// Encodes `c` into utf8, const analog of [`char::encode_utf8`].
 ///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.83.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -34,6 +38,10 @@ pub use konst_kernel::chr::encode_utf8;
 
 /// Unsafely coerces `u32` to `char`,
 /// const equivalent of [`char::from_u32_unchecked`]
+///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.82.0.
 ///
 /// # Safety
 ///
@@ -55,6 +63,10 @@ pub use konst_kernel::chr::from_u32_unchecked;
 
 /// Fallible conversion from `u32` to `char`,
 /// const equivalent of [`char::from_u32`]
+///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.67.0.
 ///
 /// # Example
 ///

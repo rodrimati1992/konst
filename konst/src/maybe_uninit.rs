@@ -138,7 +138,6 @@ pub const unsafe fn assume_init_mut<T>(md: &mut MaybeUninit<T>) -> &mut T {
 /// # Example
 ///
 /// ```rust
-
 /// use std::cmp::Ordering;
 /// use std::mem::MaybeUninit;
 ///
@@ -171,6 +170,10 @@ pub const fn write<T>(md: &mut MaybeUninit<T>, value: T) -> &mut T {
 }
 
 /// Const equivalent of [`MaybeUninit::as_mut_ptr`].
+///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.83.0.
 ///
 /// # Example
 ///

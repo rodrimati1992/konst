@@ -91,6 +91,7 @@ mod array_builder;
 mod array_consumer;
 
 #[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub use self::{
     array_builder::ArrayBuilder,
     array_consumer::ArrayConsumer,

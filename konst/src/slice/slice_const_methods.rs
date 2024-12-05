@@ -432,6 +432,10 @@ pub const fn get_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> Opti
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
 ///
+/// # Const stabilization
+///
+/// The analogous std function was const-stabilized in Rust 1.71.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -462,6 +466,10 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at_mut)
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
+///
+/// # Const stabilization
+///
+/// The analogous std function was const-stabilized in Rust 1.83.0.
 ///
 /// # Example
 ///
@@ -840,6 +848,12 @@ macro_rules! matches_space {
 
 /// Removes ascii whitespace from the start and end of `this`.
 ///
+/// # Const stabilization
+///
+/// The [equivalent std function](
+/// https://doc.rust-lang.org/std/primitive.slice.html#method.trim_ascii)
+/// was const-stabilized in Rust 1.80.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -855,6 +869,12 @@ pub const fn bytes_trim(this: &[u8]) -> &[u8] {
 }
 
 /// Removes ascii whitespace from the start of `this`.
+///
+/// # Const stabilization
+///
+/// The [equivalent std function](
+/// https://doc.rust-lang.org/std/primitive.slice.html#method.trim_ascii_start)
+/// was const-stabilized in Rust 1.80.0.
 ///
 /// # Example
 ///
@@ -876,6 +896,12 @@ pub const fn bytes_trim_start(mut this: &[u8]) -> &[u8] {
 }
 
 /// Removes ascii whitespace from the end of `this`.
+///
+/// # Const stabilization
+///
+/// The [equivalent std function](
+/// https://doc.rust-lang.org/std/primitive.slice.html#method.trim_ascii_end)
+/// was const-stabilized in Rust 1.80.0.
 ///
 /// # Example
 ///
@@ -1268,6 +1294,10 @@ pub const fn first_mut<T>(slice: &mut [T]) -> Option<&mut T> {
 /// A const equivalent of
 /// [`<[T]>::last_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.last_mut)
 ///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.83.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -1296,6 +1326,10 @@ pub const fn last_mut<T>(slice: &mut [T]) -> Option<&mut T> {
 /// [`<[T]>::split_first_mut`
 /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_first_mut)
 ///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.83.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -1322,6 +1356,10 @@ pub const fn split_first_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
 /// A const equivalent of
 /// [`<[T]>::split_last_mut`
 /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_last_mut)
+///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.83.0.
 ///
 /// # Example
 ///
