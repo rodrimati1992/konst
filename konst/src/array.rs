@@ -87,7 +87,10 @@ pub use konst_kernel::array_map as map;
 #[doc(hidden)]
 pub mod __array_macros_2;
 
+#[cfg(feature = "rust_1_83")]
 mod array_builder;
+
+#[cfg(feature = "rust_1_83")]
 mod array_consumer;
 
 #[cfg(feature = "rust_1_83")]
