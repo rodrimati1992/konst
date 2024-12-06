@@ -277,17 +277,18 @@ impl<T: Debug, const N: usize> Debug for ArrayConsumer<T, N> {
 
 impl<T: Clone, const N: usize> Clone for ArrayConsumer<T, N> {
     fn clone(&self) -> Self {
-        let mut array = crate::maybe_uninit::uninit_array();
+        let mut this = Self {
+            array: crate::maybe_uninit::uninit_array(),
+            taken_front: 0,
+            taken_back: N,
+        };
 
-        for (i, elem) in (self.taken_front..).zip(self.as_slice()) {
-            array[i] = MaybeUninit::new(elem.clone());
+        for (i, elem) in self.as_slice().iter().cloned().enumerate() {
+            this.array[i] = MaybeUninit::new(elem);
+            this.taken_back -= 1;
         }
 
-        Self {
-            array,
-            taken_front: self.taken_front,
-            taken_back: self.taken_back,
-        }
+        this
     }
 }
 

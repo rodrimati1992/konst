@@ -171,9 +171,9 @@ fn copy_test() {
     }
 
     let mut consumer = ArrayConsumer::new([3, 5, 8, 13, 21, 34]);
-    _ = consumer.next();
-    _ = consumer.next_back();
-    _ = consumer.next_back();
+    _ = consumer.next().map(ManuallyDrop::into_inner);
+    _ = consumer.next_back().map(ManuallyDrop::into_inner);
+    _ = consumer.next_back().map(ManuallyDrop::into_inner);
 
     assert_eq!(consumer.as_slice(), &[5, 8, 13][..]);
     assert_eq!(consumer.copy().as_slice(), &[5, 8, 13][..]);
@@ -188,9 +188,9 @@ fn clone_test() {
     let ts = |x: i32| x.to_string();
 
     let mut consumer = ArrayConsumer::new([3, 5, 8, 13, 21, 34].map(ts));
-    _ = consumer.next();
-    _ = consumer.next_back();
-    _ = consumer.next_back();
+    _ = consumer.next().map(ManuallyDrop::into_inner);
+    _ = consumer.next_back().map(ManuallyDrop::into_inner);
+    _ = consumer.next_back().map(ManuallyDrop::into_inner);
 
     assert_eq!(consumer.as_slice(), &[5, 8, 13].map(ts)[..]);
     assert_eq!(consumer.clone().as_slice(), &[5, 8, 13].map(ts)[..]);
