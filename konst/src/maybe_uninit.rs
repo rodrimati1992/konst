@@ -103,7 +103,6 @@ pub use konst_kernel::maybe_uninit::uninit_array;
 /// # Example
 ///
 /// ```rust
-/// # #![feature(const_mut_refs)]
 /// use std::cmp::Ordering;
 /// use std::mem::MaybeUninit;
 ///
@@ -127,8 +126,8 @@ pub use konst_kernel::maybe_uninit::uninit_array;
 /// assert_eq!(MU.1, [105, 205, 305]);
 ///
 /// ```
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 #[inline(always)]
 pub const unsafe fn assume_init_mut<T>(md: &mut MaybeUninit<T>) -> &mut T {
     &mut *(md as *mut MaybeUninit<T> as *mut T)
@@ -139,7 +138,6 @@ pub const unsafe fn assume_init_mut<T>(md: &mut MaybeUninit<T>) -> &mut T {
 /// # Example
 ///
 /// ```rust
-/// # #![feature(const_mut_refs)]
 /// use std::cmp::Ordering;
 /// use std::mem::MaybeUninit;
 ///
@@ -163,8 +161,8 @@ pub const unsafe fn assume_init_mut<T>(md: &mut MaybeUninit<T>) -> &mut T {
 /// assert_eq!(cond_init(&mut mu, 6), None);
 ///
 /// ```
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 #[inline(always)]
 pub const fn write<T>(md: &mut MaybeUninit<T>, value: T) -> &mut T {
     *md = MaybeUninit::new(value);
@@ -173,12 +171,15 @@ pub const fn write<T>(md: &mut MaybeUninit<T>, value: T) -> &mut T {
 
 /// Const equivalent of [`MaybeUninit::as_mut_ptr`].
 ///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.83.0.
+///
 /// # Example
 ///
 /// Initializing a `#[repr(u8)]` enum
 ///
 /// ```rust
-/// # #![feature(const_mut_refs)]
 /// use std::mem::MaybeUninit;
 ///
 /// use konst::maybe_uninit as mu;
@@ -215,9 +216,9 @@ pub const fn write<T>(md: &mut MaybeUninit<T>, value: T) -> &mut T {
 /// ```
 ///
 /// [`MaybeUninit::as_mut_ptr`]:
-/// https://doc.rust-lang.org/nightly/core/mem/union.MaybeUninit.html#method.as_mut_ptr
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+/// https://doc.rust-lang.org/core/mem/union.MaybeUninit.html#method.as_mut_ptr
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 #[inline(always)]
 pub const fn as_mut_ptr<T>(md: &mut MaybeUninit<T>) -> *mut T {
     md as *mut MaybeUninit<T> as *mut T

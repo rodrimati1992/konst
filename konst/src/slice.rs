@@ -172,7 +172,6 @@ pub use konst_kernel::slice::slice_for_konst::try_into_array_func as try_into_ar
 /// # Example
 ///
 /// ```rust
-/// # #![feature(const_mut_refs)]
 /// use konst::{slice, unwrap_ctx};
 ///
 /// const fn mut_array_from<const LEN: usize>(slice: &mut [u8], from: usize) -> &mut [u8; LEN] {
@@ -196,10 +195,7 @@ pub use konst_kernel::slice::slice_for_konst::try_into_array_func as try_into_ar
 /// # }
 /// ```
 ///
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
-)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 #[doc(inline)]
 pub use konst_kernel::slice::slice_for_konst::try_into_array_mut_func as try_into_array_mut;

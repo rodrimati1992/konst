@@ -2,6 +2,19 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.3
 
+### 0.3.15
+
+Soft-removed `"mut_refs"` and `"nightly_mut_refs"` feature (by hidding it in docs), changed to using `"rust_1_83"` feature to enable `&mut`-taking `const fn`s. 
+(to avoid breakage, `"mut_refs"` still enables items that use `&mut` in const by enabling `"rust_latest_stable"`)
+
+Changed `"rust_latest_stable"` feature to enable `"rust_1_83"` feature.
+
+Added `konst::manually_drop::take` function
+
+Added these structs to `konst::array`:
+- `ArrayBuilder`
+- `ArrayConsumer`
+
 ### 0.3.14
 
 Fixed accidental inclusion of private macros in docs.

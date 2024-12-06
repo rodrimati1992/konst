@@ -122,6 +122,10 @@ const fn from_bytes_until_nul_inner(
 /// Converts a byte slice which contains any amount of nul bytes into a `&CStr`.
 /// Const equivalent of [`CStr::from_bytes_until_nul`]
 ///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.69.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -145,6 +149,10 @@ pub const fn from_bytes_until_nul(bytes: &[u8]) -> Result<&CStr, FromBytesUntilN
 
 /// Converts a nul-terminated byte slice into a `&CStr`.
 /// Const equivalent of [`CStr::from_bytes_with_nul`]
+///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.72.0.
 ///
 /// # Example
 ///
@@ -189,6 +197,10 @@ pub const fn from_bytes_with_nul(bytes: &[u8]) -> Result<&CStr, FromBytesWithNul
 ///
 /// This function takes linear time to run, proportional to the length of `this`.
 ///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.72.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -224,6 +236,10 @@ pub const fn to_bytes_with_nul(this: &CStr) -> &[u8] {
 ///
 /// This function takes linear time to run, proportional to the length of `this`.
 ///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.72.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -252,6 +268,10 @@ pub const fn to_bytes(this: &CStr) -> &[u8] {
 /// # Performance
 ///
 /// This function takes linear time to run, proportional to the length of `this`.
+///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.72.0.
 ///
 /// # Example
 ///

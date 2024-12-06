@@ -88,6 +88,22 @@ pub use konst_kernel::array_map as map;
 pub mod __array_macros_2;
 
 #[cfg(feature = "rust_1_83")]
+mod array_builder;
+
+#[cfg(feature = "rust_1_83")]
+mod array_consumer;
+
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
+pub use self::{
+    array_builder::ArrayBuilder,
+    array_consumer::ArrayConsumer,
+};
+
+
+
+
+#[cfg(feature = "rust_1_83")]
 macro_rules! drop_warning {
     () => {
         concat!(

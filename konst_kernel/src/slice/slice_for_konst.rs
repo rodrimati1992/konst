@@ -19,7 +19,7 @@ pub const fn try_into_array_func<T, const N: usize>(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#[cfg(feature = "mut_refs")]
+#[cfg(feature = "rust_1_83")]
 #[inline]
 pub const fn try_into_array_mut_func<T, const N: usize>(
     slice: &mut [T],

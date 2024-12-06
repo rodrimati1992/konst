@@ -65,6 +65,11 @@ macro_rules! define_parse_methods_inner{
 
 define_parse_methods! {
     (
+        /// # Const stabilization
+        /// 
+        /// The [equivalent std function](u128::from_str_radix),
+        /// was const-stabilized in Rust 1.82.0.
+        /// 
         /// # Example
         ///
         /// ```rust
@@ -92,6 +97,11 @@ define_parse_methods! {
         fn parse_u128, u128, ParseIntError
     )
     (
+        /// # Const stabilization
+        /// 
+        /// The [equivalent std function](i128::from_str_radix),
+        /// was const-stabilized in Rust 1.82.0.
+        /// 
         /// # Example
         ///
         /// ```rust
@@ -120,60 +130,120 @@ define_parse_methods! {
         fn parse_i128, i128, ParseIntError
     )
     (
+        /// # Const stabilization
+        /// 
+        /// The [equivalent std function](u64::from_str_radix),
+        /// was const-stabilized in Rust 1.82.0.
+        /// 
+        /// # Example
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `u128`](./fn.parse_u128.html).
         fn parse_u64, u64, ParseIntError
     )
     (
+        /// # Const stabilization
+        /// 
+        /// The [equivalent std function](i64::from_str_radix),
+        /// was const-stabilized in Rust 1.82.0.
+        /// 
+        /// # Example
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `i128`](./fn.parse_i128.html).
         fn parse_i64, i64, ParseIntError
     )
     (
+        /// # Const stabilization
+        /// 
+        /// The [equivalent std function](u32::from_str_radix),
+        /// was const-stabilized in Rust 1.82.0.
+        /// 
+        /// # Example
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `u128`](./fn.parse_u128.html).
         fn parse_u32, u32, ParseIntError
     )
     (
+        /// # Const stabilization
+        /// 
+        /// The [equivalent std function](i32::from_str_radix),
+        /// was const-stabilized in Rust 1.82.0.
+        /// 
+        /// # Example
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `i128`](./fn.parse_i128.html).
         fn parse_i32, i32, ParseIntError
     )
     (
+        /// # Const stabilization
+        /// 
+        /// The [equivalent std function](u16::from_str_radix),
+        /// was const-stabilized in Rust 1.82.0.
+        /// 
+        /// # Example
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `u128`](./fn.parse_u128.html).
         fn parse_u16, u16, ParseIntError
     )
     (
+        /// # Const stabilization
+        /// 
+        /// The [equivalent std function](i16::from_str_radix),
+        /// was const-stabilized in Rust 1.82.0.
+        /// 
+        /// # Example
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `i128`](./fn.parse_i128.html).
         fn parse_i16, i16, ParseIntError
     )
     (
+        /// # Const stabilization
+        /// 
+        /// The [equivalent std function](u8::from_str_radix),
+        /// was const-stabilized in Rust 1.82.0.
+        /// 
+        /// # Example
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `u128`](./fn.parse_u128.html).
         fn parse_u8, u8, ParseIntError
     )
     (
+        /// # Const stabilization
+        /// 
+        /// The [equivalent std function](i8::from_str_radix),
+        /// was const-stabilized in Rust 1.82.0.
+        /// 
+        /// # Example
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `i128`](./fn.parse_i128.html).
         fn parse_i8, i8, ParseIntError
     )
     (
+        /// # Const stabilization
+        /// 
+        /// The [equivalent std function](usize::from_str_radix),
+        /// was const-stabilized in Rust 1.82.0.
+        /// 
+        /// # Example
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `u128`](./fn.parse_u128.html).
         fn parse_usize, usize, ParseIntError
     )
     (
+        /// # Const stabilization
+        /// 
+        /// The [equivalent std function](isize::from_str_radix),
+        /// was const-stabilized in Rust 1.82.0.
+        /// 
+        /// # Example
         ///
         /// For an example of how to use this function, you can look at
         /// [the one for `i128`](./fn.parse_i128.html).

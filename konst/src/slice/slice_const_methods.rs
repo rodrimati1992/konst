@@ -47,11 +47,8 @@ pub const fn get<T>(slice: &[T], index: usize) -> Option<&T> {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
-)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn get_mut<T>(slice: &mut [T], index: usize) -> Option<&mut T> {
     if slice.len() > index {
         Some(&mut slice[index])
@@ -193,11 +190,8 @@ pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
-)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
     __slice_from_impl!(slice, start, as_mut_ptr, from_raw_parts_mut, &mut [])
 }
@@ -222,11 +216,8 @@ pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
-)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> {
     Some(__slice_from_impl!(
         slice,
@@ -291,11 +282,8 @@ pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
-)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
     __slice_up_to_impl!(slice, len, as_mut_ptr, from_raw_parts_mut, slice)
 }
@@ -321,11 +309,8 @@ pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
-)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
     Some(__slice_up_to_impl!(
         slice,
@@ -402,11 +387,8 @@ pub const fn get_range<T>(slice: &[T], start: usize, end: usize) -> Option<&[T]>
 ///
 /// ```
 #[inline]
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
-)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &mut [T] {
     slice_from_mut(slice_up_to_mut(slice, end), start)
 }
@@ -438,11 +420,8 @@ pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &m
 ///
 /// ```
 #[inline]
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
-)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn get_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> Option<&mut [T]> {
     let x = crate::try_opt!(get_up_to_mut(slice, end));
     get_from_mut(x, start)
@@ -452,6 +431,10 @@ pub const fn get_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> Opti
 /// [`<[T]>::split_at`](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at)
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
+///
+/// # Const stabilization
+///
+/// The analogous std function was const-stabilized in Rust 1.71.0.
 ///
 /// # Example
 ///
@@ -484,6 +467,10 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
 ///
+/// # Const stabilization
+///
+/// The analogous std function was const-stabilized in Rust 1.83.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -506,8 +493,8 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 /// ```
 ///
 #[inline]
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T]) {
     use core::slice::from_raw_parts_mut;
 
@@ -861,6 +848,12 @@ macro_rules! matches_space {
 
 /// Removes ascii whitespace from the start and end of `this`.
 ///
+/// # Const stabilization
+///
+/// The [equivalent std function](
+/// https://doc.rust-lang.org/std/primitive.slice.html#method.trim_ascii)
+/// was const-stabilized in Rust 1.80.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -876,6 +869,12 @@ pub const fn bytes_trim(this: &[u8]) -> &[u8] {
 }
 
 /// Removes ascii whitespace from the start of `this`.
+///
+/// # Const stabilization
+///
+/// The [equivalent std function](
+/// https://doc.rust-lang.org/std/primitive.slice.html#method.trim_ascii_start)
+/// was const-stabilized in Rust 1.80.0.
 ///
 /// # Example
 ///
@@ -897,6 +896,12 @@ pub const fn bytes_trim_start(mut this: &[u8]) -> &[u8] {
 }
 
 /// Removes ascii whitespace from the end of `this`.
+///
+/// # Const stabilization
+///
+/// The [equivalent std function](
+/// https://doc.rust-lang.org/std/primitive.slice.html#method.trim_ascii_end)
+/// was const-stabilized in Rust 1.80.0.
 ///
 /// # Example
 ///
@@ -1276,11 +1281,8 @@ pub(crate) const fn __bytes_rfind_keep<'a>(mut this: &'a [u8], needle: &[u8]) ->
 ///
 /// ```
 ///
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
-)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn first_mut<T>(slice: &mut [T]) -> Option<&mut T> {
     if let [first, ..] = slice {
         Some(first)
@@ -1291,6 +1293,10 @@ pub const fn first_mut<T>(slice: &mut [T]) -> Option<&mut T> {
 
 /// A const equivalent of
 /// [`<[T]>::last_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.last_mut)
+///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.83.0.
 ///
 /// # Example
 ///
@@ -1306,11 +1312,8 @@ pub const fn first_mut<T>(slice: &mut [T]) -> Option<&mut T> {
 /// assert_eq!(slice::last_mut::<u8>(&mut []), None);
 ///
 /// ```
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
-)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn last_mut<T>(slice: &mut [T]) -> Option<&mut T> {
     if let [.., last] = slice {
         Some(last)
@@ -1322,6 +1325,10 @@ pub const fn last_mut<T>(slice: &mut [T]) -> Option<&mut T> {
 /// A const equivalent of
 /// [`<[T]>::split_first_mut`
 /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_first_mut)
+///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.83.0.
 ///
 /// # Example
 ///
@@ -1336,11 +1343,8 @@ pub const fn last_mut<T>(slice: &mut [T]) -> Option<&mut T> {
 ///
 /// ```
 ///
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
-)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn split_first_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
     if let [first, rem @ ..] = slice {
         Some((first, rem))
@@ -1352,6 +1356,10 @@ pub const fn split_first_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
 /// A const equivalent of
 /// [`<[T]>::split_last_mut`
 /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_last_mut)
+///
+/// # Const stabilization
+///
+/// The equivalent std function was const-stabilized in Rust 1.83.0.
 ///
 /// # Example
 ///
@@ -1366,11 +1374,8 @@ pub const fn split_first_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
 ///
 /// ```
 ///
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(
-    feature = "docsrs",
-    doc(cfg(any(feature = "mut_refs", feature = "nightly_mut_refs")))
-)]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn split_last_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
     if let [rem @ .., last] = slice {
         Some((last, rem))

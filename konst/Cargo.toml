@@ -1,6 +1,6 @@
 [package]
 name = "konst"
-version = "0.3.14"
+version = "0.3.15"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 rust-version = "1.65.0"
 edition = "2021"
@@ -25,7 +25,7 @@ path = "../konst_proc_macros"
 optional = true
 
 [dependencies.konst_kernel]
-version = "=0.3.12"
+version = "=0.3.15"
 path = "../konst_kernel"
 features = ["rust_1_64", "__for_konst"]
 
@@ -61,8 +61,8 @@ parsing = []
 mut_refs = ["rust_latest_stable", "konst_kernel/mut_refs"]
 nightly_mut_refs = ["mut_refs", "konst_kernel/nightly_mut_refs"]
 
-rust_1_83 = ["mut_refs"]
-rust_latest_stable = []
+rust_1_83 = ["konst_kernel/rust_1_83"]
+rust_latest_stable = ["rust_1_83"]
 
 alloc = ["konst_kernel/alloc"]
 

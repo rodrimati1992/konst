@@ -718,6 +718,10 @@ where
 
 /// A const subset of [`str::trim`] which only removes ascii whitespace.
 ///
+/// # Const stabilization
+///
+/// The [equivalent std function](str::trim_ascii) was const-stabilized in Rust 1.80.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -736,6 +740,10 @@ pub const fn trim(this: &str) -> &str {
 
 /// A const subset of [`str::trim_start`] which only removes ascii whitespace.
 ///
+/// # Const stabilization
+///
+/// The [equivalent std function](str::trim_ascii_start) was const-stabilized in Rust 1.80.0.
+///
 /// # Example
 ///
 /// ```rust
@@ -753,6 +761,10 @@ pub const fn trim_start(this: &str) -> &str {
 }
 
 /// A const subset of [`str::trim_end`] which only removes ascii whitespace.
+///
+/// # Const stabilization
+///
+/// The [equivalent std function](str::trim_ascii_end) was const-stabilized in Rust 1.80.0.
 ///
 /// # Example
 ///

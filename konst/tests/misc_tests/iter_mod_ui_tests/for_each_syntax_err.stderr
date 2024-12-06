@@ -16,7 +16,7 @@ error: unexpected end of macro invocation
 3 | const _: () = konst::iter::for_each!{_};
   |                                       ^ missing tokens in macro arguments
   |
-note: while trying to match `in`
+note: while trying to match keyword `in`
  --> $WORKSPACE/konst_kernel/src/iter.rs
   |
   |     ($pattern:pat_param in $($rem:tt)*) => ({

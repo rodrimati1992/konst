@@ -7,8 +7,7 @@
 //!
 //! - `deref`: raw pointers can be dereferenced since Rust 1.58.0
 //!
-//! - `deref_mut`: the unstable feature for using mutable references
-//! also allows dereferencing mutable pointers.
+//! - `deref_mut`: Rust 1.83.0 allows dereferencing mutable pointers.
 //!
 
 use core::ptr::NonNull;
@@ -51,7 +50,6 @@ pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: *const T) -> Option<&'a T> {
 /// # Example
 ///
 /// ```rust
-/// # #![feature(const_mut_refs)]
 /// use konst::ptr;
 ///
 /// assert_eq!(ARR, [83, 91, 104]);
@@ -71,8 +69,8 @@ pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: *const T) -> Option<&'a T> {
 ///     }
 /// }
 /// ```
-#[cfg(feature = "mut_refs")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+#[cfg(feature = "rust_1_83")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
     core::mem::transmute(ptr)
 }
@@ -138,6 +136,10 @@ pub mod nonnull {
     /// This has [the same safety requirements as `NonNull::as_ref`
     /// ](https://doc.rust-lang.org/1.55.0/core/ptr/struct.NonNull.html#safety-3)
     ///
+    /// # Const stabilization
+    ///
+    /// The equivalent std function was const-stabilized in Rust 1.73.0.
+    ///
     /// # Example
     ///
     /// ```rust
@@ -169,10 +171,13 @@ pub mod nonnull {
     /// This has [the same safety requirements as `NonNull::as_mut`
     /// ](https://doc.rust-lang.org/1.55.0/std/ptr/struct.NonNull.html#safety-4)
     ///
+    /// # Const stabilization
+    ///
+    /// The equivalent std function was const-stabilized in Rust 1.83.0.
+    ///
     /// # Example
     ///
     /// ```rust
-    /// # #![feature(const_mut_refs)]
     /// use konst::ptr::nonnull;
     ///
     /// use core::ptr::NonNull;
@@ -193,8 +198,8 @@ pub mod nonnull {
     ///
     /// ```
     ///
-    #[cfg(feature = "mut_refs")]
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+    #[cfg(feature = "rust_1_83")]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
     pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: NonNull<T>) -> &'a mut T {
         &mut *ptr.as_ptr()
     }
@@ -230,7 +235,6 @@ pub mod nonnull {
     /// # Example
     ///
     /// ```rust
-    /// # #![feature(const_mut_refs)]
     /// use konst::ptr::nonnull as nn;
     ///
     /// use core::ptr::NonNull;
@@ -254,8 +258,8 @@ pub mod nonnull {
     ///
     /// ```
     ///
-    #[cfg(feature = "mut_refs")]
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "mut_refs")))]
+    #[cfg(feature = "rust_1_83")]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
     pub const fn from_mut<T: ?Sized>(mutt: &mut T) -> NonNull<T> {
         // SAFETY: `&mut T` is non-null, which is all that `NonNull::new_unchecked` requires
         unsafe { NonNull::new_unchecked(mutt) }

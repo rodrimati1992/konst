@@ -53,7 +53,7 @@ fn slice_up_to_from_test() {
     }
 }
 
-#[cfg(feature = "mut_refs")]
+#[cfg(feature = "rust_1_83")]
 #[test]
 fn slice_up_to_from_mut_test() {
     slice_splitting_test! {
@@ -99,7 +99,7 @@ fn slice_range_test() {
     range_tests! {slice_range, []}
 }
 
-#[cfg(feature = "mut_refs")]
+#[cfg(feature = "rust_1_83")]
 #[test]
 fn slice_range_mut_test() {
     range_tests! {slice_range_mut, [mut]}
@@ -113,7 +113,7 @@ fn slice_single_elem_get_test() {
     for i in (0..10).chain([!0 - 1, !0].iter().copied()) {
         assert_eq!(slice::get(&arr, i), arr.get(i));
 
-        #[cfg(feature = "mut_refs")]
+        #[cfg(feature = "rust_1_83")]
         {
             let mut clone = arr;
             assert_eq!(slice::get_mut(&mut arr, i), clone.get_mut(i));
@@ -137,7 +137,7 @@ fn slice_ranged_get_test() {
         assert_eq!(slice::get_from(&arr, x), arr.get(x..));
         assert_eq!(slice::get_up_to(&arr, x), arr.get(..x));
 
-        #[cfg(feature = "mut_refs")]
+        #[cfg(feature = "rust_1_83")]
         {
             assert_eq!(slice::slice_from_mut(&mut arr, x), &mut clone[x.min(len)..]);
             assert_eq!(
@@ -159,7 +159,7 @@ fn slice_ranged_get_test() {
             }
             assert_eq!(slice::get_range(&arr, x, end), arr.get(x..end));
 
-            #[cfg(feature = "mut_refs")]
+            #[cfg(feature = "rust_1_83")]
             {
                 let tmp = slice::slice_range_mut(&mut arr, x, end);
                 if x <= end {

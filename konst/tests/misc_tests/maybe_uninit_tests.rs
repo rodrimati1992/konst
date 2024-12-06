@@ -34,7 +34,7 @@ fn uninit_array_test() {
 }
 
 #[test]
-#[cfg(feature = "mut_refs")]
+#[cfg(feature = "rust_1_83")]
 fn assume_init_mut_test() {
     let mut reff = MaybeUninit::new(&0u32);
     let mut booll = MaybeUninit::new(true);
@@ -58,7 +58,7 @@ fn assume_init_mut_test() {
 }
 
 #[test]
-#[cfg(feature = "mut_refs")]
+#[cfg(feature = "rust_1_83")]
 fn write_test() {
     let mut reff = MaybeUninit::new(&0u32);
     let mut ordering = MaybeUninit::new(Ordering::Greater);
@@ -79,7 +79,7 @@ fn write_test() {
 }
 
 #[test]
-#[cfg(feature = "mut_refs")]
+#[cfg(feature = "rust_1_83")]
 fn as_mut_ptr_test() {
     let mut reff = MaybeUninit::new(&0u32);
     let mut booll = MaybeUninit::new(true);
