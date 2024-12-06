@@ -164,6 +164,38 @@ fn next_back_test() {
     iter.assert_is_empty();
 }
 
+#[test]
+fn copy_test() {
+    const fn _callable<T: Copy, const LEN: usize>(ac: &ArrayConsumer<T, LEN>) -> ArrayConsumer<T, LEN> {
+        ac.copy()
+    }
+
+    let mut consumer = ArrayConsumer::new([3, 5, 8, 13, 21, 34]);
+    _ = consumer.next();
+    _ = consumer.next_back();
+    _ = consumer.next_back();
+
+    assert_eq!(consumer.as_slice(), &[5, 8, 13][..]);
+    assert_eq!(consumer.copy().as_slice(), &[5, 8, 13][..]);
+}
+
+#[test]
+fn clone_test() {
+    fn _callable<T: Clone, const LEN: usize>(ac: &ArrayConsumer<T, LEN>) -> ArrayConsumer<T, LEN> {
+        ac.clone()
+    }
+
+    let ts = |x: i32| x.to_string();
+
+    let mut consumer = ArrayConsumer::new([3, 5, 8, 13, 21, 34].map(ts));
+    _ = consumer.next();
+    _ = consumer.next_back();
+    _ = consumer.next_back();
+
+    assert_eq!(consumer.as_slice(), &[5, 8, 13].map(ts)[..]);
+    assert_eq!(consumer.clone().as_slice(), &[5, 8, 13].map(ts)[..]);
+}
+
 #[derive(Debug, PartialEq)]
 struct ToSet<'a>(u128, &'a RefCell<BTreeSet<u128>>);
 

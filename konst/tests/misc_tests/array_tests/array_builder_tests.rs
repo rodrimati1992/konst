@@ -108,6 +108,37 @@ fn infer_length_from_consumer_test() {
     assert_eq!(this.build(), [3, 5, 8]);
 }
 
+#[test]
+fn copy_test() {
+    const fn _callable<T: Copy, const LEN: usize>(ac: &ArrayBuilder<T, LEN>) -> ArrayBuilder<T, LEN> {
+        ac.copy()
+    }
+
+    let mut builder = ArrayBuilder::<i32, 6>::new();
+    builder.push(5);
+    builder.push(8);
+    builder.push(13);
+
+    assert_eq!(builder.as_slice(), &[5, 8, 13][..]);
+    assert_eq!(builder.copy().as_slice(), &[5, 8, 13][..]);
+}
+
+#[test]
+fn clone_test() {
+    fn _callable<T: Clone, const LEN: usize>(ac: &ArrayBuilder<T, LEN>) -> ArrayBuilder<T, LEN> {
+        ac.clone()
+    }
+
+
+    let mut builder = ArrayBuilder::<String, 6>::new();
+    builder.push(5.to_string());
+    builder.push(8.to_string());
+    builder.push(13.to_string());
+
+    let ts = |x: i32| x.to_string();
+    assert_eq!(builder.as_slice(), &[5, 8, 13].map(ts)[..]);
+    assert_eq!(builder.clone().as_slice(), &[5, 8, 13].map(ts)[..]);
+}
 
 #[derive(Debug, PartialEq)]
 struct ToSet<'a>(u128, &'a RefCell<BTreeSet<u128>>);

@@ -1,3 +1,4 @@
+use core::fmt::{self, Debug};
 use core::mem::{ManuallyDrop, MaybeUninit};
 
 use crate::array::ArrayConsumer;
@@ -148,7 +149,7 @@ impl<T, const N: usize> ArrayBuilder<T, N> {
         }
     }
 
-    /// Appends the `val` element to the array.
+    /// Appends `val` to the array.
     /// 
     /// # Panic
     /// 
@@ -215,8 +216,35 @@ impl<T, const N: usize> ArrayBuilder<T, N> {
         }
     }
 
-    /// Helper for inferring the length of the built array from an `ArrayConsumer`.
+    /// Gets a bitwise copy of this Builder, requires `T: Copy`.
+    pub const fn copy(&self) -> Self 
+    where
+        T: Copy
+    {
+        Self {..*self}
+    }
+
+    /// Helper for inferring the length of the built array from an [`ArrayConsumer`].
     pub const fn infer_length_from_consumer<U>(&self, _consumer: &ArrayConsumer<U, N>) {}
+}
+
+impl<T: Debug, const N: usize> Debug for ArrayBuilder<T, N> {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt.debug_struct("ArrayBuilder")
+            .field("array", &self.as_slice())
+            .field("uninit_len", &(N - self.inited))
+            .finish()
+    }
+}
+
+impl<T: Clone, const N: usize> Clone for ArrayBuilder<T, N> {
+    fn clone(&self) -> Self {
+        let mut this = Self::new();
+        for elem in self.as_slice() {
+            this.push(elem.clone());
+        }
+        this
+    }
 }
 
 impl<T, const N: usize> Drop for ArrayBuilder<T, N> {

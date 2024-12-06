@@ -1,3 +1,4 @@
+use core::fmt::{self, Debug};
 use core::mem::{ManuallyDrop, MaybeUninit};
 
 /// Const analog of [`core::array::IntoIter`]
@@ -173,6 +174,14 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
         }
     }
 
+    /// Gets a bitwise copy of this ArrayConsumer, requires `T: Copy`.
+    pub const fn copy(&self) -> Self 
+    where
+        T: Copy
+    {
+        Self {..*self}
+    }
+
     /// Gets the next element from the array
     /// 
     /// Due to limitations of const eval as of Rust 1.83.0,
@@ -257,6 +266,28 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
         self.taken_back += 1;
 
         Some(ManuallyDrop::new(ret))
+    }
+}
+
+impl<T: Debug, const N: usize> Debug for ArrayConsumer<T, N> {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        Debug::fmt(self.as_slice(), fmt)
+    }
+}
+
+impl<T: Clone, const N: usize> Clone for ArrayConsumer<T, N> {
+    fn clone(&self) -> Self {
+        let mut array = crate::maybe_uninit::uninit_array();
+
+        for (i, elem) in (self.taken_front..).zip(self.as_slice()) {
+            array[i] = MaybeUninit::new(elem.clone());
+        }
+
+        Self {
+            array,
+            taken_front: self.taken_front,
+            taken_back: self.taken_back,
+        }
     }
 }
 
