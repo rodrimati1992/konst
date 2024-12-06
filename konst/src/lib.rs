@@ -6,6 +6,8 @@
 //!
 //! - Const fn equivalents of standard library functions and methods.
 //!
+//! - [`destructure`] macro to allow destructuring types in const without getting "cannot drop in const" errors.
+//!
 //! - Compile-time parsing through the [`Parser`] type, and [`parser_method`] macro.
 //!
 //! # Examples

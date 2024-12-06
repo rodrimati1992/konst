@@ -143,6 +143,17 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 /// }
 /// ```
 ///
+/// ```text
+/// error[E0493]: destructor of `(T, T)` cannot be evaluated at compile-time
+///  --> src/lib.rs:1:17
+///   |
+/// 1 | const fn foo<T>((a, b): (T, T)) -> [T; 2] {
+///   |                 ^^^^^^ the destructor for this type cannot be evaluated in constant functions
+/// 2 |     [a, b]
+/// 3 | }
+///   | - value is dropped here
+/// ```
+///
 /// # Requirements/Limitations
 ///
 /// This macro has these requirements and limitations:
