@@ -271,10 +271,6 @@
 //! - `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature.
 //! Only recommendable if you can update the Rust compiler every stable release.
 //!
-//! - `"rust_1_83"`: 
-//! Enables const functions that take mutable references,
-//! `array::{from_fn_, map_}` macros, and [`destructure`] macro.
-//!
 //! # No-std support
 //!
 //! `konst` is `#![no_std]`, it can be used anywhere Rust can be used.

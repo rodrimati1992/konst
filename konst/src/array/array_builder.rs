@@ -28,7 +28,6 @@ use crate::array::ArrayConsumer;
 /// };
 /// ```
 #[repr(C)]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub struct ArrayBuilder<T, const N: usize> {
     array: [MaybeUninit<T>; N],
     inited: usize,

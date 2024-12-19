@@ -60,8 +60,6 @@ pub const fn as_inner<T>(md: &ManuallyDrop<T>) -> &T {
 ///
 /// assert_eq!(*FOO, 305);
 /// ```
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 #[inline(always)]
 pub const fn as_inner_mut<T>(md: &mut ManuallyDrop<T>) -> &mut T {
     // SAFETY: ManuallyDrop<T> is represented the same as T,
@@ -72,8 +70,6 @@ pub const fn as_inner_mut<T>(md: &mut ManuallyDrop<T>) -> &mut T {
 
 
 /// Const equivalent of [`core::mem::ManuallyDrop::take`] with the same safety requirements.
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 #[inline(always)]
 pub const unsafe fn take<T>(md: &mut ManuallyDrop<T>) -> T {
     // SAFETY: ManuallyDrop<T> is represented the same as T,

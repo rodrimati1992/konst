@@ -69,8 +69,6 @@ pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: *const T) -> Option<&'a T> {
 ///     }
 /// }
 /// ```
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
     core::mem::transmute(ptr)
 }
@@ -198,8 +196,6 @@ pub mod nonnull {
     ///
     /// ```
     ///
-    #[cfg(feature = "rust_1_83")]
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
     pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: NonNull<T>) -> &'a mut T {
         &mut *ptr.as_ptr()
     }
@@ -258,8 +254,6 @@ pub mod nonnull {
     ///
     /// ```
     ///
-    #[cfg(feature = "rust_1_83")]
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
     pub const fn from_mut<T: ?Sized>(mutt: &mut T) -> NonNull<T> {
         // SAFETY: `&mut T` is non-null, which is all that `NonNull::new_unchecked` requires
         unsafe { NonNull::new_unchecked(mutt) }

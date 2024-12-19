@@ -35,7 +35,6 @@ use core::mem::{ManuallyDrop, MaybeUninit};
 /// 
 /// [`ConstIntoIter`]: crate::iter::ConstIntoIter
 #[repr(C)]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub struct ArrayConsumer<T, const N: usize> {
     array: [MaybeUninit<T>; N],
     taken_front: usize,

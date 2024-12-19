@@ -195,7 +195,5 @@ pub use konst_kernel::slice::slice_for_konst::try_into_array_func as try_into_ar
 /// # }
 /// ```
 ///
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 #[doc(inline)]
 pub use konst_kernel::slice::slice_for_konst::try_into_array_mut_func as try_into_array_mut;

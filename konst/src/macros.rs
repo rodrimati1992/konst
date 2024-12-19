@@ -16,7 +16,6 @@ mod control_flow;
 
 #[macro_use]
 #[doc(hidden)]
-#[cfg(feature = "rust_1_83")]
 pub mod destructuring;
 
 #[macro_use]

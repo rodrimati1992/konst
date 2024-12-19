@@ -47,8 +47,6 @@ pub const fn get<T>(slice: &[T], index: usize) -> Option<&T> {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn get_mut<T>(slice: &mut [T], index: usize) -> Option<&mut T> {
     if slice.len() > index {
         Some(&mut slice[index])
@@ -190,8 +188,6 @@ pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
     __slice_from_impl!(slice, start, as_mut_ptr, from_raw_parts_mut, &mut [])
 }
@@ -216,8 +212,6 @@ pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> {
     Some(__slice_from_impl!(
         slice,
@@ -282,8 +276,6 @@ pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
     __slice_up_to_impl!(slice, len, as_mut_ptr, from_raw_parts_mut, slice)
 }
@@ -309,8 +301,6 @@ pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
     Some(__slice_up_to_impl!(
         slice,
@@ -387,8 +377,6 @@ pub const fn get_range<T>(slice: &[T], start: usize, end: usize) -> Option<&[T]>
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &mut [T] {
     slice_from_mut(slice_up_to_mut(slice, end), start)
 }
@@ -420,8 +408,6 @@ pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &m
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn get_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> Option<&mut [T]> {
     let x = crate::try_opt!(get_up_to_mut(slice, end));
     get_from_mut(x, start)
@@ -493,8 +479,6 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 /// ```
 ///
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T]) {
     use core::slice::from_raw_parts_mut;
 
@@ -1281,8 +1265,6 @@ pub(crate) const fn __bytes_rfind_keep<'a>(mut this: &'a [u8], needle: &[u8]) ->
 ///
 /// ```
 ///
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn first_mut<T>(slice: &mut [T]) -> Option<&mut T> {
     if let [first, ..] = slice {
         Some(first)
@@ -1312,8 +1294,6 @@ pub const fn first_mut<T>(slice: &mut [T]) -> Option<&mut T> {
 /// assert_eq!(slice::last_mut::<u8>(&mut []), None);
 ///
 /// ```
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn last_mut<T>(slice: &mut [T]) -> Option<&mut T> {
     if let [.., last] = slice {
         Some(last)
@@ -1343,8 +1323,6 @@ pub const fn last_mut<T>(slice: &mut [T]) -> Option<&mut T> {
 ///
 /// ```
 ///
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn split_first_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
     if let [first, rem @ ..] = slice {
         Some((first, rem))
@@ -1374,8 +1352,6 @@ pub const fn split_first_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
 ///
 /// ```
 ///
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn split_last_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
     if let [rem @ .., last] = slice {
         Some((last, rem))

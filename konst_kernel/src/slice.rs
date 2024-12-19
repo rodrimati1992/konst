@@ -1,7 +1,5 @@
-#[cfg(feature = "__for_konst")]
 pub mod slice_for_konst;
 
-#[cfg(feature = "__for_konst")]
 pub use self::slice_for_konst::*;
 
 #[doc(hidden)]

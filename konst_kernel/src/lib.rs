@@ -17,47 +17,32 @@ extern crate alloc;
 mod macros;
 
 #[doc(hidden)]
-#[cfg(feature = "__for_konst")]
-#[cfg(feature = "iter")]
 pub mod collect_const;
 
-#[cfg(feature = "__for_konst")]
 pub mod chr;
 
 #[doc(hidden)]
-#[cfg(feature = "__for_konst")]
-#[cfg(feature = "iter")]
 pub mod into_iter;
 
 #[doc(hidden)]
-#[cfg(feature = "__for_konst")]
-#[cfg(feature = "iter")]
 pub mod iter;
 
 pub mod type_eq;
 
 #[doc(hidden)]
-#[cfg(feature = "__for_konst")]
 pub mod maybe_uninit;
 
-#[cfg(feature = "rust_1_64")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub mod slice;
 
-#[cfg(feature = "rust_1_64")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_64")))]
 pub mod string;
 
-#[cfg(feature = "iter")]
 pub mod step_kk;
 
-#[cfg(feature = "__for_konst")]
 pub mod polymorphism;
 
 #[doc(hidden)]
 pub mod __unsafe_utils;
 
-#[cfg(feature = "rust_1_64")]
 #[doc(hidden)]
 pub mod utils;
 
@@ -67,14 +52,12 @@ pub mod __ {
         HasTypeWitness, Identity, MakeTypeWitness, TypeEq, TypeFn, TypeWitnessTypeArg,
     };
 
-    #[cfg(feature = "__for_konst")]
     pub use crate::{
         macros::array_macros::{assert_array, uninit_array_of_len, unit_array},
         maybe_uninit::{array_assume_init, uninit_array},
         type_eq::make_project_fn::__make_projection_parse_generics,
     };
 
-    #[cfg(feature = "iter")]
     pub use crate::{
         collect_const::CollectorCmd,
         into_iter::{IntoIterWrapper, IsConstIntoIter},

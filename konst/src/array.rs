@@ -83,18 +83,13 @@ use leak_warning;
 ///
 pub use konst_kernel::array_map as map;
 
-#[cfg(feature = "rust_1_83")]
 #[doc(hidden)]
 pub mod __array_macros_2;
 
-#[cfg(feature = "rust_1_83")]
 mod array_builder;
 
-#[cfg(feature = "rust_1_83")]
 mod array_consumer;
 
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub use self::{
     array_builder::ArrayBuilder,
     array_consumer::ArrayConsumer,
@@ -102,8 +97,6 @@ pub use self::{
 
 
 
-
-#[cfg(feature = "rust_1_83")]
 macro_rules! drop_warning {
     () => {
         concat!(
@@ -120,7 +113,6 @@ macro_rules! drop_warning {
     };
 }
 
-#[cfg(feature = "rust_1_83")]
 use drop_warning;
 
 /// Const equivalent of
@@ -146,8 +138,6 @@ use drop_warning;
 /// ```
 ///
 #[doc(inline)]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub use crate::__array_map_by_val as map_;
 
 /// Superceeded by [`from_fn_`], const version of
@@ -199,6 +189,4 @@ pub use konst_kernel::array_from_fn as from_fn;
 /// ```
 ///
 #[doc(inline)]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub use crate::__array_from_fn2 as from_fn_;

@@ -2,7 +2,7 @@
 name = "konst"
 version = "0.3.15"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
-rust-version = "1.65.0"
+rust-version = "1.83.0"
 edition = "2021"
 license = "Zlib"
 description = "Const equivalents of std functions, compile-time comparison, and parsing"
@@ -27,7 +27,7 @@ optional = true
 [dependencies.konst_kernel]
 version = "=0.3.15"
 path = "../konst_kernel"
-features = ["rust_1_64", "__for_konst"]
+features = []
 
 [dev-dependencies.rand]
 version = "0.8.4"
@@ -58,11 +58,8 @@ cmp = []
 iter = ["konst_kernel/iter"]
 parsing_proc = ["parsing", "konst_proc_macros"]
 parsing = []
-mut_refs = ["rust_latest_stable", "konst_kernel/mut_refs"]
-nightly_mut_refs = ["mut_refs", "konst_kernel/nightly_mut_refs"]
 
-rust_1_83 = ["konst_kernel/rust_1_83"]
-rust_latest_stable = ["rust_1_83"]
+rust_latest_stable = []
 
 alloc = ["konst_kernel/alloc"]
 
@@ -77,5 +74,5 @@ docsrs = ["konst_kernel/docsrs"]
 
 
 [package.metadata.docs.rs]
-features = ["docsrs", "alloc", "cmp", "parsing_proc", "rust_1_83", "rust_latest_stable", "nightly_mut_refs"]
+features = ["docsrs", "alloc", "cmp", "parsing_proc", "rust_latest_stable", "nightly_mut_refs"]
 

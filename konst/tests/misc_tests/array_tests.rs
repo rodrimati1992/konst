@@ -2,13 +2,10 @@ use crate::misc_tests::test_utils::assert_type;
 
 use konst::array;
 
-#[cfg(feature = "rust_1_83")]
 mod array_builder_tests;
 
-#[cfg(feature = "rust_1_83")]
 mod array_consumer_tests;
 
-#[cfg(feature = "rust_1_83")]
 mod array_map2_tests;
 
 #[derive(Debug, PartialEq)]

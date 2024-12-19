@@ -311,7 +311,6 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 ///
 ///
 #[macro_export]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 macro_rules! destructure {
     // braced struct struct
     ($($(@$is_path:tt)? ::)? $($path:ident)::+ $(,)?{$($braced:tt)*} $($rem:tt)*) => (
