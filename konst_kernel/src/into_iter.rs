@@ -71,6 +71,17 @@ impl<T> IntoIterWrapper<T, IsIteratorKind> {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+impl<'a, T> ConstIntoIter for &'a mut T
+where
+    T: ConstIntoIter<IntoIter = T, Kind = IsIteratorKind>
+{
+    type Kind = IsIteratorKind;
+    type Item = <T as ConstIntoIter>::Item;
+    type IntoIter = &'a mut T;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 #[macro_export]
 macro_rules! into_iter_macro {
     ($iter:expr) => {

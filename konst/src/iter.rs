@@ -207,6 +207,26 @@ pub use konst_kernel::into_iter::IsConstIntoIter;
 /// assert!(iter.next().is_none());
 /// ```
 ///
+/// <span id="iterator-example"></span>
+/// ### By-ref iterator
+///
+/// This example demonstrates how passing mutable references to const iterators works.
+///
+/// ```rust
+/// use konst::{iter, string};
+///
+/// let mut split: string::Split<'_, '_, char> = string::split("foo bar baz", ' ');
+///
+/// // `iter::into_iter` is an identity function when passed mutable references to iterators
+/// let mut iter: &mut string::Split<'_, '_, char> = iter::into_iter!(&mut split);
+/// 
+/// assert_eq!(iter.next().unwrap(), "foo");
+/// assert_eq!(iter.next().unwrap(), "bar");
+///
+/// assert_eq!(split.next().unwrap(), "baz");
+/// assert!(split.next().is_none());
+/// ```
+///
 ///
 #[doc(inline)]
 pub use konst_kernel::into_iter_macro as into_iter;
