@@ -97,8 +97,9 @@ macro_rules! chars_shared {
 
                 let split_at = __find_next_char_boundary(self.this.as_bytes(), 0);
                 let (prev, next) = string::split_at(self.this, split_at);
+                self.this = next;
 
-                Some((string_to_char(prev), Self{this: next}))
+                Some(string_to_char(prev))
             },
             next_back{
                 if self.this.is_empty() {
@@ -107,8 +108,9 @@ macro_rules! chars_shared {
 
                 let split_at = __find_prev_char_boundary(self.this.as_bytes(), self.this.len());
                 let (prev, next) = string::split_at(self.this, split_at);
+                self.this = prev;
 
-                Some((string_to_char(next), Self{this: prev}))
+                Some(string_to_char(next))
             },
             fields = {this},
         }
@@ -213,12 +215,14 @@ macro_rules! chars_shared {
 
                 let split_at = __find_next_char_boundary(self.this.as_bytes(), 0);
                 let (prev, next) = string::split_at(self.this, split_at);
-                let ret = Self {
+                let ret_i = self.start_offset;
+
+                *self = Self {
                     this: next,
                     start_offset: self.start_offset + split_at,
                 };
 
-                Some(((self.start_offset, string_to_char(prev)), ret))
+                Some((ret_i, string_to_char(prev)))
             },
             next_back{
                 if self.this.is_empty() {
@@ -227,12 +231,14 @@ macro_rules! chars_shared {
 
                 let split_at = __find_prev_char_boundary(self.this.as_bytes(), self.this.len());
                 let (prev, next) = string::split_at(self.this, split_at);
-                let ret = Self {
+                let ret_i = self.start_offset + split_at;
+
+                *self = Self {
                     this: prev,
                     start_offset: self.start_offset,
                 };
 
-                Some(((self.start_offset + split_at, string_to_char(next)), ret))
+                Some((ret_i, string_to_char(next)))
             },
             fields = {this, start_offset},
         }

@@ -127,12 +127,11 @@ fn array_chunks_non_zero_chunk_len() {
 
             macro_rules! maybe_rev {($($remainder:ident)?, $($rev:tt)*) => ({
                 let mut citer = slice::array_chunks::<_, CHUNK_LEN>(slice) $($rev)*;
-                let mut celem;
 
                 let mut iter = slice.chunks_exact(CHUNK_LEN) $($rev)*;
 
                 for elem in iter.by_ref() {
-                    (celem, citer) = citer.next().unwrap();
+                    let celem = citer.next().unwrap();
                     assert_eq!(elem, celem);
                 }
 

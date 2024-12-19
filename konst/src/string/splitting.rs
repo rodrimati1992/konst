@@ -76,11 +76,11 @@ enum EmptyState {
 
 macro_rules! split_shared {
     (is_forward = $is_forward:ident) => {
-        const fn next_from_empty(mut self, es: EmptyState) -> Option<(&'a str, Self)> {
+        const fn next_from_empty(&mut self, es: EmptyState) -> Option<&'a str> {
             match es {
                 EmptyState::Start => {
                     self.state = State::Empty(EmptyState::Continue);
-                    Some(("", self))
+                    Some("")
                 }
                 EmptyState::Continue => {
                     use konst_kernel::string::__find_next_char_boundary;
@@ -94,16 +94,16 @@ macro_rules! split_shared {
                     let next_char = __find_next_char_boundary(this.as_bytes(), 0);
                     let (next_char, rem) = string::split_at(this, next_char);
                     self.this = rem;
-                    Some((next_char, self))
+                    Some(next_char)
                 }
             }
         }
 
-        const fn next_back_from_empty(mut self, es: EmptyState) -> Option<(&'a str, Self)> {
+        const fn next_back_from_empty(&mut self, es: EmptyState) -> Option<&'a str> {
             match es {
                 EmptyState::Start => {
                     self.state = State::Empty(EmptyState::Continue);
-                    Some(("", self))
+                    Some("")
                 }
                 EmptyState::Continue => {
                     use konst_kernel::string::__find_prev_char_boundary;
@@ -116,7 +116,7 @@ macro_rules! split_shared {
                     let next_char = __find_prev_char_boundary(this.as_bytes(), this.len());
                     let (rem, next_char) = string::split_at(this, next_char);
                     self.this = rem;
-                    Some((next_char, self))
+                    Some(next_char)
                 }
             }
         }
@@ -130,7 +130,7 @@ macro_rules! split_shared {
                 let Self {
                     this,
                     state,
-                } = self;
+                } = *self;
 
                 match state {
                     State::Normal{delim} => {
@@ -138,12 +138,12 @@ macro_rules! split_shared {
                         match string::find(this, delim) {
                             Some(pos) => {
                                 self.this = str_from(this, pos + delim.len());
-                                Some((str_up_to(this, pos), self))
+                                Some(str_up_to(this, pos))
                             }
                             None => {
                                 self.this = "";
                                 self.state = State::Finished;
-                                Some((this, self))
+                                Some(this)
                             }
                         }
                     }
@@ -155,19 +155,19 @@ macro_rules! split_shared {
                 let Self {
                     this,
                     state,
-                } = self;
+                } = *self;
                 match state {
                     State::Normal{delim} => {
                         let delim = delim.as_str();
                         match string::rfind(this, delim) {
                             Some(pos) => {
                                 self.this = str_up_to(this, pos);
-                                Some((str_from(this, pos + delim.len()), self))
+                                Some(str_from(this, pos + delim.len()))
                             }
                             None => {
                                 self.this = "";
                                 self.state = State::Finished;
-                                Some((this, self))
+                                Some(this)
                             }
                         }
                     }

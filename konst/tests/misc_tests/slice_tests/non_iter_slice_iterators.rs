@@ -22,10 +22,10 @@ macro_rules! compare_with_std {
                 for _ in 0..10 {
                     let pair = if rng.gen() {
                         history.push("next");
-                        (iter.copy().next(), std_iter.next())
+                        (iter.next(), std_iter.next())
                     } else {
                         history.push("next_back");
-                        (iter.copy().next_back(), std_iter.next_back())
+                        (iter.next_back(), std_iter.next_back())
                     };
 
                     let extra_info = || {
@@ -36,12 +36,10 @@ macro_rules! compare_with_std {
                     };
 
                     match pair {
-                        (Some((elem, next_iter)), Some(elem_std)) => {
-                            iter = next_iter;
-
+                        (Some(elem), Some(elem_std)) => {
                             assert_eq!(elem, elem_std, "{}", extra_info());
                         }
-                        (Some((elem, _)), None) => {
+                        (Some(elem), None) => {
                             panic!(
                                 "konst {} had {:?} when std iter was exhausted {}",
                                 stringify!($iter_fn),
@@ -243,7 +241,7 @@ fn chunks_exact_basic() {
             assert_eq!(citer.remainder(), iter.remainder());
 
             for _ in &mut iter {
-                citer = citer.next().unwrap().1;
+                _ = citer.next().unwrap();
             }
 
             assert_eq!(citer.remainder(), iter.remainder());
@@ -255,7 +253,7 @@ fn chunks_exact_basic() {
             assert_eq!(citer.remainder(), iter.remainder());
 
             for _ in iter.by_ref().rev() {
-                citer = citer.next().unwrap().1;
+                _ = citer.next().unwrap();
             }
 
             assert_eq!(citer.remainder(), iter.remainder());
@@ -319,7 +317,7 @@ fn rchunks_exact_basic() {
             assert_eq!(citer.remainder(), iter.remainder());
 
             for _ in &mut iter {
-                citer = citer.next().unwrap().1;
+                _ = citer.next().unwrap();
             }
 
             assert_eq!(citer.remainder(), iter.remainder());
@@ -331,7 +329,7 @@ fn rchunks_exact_basic() {
             assert_eq!(citer.remainder(), iter.remainder());
 
             for _ in iter.by_ref().rev() {
-                citer = citer.next().unwrap().1;
+                _ = citer.next().unwrap();
             }
 
             assert_eq!(citer.remainder(), iter.remainder());

@@ -99,7 +99,7 @@ macro_rules! int_range_shared {
 
                     let ret = self.start;
                     self.start = next;
-                    Some((ret, self))
+                    Some(ret)
                 }
             },
             next_back {
@@ -112,7 +112,7 @@ macro_rules! int_range_shared {
                     debug_assert!(!overflowed);
 
                     self.end = next;
-                    Some((self.end, self))
+                    Some(self.end)
                 }
             },
             fields = {start, end},
@@ -153,7 +153,7 @@ macro_rules! int_range_inc_shared {
                         self.start = next;
                     }
 
-                    Some((ret, self))
+                    Some(ret)
                 }
             },
             next_back {
@@ -170,7 +170,7 @@ macro_rules! int_range_inc_shared {
                     } else {
                         self.end = next;
                     }
-                    Some((ret, self))
+                    Some(ret)
                 }
             },
             fields = {start, end},
@@ -200,7 +200,7 @@ impl<T: Step> RangeFromIter<T> {
 
             let ret = self.start;
             self.start = next;
-            Some((ret, self))
+            Some(ret)
         },
         fields = {start},
     }

@@ -107,9 +107,7 @@ macro_rules! __call_iter_methods {
             ( $($iters)* (
                 {}
 
-                let $item = if let $crate::__::Some((elem_, next_)) = $iter_var.$next_fn() {
-                    $iter_var = next_;
-
+                let $item = if let $crate::__::Some(elem_) = $iter_var.$next_fn() {
                     ($item, elem_)
                 } else {
                     $crate::__cim_break!{(($($rem_vars)*) $($rem_fixed)*)}
@@ -501,10 +499,7 @@ macro_rules! __cim_flat_map {
                             $crate::__annotate_type!{$($ret_ty)? => $v}
                         )
                     }
-                    let $item = if let $crate::__::Some((elem_, next_)) = iter.$next_fn() {
-                        iter = next_;
-                        elem_
-                    } else {
+                    let $crate::__::Some($item) = iter.$next_fn() else {
                         break;
                     };
                 )

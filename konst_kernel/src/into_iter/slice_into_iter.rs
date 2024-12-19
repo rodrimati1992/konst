@@ -73,7 +73,7 @@ macro_rules! iter_shared {
             next(self) {
                 if let [elem, rem @ ..] = self.slice {
                     self.slice = rem;
-                    Some((elem, self))
+                    Some(elem)
                 } else {
                     None
                 }
@@ -81,7 +81,7 @@ macro_rules! iter_shared {
             next_back {
                 if let [rem @ .., elem] = self.slice {
                     self.slice = rem;
-                    Some((elem, self))
+                    Some(elem)
                 } else {
                     None
                 }
@@ -141,7 +141,7 @@ mod copied {
                 next(self) {
                     if let [elem, rem @ ..] = self.slice {
                         self.slice = rem;
-                        Some((*elem, self))
+                        Some(*elem)
                     } else {
                         None
                     }
@@ -149,7 +149,7 @@ mod copied {
                 next_back {
                     if let [rem @ .., elem] = self.slice {
                         self.slice = rem;
-                        Some((*elem, self))
+                        Some(*elem)
                     } else {
                         None
                     }

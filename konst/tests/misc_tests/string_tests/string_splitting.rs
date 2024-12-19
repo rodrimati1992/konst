@@ -179,7 +179,7 @@ fn test_str_split_with_non_ascii_char_arg() {
 fn next_basic() {
     let string = "foo-bar-baz";
 
-    for iter in [
+    for mut iter in [
         string::split(string, "-"),
         string::split(string, "-").copy(),
         string::rsplit(string, "-").rev(),
@@ -187,22 +187,19 @@ fn next_basic() {
         let _: string::Split<'_, '_, &str> = iter;
         assert_eq!(iter.remainder(), "foo-bar-baz");
 
-        let (elem, iter) = iter.next().unwrap();
-        assert_eq!(elem, "foo");
+        assert_eq!(iter.next().unwrap(), "foo");
         assert_eq!(iter.remainder(), "bar-baz");
 
-        let (elem, iter) = iter.next().unwrap();
-        assert_eq!(elem, "bar");
+        assert_eq!(iter.next().unwrap(), "bar");
         assert_eq!(iter.remainder(), "baz");
 
-        let (elem, iter) = iter.next().unwrap();
-        assert_eq!(elem, "baz");
+        assert_eq!(iter.next().unwrap(), "baz");
         assert_eq!(iter.remainder(), "");
 
         assert!(iter.next().is_none());
     }
 
-    for iter in [
+    for mut iter in [
         string::split(string, "-").rev(),
         string::rsplit(string, "-"),
         string::rsplit(string, "-").copy(),
@@ -210,16 +207,13 @@ fn next_basic() {
         let _: string::RSplit<'_, '_, &str> = iter;
         assert_eq!(iter.remainder(), "foo-bar-baz");
 
-        let (elem, iter) = iter.next().unwrap();
-        assert_eq!(elem, "baz");
+        assert_eq!(iter.next().unwrap(), "baz");
         assert_eq!(iter.remainder(), "foo-bar");
 
-        let (elem, iter) = iter.next().unwrap();
-        assert_eq!(elem, "bar");
+        assert_eq!(iter.next().unwrap(), "bar");
         assert_eq!(iter.remainder(), "foo");
 
-        let (elem, iter) = iter.next().unwrap();
-        assert_eq!(elem, "foo");
+        assert_eq!(iter.next().unwrap(), "foo");
         assert_eq!(iter.remainder(), "");
 
         assert!(iter.next().is_none());
@@ -231,45 +225,39 @@ fn next_basic_terminated() {
     let fwd_string = "foo-bar-baz-";
     let rev_string = "-foo-bar-baz";
 
-    for iter in [
+    for mut iter in [
         string::split_terminator(fwd_string, "-"),
         string::split_terminator(fwd_string, "-").copy(),
     ] {
         let _: string::SplitTerminator<'_, '_, &str> = iter;
         assert_eq!(iter.remainder(), "foo-bar-baz-");
 
-        let (elem, iter) = iter.next().unwrap();
-        assert_eq!(elem, "foo");
+        assert_eq!(iter.next().unwrap(), "foo");
         assert_eq!(iter.remainder(), "bar-baz-");
 
-        let (elem, iter) = iter.next().unwrap();
-        assert_eq!(elem, "bar");
+        assert_eq!(iter.next().unwrap(), "bar");
         assert_eq!(iter.remainder(), "baz-");
 
-        let (elem, iter) = iter.next().unwrap();
-        assert_eq!(elem, "baz");
+        assert_eq!(iter.next().unwrap(), "baz");
         assert_eq!(iter.remainder(), "");
 
         assert!(iter.next().is_none());
     }
 
-    for iter in [
+    for mut iter in [
         string::rsplit_terminator(rev_string, "-"),
         string::rsplit_terminator(rev_string, "-").copy(),
     ] {
         let _: string::RSplitTerminator<'_, '_, &str> = iter;
         assert_eq!(iter.remainder(), "-foo-bar-baz");
 
-        let (elem, iter) = iter.next().unwrap();
-        assert_eq!(elem, "baz");
+        assert_eq!(iter.next().unwrap(), "baz");
         assert_eq!(iter.remainder(), "-foo-bar");
 
-        let (elem, iter) = iter.next().unwrap();
-        assert_eq!(elem, "bar");
+        assert_eq!(iter.next().unwrap(), "bar");
         assert_eq!(iter.remainder(), "-foo");
 
-        let (elem, iter) = iter.next().unwrap();
-        assert_eq!(elem, "foo");
+        assert_eq!(iter.next().unwrap(), "foo");
         assert_eq!(iter.remainder(), "");
 
         assert!(iter.next().is_none());
@@ -280,44 +268,38 @@ fn next_basic_terminated() {
 fn next_back_basic() {
     let string = "foo-bar-baz";
 
-    for iter in [
+    for mut iter in [
         string::split(string, "-"),
         string::split(string, "-").copy(),
         string::rsplit(string, "-").rev(),
     ] {
         let _: string::Split<'_, '_, &str> = iter;
 
-        let (elem, iter) = iter.next_back().unwrap();
-        assert_eq!(elem, "baz");
+        assert_eq!(iter.next_back().unwrap(), "baz");
         assert_eq!(iter.remainder(), "foo-bar");
 
-        let (elem, iter) = iter.next_back().unwrap();
-        assert_eq!(elem, "bar");
+        assert_eq!(iter.next_back().unwrap(), "bar");
         assert_eq!(iter.remainder(), "foo");
 
-        let (elem, iter) = iter.next_back().unwrap();
-        assert_eq!(elem, "foo");
+        assert_eq!(iter.next_back().unwrap(), "foo");
         assert_eq!(iter.remainder(), "");
 
         assert!(iter.next_back().is_none());
     }
 
-    for iter in [
+    for mut iter in [
         string::split(string, "-").rev(),
         string::rsplit(string, "-"),
     ] {
         let _: string::RSplit<'_, '_, &str> = iter;
 
-        let (elem, iter) = iter.next_back().unwrap();
-        assert_eq!(elem, "foo");
+        assert_eq!(iter.next_back().unwrap(), "foo");
         assert_eq!(iter.remainder(), "bar-baz");
 
-        let (elem, iter) = iter.next_back().unwrap();
-        assert_eq!(elem, "bar");
+        assert_eq!(iter.next_back().unwrap(), "bar");
         assert_eq!(iter.remainder(), "baz");
 
-        let (elem, iter) = iter.next_back().unwrap();
-        assert_eq!(elem, "baz");
+        assert_eq!(iter.next_back().unwrap(), "baz");
         assert_eq!(iter.remainder(), "");
 
         assert!(iter.next_back().is_none());

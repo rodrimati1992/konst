@@ -112,12 +112,12 @@ impl<'a, 'p, P: Pattern<'p>> SplitTerminator<'a, 'p, P> {
             let Self {
                 this,
                 state,
-            } = self;
+            } = *self;
 
             match state {
                 State::Empty(EmptyState::Start) => {
                     self.state = State::Empty(EmptyState::Continue);
-                    Some(("", self))
+                    Some("")
                 }
                 _ if this.is_empty() => {
                     None
@@ -129,7 +129,7 @@ impl<'a, 'p, P: Pattern<'p>> SplitTerminator<'a, 'p, P> {
                         None => (this.len(), this.len()),
                     };
                     self.this = str_from(this, next);
-                    Some((str_up_to(this, ret), self))
+                    Some(str_up_to(this, ret))
                 }
                 State::Empty(EmptyState::Continue) => {
                     use konst_kernel::string::__find_next_char_boundary;
@@ -137,7 +137,7 @@ impl<'a, 'p, P: Pattern<'p>> SplitTerminator<'a, 'p, P> {
                     let next_char = __find_next_char_boundary(self.this.as_bytes(), 0);
                     let (next_char, rem) = string::split_at(self.this, next_char);
                     self.this = rem;
-                    Some((next_char, self))
+                    Some(next_char)
                 }
             }
         },
@@ -201,12 +201,12 @@ impl<'a, 'p, P: Pattern<'p>> RSplitTerminator<'a, 'p, P> {
             let Self {
                 this,
                 state,
-            } = self;
+            } = *self;
 
             match state {
                 State::Empty(EmptyState::Start) => {
                     self.state = State::Empty(EmptyState::Continue);
-                    Some(("", self))
+                    Some("")
                 }
                 _ if this.is_empty() => {
                     None
@@ -218,7 +218,7 @@ impl<'a, 'p, P: Pattern<'p>> RSplitTerminator<'a, 'p, P> {
                         None => (0, 0),
                     };
                     self.this = str_up_to(this, next);
-                    Some((str_from(this, ret), self))
+                    Some(str_from(this, ret))
                 }
                 State::Empty(EmptyState::Continue) => {
                     use konst_kernel::string::__find_prev_char_boundary;
@@ -227,7 +227,7 @@ impl<'a, 'p, P: Pattern<'p>> RSplitTerminator<'a, 'p, P> {
                     let next_char = __find_prev_char_boundary(bytes, bytes.len());
                     let (rem, next_char) = string::split_at(self.this, next_char);
                     self.this = rem;
-                    Some((next_char, self))
+                    Some(next_char)
                 }
             }
         },

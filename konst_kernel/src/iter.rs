@@ -275,9 +275,8 @@ make__cim_preprocess_methods__macro! {
                     }
 
                     let elem_phantom_ty = $crate::iter::__get_item_ty(&$iter_var);
-                    let $item = if let $crate::__::Some((elem_, next_)) = $iter_var.$next_fn() {
+                    let $item = if let $crate::__::Some(elem_) = $iter_var.$next_fn() {
                         $crate::iter::__assert_item_ty(&elem_, elem_phantom_ty);
-                        $iter_var = next_;
                         elem_
                     } else {
                         break $label;

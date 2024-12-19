@@ -44,7 +44,7 @@ pub use iterator_adaptors::*;
 /// }
 ///
 /// impl Upto10 {
-///     const fn next(mut self) -> Option<(u8, Self)> {
+///     const fn next(&mut self) -> Option<(u8, Self)> {
 ///         if self.0 < 10 {
 ///             let ret = self.0;
 ///             self.0 += 1;
@@ -75,7 +75,7 @@ pub use iterator_adaptors::*;
 /// const fn add_pairs<const N: usize>(l: [u32; N], r: [u32; N]) -> [u32; N] {
 ///     let mut out = [0u32; N];
 ///
-///     for_each!{(i, val) in &l,zip(&r),map(|(l, r)| *l + *r),enumerate() =>
+///     for_each!{(i, val) in l,zip(r),map(|(l, r)| l + r),enumerate() =>
 ///         out[i] = val;
 ///     }
 ///
@@ -127,17 +127,11 @@ pub use konst_kernel::into_iter::IsConstIntoIter;
 /// ```rust
 /// use konst::{iter, slice};
 ///
-/// let mut elem;
 /// let mut iter: slice::Iter<'_, u8> = iter::into_iter!(&[3, 5, 8]);
 ///
-/// (elem, iter) = iter.next().unwrap();
-/// assert_eq!(elem, &3);
-///
-/// (elem, iter) = iter.next().unwrap();
-/// assert_eq!(elem, &5);
-///
-/// (elem, iter) = iter.next().unwrap();
-/// assert_eq!(elem, &8);
+/// assert_eq!(iter.next().unwrap(), &3);
+/// assert_eq!(iter.next().unwrap(), &5);
+/// assert_eq!(iter.next().unwrap(), &8);
 ///
 /// assert!(iter.next().is_none());
 ///
@@ -152,16 +146,10 @@ pub use konst_kernel::into_iter::IsConstIntoIter;
 /// use konst::{iter, string};
 ///
 /// let mut iter: Countdown = iter::into_iter!(Number(3));
-/// let mut elem;
-///
-/// (elem, iter) = iter.next().unwrap();
-/// assert_eq!(elem, 2);
-///
-/// (elem, iter) = iter.next().unwrap();
-/// assert_eq!(elem, 1);
-///
-/// (elem, iter) = iter.next().unwrap();
-/// assert_eq!(elem, 0);
+/// 
+/// assert_eq!(iter.next().unwrap(), 2);
+/// assert_eq!(iter.next().unwrap(), 1);
+/// assert_eq!(iter.next().unwrap(), 0);
 ///
 /// assert!(iter.next().is_none());
 ///
@@ -189,9 +177,10 @@ pub use konst_kernel::into_iter::IsConstIntoIter;
 /// }
 ///
 /// impl Countdown {
-///     const fn next(self) -> Option<(u32, Self)> {
+///     const fn next(&mut self) -> Option<u32> {
 ///         let next = konst::try_opt!(self.0.checked_sub(1));
-///         Some((next, Countdown(next)))
+///         self.0 = next;
+///         Some(next)
 ///     }
 /// }
 ///
@@ -210,16 +199,10 @@ pub use konst_kernel::into_iter::IsConstIntoIter;
 ///
 /// // `iter::into_iter` is an identity function when passed iterators
 /// let mut iter: string::Split<'_, '_, char> = iter::into_iter!(iter);
-/// let mut elem;
-///
-/// (elem, iter) = iter.next().unwrap();
-/// assert_eq!(elem, "foo");
-///
-/// (elem, iter) = iter.next().unwrap();
-/// assert_eq!(elem, "bar");
-///
-/// (elem, iter) = iter.next().unwrap();
-/// assert_eq!(elem, "baz");
+/// 
+/// assert_eq!(iter.next().unwrap(), "foo");
+/// assert_eq!(iter.next().unwrap(), "bar");
+/// assert_eq!(iter.next().unwrap(), "baz");
 ///
 /// assert!(iter.next().is_none());
 /// ```

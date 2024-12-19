@@ -9,7 +9,7 @@ impl ConstIntoIter for WrongItem {
 }
 
 impl WrongItem {
-    const fn next(self) -> Option<(u64, Self)> {
+    const fn next(&mut self) -> Option<u64> {
         None
     }
 }
@@ -28,7 +28,7 @@ impl ConstIntoIter for WrongIntoIter {
 }
 
 impl WrongIntoIter {
-    const fn next(self) -> Option<(u8, Self)> {
+    const fn next(&mut self) -> Option<u8> {
         None
     }
 }

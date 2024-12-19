@@ -195,7 +195,7 @@ mod requires_rust_1_64 {
                     } else {
                         let up_to = slice::slice_up_to(self.slice, self.size);
                         self.slice = slice::slice_from(self.slice, 1);
-                        Some((up_to, self))
+                        Some(up_to)
                     }
                 },
                 next_back {
@@ -205,7 +205,7 @@ mod requires_rust_1_64 {
                     } else {
                         let up_to = slice::slice_from(self.slice, len - self.size);
                         self.slice = slice::slice_up_to(self.slice, len - 1);
-                        Some((up_to, self))
+                        Some(up_to)
                     }
                 },
                 fields = {slice, size},
@@ -305,13 +305,19 @@ mod requires_rust_1_64 {
                 iter_reversed = ArrayChunksRev<'a, T, N>,
                 next(self) {
                     match self.arrays {
-                        [elem, arrays @ ..] => Some((elem, Self {arrays, rem: self.rem})),
+                        [elem, arrays @ ..] => {
+                            self.arrays = arrays;
+                            Some(elem)
+                        }
                         [] => None,
                     }
                 },
                 next_back {
                     match self.arrays {
-                        [arrays @ .., elem] => Some((elem, Self {arrays, rem: self.rem})),
+                        [arrays @ .., elem] => {
+                            self.arrays = arrays;
+                            Some(elem)
+                        }
                         [] => None,
                     }
                 },
@@ -404,7 +410,7 @@ mod requires_rust_1_64 {
                     option::map!(self.slice, |slice| {
                         let (ret, next) = slice::split_at(slice, self.chunk_size);
                         self.slice = some_if_nonempty(next);
-                        (ret, self)
+                        ret
                     })
                 },
                 next_back{
@@ -412,7 +418,7 @@ mod requires_rust_1_64 {
                         let at = (slice.len() - 1) / self.chunk_size * self.chunk_size;
                         let (next, ret) = slice::split_at(slice, at);
                         self.slice = some_if_nonempty(next);
-                        (ret, self)
+                        ret
                     })
                 },
                 fields = {slice, chunk_size},
@@ -516,7 +522,7 @@ mod requires_rust_1_64 {
                         let at = slice.len().saturating_sub(self.chunk_size);
                         let (next, ret) = slice::split_at(slice, at);
                         self.slice = some_if_nonempty(next);
-                        (ret, self)
+                        ret
                     })
                 },
                 next_back{
@@ -525,7 +531,7 @@ mod requires_rust_1_64 {
                         let at = if rem == 0 { self.chunk_size } else { rem };
                         let (ret, next) = slice::split_at(slice, at);
                         self.slice = some_if_nonempty(next);
-                        (ret, self)
+                        ret
                     })
                 },
                 fields = {slice, chunk_size},
@@ -638,7 +644,7 @@ mod requires_rust_1_64 {
                     } else {
                         let (ret, next) = slice::split_at(self.slice, self.chunk_size);
                         self.slice = next;
-                        Some((ret, self))
+                        Some(ret)
                     }
                 },
                 next_back {
@@ -648,7 +654,7 @@ mod requires_rust_1_64 {
                         let at = self.slice.len() - self.chunk_size;
                         let (next, ret) = slice::split_at(self.slice, at);
                         self.slice = next;
-                        Some((ret, self))
+                        Some(ret)
                     }
                 },
                 fields = {slice, rem, chunk_size},
@@ -769,7 +775,7 @@ mod requires_rust_1_64 {
                         let at = self.slice.len() - self.chunk_size;
                         let (next, ret) = slice::split_at(self.slice, at);
                         self.slice = next;
-                        Some((ret, self))
+                        Some(ret)
                     }
                 },
                 next_back {
@@ -778,7 +784,7 @@ mod requires_rust_1_64 {
                     } else {
                         let (ret, next) = slice::split_at(self.slice, self.chunk_size);
                         self.slice = next;
-                        Some((ret, self))
+                        Some(ret)
                     }
                 },
                 fields = {slice, rem, chunk_size},

@@ -14,12 +14,12 @@ impl<T> ConstIntoIter for Repeat<T> {
 
 impl<T: Copy> Repeat<T> {
     /// Gets the next element in the iterator
-    pub const fn next(self) -> Option<(T, Self)> {
-        Some((self.0, self))
+    pub const fn next(&mut self) -> Option<T> {
+        Some(self.0)
     }
     /// Gets the next element in the iterator
-    pub const fn next_back(self) -> Option<(T, Self)> {
-        Some((self.0, self))
+    pub const fn next_back(&mut self) -> Option<T> {
+        Some(self.0)
     }
     /// Reverses the iterator
     pub const fn rev(self) -> Self {
