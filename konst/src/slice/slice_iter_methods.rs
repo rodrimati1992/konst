@@ -279,13 +279,13 @@ mod requires_rust_1_64 {
     ///
     /// let arr = [3, 5, 8, 13, 21, 34, 55];
     ///
-    /// let iter = slice::array_chunks::<_, 2>(&arr);
+    /// let mut iter = slice::array_chunks::<_, 2>(&arr);
     ///
-    /// let (val0, iter) = iter.next().unwrap();
-    /// let (val1, iter) = iter.next().unwrap();
-    /// let (val2, iter) = iter.next().unwrap();
+    /// let val0 = *iter.next().unwrap();
+    /// let val1 = *iter.next().unwrap();
+    /// let val2 = *iter.next().unwrap();
     ///
-    /// let out: [[u8; 2]; 3] = [*val0, *val1, *val2];
+    /// let out: [[u8; 2]; 3] = [val0, val1, val2];
     /// assert_eq!(out, [[3, 5], [8, 13], [21, 34]]);
     ///
     /// assert_eq!(iter.remainder(), &[55][..]);
@@ -604,9 +604,9 @@ mod requires_rust_1_64 {
     /// use konst::{option, slice};
     ///
     /// const FOUND: [&[u8]; 3] = {
-    ///     let iter = slice::chunks_exact(&[3, 5, 8, 13, 21, 34, 55, 89], 3);
-    ///     let (elem0, iter) = option::unwrap!(iter.next());
-    ///     let (elem1, iter) = option::unwrap!(iter.next());
+    ///     let mut iter = slice::chunks_exact(&[3, 5, 8, 13, 21, 34, 55, 89], 3);
+    ///     let elem0 = iter.next().unwrap();
+    ///     let elem1 = iter.next().unwrap();
     ///     [elem0, elem1, iter.remainder()]
     /// };
     ///
@@ -735,9 +735,9 @@ mod requires_rust_1_64 {
     /// use konst::{option, slice};
     ///
     /// const FOUND: [&[u8]; 3] = {
-    ///     let iter = slice::rchunks_exact(&[3, 5, 8, 13, 21, 34, 55, 89], 3);
-    ///     let (elem0, iter) = option::unwrap!(iter.next());
-    ///     let (elem1, iter) = option::unwrap!(iter.next());
+    ///     let mut iter = slice::rchunks_exact(&[3, 5, 8, 13, 21, 34, 55, 89], 3);
+    ///     let elem0 = option::unwrap!(iter.next());
+    ///     let elem1 = option::unwrap!(iter.next());
     ///     [elem0, elem1, iter.remainder()]
     /// };
     ///

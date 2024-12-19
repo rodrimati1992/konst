@@ -149,19 +149,16 @@ impl<'a, 'p, P: Pattern<'p>> SplitTerminator<'a, 'p, P> {
     /// # Example
     ///
     /// ```rust
-    /// let iter = konst::string::split_terminator("foo,bar,baz,", ",");
+    /// let mut iter = konst::string::split_terminator("foo,bar,baz,", ",");
     /// assert_eq!(iter.remainder(), "foo,bar,baz,");
     ///
-    /// let (elem, iter) = iter.next().unwrap();
-    /// assert_eq!(elem, "foo");
+    /// assert_eq!(iter.next().unwrap(), "foo");
     /// assert_eq!(iter.remainder(), "bar,baz,");
     ///
-    /// let (elem, iter) = iter.next().unwrap();
-    /// assert_eq!(elem, "bar");
+    /// assert_eq!(iter.next().unwrap(), "bar");
     /// assert_eq!(iter.remainder(), "baz,");
     ///
-    /// let (elem, iter) = iter.next().unwrap();
-    /// assert_eq!(elem, "baz");
+    /// assert_eq!(iter.next().unwrap(), "baz");
     /// assert_eq!(iter.remainder(), "");
     ///
     /// ```
@@ -239,19 +236,16 @@ impl<'a, 'p, P: Pattern<'p>> RSplitTerminator<'a, 'p, P> {
     /// # Example
     ///
     /// ```rust
-    /// let iter = konst::string::rsplit_terminator("=foo=bar=baz", "=");
+    /// let mut iter = konst::string::rsplit_terminator("=foo=bar=baz", "=");
     /// assert_eq!(iter.remainder(), "=foo=bar=baz");
     ///
-    /// let (elem, iter) = iter.next().unwrap();
-    /// assert_eq!(elem, "baz");
+    /// assert_eq!(iter.next().unwrap(), "baz");
     /// assert_eq!(iter.remainder(), "=foo=bar");
     ///
-    /// let (elem, iter) = iter.next().unwrap();
-    /// assert_eq!(elem, "bar");
+    /// assert_eq!(iter.next().unwrap(), "bar");
     /// assert_eq!(iter.remainder(), "=foo");
     ///
-    /// let (elem, iter) = iter.next().unwrap();
-    /// assert_eq!(elem, "foo");
+    /// assert_eq!(iter.next().unwrap(), "foo");
     /// assert_eq!(iter.remainder(), "");
     ///
     /// ```

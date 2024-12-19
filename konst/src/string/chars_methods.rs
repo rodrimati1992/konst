@@ -130,7 +130,7 @@ impl<'a> Chars<'a> {
     /// const S: &str = {
     ///     let mut iter = string::chars("hello world");
     ///     for_range!{_ in 0..6 =>
-    ///         (_, iter) = option::unwrap!(iter.next());
+    ///         _ = iter.next().unwrap();
     ///     }
     ///     iter.as_str()
     /// };
@@ -258,7 +258,7 @@ impl<'a> CharIndices<'a> {
     /// const S: &str = {
     ///     let mut iter = string::char_indices("this is fine");
     ///     for_range!{_ in 0..8 =>
-    ///         (_, iter) = option::unwrap!(iter.next());
+    ///         _ = iter.next().unwrap();
     ///     }
     ///     iter.as_str()
     /// };

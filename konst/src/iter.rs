@@ -44,11 +44,11 @@ pub use iterator_adaptors::*;
 /// }
 ///
 /// impl Upto10 {
-///     const fn next(&mut self) -> Option<(u8, Self)> {
+///     const fn next(&mut self) -> Option<u8> {
 ///         if self.0 < 10 {
 ///             let ret = self.0;
 ///             self.0 += 1;
-///             Some((ret, self))
+///             Some(ret)
 ///         } else {
 ///             None
 ///         }
@@ -253,7 +253,7 @@ pub use konst_kernel::into_iter_macro as into_iter;
 /// # type Item = u8;
 /// # impl SomeIterator {
 /// // Equivalent to `Iterator::next`
-/// const fn next(self) -> Option<(Item, Self)> {
+/// const fn next(self) -> Option<Item> {
 /// #   loop{}
 /// # }
 /// # }
@@ -268,7 +268,7 @@ pub use konst_kernel::into_iter_macro as into_iter;
 /// # type Item = u8;
 /// # impl SomeIterator {
 /// // equivalent to `DoubleEndedÌterator::mext_back`
-/// const fn next_back(self) -> Option<(Item, Self)> {
+/// const fn next_back(self) -> Option<Item> {
 /// #   loop{}
 ///     // ... some code...
 /// }
@@ -347,10 +347,10 @@ pub use konst_kernel::into_iter_macro as into_iter;
 /// }
 ///
 /// impl Countdown {
-///     const fn next(mut self) -> Option<(u8, Self)> {
+///     const fn next(&mut self) -> Option<u8> {
 ///         konst::option::map!(self.0.checked_sub(1), |ret| {
 ///             self.0 = ret;
-///             (ret, self)
+///             ret
 ///         })
 ///     }
 /// }
@@ -406,22 +406,22 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///         Self {start: 1, end: 13}
 ///     }
 ///
-///     const fn next(mut self) -> Option<(u8, Self)> {
+///     const fn next(&mut self) -> Option<u8> {
 ///         if self.start == self.end {
 ///             None
 ///         } else {
 ///             let ret = self.start;
 ///             self.start += 1;
-///             Some((ret, self))
+///             Some(ret)
 ///         }
 ///     }
 ///
-///     const fn next_back(mut self) -> Option<(u8, Self)> {
+///     const fn next_back(&mut self) -> Option<u8> {
 ///         if self.start == self.end {
 ///             None
 ///         } else {
 ///             self.end -= 1;
-///             Some((self.end, self))
+///             Some(self.end)
 ///         }
 ///     }
 ///
@@ -432,8 +432,7 @@ pub use konst_kernel::into_iter_macro as into_iter;
 ///     /// Since `Clone::clone` isn't const callable on stable,
 ///     /// clonable iterators must define an inherent method to be cloned
 ///     const fn copy(&self) -> Self {
-///         let Self{start, end} = *self;
-///         Self{start, end}
+///         Self {..*self}
 ///     }
 /// }
 ///
@@ -446,12 +445,12 @@ pub use konst_kernel::into_iter_macro as into_iter;
 /// }
 ///
 /// impl HoursRev {
-///     const fn next(self) -> Option<(u8, Self)> {
-///         konst::option::map!(self.0.next_back(), |(a, h)| (a, HoursRev(h)))
+///     const fn next(&mut self) -> Option<u8> {
+///         self.0.next_back()
 ///     }
 ///
-///     const fn next_back(self) -> Option<(u8, Self)> {
-///         konst::option::map!(self.0.next(), |(a, h)| (a, HoursRev(h)))
+///     const fn next_back(&mut self) -> Option<u8> {
+///         self.0.next()
 ///     }
 ///
 ///     const fn rev(self) -> Hours {
