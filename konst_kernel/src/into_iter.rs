@@ -3,6 +3,7 @@ use core::{marker::PhantomData, mem::ManuallyDrop};
 #[doc(no_inline)]
 pub use crate::polymorphism::kinds::{IsIntoIterKind, IsIteratorKind, IsStdKind};
 
+pub mod option_into_iter;
 pub mod range_into_iter;
 pub mod slice_into_iter;
 

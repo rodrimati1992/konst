@@ -49,3 +49,14 @@ macro_rules! __choose {
         $else
     };
 }
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __choose_alt {
+    ((true $($cond:tt)*) {$($then:tt)*} $(else $else:tt)?) => {
+        $($then)*
+    };
+    ((false $($cond:tt)*) $then:tt $(else {$($else:tt)*})?) => {
+        $($($else)*)?
+    };
+}

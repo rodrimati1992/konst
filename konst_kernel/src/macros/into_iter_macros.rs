@@ -3,6 +3,7 @@
 macro_rules! iterator_shared {
     (
         is_forward = $is_forward:ident,
+        $(is_copy = $is_copy:ident,)?
         item = $Item:ty,
         iter_forward = $Self:ty,
         $(iter_reversed = $Rev:path,)?
@@ -10,11 +11,13 @@ macro_rules! iterator_shared {
         $(next_back $next_back_block:block,)?
         fields = $fields:tt,
     ) => {
-        /// Creates a clone of this iterator
-        pub const fn copy(&self) -> Self {
-            let Self $fields = *self;
-            Self $fields
-        }
+        $crate::__choose_alt! {($($is_copy)? true) {
+            /// Creates a clone of this iterator
+            pub const fn copy(&self) -> Self {
+                let Self $fields = *self;
+                Self $fields
+            }
+        }}
 
         $(
             /// Reverses the iterator

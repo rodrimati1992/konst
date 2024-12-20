@@ -19,6 +19,8 @@ mod misc_tests {
     mod maybe_uninit_tests;
 
     mod macro_tests;
+    
+    mod option_tests;
 
     mod slice_tests;
 

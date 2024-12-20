@@ -1,5 +1,13 @@
 //! `const` equivalents of `Option` methods.
 
+
+
+mod option_iterators;
+
+pub use self::option_iterators::*;
+
+
+
 /// A const equivalent of [`Option::unwrap`]
 ///
 /// # Const stabilization
