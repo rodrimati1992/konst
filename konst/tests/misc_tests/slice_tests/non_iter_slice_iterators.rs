@@ -261,6 +261,60 @@ fn rchunks_mixed_direction() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+//                  rchunks_mut iterator
+
+#[test]
+fn slice_rchunks_mut_const_callable() {
+    type _Tup<T> = (T, T, T);
+
+    const fn __<'a>((slicea, sliceb, slicec): _Tup<&'a mut [u8]>) {
+        let _: konst::slice::RChunksMut<'a, u8> = konst::slice::rchunks_mut(slicea, 3);
+
+        konst::slice::rchunks_mut(slicec, 3).next();
+        konst::slice::rchunks_mut(slicec, 3).next_back();
+
+        let mut rev: konst::slice::RChunksMutRev<'a, u8> =
+            konst::slice::rchunks_mut(sliceb, 3).rev();
+
+        rev.next();
+        rev.next_back();
+        let _: konst::slice::RChunksMut<'a, u8> = rev.rev();
+    }
+}
+
+#[test]
+fn rchunks_mut_basic() {
+    let slice: &mut [u8] = &mut [3, 5, 8, 13, 21];
+    let sliceb: &mut [u8] = &mut [3, 5, 8, 13, 21];
+
+    must_panic(file_span!(), || konst::slice::rchunks_mut(&mut [0; 0], 0)).unwrap();
+    must_panic(file_span!(), || konst::slice::rchunks_mut(slice, 0)).unwrap();
+
+    for size in 1..10 {
+        assert_eq!(
+            collect_const_iter!(slice::rchunks_mut(slice, size)),
+            sliceb.rchunks_mut(size).collect::<Vec<_>>(),
+            "size: {}",
+            size,
+        );
+        assert_eq!(
+            collect_const_iter!(slice::rchunks_mut(slice, size).rev()),
+            sliceb.rchunks_mut(size).rev().collect::<Vec<_>>(),
+            "size: {}",
+            size,
+        );
+    }
+}
+
+// expensive, and doesn't use unsafe, so no need for miri checking
+#[cfg(not(miri))]
+#[test]
+fn rchunks_mut_mixed_direction() {
+    compare_with_std!(rchunks_mut)
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 //                  chunks_exact iterator
 
 #[test]

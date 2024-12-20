@@ -873,6 +873,118 @@ mod requires_rust_1_64 {
     ///////////////////////////////////////////////////////////////////////////
 
     /// Const equivalent of
+    /// [`<[T]>::rchunks_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.rchunks_mut)
+    ///
+    /// # Panics
+    ///
+    /// Panics if `chunk_size == 0`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::slice;
+    ///
+    /// let mut array = [3, 5, 8, 13, 21, 34, 55];
+    /// let mut iter = slice::rchunks_mut(&mut array, 3);
+    /// 
+    /// assert_eq!(iter.next(), Some(&mut [21, 34, 55][..]));
+    /// assert_eq!(iter.next(), Some(&mut [5, 8, 13][..]));
+    /// assert_eq!(iter.next(), Some(&mut [3][..]));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    #[track_caller]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub const fn rchunks_mut<T>(slice: &mut [T], chunk_size: usize) -> RChunksMut<'_, T> {
+        assert!(chunk_size != 0, "chunk size must be non-zero");
+
+        RChunksMut {
+            slice: some_if_nonempty_mut(slice),
+            chunk_size,
+        }
+    }
+
+    macro_rules! rchunks_mut_shared {
+        (is_forward = $is_forward:ident) => {
+            iterator_shared! {
+                is_forward = $is_forward,
+                is_copy = false,
+                item = &'a mut [T],
+                iter_forward = RChunksMut<'a, T>,
+                iter_reversed = RChunksMutRev<'a, T>,
+                next(self) {
+                    option::map!(self.slice.take(), |slice| {
+                        let at = slice.len().saturating_sub(self.chunk_size);
+                        let (next, ret) = slice::split_at_mut(slice, at);
+                        self.slice = some_if_nonempty_mut(next);
+                        ret
+                    })
+                },
+                next_back{
+                    option::map!(self.slice.take(), |slice| {
+                        let rem = slice.len() % self.chunk_size;
+                        let at = if rem == 0 { self.chunk_size } else { rem };
+                        let (ret, next) = slice::split_at_mut(slice, at);
+                        self.slice = some_if_nonempty_mut(next);
+                        ret
+                    })
+                },
+                fields = {slice, chunk_size},
+            }
+        };
+    }
+
+    /// Const equivalent of [`core::slice::RChunksMut`]
+    ///
+    /// This is constructed with [`rchunks_mut`] like this:
+    /// ```rust
+    /// # let slice = &mut [3];
+    /// # let _ =
+    /// konst::slice::rchunks_mut(slice, 1)
+    /// # ;
+    /// ```
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub struct RChunksMut<'a, T> {
+        slice: Option<&'a mut [T]>,
+        chunk_size: usize,
+    }
+    impl<'a, T> ConstIntoIter for RChunksMut<'a, T> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a mut [T];
+    }
+
+    /// Const equivalent of `core::iter::Rev<core::slice::RChunksMut>`
+    ///
+    /// This is constructed with [`rchunks_mut`] like this:
+    /// ```rust
+    /// # let slice = &mut [3];
+    /// # let _ =
+    /// konst::slice::rchunks_mut(slice, 1).rev()
+    /// # ;
+    /// ```
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub struct RChunksMutRev<'a, T> {
+        slice: Option<&'a mut [T]>,
+        chunk_size: usize,
+    }
+    impl<'a, T> ConstIntoIter for RChunksMutRev<'a, T> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a mut [T];
+    }
+
+    impl<'a, T> RChunksMut<'a, T> {
+        rchunks_mut_shared! {is_forward = true}
+    }
+
+    impl<'a, T> RChunksMutRev<'a, T> {
+        rchunks_mut_shared! {is_forward = false}
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    /// Const equivalent of
     /// [`<[T]>::chunks_exact`
     /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.chunks_exact)
     ///
