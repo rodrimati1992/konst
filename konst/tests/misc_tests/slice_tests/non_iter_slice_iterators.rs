@@ -10,13 +10,15 @@ macro_rules! compare_with_std {
 
         let mut rng = SmallRng::seed_from_u64(6249204433781597762);
 
-        let slice: &[u8] = &[1, 2, 3, 5, 8, 13, 21, 34, 55];
+        let slice: &mut [u8] = &mut [1, 2, 3, 5, 8, 13, 21, 34, 55];
+        let sliceb: &mut [u8] = &mut [1, 2, 3, 5, 8, 13, 21, 34, 55];
         for len in 0..=slice.len() {
-            let slice = &slice[..len];
+            let slice = &mut slice[..len];
+            let sliceb = &mut sliceb[..len];
 
             for window_len in (0..20).flat_map(|_| 1..=len + 2) {
                 let mut iter = konst::slice::$iter_fn(slice, window_len);
-                let mut std_iter = slice.$iter_fn(window_len);
+                let mut std_iter = sliceb.$iter_fn(window_len);
 
                 let mut history = Vec::new();
                 for _ in 0..10 {
@@ -154,6 +156,58 @@ fn chunks_basic() {
 #[test]
 fn chunks_mixed_direction() {
     compare_with_std!(chunks)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//                  chunks_mut iterator
+
+#[test]
+fn slice_chunks_mut_const_callable() {
+    type _Pair<T> = (T, T);
+
+    const fn __<'a>((slicea, sliceb): _Pair<&'a mut [u8]>) {
+        konst::slice::chunks_mut(slicea, 3).next();
+        konst::slice::chunks_mut(slicea, 3).next_back();
+
+        let mut rev: konst::slice::ChunksMutRev<u8> = konst::slice::chunks_mut(slicea, 3).rev();
+
+        rev.next();
+        rev.next_back();
+
+        let _: konst::slice::ChunksMut<'a, u8> = konst::slice::chunks_mut(slicea, 3);
+        let _: konst::slice::ChunksMut<'a, u8> = konst::slice::chunks_mut(sliceb, 3).rev().rev();
+    }
+}
+
+#[test]
+fn chunks_mut_basic() {
+    let slice: &mut [u8] = &mut [3, 5, 8, 13, 21];
+    let sliceb: &mut [u8] = &mut [3, 5, 8, 13, 21];
+
+    must_panic(file_span!(), || konst::slice::chunks_mut(&mut [0; 0], 0)).unwrap();
+    must_panic(file_span!(), || konst::slice::chunks_mut(slice, 0)).unwrap();
+
+    for size in 1..10 {
+        assert_eq!(
+            collect_const_iter!(slice::chunks_mut(slice, size)),
+            sliceb.chunks_mut(size).collect::<Vec<_>>(),
+            "size: {}",
+            size,
+        );
+        assert_eq!(
+            collect_const_iter!(slice::chunks_mut(slice, size).rev()),
+            sliceb.chunks_mut(size).rev().collect::<Vec<_>>(),
+            "size: {}",
+            size,
+        );
+    }
+}
+
+// expensive, and doesn't use unsafe, so no need for miri checking
+#[cfg(not(miri))]
+#[test]
+fn chunks_mut_mixed_direction() {
+    compare_with_std!(chunks_mut)
 }
 
 ////////////////////////////////////////////////////////////////////////////////

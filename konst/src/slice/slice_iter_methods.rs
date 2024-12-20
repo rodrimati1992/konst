@@ -208,6 +208,15 @@ mod requires_rust_1_64 {
         }
     }
 
+    #[inline(always)]
+    pub(crate) const fn some_if_nonempty_mut<T>(slice: &mut [T]) -> Option<&mut [T]> {
+        if let [] = slice {
+            None
+        } else {
+            Some(slice)
+        }
+    }
+
     /// Const equivalent of
     /// [`<[T]>::windows`
     /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.windows)
@@ -633,6 +642,118 @@ mod requires_rust_1_64 {
 
     impl<'a, T> ChunksRev<'a, T> {
         chunks_shared! {is_forward = false}
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    /// Const equivalent of
+    /// [`<[T]>::chunks_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.chunks_mut)
+    ///
+    /// # Panics
+    ///
+    /// Panics if `chunk_size == 0`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::iter::collect_const;
+    /// use konst::slice;
+    ///
+    /// let mut slice = [3, 5, 8, 13, 21];
+    /// let mut iter = slice::chunks_mut(&mut slice, 2);
+    ///
+    /// assert_eq!(iter.next(), Some(&mut [3, 5][..]))
+    /// assert_eq!(iter.next(), Some(&mut [8, 13][..]))
+    /// assert_eq!(iter.next(), Some(&mut [21][..]))
+    /// assert_eq!(iter.next(), None)
+    /// ```
+    ///
+    #[track_caller]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub const fn chunks_mut<T>(slice: &mut [T], chunk_size: usize) -> ChunksMut<'_, T> {
+        assert!(chunk_size != 0, "chunk size must be non-zero");
+
+        ChunksMut {
+            slice: some_if_nonempty_mut(slice),
+            chunk_size,
+        }
+    }
+
+    macro_rules! chunks_mut_shared {
+        (is_forward = $is_forward:ident) => {
+            iterator_shared! {
+                is_forward = $is_forward,
+                is_copy = false,
+                item = &'a mut [T],
+                iter_forward = ChunksMut<'a, T>,
+                iter_reversed = ChunksMutRev<'a, T>,
+                next(self) {
+                    option::map!(self.slice.take(), |slice| {
+                        let (ret, next) = slice::split_at_mut(slice, self.chunk_size);
+                        self.slice = some_if_nonempty_mut(next);
+                        ret
+                    })
+                },
+                next_back{
+                    option::map!(self.slice.take(), |slice| {
+                        let at = (slice.len() - 1) / self.chunk_size * self.chunk_size;
+                        let (next, ret) = slice::split_at_mut(slice, at);
+                        self.slice = some_if_nonempty_mut(next);
+                        ret
+                    })
+                },
+                fields = {slice, chunk_size},
+            }
+        };
+    }
+
+    /// Const equivalent of [`core::slice::ChunksMut`]
+    ///
+    /// This is constructed with [`chunks_mut`] like this:
+    /// ```rust
+    /// # let slice = &mut [3];
+    /// # let _ =
+    /// konst::slice::chunks_mut(slice, 1)
+    /// # ;
+    /// ```
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub struct ChunksMut<'a, T> {
+        slice: Option<&'a mut [T]>,
+        chunk_size: usize,
+    }
+    impl<'a, T> ConstIntoIter for ChunksMut<'a, T> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a mut [T];
+    }
+
+    /// Const equivalent of `core::iter::Rev<core::slice::ChunksMut>`
+    ///
+    /// This is constructed with [`chunks_mut`] like this:
+    /// ```rust
+    /// # let slice = &mut [3];
+    /// # let _ =
+    /// konst::slice::chunks_mut(slice, 1).rev()
+    /// # ;
+    /// ```
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub struct ChunksMutRev<'a, T> {
+        slice: Option<&'a mut [T]>,
+        chunk_size: usize,
+    }
+    impl<'a, T> ConstIntoIter for ChunksMutRev<'a, T> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a mut [T];
+    }
+
+    impl<'a, T> ChunksMut<'a, T> {
+        chunks_mut_shared! {is_forward = true}
+    }
+
+    impl<'a, T> ChunksMutRev<'a, T> {
+        chunks_mut_shared! {is_forward = false}
     }
 
     ///////////////////////////////////////////////////////////////////////////
