@@ -663,10 +663,10 @@ mod requires_rust_1_64 {
     /// let mut slice = [3, 5, 8, 13, 21];
     /// let mut iter = slice::chunks_mut(&mut slice, 2);
     ///
-    /// assert_eq!(iter.next(), Some(&mut [3, 5][..]))
-    /// assert_eq!(iter.next(), Some(&mut [8, 13][..]))
-    /// assert_eq!(iter.next(), Some(&mut [21][..]))
-    /// assert_eq!(iter.next(), None)
+    /// assert_eq!(iter.next(), Some(&mut [3, 5][..]));
+    /// assert_eq!(iter.next(), Some(&mut [8, 13][..]));
+    /// assert_eq!(iter.next(), Some(&mut [21][..]));
+    /// assert_eq!(iter.next(), None);
     /// ```
     ///
     #[track_caller]
@@ -1241,6 +1241,277 @@ mod requires_rust_1_64 {
     impl<'a, T> RChunksExactRev<'a, T> {
         rchunks_exact_shared! {is_forward = false}
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    /// Const equivalent of
+    /// [`<[T]>::chunks_exact_mut`
+    /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.chunks_exact_mut)
+    ///
+    /// # Panics
+    ///
+    /// Panics if `chunk_size == 0`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{option, slice};
+    ///
+    /// let mut array = [3, 5, 8, 13, 21];
+    /// let mut iter = slice::chunks_exact_mut(&mut array, 2);
+    /// 
+    /// assert_eq!(iter.next(), Some(&mut [3, 5][..]));
+    /// assert_eq!(iter.next(), Some(&mut [8, 13][..]));
+    /// assert_eq!(iter.next(), None);
+    /// assert_eq!(iter.into_remainder(), &mut [21][..]);
+    /// 
+    /// ```
+    ///
+    #[track_caller]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub const fn chunks_exact_mut<T>(slice: &mut [T], chunk_size: usize) -> ChunksExactMut<'_, T> {
+        assert!(chunk_size != 0, "chunk size must be non-zero");
+
+        let at = slice.len() - slice.len() % chunk_size;
+        let (slice, rem) = slice::split_at_mut(slice, at);
+
+        ChunksExactMut {
+            slice,
+            rem,
+            chunk_size,
+        }
+    }
+
+    macro_rules! chunks_exact_mut_shared {
+        (is_forward = $is_forward:ident) => {
+            iterator_shared! {
+                is_forward = $is_forward,
+                is_copy = false,
+                item = &'a mut [T],
+                iter_forward = ChunksExactMut<'a, T>,
+                iter_reversed = ChunksExactMutRev<'a, T>,
+                next(self) {
+                    if self.slice.is_empty() {
+                        None
+                    } else {
+                        let (ret, next) = slice::split_at_mut(self.take_slice(), self.chunk_size);
+                        self.slice = next;
+                        Some(ret)
+                    }
+                },
+                next_back {
+                    if self.slice.is_empty() {
+                        None
+                    } else {
+                        let at = self.slice.len() - self.chunk_size;
+                        let (next, ret) = slice::split_at_mut(self.take_slice(), at);
+                        self.slice = next;
+                        Some(ret)
+                    }
+                },
+                fields = {slice, rem, chunk_size},
+            }
+
+            const fn take_slice(&mut self) -> &'a mut [T] {
+                core::mem::replace(&mut self.slice, &mut [])
+            }
+
+            /// Returns the remainder of the slice that's not returned by [`next`](Self::next),
+            /// because it is shorter than the chunk size.
+            pub const fn into_remainder(self) -> &'a mut [T] {
+                self.rem
+            }
+        };
+    }
+
+    /// Const equivalent of [`core::slice::ChunksExactMut`]
+    ///
+    /// This is constructed with [`chunks_exact_mut`] like this:
+    /// ```rust
+    /// # let slice = &mut [3];
+    /// # let _ =
+    /// konst::slice::chunks_exact_mut(slice, 1)
+    /// # ;
+    /// ```
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub struct ChunksExactMut<'a, T> {
+        slice: &'a mut [T],
+        rem: &'a mut [T],
+        chunk_size: usize,
+    }
+    impl<'a, T> ConstIntoIter for ChunksExactMut<'a, T> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a mut [T];
+    }
+
+    /// Const equivalent of `core::iter::Rev<core::slice::ChunksExactMut>`
+    ///
+    /// This is constructed with [`chunks_exact_mut`] like this:
+    /// ```rust
+    /// # let slice = &mut [3];
+    /// # let _ =
+    /// konst::slice::chunks_exact_mut(slice, 1).rev()
+    /// # ;
+    /// ```
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub struct ChunksExactMutRev<'a, T> {
+        slice: &'a mut [T],
+        rem: &'a mut [T],
+        chunk_size: usize,
+    }
+    impl<'a, T> ConstIntoIter for ChunksExactMutRev<'a, T> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a mut [T];
+    }
+
+    impl<'a, T> ChunksExactMut<'a, T> {
+        chunks_exact_mut_shared! {is_forward = true}
+    }
+
+    impl<'a, T> ChunksExactMutRev<'a, T> {
+        chunks_exact_mut_shared! {is_forward = false}
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+    /// Const equivalent of
+    /// [`<[T]>::rchunks_exact_mut`
+    /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.rchunks_exact_mut)
+    ///
+    /// # Panics
+    ///
+    /// Panics if `chunk_size == 0`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{option, slice};
+    ///
+    /// let mut array = [3, 5, 8, 13, 21];
+    /// let mut iter = slice::rchunks_exact_mut(&mut array, 2);
+    /// 
+    /// assert_eq!(iter.next(), Some(&mut [13, 21][..]));
+    /// assert_eq!(iter.next(), Some(&mut [5, 8][..]));
+    /// assert_eq!(iter.next(), None);
+    /// assert_eq!(iter.into_remainder(), &mut [3][..]);
+    /// 
+    /// ```
+    ///
+    #[track_caller]
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub const fn rchunks_exact_mut<T>(
+        slice: &mut [T], 
+        chunk_size: usize,
+    ) -> RChunksExactMut<'_, T> {
+        assert!(chunk_size != 0, "chunk size must be non-zero");
+
+        let (rem, slice) = slice::split_at_mut(slice, slice.len() % chunk_size);
+
+        RChunksExactMut {
+            slice,
+            rem,
+            chunk_size,
+        }
+    }
+
+    macro_rules! rchunks_exact_mut_shared {
+        (is_forward = $is_forward:ident) => {
+            iterator_shared! {
+                is_forward = $is_forward,
+                is_copy = false,
+                item = &'a mut [T],
+                iter_forward = RChunksExactMut<'a, T>,
+                iter_reversed = RChunksExactMutRev<'a, T>,
+                next(self) {
+                    if self.slice.is_empty() {
+                        None
+                    } else {
+                        let at = self.slice.len() - self.chunk_size;
+                        let (next, ret) = slice::split_at_mut(self.take_slice(), at);
+                        self.slice = next;
+                        Some(ret)
+                    }
+                },
+                next_back {
+                    if self.slice.is_empty() {
+                        None
+                    } else {
+                        let (ret, next) = slice::split_at_mut(self.take_slice(), self.chunk_size);
+                        self.slice = next;
+                        Some(ret)
+                    }
+                },
+                fields = {slice, rem, chunk_size},
+            }
+
+            const fn take_slice(&mut self) -> &'a mut [T] {
+                core::mem::replace(&mut self.slice, &mut [])
+            }
+
+            /// Returns the remainder of the slice that's not returned by [`next`](Self::next),
+            /// because it is shorter than the chunk size.
+            pub const fn into_remainder(self) -> &'a mut [T] {
+                self.rem
+            }
+        };
+    }
+
+    /// Const equivalent of [`core::slice::RChunksExactMut`]
+    ///
+    /// This is constructed with [`rchunks_exact_mut`] like this:
+    /// ```rust
+    /// # let slice = &mut [3];
+    /// # let _ =
+    /// konst::slice::rchunks_exact_mut(slice, 1)
+    /// # ;
+    /// ```
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub struct RChunksExactMut<'a, T> {
+        slice: &'a mut [T],
+        rem: &'a mut [T],
+        chunk_size: usize,
+    }
+    impl<'a, T> ConstIntoIter for RChunksExactMut<'a, T> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a mut [T];
+    }
+
+    /// Const equivalent of `core::iter::Rev<core::slice::RChunksExactMut>`
+    ///
+    /// This is constructed with [`rchunks_exact_mut`] like this:
+    /// ```rust
+    /// # let slice = &mut [3];
+    /// # let _ =
+    /// konst::slice::rchunks_exact_mut(slice, 1).rev()
+    /// # ;
+    /// ```
+    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+    pub struct RChunksExactMutRev<'a, T> {
+        slice: &'a mut [T],
+        rem: &'a mut [T],
+        chunk_size: usize,
+    }
+    impl<'a, T> ConstIntoIter for RChunksExactMutRev<'a, T> {
+        type Kind = IsIteratorKind;
+        type IntoIter = Self;
+        type Item = &'a mut [T];
+    }
+
+    impl<'a, T> RChunksExactMut<'a, T> {
+        rchunks_exact_mut_shared! {is_forward = true}
+    }
+
+    impl<'a, T> RChunksExactMutRev<'a, T> {
+        rchunks_exact_mut_shared! {is_forward = false}
+    }
+
+
+
 }
 
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
