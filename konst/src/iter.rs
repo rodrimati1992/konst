@@ -69,7 +69,8 @@ pub use iterator_adaptors::*;
 ///
 /// ### Summing pairs
 ///
-/// ```rust
+// TODO: remove the ignore once array has by-value iteration
+/// ```rust, ignore
 /// use konst::iter::for_each;
 ///     
 /// const fn add_pairs<const N: usize>(l: [u32; N], r: [u32; N]) -> [u32; N] {
