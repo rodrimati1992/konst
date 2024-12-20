@@ -20,6 +20,35 @@ fn as_chunks_const_callable() {
     assert_eq!(PAIR4, (&[[1, 2, 3, 5], [8, 13, 21, 34]][..], &[][..]));
 }
 
+/////////////////////////////////////////////////
+
+#[test]
+#[should_panic]
+fn as_chunks_mut_zero_chunk_len_panics() {
+    let _ = slice::as_chunks_mut::<_, 0>(&mut [1, 2, 3]);
+}
+
+#[test]
+fn as_chunks_mut_const_callable() {
+    const fn _constable<T>(slice: &mut [T]) -> (&mut [[T; 2]], &mut [T]) {
+        slice::as_chunks_mut(slice)
+    }
+}
+
+#[test]
+fn as_chunks_mut() {
+    let slice: &mut [u32] = &mut [1, 2, 3, 5, 8, 13, 21, 34];
+
+    let pair2: (&mut [[u32; 2]], &mut [u32]) = slice::as_chunks_mut(slice);
+    assert_eq!(pair2, (&mut [[1, 2], [3, 5], [8, 13], [21, 34]][..], &mut [][..]));
+
+    let pair3: (&mut [[u32; 3]], &mut [u32]) = slice::as_chunks_mut(slice);
+    assert_eq!(pair3, (&mut [[1, 2, 3], [5, 8, 13]][..], &mut [21, 34][..]));
+
+    let pair4: (&mut [[u32; 4]], &mut [u32]) = slice::as_chunks_mut(slice);
+    assert_eq!(pair4, (&mut [[1, 2, 3, 5], [8, 13, 21, 34]][..], &mut [][..]));
+}
+
 #[test]
 fn as_chunks_non_zero_chunk_len() {
     fn test_case<const CHUNK_LEN: usize>() {
@@ -53,7 +82,7 @@ fn as_chunks_non_zero_chunk_len() {
 #[test]
 #[should_panic]
 fn as_rchunks_zero_chunk_len_panics() {
-    let _ = slice::as_chunks::<_, 0>(&[1, 2, 3]);
+    let _ = slice::as_rchunks::<_, 0>(&[1, 2, 3]);
 }
 
 #[test]
@@ -91,6 +120,54 @@ fn as_rchunks_non_zero_chunk_len() {
             );
 
             assert_eq!(iter.remainder(), rem);
+        }
+    }
+
+    test_case::<1>();
+    test_case::<2>();
+    test_case::<3>();
+    test_case::<4>();
+}
+
+/////////////////////////////////////////////////
+
+#[test]
+#[should_panic]
+fn as_rchunks_mut_zero_chunk_len_panics() {
+    let _ = slice::as_rchunks_mut::<_, 0>(&mut [1, 2, 3]);
+}
+
+#[test]
+fn as_rchunks_mut_const_callable() {
+    const fn _constable<T>(slice: &mut [T]) -> (&mut [T], &mut [[T; 2]]) {
+        slice::as_rchunks_mut(slice)
+    }
+}
+
+#[test]
+fn as_rchunks_mut_non_zero_chunk_len() {
+    fn test_case<const CHUNK_LEN: usize>() {
+        let mut slice = [
+            0u32, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610,
+        ];
+        let mut sliceb = slice;
+        let slicec = slice;
+
+        for len in 0..=slice.len() {
+            let slice = &mut slice[..len];
+            let sliceb = &mut sliceb[..len];
+
+            let (rem, arrs) = slice::as_rchunks_mut::<_, CHUNK_LEN>(slice);
+
+            let mut iter = sliceb.rchunks_exact_mut(CHUNK_LEN);
+            assert!(
+                iter.by_ref()
+                    .rev()
+                    .eq(arrs.iter().map(|arr| arr.as_slice())),
+                "slice: {slicec:?} chunk_len: {CHUNK_LEN}  arrs: {arrs:?}"
+            );
+
+            assert_eq!(iter.into_remainder(), rem);
         }
     }
 
