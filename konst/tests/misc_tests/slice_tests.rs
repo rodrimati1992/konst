@@ -326,3 +326,94 @@ fn slice_iter_rev() {
         assert!(iter.next_back().is_none());
     }
 }
+
+
+
+#[cfg(feature = "iter")]
+#[test]
+fn slice_iter_mut_const_callable() {
+    const fn __<'a>(slice: &'a mut [u8]) {
+        let _: konst::slice::IterMut<'_, u8> = konst::slice::iter_mut(slice);
+        konst::slice::iter_mut(slice).next();
+        konst::slice::iter_mut(slice).next_back();
+
+        let _: konst::slice::IterMut<'_, u8> = konst::slice::iter_mut(slice).rev().rev();
+        
+        let mut rev: konst::slice::IterMutRev<'_, u8> = konst::slice::iter_mut(slice).rev();
+        rev.next();
+        rev.next_back();
+        rev.as_slice();
+        rev.as_mut_slice();
+
+        // ensure that the lifetime is the same when the slice isn't reborrowed
+        let _: konst::slice::IterMut<'a, u8> = konst::slice::iter_mut(slice);
+    }
+}
+
+#[cfg(feature = "iter")]
+#[test]
+fn slice_iter_mut_both_directions() {
+    let slice: &mut [u8] = &mut [3, 5, 8, 13, 21];
+    let slice_b: &mut [u8] = &mut [3, 5, 8, 13, 21];
+    let slice_c: &mut [u8] = &mut [3, 5, 8, 13, 21];
+
+    let slice_refs: Vec<&mut u8> = slice_b.iter_mut().collect();
+
+    assert_eq!(collect_const_iter!(&mut *slice), slice_refs);
+
+    assert_eq!(collect_const_iter!(konst::slice::iter_mut(slice)), slice_refs);
+
+    assert_eq!(collect_const_iter!(konst::slice::iter_mut(slice).rev().rev()), slice_refs);
+
+    assert_eq!(
+        collect_const_iter!(konst::slice::iter_mut(slice).rev()),
+        slice_c.iter_mut().rev().collect::<Vec<&mut u8>>(),
+    );
+}
+
+#[cfg(feature = "iter")]
+#[test]
+fn slice_iter_mut_mixed_directions() {
+    let slice: &mut [u8] = &mut [3, 5, 8, 13, 21];
+
+    let mut iter = konst::iter::into_iter!(slice);
+    assert_eq!(iter.as_slice(), [3, 5, 8, 13, 21]);
+
+    assert_eq!(*iter.next_back().unwrap(), 21);
+    assert_eq!(iter.as_slice(), [3, 5, 8, 13]);
+
+    assert_eq!(*iter.next().unwrap(), 3);
+    assert_eq!(iter.as_slice(), [5, 8, 13]);
+
+    assert_eq!(*iter.next().unwrap(), 5);
+    assert_eq!(iter.as_slice(), [8, 13]);
+
+    assert_eq!(*iter.next().unwrap(), 8);
+    assert_eq!(iter.as_slice(), [13]);
+
+    assert_eq!(*iter.next_back().unwrap(), 13);
+    assert_eq!(iter.as_slice(), [0u8; 0]);
+
+    assert!(iter.next().is_none());
+}
+
+#[cfg(feature = "iter")]
+#[test]
+fn slice_iter_mut_rev() {
+    let slice: &mut [u8] = &mut [3, 5, 8, 13, 21];
+    let iter = konst::iter::into_iter!(slice);
+
+    let mut iter = iter.rev();
+    assert_eq!(*iter.next().unwrap(), 21);
+
+    // making sure to call next_back on the reversed iterator
+    assert_eq!(*iter.next_back().unwrap(), 3);
+
+    let mut iter = iter.rev();
+    assert_eq!(*iter.next().unwrap(), 5);
+
+    assert_eq!(*iter.next().unwrap(), 8);
+
+    assert_eq!(*iter.next_back().unwrap(), 13);
+    assert!(iter.next_back().is_none());
+}

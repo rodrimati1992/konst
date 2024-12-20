@@ -79,6 +79,63 @@ pub use konst_kernel::into_iter::slice_into_iter::Iter;
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub use konst_kernel::into_iter::slice_into_iter::IterRev;
 
+/// Gets a const iterator over a `&mut [T]`, const equivalent of
+/// [`<[T]>::iter_mut`
+/// ](https://doc.rust-lang.org/std/primitive.slice.html#method.iter_mut)
+///
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// let mut array = [3, 5, 8];
+///
+/// let mut fwd = slice::iter_mut(&mut array);
+/// assert_eq!(fwd.next(), Some(&mut 3));
+/// assert_eq!(fwd.next(), Some(&mut 5));
+/// assert_eq!(fwd.next(), Some(&mut 8));
+/// assert_eq!(fwd.next(), None);
+/// 
+/// let mut rev = slice::iter_mut(&mut array).rev();
+/// assert_eq!(rev.next(), Some(&mut 8));
+/// assert_eq!(rev.next(), Some(&mut 5));
+/// assert_eq!(rev.next(), Some(&mut 3));
+/// assert_eq!(rev.next(), None);
+/// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub use konst_kernel::into_iter::slice_into_iter::iter_mut;
+
+/// Const equivalent of [`core::slice::IterMut`].
+///
+/// This is constructed in either of these ways:
+/// ```rust
+/// # let a_mut_slice = &mut [3];
+/// # let _ = 
+/// konst::slice::iter_mut(a_mut_slice)
+/// # ;
+/// # let _ = 
+/// konst::iter::into_iter!(a_mut_slice)
+/// # ;
+/// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub use konst_kernel::into_iter::slice_into_iter::IterMut;
+
+/// Const equivalent of `core::iter::Rev<core::slice::IterMut<_>>`
+///
+/// This is constructed in either of these ways:
+/// ```rust
+/// # let a_mut_slice = &mut [3];
+/// # let _ = 
+/// konst::slice::iter_mut(a_mut_slice).rev()
+/// # ;
+/// # let _ =
+/// konst::iter::into_iter!(a_mut_slice).rev()
+/// # ;
+/// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub use konst_kernel::into_iter::slice_into_iter::IterMutRev;
+
+
 /// A const equivalent of `slice.iter().copied()`
 ///
 /// # Example
