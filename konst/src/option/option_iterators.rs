@@ -206,3 +206,92 @@ impl<'a, T> IterMutRev<'a, T> {
     iter_mut_shared! {is_forward = false}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+impl<T> ConstIntoIter for Option<T> {
+    type Kind = IsStdKind;
+    type IntoIter = IntoIter<T>;
+    type Item = T;
+}
+
+impl<T> IntoIterWrapper<Option<T>, IsStdKind> {
+    /// Converts `Option<T>` into an iterator
+    pub const fn const_into_iter(self) -> IntoIter<T> {
+        IntoIter {
+            opt: ManuallyDrop::into_inner(self.iter),
+        }
+    }
+}
+
+/// Const equivalent of [`Option::into_iter`]
+/// 
+/// # Example
+/// 
+/// ```rust
+/// use konst::option;
+/// 
+/// {
+///     let mut opt = Some(13);
+///     let mut fwd = option::into_iter(opt);
+///     assert_eq!(fwd.next(), Some(13));
+///     assert_eq!(fwd.next(), None);
+/// }
+/// {
+///     let mut opt = Some(21);
+///     let mut rev = option::into_iter(opt).rev();
+///     assert_eq!(rev.next(), Some(21));
+///     assert_eq!(rev.next(), None);
+/// }
+/// ```
+pub const fn into_iter<T>(opt: Option<T>) -> IntoIter<T> {
+    IntoIter { opt }
+}
+
+macro_rules! into_iter_shared {
+    (is_forward = $is_forward:ident) => {
+        iterator_shared! {
+            is_forward = $is_forward,
+            is_copy = false,
+            is_drop = true,
+            item = T,
+            iter_forward = IntoIter<T>,
+            iter_reversed = IntoIterRev<T>,
+            next(self) {
+                self.opt.take()
+            },
+            next_back {
+                self.opt.take()
+            },
+            fields = {opt},
+        }
+    };
+}
+
+/// Const equivalent of [`core::option::IntoIter`]
+pub struct IntoIter<T> {
+    opt: Option<T>,
+}
+impl<T> ConstIntoIter for IntoIter<T> {
+    type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = T;
+}
+
+/// Const equivalent of `core::iter::Rev<core::option::IntoIter<T>>`
+pub struct IntoIterRev<T> {
+    opt: Option<T>,
+}
+impl<T> ConstIntoIter for IntoIterRev<T> {
+    type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = T;
+}
+
+impl<T> IntoIter<T> {
+    into_iter_shared! {is_forward = true}
+}
+
+impl<T> IntoIterRev<T> {
+    into_iter_shared! {is_forward = false}
+}
+

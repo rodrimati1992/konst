@@ -482,7 +482,7 @@ macro_rules! __destructure_struct {
 
                 // assert that the struct doesn't impl Drop
                 // (its fields can, just not the struct itself)
-                let assertion_expected: $crate::macros::destructuring::__DoesNotImplDrop<_> =
+                let _assertion_expected: $crate::macros::destructuring::__DoesNotImplDrop<_> =
                     if false {
                         $crate::macros::destructuring::__DoesNotImplDrop::new(ptr)
                     } else {

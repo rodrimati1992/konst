@@ -81,3 +81,54 @@ fn iter_mut_rev_test() {
         assert_eq!(iter.next_back(), None);
     }
 }
+
+#[test]
+fn into_iter_test() {
+    macro_rules! test_case {($($ctor:tt)*) => {
+        {
+            let opt = None::<()>;
+            let mut iter: option::IntoIter<_> = $($ctor)* (opt);
+            assert_eq!(iter.next(), None);
+        }
+
+        {
+            let opt = Some(3);
+            let mut iter: option::IntoIter<_> = $($ctor)* (opt);
+            assert_eq!(iter.next(), Some(3));
+            assert_eq!(iter.next(), None);
+        }
+        {
+            let opt = Some(5);
+            let mut iter: option::IntoIter<_> = $($ctor)* (opt);
+            assert_eq!(iter.next_back(), Some(5));
+            assert_eq!(iter.next_back(), None);
+        }
+    }}
+
+
+    test_case!{option::into_iter}
+    test_case!{konst::iter::into_iter!}
+}
+
+#[test]
+fn into_iter_rev_test() {
+    {
+        let opt = None::<()>;
+        let mut iter: option::IntoIterRev<_> = option::into_iter(opt).rev();
+        assert_eq!(iter.next(), None);
+    }
+
+    {
+        let opt = Some(3);
+        let mut iter: option::IntoIterRev<_> = option::into_iter(opt).rev();
+        assert_eq!(iter.next(), Some(3));
+        assert_eq!(iter.next(), None);
+    }
+    {
+        let opt = Some(5);
+        let mut iter: option::IntoIterRev<_> = option::into_iter(opt).rev();
+        assert_eq!(iter.next_back(), Some(5));
+        assert_eq!(iter.next_back(), None);
+    }
+}
+

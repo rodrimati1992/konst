@@ -8,6 +8,7 @@ macro_rules! iterator_shared {
     (
         is_forward = $is_forward:ident,
         $(is_copy = $is_copy:ident,)?
+        $(is_drop = $is_drop:ident,)?
         item = $Item:ty,
         iter_forward = $Self:ty,
         $(iter_reversed = $Rev:path,)?
@@ -15,7 +16,35 @@ macro_rules! iterator_shared {
         $(next_back $next_back_block:block,)?
         fields = $fields:tt,
     ) => {
-        $crate::__::__choose_alt! {($($is_copy)? true) {
+        $crate::__iterator_shared! {
+            is_forward = $is_forward,
+            is_copy = ($($is_copy)? true),
+            is_drop = ($($is_drop)? false),
+            item = $Item,
+            iter_forward = $Self,
+            $(iter_reversed = $Rev,)?
+            next($self) $next_block,
+            $(next_back $next_back_block,)?
+            fields = $fields,
+        }
+    }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __iterator_shared {
+    (
+        is_forward = $is_forward:ident,
+        is_copy = ($is_copy:ident $($_is_copy:tt)*),
+        is_drop = ($is_drop:ident $($_is_drop:tt)*),
+        item = $Item:ty,
+        iter_forward = $Self:ty,
+        $(iter_reversed = $Rev:path,)?
+        next($self:ident) $next_block:block,
+        $(next_back $next_back_block:block,)?
+        fields = $fields:tt,
+    ) => {
+        $crate::__::__choose_alt! {($is_copy) {
             /// Creates a clone of this iterator
             pub const fn copy(&self) -> Self {
                 let Self $fields = *self;
@@ -25,8 +54,13 @@ macro_rules! iterator_shared {
 
         $(
             /// Reverses the iterator
-            pub const fn rev(self) -> $crate::__::__choose!($is_forward $Rev $Self) {
-                let Self $fields = self;
+            pub const fn rev(self) -> $crate::__::__choose!($is_forward $Rev $Self) {                
+                $crate::__::__choose_alt! {($is_drop) {
+                    $crate::destructure!{Self $fields = self}
+                } else {
+                    let Self $fields = self;
+                }}
+
                 type Type<T> = T;
                 Type::<$crate::__::__choose!($is_forward $Rev $Self)> $fields
             }
