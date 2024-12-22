@@ -51,3 +51,44 @@ fn rebind_if_ok_test() {
         rebind_if_ok! {_: &str = Ok::<_, ()>(Default::default())}
     }
 }
+
+#[test]
+fn if_let_some_test() {
+    const fn uses_macro<T>(opt: Option<T>) -> u32 {
+        konst::if_let_Some!{x = opt => {
+            core::mem::forget(x);
+            3
+        } else {
+            5
+        }}
+    }
+
+    assert_eq!(uses_macro(Some(8)), 3);
+    assert_eq!(uses_macro(None::<String>), 5);
+}
+
+
+#[test]
+fn while_let_some_test() {
+    const fn uses_macro<T, const N: usize>(array: [T; N]) -> u32 {
+        let mut iter = konst::array::ArrayConsumer::new(array);
+        let mut ret = 0;
+        konst::while_let_Some!{x = iter.next() => {
+            core::mem::forget(x);
+            ret += 2;
+        }}
+        iter.assert_is_empty();
+        ret
+    }
+
+    assert_eq!(uses_macro([String::new(); 0]), 0);
+    assert_eq!(uses_macro([3]), 2);
+    assert_eq!(uses_macro([3, 5]), 4);
+    assert_eq!(uses_macro([3, 5, 8]), 6);
+    assert_eq!(uses_macro([3, 5, 8, 13]), 8);
+}
+
+
+
+
+

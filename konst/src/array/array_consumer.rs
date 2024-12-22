@@ -1,5 +1,5 @@
 use core::fmt::{self, Debug};
-use core::mem::{ManuallyDrop, MaybeUninit};
+use core::mem::MaybeUninit;
 
 /// Const analog of [`core::array::IntoIter`]
 /// 
@@ -12,8 +12,6 @@ use core::mem::{ManuallyDrop, MaybeUninit};
 /// ```rust
 /// use konst::array::{ArrayBuilder, ArrayConsumer};
 /// 
-/// use core::mem::ManuallyDrop as MD;
-/// 
 /// assert_eq!(ARR, [21, 13, 8, 5, 3]);
 /// 
 /// const ARR: [u32; 5] = reverse([3, 5, 8, 13, 21]);
@@ -22,8 +20,8 @@ use core::mem::{ManuallyDrop, MaybeUninit};
 ///     let mut iter = ArrayConsumer::new(arr);
 ///     let mut builder = ArrayBuilder::new();
 /// 
-///     while let Some(item) = iter.next_back() {
-///         builder.push(MD::into_inner(item));
+///     konst::while_let_Some!{item = iter.next_back() =>
+///         builder.push(item);
 ///     }
 /// 
 ///     // necessary to avoid "destructor cannot be evaluated at compile-time" error
@@ -87,16 +85,14 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
     /// ```rust
     /// use konst::array::ArrayConsumer;
     /// 
-    /// use core::mem::ManuallyDrop as MD;
-    /// 
     /// assert_eq!(SUM, 16);
     /// 
     /// const SUM: u64 = summer(ArrayConsumer::new([3, 5, 8]));
     /// 
     /// const fn summer<const N: usize>(mut iter: ArrayConsumer<u64, N>) -> u64 {
     ///     let mut sum = 0u64;
-    ///     while let Some(item) = iter.next() {
-    ///         sum += MD::into_inner(item);
+    ///     konst::while_let_Some!{item = iter.next() =>
+    ///         sum += item;
     ///     }
     ///     iter.assert_is_empty();
     ///     sum
@@ -183,34 +179,28 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
 
     /// Gets the next element from the array
     /// 
-    /// Due to limitations of const eval as of Rust 1.83.0,
-    /// this function returns a `ManuallyDrop<T>` to be able to return a `T: Drop` in an `Option`,
-    /// you'll need to call [`ManuallyDrop::into_inner`] to get `T` and avoid leaking it. 
-    /// 
     /// # Example
     /// 
     /// ```rust
     /// use konst::array::ArrayConsumer;
     /// 
-    /// use std::mem::ManuallyDrop as MD;
-    /// 
     /// let mut iter = ArrayConsumer::new([3, 5, 8]);
     /// 
     /// assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
     /// 
-    /// assert_eq!(iter.next(), Some(MD::new(3)));
+    /// assert_eq!(iter.next(), Some(3));
     /// assert_eq!(iter.as_slice(), &[5, 8][..]);
     /// 
-    /// assert_eq!(iter.next(), Some(MD::new(5)));
+    /// assert_eq!(iter.next(), Some(5));
     /// assert_eq!(iter.as_slice(), &[8][..]);
     /// 
-    /// assert_eq!(iter.next(), Some(MD::new(8)));
+    /// assert_eq!(iter.next(), Some(8));
     /// assert_eq!(iter.as_slice(), &[][..]);
     /// 
     /// assert_eq!(iter.next(), None);
     /// assert_eq!(iter.as_slice(), &[][..]);
     /// ```
-    pub const fn next(&mut self) -> Option<ManuallyDrop<T>> {
+    pub const fn next(&mut self) -> Option<T> {
         if self.is_empty() {
             return None;
         }
@@ -220,39 +210,33 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
 
         self.taken_front += 1;
 
-        Some(ManuallyDrop::new(ret))
+        Some(ret)
     }
 
     /// Gets the next element from the end of the array
-    /// 
-    /// Due to limitations of const eval as of Rust 1.83.0,
-    /// this function returns a `ManuallyDrop<T>` to be able to return a `T: Drop` in an `Option`,
-    /// you'll need to call [`ManuallyDrop::into_inner`] to get `T` and avoid leaking it. 
     /// 
     /// # Example
     /// 
     /// ```rust
     /// use konst::array::ArrayConsumer;
     /// 
-    /// use std::mem::ManuallyDrop as MD;
-    /// 
     /// let mut iter = ArrayConsumer::new([3, 5, 8]);
     /// 
     /// assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
     /// 
-    /// assert_eq!(iter.next_back(), Some(MD::new(8)));
+    /// assert_eq!(iter.next_back(), Some(8));
     /// assert_eq!(iter.as_slice(), &[3, 5][..]);
     /// 
-    /// assert_eq!(iter.next_back(), Some(MD::new(5)));
+    /// assert_eq!(iter.next_back(), Some(5));
     /// assert_eq!(iter.as_slice(), &[3][..]);
     /// 
-    /// assert_eq!(iter.next_back(), Some(MD::new(3)));
+    /// assert_eq!(iter.next_back(), Some(3));
     /// assert_eq!(iter.as_slice(), &[][..]);
     /// 
     /// assert_eq!(iter.next_back(), None);
     /// assert_eq!(iter.as_slice(), &[][..]);
     /// ```
-    pub const fn next_back(&mut self) -> Option<ManuallyDrop<T>> {
+    pub const fn next_back(&mut self) -> Option<T> {
         if self.is_empty() {
             return None;
         }
@@ -264,7 +248,7 @@ impl<T, const N: usize> ArrayConsumer<T, N> {
         
         self.taken_back += 1;
 
-        Some(ManuallyDrop::new(ret))
+        Some(ret)
     }
 }
 

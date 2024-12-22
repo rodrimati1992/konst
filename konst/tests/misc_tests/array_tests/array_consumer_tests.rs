@@ -1,12 +1,7 @@
 use std::cell::RefCell;
 use std::collections::BTreeSet;
-use std::mem::ManuallyDrop;
 
 use konst::array::ArrayConsumer;
-
-const fn md<T>(md: T) -> core::mem::ManuallyDrop<T> {
-    core::mem::ManuallyDrop::new(md)
-}
 
 #[test]
 fn new_test() {
@@ -35,28 +30,28 @@ fn assert_is_empty_test() {
 
     {
         let mut iter = ArrayConsumer::new([3, 5, 8]);
-        assert_eq!(iter.next(), Some(md(3)));
-        assert_eq!(iter.next(), Some(md(5)));
-        assert_eq!(iter.next(), Some(md(8)));
+        assert_eq!(iter.next(), Some(3));
+        assert_eq!(iter.next(), Some(5));
+        assert_eq!(iter.next(), Some(8));
         assert_eq!(iter.next(), None);
         iter.assert_is_empty();
     }
 
     {
         let mut iter = ArrayConsumer::new([3, 5, 8]);
-        assert_eq!(iter.next_back(), Some(md(8)));
-        assert_eq!(iter.next_back(), Some(md(5)));
-        assert_eq!(iter.next_back(), Some(md(3)));
+        assert_eq!(iter.next_back(), Some(8));
+        assert_eq!(iter.next_back(), Some(5));
+        assert_eq!(iter.next_back(), Some(3));
         assert_eq!(iter.next_back(), None);
         iter.assert_is_empty();
     }
 
     {
         let mut iter = ArrayConsumer::new([3, 5, 8, 13]);
-        assert_eq!(iter.next(), Some(md(3)));
-        assert_eq!(iter.next_back(), Some(md(13)));
-        assert_eq!(iter.next_back(), Some(md(8)));
-        assert_eq!(iter.next(), Some(md(5)));
+        assert_eq!(iter.next(), Some(3));
+        assert_eq!(iter.next_back(), Some(13));
+        assert_eq!(iter.next_back(), Some(8));
+        assert_eq!(iter.next(), Some(5));
         assert_eq!(iter.next_back(), None);
         iter.assert_is_empty();
     }
@@ -82,19 +77,19 @@ fn as_slice_test() {
         assert_eq!(iter.as_slice(), &[3, 5, 8, 13][..]);
         assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8, 13][..]);
 
-        assert_eq!(iter.next(), Some(md(3)));
+        assert_eq!(iter.next(), Some(3));
         assert_eq!(iter.as_slice(), &[5, 8, 13][..]);
         assert_eq!(iter.as_mut_slice(), &mut [5, 8, 13][..]);
 
-        assert_eq!(iter.next_back(), Some(md(13)));
+        assert_eq!(iter.next_back(), Some(13));
         assert_eq!(iter.as_slice(), &[5, 8][..]);
         assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
 
-        assert_eq!(iter.next_back(), Some(md(8)));
+        assert_eq!(iter.next_back(), Some(8));
         assert_eq!(iter.as_slice(), &[5][..]);
         assert_eq!(iter.as_mut_slice(), &mut [5][..]);
 
-        assert_eq!(iter.next(), Some(md(5)));
+        assert_eq!(iter.next(), Some(5));
         assert_eq!(iter.as_slice(), &[][..]);
         assert_eq!(iter.as_mut_slice(), &mut [][..]);
 
@@ -108,7 +103,7 @@ fn as_slice_test() {
 
 #[test]
 fn next_test() {
-    const fn _callable<T, const LEN: usize>(ac: &mut ArrayConsumer<T, LEN>) -> Option<ManuallyDrop<T>> {
+    const fn _callable<T, const LEN: usize>(ac: &mut ArrayConsumer<T, LEN>) -> Option<T> {
         ac.next()
     }
 
@@ -116,15 +111,15 @@ fn next_test() {
     assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
     assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
 
-    assert_eq!(iter.next(), Some(md(3)));
+    assert_eq!(iter.next(), Some(3));
     assert_eq!(iter.as_slice(), &[5, 8][..]);
     assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
 
-    assert_eq!(iter.next(), Some(md(5)));
+    assert_eq!(iter.next(), Some(5));
     assert_eq!(iter.as_slice(), &[8][..]);
     assert_eq!(iter.as_mut_slice(), &mut [8][..]);
 
-    assert_eq!(iter.next(), Some(md(8)));
+    assert_eq!(iter.next(), Some(8));
     assert_eq!(iter.as_slice(), &[][..]);
     assert_eq!(iter.as_mut_slice(), &mut [][..]);
 
@@ -137,7 +132,7 @@ fn next_test() {
 
 #[test]
 fn next_back_test() {
-    const fn _callable<T, const LEN: usize>(ac: &mut ArrayConsumer<T, LEN>) -> Option<ManuallyDrop<T>> {
+    const fn _callable<T, const LEN: usize>(ac: &mut ArrayConsumer<T, LEN>) -> Option<T> {
         ac.next_back()
     }
 
@@ -145,15 +140,15 @@ fn next_back_test() {
     assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
     assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
 
-    assert_eq!(iter.next_back(), Some(md(8)));
+    assert_eq!(iter.next_back(), Some(8));
     assert_eq!(iter.as_slice(), &[3, 5][..]);
     assert_eq!(iter.as_mut_slice(), &mut [3, 5][..]);
 
-    assert_eq!(iter.next_back(), Some(md(5)));
+    assert_eq!(iter.next_back(), Some(5));
     assert_eq!(iter.as_slice(), &[3][..]);
     assert_eq!(iter.as_mut_slice(), &mut [3][..]);
 
-    assert_eq!(iter.next_back(), Some(md(3)));
+    assert_eq!(iter.next_back(), Some(3));
     assert_eq!(iter.as_slice(), &[][..]);
     assert_eq!(iter.as_mut_slice(), &mut [][..]);
 
@@ -171,9 +166,9 @@ fn copy_test() {
     }
 
     let mut consumer = ArrayConsumer::new([3, 5, 8, 13, 21, 34]);
-    _ = consumer.next().map(ManuallyDrop::into_inner);
-    _ = consumer.next_back().map(ManuallyDrop::into_inner);
-    _ = consumer.next_back().map(ManuallyDrop::into_inner);
+    _ = consumer.next();
+    _ = consumer.next_back();
+    _ = consumer.next_back();
 
     assert_eq!(consumer.as_slice(), &[5, 8, 13][..]);
     assert_eq!(consumer.copy().as_slice(), &[5, 8, 13][..]);
@@ -188,9 +183,9 @@ fn clone_test() {
     let ts = |x: i32| x.to_string();
 
     let mut consumer = ArrayConsumer::new([3, 5, 8, 13, 21, 34].map(ts));
-    _ = consumer.next().map(ManuallyDrop::into_inner);
-    _ = consumer.next_back().map(ManuallyDrop::into_inner);
-    _ = consumer.next_back().map(ManuallyDrop::into_inner);
+    _ = consumer.next();
+    _ = consumer.next_back();
+    _ = consumer.next_back();
 
     assert_eq!(consumer.as_slice(), &[5, 8, 13].map(ts)[..]);
     assert_eq!(consumer.clone().as_slice(), &[5, 8, 13].map(ts)[..]);
@@ -213,16 +208,16 @@ fn drop_test() {
 
     assert!(set.borrow().is_empty());
 
-    let _ = iter.next().map(ManuallyDrop::into_inner);
+    let _ = iter.next();
     assert!(set.borrow().iter().copied().eq([3u128]), "{set:?}");
 
-    let _ = iter.next_back().map(ManuallyDrop::into_inner);
+    let _ = iter.next_back();
     assert!(set.borrow().iter().copied().eq([3u128, 55]), "{set:?}");
 
-    let _ = iter.next_back().map(ManuallyDrop::into_inner);
+    let _ = iter.next_back();
     assert!(set.borrow().iter().copied().eq([3u128, 34, 55]), "{set:?}");
 
-    let _ = iter.next().map(ManuallyDrop::into_inner);
+    let _ = iter.next();
     assert!(set.borrow().iter().copied().eq([3u128, 5, 34, 55]), "{set:?}");
 
     drop(iter);

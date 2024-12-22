@@ -25,8 +25,7 @@ macro_rules! __array_map2__with_parsed_closure {
 
             builder.infer_length_from_consumer(&consumer);
 
-            while let Some(elem) = consumer.next() {
-                let elem = $crate::__::ManuallyDrop::into_inner(elem);
+            $crate::while_let_Some!{elem = consumer.next() =>
                 let $($pattern)* = elem;
                 let mapped $(: $ret)? = $mapper;
                 builder.push(mapped);

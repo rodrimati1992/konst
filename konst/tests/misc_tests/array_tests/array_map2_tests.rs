@@ -5,6 +5,25 @@ use konst::array;
 use std::cell::RefCell;
 use std::collections::BTreeSet;
 
+#[repr(transparent)]
+#[derive(Debug, PartialEq)]
+struct Dropp<T>(T);
+
+impl<T> Drop for Dropp<T> {
+    fn drop(&mut self) {}
+}
+
+impl<T> Dropp<T> {
+    const fn into_inner(self) -> T {
+        let this = core::mem::ManuallyDrop::new(self);
+        // SAFETY: #[repr(transparent)] guarantees the same representation 
+        unsafe { std::mem::transmute_copy(&this) }
+    }
+}
+
+
+
+
 #[derive(Debug, PartialEq)]
 struct NonCopy<T>(T);
 
@@ -24,6 +43,18 @@ fn array_map_non_copy() {
     assert_eq!(
         map_foos([0, 1, 255u8].map(NonCopy)),
         [0, 1, -1i8].map(NonCopy)
+    );
+}
+
+#[test]
+fn array_map_drop() {
+    const fn map_foos<const N: usize>(input: [Dropp<u8>; N]) -> [Dropp<i8>; N] {
+        array::map_!(input, |nc| Dropp(nc.into_inner() as i8))
+    }
+
+    assert_eq!(
+        map_foos([0, 1, 255u8].map(Dropp)),
+        [0, 1, -1i8].map(Dropp)
     );
 }
 
