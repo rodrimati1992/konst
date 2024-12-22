@@ -4,7 +4,7 @@ Documentation on the iterator DSL that some `konst::iter` macros support.
 The macros from this crate don't directly invoke any of the method listed below,
 they expand to equivalent code, this allows the macros to work on stable.
 
-The [`collect_const`](crate::iter::collect_const) macro is
+The [`collect_const`] macro is
 used in examples here purely for simplicity.
 
 # Methods
@@ -195,5 +195,5 @@ assert_eq!(ARR, [&21, &34, &55]);
 
 
 
-
+[`collect_const`]: macro@crate::iter::collect_const
 */

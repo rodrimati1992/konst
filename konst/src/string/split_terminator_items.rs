@@ -3,8 +3,6 @@ use crate::{
     string::{self, str_from, str_up_to, Pattern, PatternNorm},
 };
 
-use konst_kernel::iterator_shared;
-
 /// Const equivalent of [`str::split_terminator`], which only takes a `&str` delimiter.
 ///
 /// This does the same as [`split`](crate::string::split),

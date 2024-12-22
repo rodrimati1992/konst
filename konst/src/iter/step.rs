@@ -1,11 +1,11 @@
-use crate::{
-    chr,
-    type_eq::{HasTypeWitness, MakeTypeWitness, TypeEq, TypeWitnessTypeArg},
-};
+use crate::chr;
+
+use typewit::{HasTypeWitness, MakeTypeWitness, TypeEq, TypeWitnessTypeArg};
 
 use core::{marker::PhantomData, ops::RangeInclusive};
 
-pub trait Step: HasTypeWitness<StepWitness<Self>> + Copy {
+#[doc(hidden)]
+pub trait Step: HasTypeWitness<__StepWitness<Self>> + Copy {
     /// The minimum value of the type.
     const MIN_VAL: Self;
 
@@ -20,20 +20,23 @@ pub trait Step: HasTypeWitness<StepWitness<Self>> + Copy {
 #[doc(hidden)]
 pub struct __Priv<T>(PhantomData<fn() -> T>);
 
-pub(crate) struct StepRet<T> {
-    pub(crate) finished_inclusive: bool,
-    pub(crate) finished_exclusive: bool,
-    pub(crate) overflowed: bool,
-    pub(crate) next: T,
+#[doc(hidden)]
+pub struct __StepRet<T> {
+    pub finished_inclusive: bool,
+    pub finished_exclusive: bool,
+    pub overflowed: bool,
+    pub next: T,
 }
 
 type Pair<T> = (T, T);
-crate::type_eq_projection_fn! {
-    const fn teq_pair(T) -> Pair<T>
-}
 
-crate::type_eq_projection_fn! {
-    const fn teq_range_inclusive(T) -> RangeInclusive<T>
+typewit::type_fn! {
+    struct PairFn;
+    impl<T> T => Pair<T>
+}
+typewit::type_fn! {
+    struct RangeInclusiveFn;
+    impl<T> T => RangeInclusive<T>
 }
 
 macro_rules! declare_step_witness {
@@ -42,7 +45,7 @@ macro_rules! declare_step_witness {
     ) => {
         #[non_exhaustive]
         #[doc(hidden)]
-        pub enum StepWitness<T: Step> {
+        pub enum __StepWitness<T: Step> {
             $(
                 #[non_exhaustive]
                 $variant {
@@ -51,7 +54,7 @@ macro_rules! declare_step_witness {
             )*
         }
 
-        impl<T: Step> TypeWitnessTypeArg for StepWitness<T> {
+        impl<T: Step> TypeWitnessTypeArg for __StepWitness<T> {
             type Arg = T;
         }
 
@@ -64,17 +67,17 @@ macro_rules! declare_step_witness {
                 const __PRIV_KO9Y329U2U: __Priv<Self> = __Priv(PhantomData);
             }
 
-            impl MakeTypeWitness for StepWitness<$type> {
+            impl MakeTypeWitness for __StepWitness<$type> {
                 const MAKE: Self = Self::$variant {
                     teq: TypeEq::NEW,
                 };
             }
         )*
 
-        pub(crate) const fn increment<T: Step>(start: T, end: T) -> StepRet<T> {
+        pub(crate) const fn increment<T: Step>(start: T, end: T) -> __StepRet<T> {
             match HasTypeWitness::WITNESS {
                 $(
-                    StepWitness::$variant{teq, ..} => {
+                    __StepWitness::$variant{teq, ..} => {
                         let start = teq.to_right(start);
                         let end = teq.to_right(end);
                         code_for_step!($kind, increment, start, end, teq, to_left)
@@ -83,10 +86,10 @@ macro_rules! declare_step_witness {
             }
         }
 
-        pub(crate) const fn decrement<T: Step>(start: T, end: T) -> StepRet<T> {
+        pub(crate) const fn decrement<T: Step>(start: T, end: T) -> __StepRet<T> {
             match HasTypeWitness::WITNESS {
                 $(
-                    StepWitness::$variant{teq, ..} => {
+                    __StepWitness::$variant{teq, ..} => {
                         let start = teq.to_right(start);
                         let end = teq.to_right(end);
                         code_for_step!($kind, decrement, start, end, teq, to_left)
@@ -107,9 +110,9 @@ macro_rules! declare_step_witness {
         ) -> (T, T) {
             match HasTypeWitness::WITNESS {
                 $(
-                    StepWitness::$variant{teq, ..} => {
-                        let range = teq_range_inclusive(teq).to_right(range);
-                        teq_pair(teq).to_left((*range.start(),*range.end()))
+                    __StepWitness::$variant{teq, ..} => {
+                        let range = teq.map(RangeInclusiveFn).to_right(range);
+                        teq.map(PairFn).to_left((*range.start(),*range.end()))
                     }
                 )*
             }
@@ -146,9 +149,9 @@ macro_rules! code_for_step {
             0x10FFFF => (0, true),
             num => (num + 1, false),
         };
-        let next = crate::opt_unwrap!(chr::from_u32(next_num));
+        let next = chr::from_u32(next_num).unwrap();
 
-        StepRet {
+        __StepRet {
             finished_inclusive: $start > $end,
             finished_exclusive: $start >= $end,
             overflowed,
@@ -161,9 +164,9 @@ macro_rules! code_for_step {
             0xE000 => (0xD7FF, false),
             num => (num - 1, false),
         };
-        let next = crate::opt_unwrap!(chr::from_u32(next_num));
+        let next = chr::from_u32(next_num).unwrap();
 
-        StepRet {
+        __StepRet {
             finished_inclusive: $end < $start,
             finished_exclusive: $end <= $start,
             overflowed,
@@ -172,7 +175,7 @@ macro_rules! code_for_step {
     }};
     (int, increment, $start:ident, $end:ident, $teq:expr, $to_dir:ident) => {{
         let (next, overflowed) = $start.overflowing_add(1);
-        StepRet {
+        __StepRet {
             finished_inclusive: $start > $end,
             finished_exclusive: $start >= $end,
             overflowed,
@@ -181,7 +184,7 @@ macro_rules! code_for_step {
     }};
     (int, decrement, $start:ident, $end:ident, $teq:expr, $to_dir:ident) => {{
         let (next, overflowed) = $end.overflowing_sub(1);
-        StepRet {
+        __StepRet {
             finished_inclusive: $end < $start,
             finished_exclusive: $end <= $start,
             overflowed,

@@ -4,7 +4,6 @@ use crate::{
 };
 
 use konst_kernel::{
-    iterator_shared,
     string::{__find_next_char_boundary, __find_prev_char_boundary},
 };
 

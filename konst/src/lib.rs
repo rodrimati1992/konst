@@ -334,6 +334,7 @@ pub mod chr;
 pub mod cmp;
 
 #[cfg(feature = "iter")]
+#[macro_use]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub mod iter;
 
@@ -401,14 +402,16 @@ pub struct ReadmeTest;
 #[doc(hidden)]
 pub mod __ {
     pub use core::{
+        assert,
         cmp::Ordering::{self, Equal, Greater, Less},
         compile_error,
         marker::PhantomData,
         matches,
-        mem::{self, ManuallyDrop},
+        mem::{self, forget, ManuallyDrop, MaybeUninit},
         ops::Range,
         option::Option::{self, None, Some},
-        primitive::usize,
+        panic,
+        primitive::{bool, str, u8, usize},
         ptr,
         result::Result::{self, Err, Ok},
     };
@@ -422,13 +425,26 @@ pub mod __ {
 
     pub use crate::__for_cmp_impls::U8Ordering;
 
+
     pub use konst_kernel::utils::{__parse_closure_1, __parse_closure_2};
     pub use konst_kernel::__::unit_array;
-    pub use konst_kernel::{__priv_transmute, __split_array_type_and_closure, __unparenthesize_ty};
+    pub use konst_kernel::{__priv_transmute, __split_array_type_and_closure};
+    pub use konst_kernel::{
+        __unparenthesize_ty,
+        __unparen_pat,
+        __ty_or_und,
+        __annotate_type,
+        __choose,
+        __choose_alt,
+    };
 
     #[cfg(feature = "cmp")]
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
     pub use crate::cmp::{CmpWrapper, ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
 
+    #[cfg(feature = "cmp")]
+    pub use crate::iter::collect_const::CollectorCmd;
+
     pub use const_panic::concat_panic;
+
+    pub use typewit::MakeTypeWitness;
 }

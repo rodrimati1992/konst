@@ -1,49 +1,59 @@
-use crate::into_iter::ConstIntoIter;
+use crate::iter::ConstIntoIter;
 
 use core::marker::PhantomData;
 
-mod combinator_methods;
-pub mod iter_adaptors;
-mod iter_eval_macro;
-
-#[macro_export]
-macro_rules! for_each {
-    ($pattern:pat_param in $($rem:tt)*) => ({
-        $crate::__process_iter_args!{
-            ($crate::__for_each)
-            (($pattern),)
-            (
-                item,
-                'zxe7hgbnjs,
-                adapter,
-            )
-            $($rem)*
-        }
-    });
-}
-
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __for_each {
+macro_rules! iterator_shared {
     (
-        @each
-        ($pattern:pat_param),
-        ($item:ident adapter),
-        $(,)? => $($code:tt)*
-    ) => ({
-        let $pattern = $item;
-        $($code)*
-    });
-    (@$other:ident $($tt:tt)*) =>{};
-}
+        is_forward = $is_forward:ident,
+        $(is_copy = $is_copy:ident,)?
+        item = $Item:ty,
+        iter_forward = $Self:ty,
+        $(iter_reversed = $Rev:path,)?
+        next($self:ident) $next_block:block,
+        $(next_back $next_back_block:block,)?
+        fields = $fields:tt,
+    ) => {
+        $crate::__::__choose_alt! {($($is_copy)? true) {
+            /// Creates a clone of this iterator
+            pub const fn copy(&self) -> Self {
+                let Self $fields = *self;
+                Self $fields
+            }
+        }}
 
-#[macro_export]
-macro_rules! iter_count {
-    ($iter:expr $(,)*) => {{
-        let mut count = 0;
-        $crate::for_each! {_ in $iter => {count+=1;}}
-        count
-    }};
+        $(
+            /// Reverses the iterator
+            pub const fn rev(self) -> $crate::__::__choose!($is_forward $Rev $Self) {
+                let Self $fields = self;
+                type Type<T> = T;
+                Type::<$crate::__::__choose!($is_forward $Rev $Self)> $fields
+            }
+        )?
+
+        /// Advances the iterator and returns the next value.
+        #[track_caller]
+        pub const fn next(&mut $self) -> Option<$Item> {
+            $crate::__::__choose!{
+                $is_forward
+                $next_block
+                $($next_back_block)?
+            }
+        }
+
+        $(
+            /// Removes and returns an element from the end of the iterator.
+            #[track_caller]
+            pub const fn next_back(&mut $self) -> Option<$Item> {
+                $crate::__::__choose!{
+                    $is_forward
+                    $next_back_block
+                    $next_block
+                }
+            }
+        )?
+    };
 }
 
 macro_rules! make__cim_preprocess_methods__macro {
@@ -207,7 +217,7 @@ make__cim_preprocess_methods__macro! {
     [
         ( zip($($args:tt)*) ) => {
             iter = (
-                $crate::into_iter_macro!(
+                $crate::iter::into_iter!(
                     $crate::__cim_assert_expr!{zip($($args)*), 0usize..0}
                 )
             )

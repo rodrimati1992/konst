@@ -21,7 +21,7 @@ macro_rules! __process_iter_args {
 
         $crate::iter::__cim_preprocess_methods !{
             (
-                ((iter = $crate::into_iter_macro!($iter));)
+                ((iter = $crate::iter::into_iter!($iter));)
                 $callback_macro
                 $fixed_arguments
                 $other_args
@@ -170,7 +170,7 @@ macro_rules! __call_iter_methods {
             $item
             ( $($iters)* (
                 {}
-                let cond: $crate::__::bool = $crate::utils::__parse_closure_1!(
+                let cond: $crate::__::bool = $crate::__::__parse_closure_1!(
                     ($crate::__cim_filter) ($item,) (take_while),
                     $($pred)*
                 );
@@ -214,7 +214,7 @@ macro_rules! __call_iter_methods {
             $item
             ( $($iters)* (
                 {}
-                $still_skipping = $still_skipping && $crate::utils::__parse_closure_1!(
+                $still_skipping = $still_skipping && $crate::__::__parse_closure_1!(
                     ($crate::__cim_filter) ($item,) (skip_while),
                     $($pred)*
                 );
@@ -236,7 +236,7 @@ macro_rules! __call_iter_methods {
             $item
             ( $($iters)* (
                 {}
-                let cond = $crate::utils::__parse_closure_1!(
+                let cond = $crate::__::__parse_closure_1!(
                     ($crate::__cim_filter) ($item,) (filter),
                     $($pred)*
                 );
@@ -257,7 +257,7 @@ macro_rules! __call_iter_methods {
             $item
             ( $($iters)* (
                 {}
-                let val: $crate::__::Option<_> = $crate::utils::__parse_closure_1!(
+                let val: $crate::__::Option<_> = $crate::__::__parse_closure_1!(
                     ($crate::__cim_map) ($item,) (filter_map),
                     $($args)*
                 );
@@ -280,7 +280,7 @@ macro_rules! __call_iter_methods {
             $item
             ( $($iters)* (
                 {}
-                let $item = $crate::utils::__parse_closure_1!(
+                let $item = $crate::__::__parse_closure_1!(
                     ($crate::__cim_map) ($item,) (map),
                     $($args)*
                 );
@@ -315,7 +315,7 @@ macro_rules! __call_iter_methods {
             $iters
             {}
             {
-                $crate::utils::__parse_closure_1!{
+                $crate::__::__parse_closure_1!{
                     ($crate::__cim_flat_map) ($fixed $item ($($rem)*)) (flat_map),
                     $($args)*
                 }
@@ -440,7 +440,7 @@ macro_rules! __cim_filter {
     ($item:ident, ($($elem:tt)*) $(-> $ret_ty:ty)? $v:block) => {{
         let $($elem)* = &$item;
         // avoiding lifetime extension
-        let v: $crate::__::bool = $crate::__annotate_type!{$($ret_ty)? => $v};
+        let v: $crate::__::bool = $crate::__::__annotate_type!{$($ret_ty)? => $v};
         v
     }};
 }
@@ -452,7 +452,7 @@ macro_rules! __cim_map {
         let $($elem)* = $item;
 
         // allowing for lifetime extension of temporaries
-        $crate::__annotate_type!{$($ret_ty)? => $v}
+        $crate::__::__annotate_type!{$($ret_ty)? => $v}
     }};
 }
 
@@ -495,8 +495,8 @@ macro_rules! __cim_flat_map {
             (
                 (
                     {
-                        iter = $crate::into_iter_macro!(
-                            $crate::__annotate_type!{$($ret_ty)? => $v}
+                        iter = $crate::iter::into_iter!(
+                            $crate::__::__annotate_type!{$($ret_ty)? => $v}
                         )
                     }
                     let $crate::__::Some($item) = iter.$next_fn() else {

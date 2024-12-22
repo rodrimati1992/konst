@@ -1,3 +1,5 @@
+use crate::iter::{ConstIntoIter, IsIteratorKind};
+
 /// Const analog of [`core::iter::repeat`],
 /// except that this requires the repeated value to impl `Copy`
 /// (instead of `Clone`).
@@ -11,8 +13,35 @@
 ///
 /// assert_eq!(ARR, &[3, 3, 3, 3, 3]);
 /// ```
-pub use konst_kernel::iter::iter_adaptors::repeat;
+pub const fn repeat<T: Copy>(val: T) -> Repeat<T> {
+    Repeat(val)
+}
 
 /// Const analog of [`core::iter::Repeat`],
 /// constructed by [`repeat`](crate::iter::repeat).
-pub use konst_kernel::iter::iter_adaptors::Repeat;
+pub struct Repeat<T>(T);
+
+impl<T> ConstIntoIter for Repeat<T> {
+    type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = T;
+}
+
+impl<T: Copy> Repeat<T> {
+    /// Gets the next element in the iterator
+    pub const fn next(&mut self) -> Option<T> {
+        Some(self.0)
+    }
+    /// Gets the next element in the iterator
+    pub const fn next_back(&mut self) -> Option<T> {
+        Some(self.0)
+    }
+    /// Reverses the iterator
+    pub const fn rev(self) -> Self {
+        self
+    }
+    /// Clones the iterator
+    pub const fn copy(&self) -> Self {
+        Self(self.0)
+    }
+}

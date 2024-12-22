@@ -1,9 +1,70 @@
 use crate::{
-    iter::{ConstIntoIter, IsIteratorKind},
+    iter::{ConstIntoIter, IntoIterWrapper, IsIteratorKind, IsStdKind},
     option, slice,
 };
 
-use konst_kernel::iterator_shared;
+use core::mem::ManuallyDrop;
+
+
+impl<'a, T, const N: usize> ConstIntoIter for &'a [T; N] {
+    type Kind = IsStdKind;
+    type IntoIter = Iter<'a, T>;
+    type Item = &'a T;
+}
+
+impl<'a, T, const N: usize> ConstIntoIter for &&'a [T; N] {
+    type Kind = IsStdKind;
+    type IntoIter = Iter<'a, T>;
+    type Item = &'a T;
+}
+
+impl<'a, T, const N: usize> IntoIterWrapper<&'a [T; N], IsStdKind> {
+    /// Converts `&'a [T; N]` into an iterator
+    pub const fn const_into_iter(self) -> Iter<'a, T> {
+        Iter {
+            slice: ManuallyDrop::into_inner(self.iter) as &[T],
+        }
+    }
+}
+impl<'a, T, const N: usize> IntoIterWrapper<&&'a [T; N], IsStdKind> {
+    /// Converts `&&'a [T; N]` into an iterator
+    pub const fn const_into_iter(self) -> Iter<'a, T> {
+        Iter {
+            slice: (*ManuallyDrop::into_inner(self.iter)) as &[T],
+        }
+    }
+}
+
+impl<'a, T> ConstIntoIter for &'a [T] {
+    type Kind = IsStdKind;
+    type IntoIter = Iter<'a, T>;
+    type Item = &'a T;
+}
+
+impl<'a, T> IntoIterWrapper<&'a [T], IsStdKind> {
+    /// Converts `&'a [T]` into an iterator
+    pub const fn const_into_iter(self) -> Iter<'a, T> {
+        Iter {
+            slice: ManuallyDrop::into_inner(self.iter),
+        }
+    }
+}
+
+impl<'a, T> ConstIntoIter for &&'a [T] {
+    type Kind = IsStdKind;
+    type IntoIter = Iter<'a, T>;
+    type Item = &'a T;
+}
+
+impl<'a, T> IntoIterWrapper<&&'a [T], IsStdKind> {
+    /// Converts `&&'a [T]` into an iterator
+    pub const fn const_into_iter(self) -> Iter<'a, T> {
+        Iter {
+            slice: *ManuallyDrop::into_inner(self.iter),
+        }
+    }
+}
+
 
 /// Gets a const iterator over `slice`, const equivalent of
 /// [`<[T]>::iter`
@@ -49,7 +110,10 @@ use konst_kernel::iterator_shared;
 ///
 /// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
-pub use konst_kernel::into_iter::slice_into_iter::iter;
+pub const fn iter<T>(slice: &[T]) -> Iter<'_, T> {
+    Iter { slice }
+}
+
 
 /// Const equivalent of [`core::slice::Iter`].
 ///
@@ -63,7 +127,47 @@ pub use konst_kernel::into_iter::slice_into_iter::iter;
 /// # );
 /// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
-pub use konst_kernel::into_iter::slice_into_iter::Iter;
+pub struct Iter<'a, T> {
+    slice: &'a [T],
+}
+impl<'a, T> ConstIntoIter for Iter<'a, T> {
+    type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = &'a T;
+}
+
+macro_rules! iter_shared {
+    (is_forward = $is_forward:ident) => {
+        iterator_shared! {
+            is_forward = $is_forward,
+            item = &'a T,
+            iter_forward = Iter<'a, T>,
+            iter_reversed = IterRev<'a, T>,
+            next(self) {
+                if let [elem, rem @ ..] = self.slice {
+                    self.slice = rem;
+                    Some(elem)
+                } else {
+                    None
+                }
+            },
+            next_back {
+                if let [rem @ .., elem] = self.slice {
+                    self.slice = rem;
+                    Some(elem)
+                } else {
+                    None
+                }
+            },
+            fields = {slice},
+        }
+
+        /// Accesses the remaining slice.
+        pub const fn as_slice(&self) -> &'a [T] {
+            self.slice
+        }
+    };
+}
 
 /// Const equivalent of `core::iter::Rev<core::slice::Iter<_>>`
 ///
@@ -77,7 +181,83 @@ pub use konst_kernel::into_iter::slice_into_iter::Iter;
 /// # );
 /// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
-pub use konst_kernel::into_iter::slice_into_iter::IterRev;
+pub struct IterRev<'a, T> {
+    slice: &'a [T],
+}
+impl<'a, T> ConstIntoIter for IterRev<'a, T> {
+    type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = &'a T;
+}
+
+impl<'a, T> Iter<'a, T> {
+    iter_shared! {is_forward = true}
+}
+
+impl<'a, T> IterRev<'a, T> {
+    iter_shared! {is_forward = false}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+impl<'a, T, const N: usize> ConstIntoIter for &'a mut [T; N] {
+    type Kind = IsStdKind;
+    type IntoIter = IterMut<'a, T>;
+    type Item = &'a mut T;
+}
+
+impl<'a, T, const N: usize> ConstIntoIter for &'a mut &mut [T; N] {
+    type Kind = IsStdKind;
+    type IntoIter = IterMut<'a, T>;
+    type Item = &'a mut T;
+}
+
+impl<'a, T, const N: usize> IntoIterWrapper<&'a mut [T; N], IsStdKind> {
+    /// Converts `&'a mut [T; N]` into an iterator
+    pub const fn const_into_iter(self) -> IterMut<'a, T> {
+        IterMut {
+            slice: ManuallyDrop::into_inner(self.iter) as &mut [T],
+        }
+    }
+}
+impl<'a, T, const N: usize> IntoIterWrapper<&'a mut &mut [T; N], IsStdKind> {
+    /// Converts `&'a mut &mut [T; N]` into an iterator
+    pub const fn const_into_iter(self) -> IterMut<'a, T> {
+        IterMut {
+            slice: (*ManuallyDrop::into_inner(self.iter)) as &mut [T],
+        }
+    }
+}
+
+impl<'a, T> ConstIntoIter for &'a mut [T] {
+    type Kind = IsStdKind;
+    type IntoIter = IterMut<'a, T>;
+    type Item = &'a mut T;
+}
+
+impl<'a, T> IntoIterWrapper<&'a mut [T], IsStdKind> {
+    /// Converts a `&'a mut [T]` into an iterator
+    pub const fn const_into_iter(self) -> IterMut<'a, T> {
+        IterMut {
+            slice: ManuallyDrop::into_inner(self.iter),
+        }
+    }
+}
+
+impl<'a, T> ConstIntoIter for &'a mut &mut [T] {
+    type Kind = IsStdKind;
+    type IntoIter = IterMut<'a, T>;
+    type Item = &'a mut T;
+}
+
+impl<'a, T> IntoIterWrapper<&'a mut &mut [T], IsStdKind> {
+    /// Converts a `&'a mut &mut [T]` into an iterator
+    pub const fn const_into_iter(self) -> IterMut<'a, T> {
+        IterMut {
+            slice: &mut **ManuallyDrop::into_inner(self.iter),
+        }
+    }
+}
 
 /// Gets a const iterator over a `&mut [T]`, const equivalent of
 /// [`<[T]>::iter_mut`
@@ -103,7 +283,48 @@ pub use konst_kernel::into_iter::slice_into_iter::IterRev;
 /// assert_eq!(rev.next(), None);
 /// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
-pub use konst_kernel::into_iter::slice_into_iter::iter_mut;
+pub const fn iter_mut<T>(slice: &mut [T]) -> IterMut<'_, T> {
+    IterMut { slice }
+}
+
+macro_rules! iter_mut_shared {
+    (is_forward = $is_forward:ident) => {
+        iterator_shared! {
+            is_forward = $is_forward,
+            is_copy = false,
+            item = &'a mut T,
+            iter_forward = IterMut<'a, T>,
+            iter_reversed = IterMutRev<'a, T>,
+            next(self) {
+                if let [elem, rem @ ..] = core::mem::replace(&mut self.slice, &mut []) {
+                    self.slice = rem;
+                    Some(elem)
+                } else {
+                    None
+                }
+            },
+            next_back {
+                if let [rem @ .., elem] = core::mem::replace(&mut self.slice, &mut []) {
+                    self.slice = rem;
+                    Some(elem)
+                } else {
+                    None
+                }
+            },
+            fields = {slice},
+        }
+
+        /// Accesses the remaining slice.
+        pub const fn as_slice(&self) -> &[T] {
+            self.slice
+        }
+
+        /// Accesses the remaining slice.
+        pub const fn as_mut_slice(&mut self) -> &mut [T] {
+            self.slice
+        }
+    };
+}
 
 /// Const equivalent of [`core::slice::IterMut`].
 ///
@@ -118,7 +339,30 @@ pub use konst_kernel::into_iter::slice_into_iter::iter_mut;
 /// # ;
 /// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
-pub use konst_kernel::into_iter::slice_into_iter::IterMut;
+pub struct IterMut<'a, T> {
+    slice: &'a mut [T],
+}
+impl<'a, T> ConstIntoIter for IterMut<'a, T> {
+    type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = &'a mut T;
+}
+
+impl<'a, T> ConstIntoIter for IterMutRev<'a, T> {
+    type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = &'a mut T;
+}
+
+impl<'a, T> IterMut<'a, T> {
+    iter_mut_shared! {is_forward = true}
+}
+
+impl<'a, T> IterMutRev<'a, T> {
+    iter_mut_shared! {is_forward = false}
+}
+
+
 
 /// Const equivalent of `core::iter::Rev<core::slice::IterMut<_>>`
 ///
@@ -133,8 +377,11 @@ pub use konst_kernel::into_iter::slice_into_iter::IterMut;
 /// # ;
 /// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
-pub use konst_kernel::into_iter::slice_into_iter::IterMutRev;
+pub struct IterMutRev<'a, T> {
+    slice: &'a mut [T],
+}
 
+////////////////////////////////////////////////////////////////////////////////
 
 /// A const equivalent of `slice.iter().copied()`
 ///
@@ -155,13 +402,57 @@ pub use konst_kernel::into_iter::slice_into_iter::IterMutRev;
 /// ```
 ///
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
-pub use konst_kernel::into_iter::slice_into_iter::iter_copied;
+pub const fn iter_copied<T: Copy>(slice: &[T]) -> IterCopied<'_, T> {
+    IterCopied { slice }
+}
+
+macro_rules! iter_copied_shared {
+    (is_forward = $is_forward:ident) => {
+        iterator_shared! {
+            is_forward = $is_forward,
+            item = T,
+            iter_forward = IterCopied<'a, T>,
+            iter_reversed = IterCopiedRev<'a, T>,
+            next(self) {
+                if let [elem, rem @ ..] = self.slice {
+                    self.slice = rem;
+                    Some(*elem)
+                } else {
+                    None
+                }
+            },
+            next_back {
+                if let [rem @ .., elem] = self.slice {
+                    self.slice = rem;
+                    Some(*elem)
+                } else {
+                    None
+                }
+            },
+            fields = {slice},
+        }
+
+        /// Accesses the remaining slice.
+        pub const fn as_slice(&self) -> &'a [T] {
+            self.slice
+        }
+    };
+}
+
 
 /// A const equivalent of `iter::Copied<slice::Iter<'a, T>>`.
 ///
 /// This const iterator can be created with [`iter_copied`].
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
-pub use konst_kernel::into_iter::slice_into_iter::IterCopied;
+pub struct IterCopied<'a, T> {
+    slice: &'a [T],
+}
+impl<'a, T> ConstIntoIter for IterCopied<'a, T> {
+    type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = T;
+}
+
 
 /// A const equivalent of `iter::Rev<iter::Copied<slice::Iter<'a, T>>>`
 ///
@@ -192,7 +483,22 @@ pub use konst_kernel::into_iter::slice_into_iter::IterCopied;
 /// ```
 ///
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
-pub use konst_kernel::into_iter::slice_into_iter::IterCopiedRev;
+pub struct IterCopiedRev<'a, T> {
+    slice: &'a [T],
+}
+impl<'a, T> ConstIntoIter for IterCopiedRev<'a, T> {
+    type Kind = IsIteratorKind;
+    type IntoIter = Self;
+    type Item = T;
+}
+
+impl<'a, T: Copy> IterCopied<'a, T> {
+    iter_copied_shared! {is_forward = true}
+}
+
+impl<'a, T: Copy> IterCopiedRev<'a, T> {
+    iter_copied_shared! {is_forward = false}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1509,9 +1815,6 @@ mod requires_rust_1_64 {
     impl<'a, T> RChunksExactMutRev<'a, T> {
         rchunks_exact_mut_shared! {is_forward = false}
     }
-
-
-
 }
 
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]

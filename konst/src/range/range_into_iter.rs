@@ -3,10 +3,8 @@ use core::{
     ops::{Range, RangeFrom, RangeInclusive},
 };
 
-use crate::{
-    into_iter::{ConstIntoIter, IntoIterWrapper, IsIteratorKind, IsStdKind},
-    step_kk::{self, decrement, increment, Step, StepRet},
-};
+use crate::iter::{ConstIntoIter, IntoIterWrapper, IsIteratorKind, IsStdKind};
+use crate::iter::step::{self, decrement, increment, Step, __StepRet};
 
 macro_rules! impl_std_kinds {
     ($($ty:ident => $iter:ident,)*) => (
@@ -30,6 +28,15 @@ impl_std_kinds! {
     RangeFrom => RangeFromIter,
 }
 
+/// Const-iterator for [`Range`](core::ops::Range)
+///
+/// This is constructed like this:
+/// ```rust
+/// # let _ =
+/// konst::iter::into_iter!(0..10)
+/// # ;
+/// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct RangeIter<T> {
     start: T,
     end: T,
@@ -40,6 +47,16 @@ impl<T: Step> ConstIntoIter for RangeIter<T> {
     type Item = T;
 }
 
+/// Reversed const-iterator for [`Range`](core::ops::Range)
+///
+///
+/// This is constructed like this:
+/// ```rust
+/// # let _ =
+/// konst::iter::into_iter!(0..10).rev()
+/// # ;
+/// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct RangeIterRev<T> {
     start: T,
     end: T,
@@ -50,6 +67,15 @@ impl<T: Step> ConstIntoIter for RangeIterRev<T> {
     type Item = T;
 }
 
+/// Const-iterator for [`RangeInclusive`](core::ops::RangeInclusive)
+///
+/// This is constructed like this:
+/// ```rust
+/// # let _ =
+/// konst::iter::into_iter!(0..=10)
+/// # ;
+/// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct RangeInclusiveIter<T> {
     start: T,
     end: T,
@@ -60,6 +86,15 @@ impl<T: Step> ConstIntoIter for RangeInclusiveIter<T> {
     type Item = T;
 }
 
+/// Reversed const-iterator for [`RangeInclusive`](core::ops::RangeInclusive)
+///
+/// This is constructed like this:
+/// ```rust
+/// # let _ =
+/// konst::iter::into_iter!(0..=10).rev()
+/// # ;
+/// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct RangeInclusiveIterRev<T> {
     start: T,
     end: T,
@@ -70,6 +105,15 @@ impl<T: Step> ConstIntoIter for RangeInclusiveIterRev<T> {
     type Item = T;
 }
 
+/// Const-iterator for [`RangeFrom`](core::ops::RangeFrom)
+///
+/// This is constructed like this:
+/// ```rust
+/// # let _ =
+/// konst::iter::into_iter!(0..)
+/// # ;
+/// ```
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct RangeFromIter<T> {
     start: T,
 }
@@ -87,7 +131,7 @@ macro_rules! int_range_shared {
             iter_forward = RangeIter<$Int>,
             iter_reversed = RangeIterRev<$Int>,
             next(self){
-                let StepRet{finished_exclusive, next, ..} =
+                let __StepRet{finished_exclusive, next, ..} =
                     increment(self.start, self.end);
 
                 if finished_exclusive {
@@ -103,7 +147,7 @@ macro_rules! int_range_shared {
                 }
             },
             next_back {
-                let StepRet{finished_exclusive, next, overflowed, ..} =
+                let __StepRet{finished_exclusive, next, overflowed, ..} =
                     decrement(self.start, self.end);
 
                 if finished_exclusive {
@@ -138,7 +182,7 @@ macro_rules! int_range_inc_shared {
             iter_forward = RangeInclusiveIter<$Int>,
             iter_reversed = RangeInclusiveIterRev<$Int>,
             next(self){
-                let StepRet{finished_inclusive, next, overflowed, ..} =
+                let __StepRet{finished_inclusive, next, overflowed, ..} =
                     increment(self.start, self.end);
 
                 if finished_inclusive {
@@ -157,7 +201,7 @@ macro_rules! int_range_inc_shared {
                 }
             },
             next_back {
-                let StepRet{finished_inclusive, next, overflowed, ..} =
+                let __StepRet{finished_inclusive, next, overflowed, ..} =
                     decrement(self.start, self.end);
 
                 if finished_inclusive {
@@ -194,7 +238,7 @@ impl<T: Step> RangeFromIter<T> {
         item = T,
         iter_forward = RangeFromIter<T>,
         next(self){
-            let StepRet{next, overflowed, ..} = increment(self.start, T::MAX_VAL);
+            let __StepRet{next, overflowed, ..} = increment(self.start, T::MAX_VAL);
 
             debug_assert!(!overflowed);
 
@@ -211,6 +255,11 @@ impl<T: Step> RangeFromIter<T> {
 macro_rules! ii_wrapper_range_impls {
     ($range_inc_ii:expr, $($reff:tt)?) => {
         impl<T: Step> IntoIterWrapper<$($reff)? Range<T>, IsStdKind> {
+            #[doc = concat!(
+                "Converts `",
+                stringify!($($reff)? Range<T>),
+                "` into an iterator.",
+            )]
             pub const fn const_into_iter(self) -> RangeIter<T> {
                 let range = ManuallyDrop::into_inner(self.iter);
                 RangeIter {
@@ -221,6 +270,11 @@ macro_rules! ii_wrapper_range_impls {
         }
 
         impl<T: Step> IntoIterWrapper<$($reff)? RangeInclusive<T>, IsStdKind> {
+            #[doc = concat!(
+                "Converts `",
+                stringify!($($reff)? RangeInclusive<T>),
+                "` into an iterator.",
+            )]
             pub const fn const_into_iter(self) -> RangeInclusiveIter<T> {
                 let range = ManuallyDrop::into_inner(self.iter);
                 let (start, end) = $range_inc_ii(range);
@@ -229,6 +283,11 @@ macro_rules! ii_wrapper_range_impls {
         }
 
         impl<T: Step> IntoIterWrapper<$($reff)? RangeFrom<T>, IsStdKind> {
+            #[doc = concat!(
+                "Converts `",
+                stringify!($($reff)? RangeFrom<T>),
+                "` into an iterator.",
+            )]
             pub const fn const_into_iter(self) -> RangeFromIter<T> {
                 let range = ManuallyDrop::into_inner(self.iter);
                 RangeFromIter {
@@ -240,5 +299,5 @@ macro_rules! ii_wrapper_range_impls {
     }
 }
 
-ii_wrapper_range_impls! {step_kk::range_inclusive_into_inner, }
-ii_wrapper_range_impls! {step_kk::range_inclusive_ref_into_inner, &}
+ii_wrapper_range_impls! {step::range_inclusive_into_inner, }
+ii_wrapper_range_impls! {step::range_inclusive_ref_into_inner, &}
