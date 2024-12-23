@@ -89,18 +89,14 @@ This example requires the `"parsing"` and `"iter"` features
 (both are enabled by default).
 
 ```rust
-use konst::{
-    primitive::parse_u64,
-    result::unwrap_ctx,
-    iter, string,
-};
+use konst::{iter, result, string};
 
 const CSV: &str = "3, 8, 13, 21, 34";
 
 static PARSED: [u64; 5] = iter::collect_const!(u64 =>
     string::split(CSV, ","),
         map(string::trim),
-        map(|s| unwrap_ctx!(parse_u64(s))),
+        map(|s| result::unwrap!(u64::from_str_radix(s, 10))),
 );
 
 assert_eq!(PARSED, [3, 8, 13, 21, 34]);

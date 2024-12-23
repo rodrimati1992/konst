@@ -227,17 +227,11 @@ assert_eq!(find_odd(&[8, 12, 13], 3), Some(&13));
 
 Const equivalent of [`Iterator::find_map`]
 
-This example requires the `"parsing"` feature.
-
-*/
-#[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
-#[cfg_attr(feature = "parsing", doc = "```rust")]
-/**
+```rust
 use konst::{iter, result};
-use konst::primitive::parse_u64;
 
 const fn find_parsable(slice: &[&str]) -> Option<u64> {
-    iter::eval!(slice,find_map(|&s| result::ok!(parse_u64(s))))
+    iter::eval!(slice,find_map(|&s| result::ok!(u64::from_str_radix(s, 10))))
 }
 
 assert_eq!(find_parsable(&[]), None);
@@ -314,15 +308,9 @@ assert_eq!(concat_u16s(&[3, 5, 8]), 0x0008_0005_0003);
 This example demonstrates a function that gets the second number in a CSV string,
 using iterators.
 
-This example requires the `"parsing"` feature.
-
-*/
-#[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
-#[cfg_attr(feature = "parsing", doc = "```rust")]
-/**
+```rust
 use konst::{
     iter,
-    primitive::parse_u64,
     result,
     string,
 };
@@ -330,7 +318,7 @@ use konst::{
 const fn second_number(s: &str) -> Option<u64> {
     iter::eval!(
         string::split(s, ","),
-            filter_map(|s| result::ok!(parse_u64(s))),
+            filter_map(|s| result::ok!(u64::from_str_radix(s, 10))),
             nth(1),
     )
 }

@@ -44,8 +44,8 @@ version = "1.1"
 features = ["rust_1_61"]
 
 [dependencies.const_panic]
-version = "0.2.6"
-features = ["rust_1_64"]
+version = "0.2.11"
+features = ["rust_1_82"]
 default-features = false
 
 [features]

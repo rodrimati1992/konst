@@ -75,26 +75,3 @@ fn write_test() {
         assert_eq!(maybe_uninit::assume_init_mut(&mut string), &mut "why");
     }
 }
-
-#[test]
-fn as_mut_ptr_test() {
-    let mut reff = MaybeUninit::new(&0u32);
-    let mut booll = MaybeUninit::new(true);
-    let mut ordering = MaybeUninit::new(Ordering::Greater);
-    let mut string = MaybeUninit::new("wowow");
-
-    unsafe {
-        *maybe_uninit::as_mut_ptr(&mut reff) = &3;
-        *maybe_uninit::as_mut_ptr(&mut booll) = false;
-        *maybe_uninit::as_mut_ptr(&mut ordering) = Ordering::Equal;
-        *maybe_uninit::as_mut_ptr(&mut string) = "what";
-
-        assert_eq!(maybe_uninit::assume_init_mut(&mut reff), &mut &3u32);
-        assert_eq!(maybe_uninit::assume_init_mut(&mut booll), &mut false);
-        assert_eq!(
-            maybe_uninit::assume_init_mut(&mut ordering),
-            &mut Ordering::Equal
-        );
-        assert_eq!(maybe_uninit::assume_init_mut(&mut string), &mut "what");
-    }
-}

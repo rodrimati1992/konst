@@ -352,3 +352,10 @@ pub use konst_kernel::res_and_then as and_then;
 ///
 #[doc(inline)]
 pub use konst_kernel::res_or_else as or_else;
+
+
+pub use const_panic::unwrap_ok as unwrap;
+
+
+
+
