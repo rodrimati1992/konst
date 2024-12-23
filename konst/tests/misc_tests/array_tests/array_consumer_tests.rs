@@ -1,35 +1,48 @@
 use std::cell::RefCell;
 use std::collections::BTreeSet;
 
-use konst::array::ArrayConsumer;
+use konst::array::{IntoIter, IntoIterRev};
+use konst::iter::into_iter;
 
 #[test]
 fn new_test() {
-    const fn _callable<T, const LEN: usize>(arr: [T; LEN]) -> ArrayConsumer<T, LEN> {
-        ArrayConsumer::new(arr)
+    const fn _callable<T, const LEN: usize>(arr: [T; LEN]) -> IntoIter<T, LEN> {
+        IntoIter::new(arr)
     }
 }
 
 #[test]
 fn empty_test() {
-    const fn _callable<T, const LEN: usize>() -> ArrayConsumer<T, LEN> {
-        ArrayConsumer::empty()
+    const fn _callable<T, const LEN: usize>() -> IntoIter<T, LEN> {
+        IntoIter::empty()
     }
+}
+
+#[should_panic]
+#[test]
+fn assert_is_empty_panics_test() {
+    IntoIter::new([3]).assert_is_empty();
+}
+
+#[should_panic]
+#[test]
+fn assert_is_empty_rev_panics_test() {
+    IntoIter::new([3]).rev().assert_is_empty();
 }
 
 #[test]
 fn assert_is_empty_test() {
-    const fn _callable<T, const LEN: usize>(ac: ArrayConsumer<T, LEN>) {
+    const fn _callable<T, const LEN: usize>(ac: IntoIter<T, LEN>) {
         ac.assert_is_empty();
     }
 
     {
-        let iter: ArrayConsumer<u8, 0> = ArrayConsumer::new([]);
+        let iter: IntoIter<u8, 0> = IntoIter::new([]);
         iter.assert_is_empty();
     }
 
     {
-        let mut iter = ArrayConsumer::new([3, 5, 8]);
+        let mut iter = IntoIter::new([3, 5, 8]);
         assert_eq!(iter.next(), Some(3));
         assert_eq!(iter.next(), Some(5));
         assert_eq!(iter.next(), Some(8));
@@ -38,7 +51,7 @@ fn assert_is_empty_test() {
     }
 
     {
-        let mut iter = ArrayConsumer::new([3, 5, 8]);
+        let mut iter = IntoIter::new([3, 5, 8]);
         assert_eq!(iter.next_back(), Some(8));
         assert_eq!(iter.next_back(), Some(5));
         assert_eq!(iter.next_back(), Some(3));
@@ -47,7 +60,7 @@ fn assert_is_empty_test() {
     }
 
     {
-        let mut iter = ArrayConsumer::new([3, 5, 8, 13]);
+        let mut iter = IntoIter::new([3, 5, 8, 13]);
         assert_eq!(iter.next(), Some(3));
         assert_eq!(iter.next_back(), Some(13));
         assert_eq!(iter.next_back(), Some(8));
@@ -58,22 +71,38 @@ fn assert_is_empty_test() {
 }
 
 #[test]
+fn assert_is_empty_rev_test() {
+    const fn _callable<T, const LEN: usize>(ac: IntoIterRev<T, LEN>) {
+        ac.assert_is_empty();
+    }
+
+    {
+        let mut iter: IntoIterRev<_, 3> = IntoIter::new([3, 5, 8]).rev();
+        assert_eq!(iter.next(), Some(8));
+        assert_eq!(iter.next(), Some(5));
+        assert_eq!(iter.next(), Some(3));
+        assert_eq!(iter.next(), None);
+        iter.assert_is_empty();
+    }
+}
+
+#[test]
 fn as_slice_test() {
-    const fn _callable<T, const LEN: usize>(ac: &ArrayConsumer<T, LEN>) -> &[T] {
+    const fn _callable<T, const LEN: usize>(ac: &IntoIter<T, LEN>) -> &[T] {
         ac.as_slice()
     }
-    const fn _callable_mut<T, const LEN: usize>(ac: &mut ArrayConsumer<T, LEN>) -> &mut [T] {
+    const fn _callable_mut<T, const LEN: usize>(ac: &mut IntoIter<T, LEN>) -> &mut [T] {
         ac.as_mut_slice()
     }
 
     {
-        let mut iter: ArrayConsumer<u8, 0> = ArrayConsumer::new([]);
+        let mut iter: IntoIter<u8, 0> = IntoIter::new([]);
         assert_eq!(iter.as_slice(), &[][..]);
         assert_eq!(iter.as_mut_slice(), &[][..]);
     }
 
     {
-        let mut iter = ArrayConsumer::new([3, 5, 8, 13]);
+        let mut iter = IntoIter::new([3, 5, 8, 13]);
         assert_eq!(iter.as_slice(), &[3, 5, 8, 13][..]);
         assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8, 13][..]);
 
@@ -102,12 +131,56 @@ fn as_slice_test() {
 }
 
 #[test]
+fn as_slice_rev_test() {
+    const fn _callable<T, const LEN: usize>(ac: &IntoIterRev<T, LEN>) -> &[T] {
+        ac.as_slice()
+    }
+    const fn _callable_mut<T, const LEN: usize>(ac: &mut IntoIterRev<T, LEN>) -> &mut [T] {
+        ac.as_mut_slice()
+    }
+
+    {
+        let mut iter: IntoIterRev<u8, 0> = IntoIter::new([]).rev();
+        assert_eq!(iter.as_slice(), &[][..]);
+        assert_eq!(iter.as_mut_slice(), &[][..]);
+    }
+
+    {
+        let mut iter = IntoIter::new([3, 5, 8, 13]).rev();
+        assert_eq!(iter.as_slice(), &[3, 5, 8, 13][..]);
+        assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8, 13][..]);
+
+        assert_eq!(iter.next_back(), Some(3));
+        assert_eq!(iter.as_slice(), &[5, 8, 13][..]);
+        assert_eq!(iter.as_mut_slice(), &mut [5, 8, 13][..]);
+
+        assert_eq!(iter.next(), Some(13));
+        assert_eq!(iter.as_slice(), &[5, 8][..]);
+        assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
+
+        assert_eq!(iter.next(), Some(8));
+        assert_eq!(iter.as_slice(), &[5][..]);
+        assert_eq!(iter.as_mut_slice(), &mut [5][..]);
+
+        assert_eq!(iter.next_back(), Some(5));
+        assert_eq!(iter.as_slice(), &[][..]);
+        assert_eq!(iter.as_mut_slice(), &mut [][..]);
+
+        assert_eq!(iter.next(), None);
+        assert_eq!(iter.as_slice(), &[][..]);
+        assert_eq!(iter.as_mut_slice(), &mut [][..]);
+
+        iter.assert_is_empty();
+    }
+}
+
+#[test]
 fn next_test() {
-    const fn _callable<T, const LEN: usize>(ac: &mut ArrayConsumer<T, LEN>) -> Option<T> {
+    const fn _callable<T, const LEN: usize>(ac: &mut IntoIter<T, LEN>) -> Option<T> {
         ac.next()
     }
 
-    let mut iter = ArrayConsumer::new([3, 5, 8]);
+    let mut iter = IntoIter::new([3, 5, 8]);
     assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
     assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
 
@@ -132,11 +205,11 @@ fn next_test() {
 
 #[test]
 fn next_back_test() {
-    const fn _callable<T, const LEN: usize>(ac: &mut ArrayConsumer<T, LEN>) -> Option<T> {
+    const fn _callable<T, const LEN: usize>(ac: &mut IntoIter<T, LEN>) -> Option<T> {
         ac.next_back()
     }
 
-    let mut iter = ArrayConsumer::new([3, 5, 8]);
+    let mut iter: IntoIter<_, 3> = into_iter!([3, 5, 8]);
     assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
     assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
 
@@ -161,11 +234,11 @@ fn next_back_test() {
 
 #[test]
 fn copy_test() {
-    const fn _callable<T: Copy, const LEN: usize>(ac: &ArrayConsumer<T, LEN>) -> ArrayConsumer<T, LEN> {
+    const fn _callable<T: Copy, const LEN: usize>(ac: &IntoIter<T, LEN>) -> IntoIter<T, LEN> {
         ac.copy()
     }
 
-    let mut consumer = ArrayConsumer::new([3, 5, 8, 13, 21, 34]);
+    let mut consumer: IntoIter<_, 6> = into_iter!([3, 5, 8, 13, 21, 34]);
     _ = consumer.next();
     _ = consumer.next_back();
     _ = consumer.next_back();
@@ -175,17 +248,49 @@ fn copy_test() {
 }
 
 #[test]
+fn copy_rev_test() {
+    const fn _callable<T: Copy, const LEN: usize>(ac: &IntoIterRev<T, LEN>) -> IntoIterRev<T, LEN> {
+        ac.copy()
+    }
+
+    let mut consumer: IntoIterRev<_, 6> = IntoIter::new([3, 5, 8, 13, 21, 34]).rev();
+    _ = consumer.next_back();
+    _ = consumer.next();
+    _ = consumer.next();
+
+    assert_eq!(consumer.as_slice(), &[5, 8, 13][..]);
+    assert_eq!(consumer.copy().as_slice(), &[5, 8, 13][..]);
+}
+
+#[test]
 fn clone_test() {
-    fn _callable<T: Clone, const LEN: usize>(ac: &ArrayConsumer<T, LEN>) -> ArrayConsumer<T, LEN> {
+    fn _callable<T: Clone, const LEN: usize>(ac: &IntoIter<T, LEN>) -> IntoIter<T, LEN> {
         ac.clone()
     }
 
     let ts = |x: i32| x.to_string();
 
-    let mut consumer = ArrayConsumer::new([3, 5, 8, 13, 21, 34].map(ts));
+    let mut consumer = IntoIter::new([3, 5, 8, 13, 21, 34].map(ts));
     _ = consumer.next();
     _ = consumer.next_back();
     _ = consumer.next_back();
+
+    assert_eq!(consumer.as_slice(), &[5, 8, 13].map(ts)[..]);
+    assert_eq!(consumer.clone().as_slice(), &[5, 8, 13].map(ts)[..]);
+}
+
+#[test]
+fn clone_rev_test() {
+    fn _callable<T: Clone, const LEN: usize>(ac: &IntoIterRev<T, LEN>) -> IntoIterRev<T, LEN> {
+        ac.clone()
+    }
+
+    let ts = |x: i32| x.to_string();
+
+    let mut consumer = IntoIter::new([3, 5, 8, 13, 21, 34].map(ts)).rev();
+    _ = consumer.next_back();
+    _ = consumer.next();
+    _ = consumer.next();
 
     assert_eq!(consumer.as_slice(), &[5, 8, 13].map(ts)[..]);
     assert_eq!(consumer.clone().as_slice(), &[5, 8, 13].map(ts)[..]);
@@ -204,7 +309,7 @@ impl Drop for ToSet<'_> {
 fn drop_test() {
     let set = RefCell::new(BTreeSet::from([]));
 
-    let mut iter = ArrayConsumer::new([3, 5, 8, 13, 21, 34, 55].map(|x| ToSet(x, &set)));
+    let mut iter = IntoIter::new([3, 5, 8, 13, 21, 34, 55].map(|x| ToSet(x, &set)));
 
     assert!(set.borrow().is_empty());
 

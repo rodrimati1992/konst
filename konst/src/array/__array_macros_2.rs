@@ -18,7 +18,7 @@ macro_rules! __array_map2__with_parsed_closure {
     (
         $array:expr,
         ($($pattern:tt)*) $(-> $ret:ty)? $mapper:block $(,)?
-    ) => (match $crate::array::ArrayConsumer::new($array) {
+    ) => (match $crate::array::IntoIter::new($array) {
         mut consumer => {
 
             let mut builder = $crate::array::ArrayBuilder::new();

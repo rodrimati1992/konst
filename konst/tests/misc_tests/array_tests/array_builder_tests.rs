@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::collections::BTreeSet;
 
-use konst::array::{ArrayBuilder, ArrayConsumer};
+use konst::array::{ArrayBuilder, IntoIter};
 
 #[test]
 fn new_test() {
@@ -94,12 +94,12 @@ fn build_panics_test() {
 
 #[test]
 fn infer_length_from_consumer_test() {
-    const fn _callable<T, const LEN: usize>(ab: &ArrayBuilder<T, LEN>, ac: &ArrayConsumer<T, LEN>) {
+    const fn _callable<T, const LEN: usize>(ab: &ArrayBuilder<T, LEN>, ac: &IntoIter<T, LEN>) {
         ab.infer_length_from_consumer(ac);
     }
 
     let mut this = ArrayBuilder::new();
-    this.infer_length_from_consumer(&ArrayConsumer::new([0, 0, 0]));
+    this.infer_length_from_consumer(&IntoIter::new([0, 0, 0]));
 
     this.push(3);
     this.push(5);

@@ -71,7 +71,7 @@ fn if_let_some_test() {
 #[test]
 fn while_let_some_test() {
     const fn uses_macro<T, const N: usize>(array: [T; N]) -> u32 {
-        let mut iter = konst::array::ArrayConsumer::new(array);
+        let mut iter = konst::array::IntoIter::new(array);
         let mut ret = 0;
         konst::while_let_Some!{x = iter.next() => {
             core::mem::forget(x);

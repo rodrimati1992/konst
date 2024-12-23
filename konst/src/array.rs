@@ -88,12 +88,14 @@ pub mod __array_macros_2;
 
 mod array_builder;
 
-mod array_consumer;
+pub use self::array_builder::ArrayBuilder;
 
-pub use self::{
-    array_builder::ArrayBuilder,
-    array_consumer::ArrayConsumer,
-};
+#[cfg(feature = "iter")]
+mod array_into_iter;
+
+#[cfg(feature = "iter")]
+pub use self::array_into_iter::{IntoIter, IntoIterRev};
+
 
 
 

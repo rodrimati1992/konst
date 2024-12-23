@@ -1,7 +1,7 @@
 use core::fmt::{self, Debug};
 use core::mem::{ManuallyDrop, MaybeUninit};
 
-use crate::array::ArrayConsumer;
+use crate::array::IntoIter;
 
 
 /// For constructing an array element by element.
@@ -223,8 +223,8 @@ impl<T, const N: usize> ArrayBuilder<T, N> {
         Self {..*self}
     }
 
-    /// Helper for inferring the length of the built array from an [`ArrayConsumer`].
-    pub const fn infer_length_from_consumer<U>(&self, _consumer: &ArrayConsumer<U, N>) {}
+    /// Helper for inferring the length of the built array from an [`IntoIter`].
+    pub const fn infer_length_from_consumer<U>(&self, _consumer: &IntoIter<U, N>) {}
 }
 
 impl<T: Debug, const N: usize> Debug for ArrayBuilder<T, N> {
