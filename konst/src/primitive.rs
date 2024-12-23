@@ -2,7 +2,7 @@
 //! 
 //! # Removed in 0.4.0
 //!
-//! These items were removed in 0.4.0 because there is equivalent
+//! These items were removed in 0.4.0 because there is an equivalent
 //! way to write it in const:
 //!
 //! - `parse_i128`: [`i128::from_str_radix`]

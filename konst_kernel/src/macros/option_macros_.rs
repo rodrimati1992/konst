@@ -1,14 +1,4 @@
 #[macro_export]
-macro_rules! opt_unwrap {
-    ($e:expr $(,)?) => {
-        match $e {
-            $crate::__::Some(x) => x,
-            $crate::__::None => $crate::__::panic!("invoked `unwrap` macro on a `None` value"),
-        }
-    };
-}
-
-#[macro_export]
 macro_rules! opt_unwrap_or {
     ($e:expr, $v:expr $(,)?) => {
         match ($e, $v) {

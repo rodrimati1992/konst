@@ -1436,8 +1436,8 @@ mod requires_rust_1_64 {
     ///
     /// const FOUND: [&[u8]; 3] = {
     ///     let mut iter = slice::rchunks_exact(&[3, 5, 8, 13, 21, 34, 55, 89], 3);
-    ///     let elem0 = option::unwrap!(iter.next());
-    ///     let elem1 = option::unwrap!(iter.next());
+    ///     let elem0 = iter.next().unwrap();
+    ///     let elem1 = iter.next().unwrap();
     ///     [elem0, elem1, iter.remainder()]
     /// };
     ///

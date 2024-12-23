@@ -1,32 +1,19 @@
 //! `const` equivalents of `Option` methods.
+//!
+//! # Removed in 0.4.0
+//!
+//! These items were removed in 0.4.0 because there is an equivalent
+//! way to write it in const:
+//!
+//! - `copied`: [`Option::copied`]
+//! - `flatten`: [`Option::flatten`]
+//! - `unwrap`: [`Option::unwrap`]
 
 
 
 mod option_iterators;
 
 pub use self::option_iterators::*;
-
-
-
-/// A const equivalent of [`Option::unwrap`]
-///
-/// # Const stabilization
-///
-/// The equivalent std function was const-stabilized in Rust 1.83.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::option::unwrap;
-///
-/// use std::num::NonZeroUsize;
-///
-/// const TEN: NonZeroUsize = unwrap!(NonZeroUsize::new(10));
-///
-/// assert_eq!(TEN.get(), 10);
-/// ```
-#[doc(inline)]
-pub use konst_kernel::opt_unwrap as unwrap;
 
 /// A const equivalent of [`Option::unwrap_or`]
 ///
@@ -210,28 +197,6 @@ pub use konst_kernel::opt_and_then as and_then;
 #[doc(inline)]
 pub use konst_kernel::opt_or_else as or_else;
 
-/// A const equivalent of [`Option::flatten`]
-///
-/// # Const stabilization
-///
-/// The equivalent std function was const-stabilized in Rust 1.83.0.
-///
-/// # Example
-///
-/// ```
-/// use konst::option;
-///
-/// const ARR: &[Option<u32>] = &[
-///     option::flatten!(Some(Some(8))),
-///     option::flatten!(None),
-/// ];
-///
-/// assert_eq!(ARR, &[Some(8), None]);
-///
-/// ```
-#[doc(inline)]
-pub use konst_kernel::opt_flatten as flatten;
-
 /// A const equivalent of [`Option::filter`]
 ///
 /// # Example
@@ -261,34 +226,6 @@ pub use konst_kernel::opt_flatten as flatten;
 /// ```
 #[doc(inline)]
 pub use konst_kernel::opt_filter as filter;
-
-/// A const equivalent of the [`Option::copied`] method.
-///
-/// # Const stabilization
-///
-/// The equivalent std function was const-stabilized in Rust 1.83.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::option;
-///
-/// const fn get_last(slice: &[u64]) -> Option<u64> {
-///     option::copied(slice.last())
-/// }
-///
-/// assert_eq!(get_last(&[]), None);
-/// assert_eq!(get_last(&[16]), Some(16));
-/// assert_eq!(get_last(&[3, 5, 8, 13]), Some(13));
-///
-///
-/// ```
-pub const fn copied<T: Copy>(opt: Option<&T>) -> Option<T> {
-    match opt {
-        Some(x) => Some(*x),
-        None => None,
-    }
-}
 
 declare_generic_const! {
     /// Usable to do `[None::<T>; LEN]` when `T` is non-`Copy`.

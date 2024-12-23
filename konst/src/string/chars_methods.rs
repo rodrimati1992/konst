@@ -36,7 +36,7 @@ pub(super) const fn string_to_usv(s: &str) -> u32 {
 pub(super) const fn string_to_char(s: &str) -> char {
     let c: u32 = string_to_usv(s);
 
-    unsafe { crate::chr::from_u32_unchecked(c) }
+    unsafe { char::from_u32_unchecked(c) }
 }
 
 /// Cosnt equivalent of [`str::chars`].

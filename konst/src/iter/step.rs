@@ -1,5 +1,3 @@
-use crate::chr;
-
 use typewit::{HasTypeWitness, MakeTypeWitness, TypeEq, TypeWitnessTypeArg};
 
 use core::{marker::PhantomData, ops::RangeInclusive};
@@ -149,7 +147,7 @@ macro_rules! code_for_step {
             0x10FFFF => (0, true),
             num => (num + 1, false),
         };
-        let next = chr::from_u32(next_num).unwrap();
+        let next = char::from_u32(next_num).unwrap();
 
         __StepRet {
             finished_inclusive: $start > $end,
@@ -164,7 +162,7 @@ macro_rules! code_for_step {
             0xE000 => (0xD7FF, false),
             num => (num - 1, false),
         };
-        let next = chr::from_u32(next_num).unwrap();
+        let next = char::from_u32(next_num).unwrap();
 
         __StepRet {
             finished_inclusive: $end < $start,

@@ -1,6 +1,14 @@
 //! Const equivalents of `char` functions.
 //!
 //! The module is called `chr` to avoid name collisions with the `char` type.
+//!
+//! # Removed in 0.4.0
+//!
+//! These items were removed in 0.4.0 because there is an equivalent
+//! way to write it in const:
+//!
+//! - `from_u32_unchecked`: [char::from_u32_unchecked]
+//! - `from_u32`: [char::from_u32]
 
 /// A char encoded as a utf8 string.
 ///
@@ -17,11 +25,7 @@
 /// ```
 pub use konst_kernel::chr::Utf8Encoded;
 
-/// Encodes `c` into utf8, const analog of [`char::encode_utf8`].
-///
-/// # Const stabilization
-///
-/// The equivalent std function was const-stabilized in Rust 1.83.0.
+/// Alternative to [`char::encode_utf8`], which returns an inline-allocated string.
 ///
 /// # Example
 ///
@@ -35,46 +39,3 @@ pub use konst_kernel::chr::Utf8Encoded;
 ///
 /// ```
 pub use konst_kernel::chr::encode_utf8;
-
-/// Unsafely coerces `u32` to `char`,
-/// const equivalent of [`char::from_u32_unchecked`]
-///
-/// # Const stabilization
-///
-/// The equivalent std function was const-stabilized in Rust 1.82.0.
-///
-/// # Safety
-///
-/// The input `u32` must be within either of these ranges:
-///
-/// - `0..=0xD7FF`
-/// - `0xE000..=0x10FFFF`
-///
-/// # Example
-///
-/// ```rust
-/// use konst::chr;
-///
-/// const AT: char = unsafe { chr::from_u32_unchecked(64) };
-///
-/// assert_eq!(AT, '@');
-/// ```
-pub use konst_kernel::chr::from_u32_unchecked;
-
-/// Fallible conversion from `u32` to `char`,
-/// const equivalent of [`char::from_u32`]
-///
-/// # Const stabilization
-///
-/// The equivalent std function was const-stabilized in Rust 1.67.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::{chr, option};
-///
-/// const AT: char = option::unwrap!(chr::from_u32(64));
-///
-/// assert_eq!(AT, '@');
-/// ```
-pub use konst_kernel::chr::from_u32;
