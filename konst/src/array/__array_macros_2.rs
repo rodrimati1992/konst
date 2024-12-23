@@ -41,7 +41,7 @@ macro_rules! __array_map2__with_parsed_closure {
 #[macro_export]
 macro_rules! __array_from_fn2 {
     ($($args:tt)*) => ({
-        $crate::__::__split_array_type_and_closure!{
+        $crate::__split_array_type_and_closure!{
             (($crate::__array_from_fn2__splitted_type_and_closure) ())
             ()
             ($($args)*)
@@ -56,7 +56,7 @@ macro_rules! __array_from_fn2__splitted_type_and_closure {
         $crate::__::__parse_closure_1!{
             ($crate::__array_from_fn_with_parsed_closure)
             ($type)
-            (from_fn_),
+            (from_fn),
 
             $($closure_unparsed)*
         }
@@ -87,3 +87,22 @@ macro_rules! __array_from_fn_with_parsed_closure {
     });
 }
 
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __split_array_type_and_closure {
+    ((($($callback:tt)*) ($($args:tt)*)) $before:tt (=> $($rem:tt)*)) => {
+        $($callback)* ! {$($args)* $before $($rem)*}
+    };
+    ((($($callback:tt)*) ($($args:tt)*)) ($($before:tt)*) ($(| $($rem:tt)*)?)) => {
+        $($callback)* ! {$($args)* () $($before)* $(| $($rem)*)?}
+    };
+    ($callback:tt ($($before:tt)*) ($token:tt $($rem:tt)*)) => {
+        $crate::__split_array_type_and_closure! {$callback ($($before)* $token) ($($rem)*)}
+    };
+}
+
+#[inline(always)]
+pub const fn unit_array<const N: usize>() -> [(); N] {
+    [(); N]
+}

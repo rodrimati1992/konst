@@ -427,8 +427,7 @@ pub mod __ {
 
 
     pub use konst_kernel::utils::{__parse_closure_1, __parse_closure_2};
-    pub use konst_kernel::__::unit_array;
-    pub use konst_kernel::{__priv_transmute, __split_array_type_and_closure};
+    pub use konst_kernel::__priv_transmute;
     pub use konst_kernel::{
         __unparenthesize_ty,
         __unparen_pat,
@@ -443,6 +442,8 @@ pub mod __ {
 
     #[cfg(feature = "cmp")]
     pub use crate::iter::collect_const::CollectorCmd;
+
+    pub use crate::array::__array_macros_2::unit_array;
 
     pub use const_panic::concat_panic;
 

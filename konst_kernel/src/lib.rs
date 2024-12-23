@@ -42,7 +42,6 @@ pub mod __ {
     };
 
     pub use crate::{
-        macros::array_macros::{assert_array, uninit_array_of_len, unit_array},
         maybe_uninit::{array_assume_init, uninit_array},
         type_eq::make_project_fn::__make_projection_parse_generics,
     };
