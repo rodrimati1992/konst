@@ -157,13 +157,7 @@ pub use konst_kernel::slice::slice_range;
 /// ```
 #[inline]
 pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
-    Some(__slice_from_impl!(
-        slice,
-        start,
-        as_ptr,
-        from_raw_parts,
-        None
-    ))
+    Some(__slice_from_impl!(slice, start, split_at, None))
 }
 
 /// A const equivalent of `&mut slice[start..]`.
@@ -189,7 +183,7 @@ pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
 /// ```
 #[inline]
 pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
-    __slice_from_impl!(slice, start, as_mut_ptr, from_raw_parts_mut, &mut [])
+    __slice_from_impl!(slice, start, split_at_mut, &mut [])
 }
 
 /// A const equivalent of `slice.get_mut(start..)`.
@@ -213,13 +207,7 @@ pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
 /// ```
 #[inline]
 pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> {
-    Some(__slice_from_impl!(
-        slice,
-        start,
-        as_mut_ptr,
-        from_raw_parts_mut,
-        None
-    ))
+    Some(__slice_from_impl!(slice, start, split_at_mut, None))
 }
 
 /// A const equivalent of `slice.get(..len)`.
@@ -244,13 +232,7 @@ pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> 
 /// ```
 #[inline]
 pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
-    Some(__slice_up_to_impl!(
-        slice,
-        len,
-        as_ptr,
-        from_raw_parts,
-        None
-    ))
+    Some(__slice_up_to_impl!(slice, len, split_at, None))
 }
 
 /// A const equivalent of `&mut slice[..len]`.
@@ -277,7 +259,7 @@ pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
 /// ```
 #[inline]
 pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
-    __slice_up_to_impl!(slice, len, as_mut_ptr, from_raw_parts_mut, slice)
+    __slice_up_to_impl!(slice, len, split_at_mut, slice)
 }
 
 /// A const equivalent of `slice.get_mut(..len)`.
@@ -302,13 +284,7 @@ pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
 /// ```
 #[inline]
 pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
-    Some(__slice_up_to_impl!(
-        slice,
-        len,
-        as_mut_ptr,
-        from_raw_parts_mut,
-        None
-    ))
+    Some(__slice_up_to_impl!(slice, len, split_at_mut, None))
 }
 
 /// A const equivalent of `slice.get(start..end)`.
@@ -413,14 +389,10 @@ pub const fn get_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> Opti
     get_from_mut(x, start)
 }
 
-/// A const equivalent of
+/// A non-panicking version of
 /// [`<[T]>::split_at`](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at)
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
-///
-/// # Const stabilization
-///
-/// The analogous std function was const-stabilized in Rust 1.71.0.
 ///
 /// # Example
 ///
@@ -447,15 +419,11 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
     (slice_up_to(slice, at), slice_from(slice, at))
 }
 
-/// A const equivalent of
+/// A non-panicking version of
 /// [`<[T]>::split_at_mut`
 /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at_mut)
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
-///
-/// # Const stabilization
-///
-/// The analogous std function was const-stabilized in Rust 1.83.0.
 ///
 /// # Example
 ///
@@ -480,22 +448,11 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 ///
 #[inline]
 pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T]) {
-    use core::slice::from_raw_parts_mut;
-
     if at > slice.len() {
         return (slice, &mut []);
     }
 
-    let suffix_len = slice.len() - at;
-
-    unsafe {
-        let ptr = slice.as_mut_ptr();
-
-        let prefix = from_raw_parts_mut(ptr.offset(0), at);
-        let suffix = from_raw_parts_mut(ptr.offset(at as isize), suffix_len);
-
-        (prefix, suffix)
-    }
+    slice.split_at_mut(at)
 }
 
 /// Whether `pattern` is the start of `left`.

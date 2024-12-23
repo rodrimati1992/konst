@@ -1,21 +1,5 @@
 //! Const equivalents of array functions.
 
-macro_rules! leak_warning {
-    () => {
-        concat!(
-            "# Warning\n",
-            "\n",
-            "This macro leaks the initialized part of the array\n",
-            "if the closure passed to this macro panics or returns early.\n",
-            "\n",
-            "note: this warning is not relevant if the elements don't need dropping",
-            "(e.g: by implementing `Copy`).\n"
-        )
-    };
-}
-use leak_warning;
-
-
 #[doc(hidden)]
 pub mod __array_macros_2;
 
