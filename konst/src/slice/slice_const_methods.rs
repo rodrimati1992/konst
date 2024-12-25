@@ -420,10 +420,22 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 }
 
 /// A non-panicking version of
-/// [`<[T]>::split_at_mut`
-/// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at_mut)
+/// [`<[T]>::first_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.first_mut)
 ///
-/// If `at > slice.len()`, this returns a `slice`, empty slice pair.
+/// # Example
+///
+/// ```rust
+/// use konst::slice;
+///
+/// assert_eq!(slice::first_mut(&mut [8, 5, 3]), Some(&mut 8));
+///
+/// assert_eq!(slice::first_mut(&mut [5, 3]), Some(&mut 5));
+///
+/// assert_eq!(slice::first_mut(&mut [3]), Some(&mut 3));
+///
+/// assert_eq!(slice::first_mut::<u8>(&mut []), None);
+///
+/// ```
 ///
 /// # Example
 ///
@@ -787,82 +799,6 @@ macro_rules! matches_space {
     };
 }
 
-/// Removes ascii whitespace from the start and end of `this`.
-///
-/// # Const stabilization
-///
-/// The [equivalent std function](
-/// https://doc.rust-lang.org/std/primitive.slice.html#method.trim_ascii)
-/// was const-stabilized in Rust 1.80.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// const TRIMMED: &[u8] = slice::bytes_trim(b"\nhello world  ");
-///
-/// assert_eq!(TRIMMED, b"hello world");
-///
-/// ```
-pub const fn bytes_trim(this: &[u8]) -> &[u8] {
-    bytes_trim_start(bytes_trim_end(this))
-}
-
-/// Removes ascii whitespace from the start of `this`.
-///
-/// # Const stabilization
-///
-/// The [equivalent std function](
-/// https://doc.rust-lang.org/std/primitive.slice.html#method.trim_ascii_start)
-/// was const-stabilized in Rust 1.80.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// const TRIMMED: &[u8] = slice::bytes_trim_start(b"\tfoo bar  ");
-///
-/// assert_eq!(TRIMMED, b"foo bar  ");
-///
-/// ```
-pub const fn bytes_trim_start(mut this: &[u8]) -> &[u8] {
-    loop {
-        match this {
-            [b, rem @ ..] if matches_space!(b) => this = rem,
-            _ => return this,
-        }
-    }
-}
-
-/// Removes ascii whitespace from the end of `this`.
-///
-/// # Const stabilization
-///
-/// The [equivalent std function](
-/// https://doc.rust-lang.org/std/primitive.slice.html#method.trim_ascii_end)
-/// was const-stabilized in Rust 1.80.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// const TRIMMED: &[u8] = slice::bytes_trim_end(b"\rfoo bar  ");
-///
-/// assert_eq!(TRIMMED, b"\rfoo bar");
-///
-/// ```
-pub const fn bytes_trim_end(mut this: &[u8]) -> &[u8] {
-    loop {
-        match this {
-            [rem @ .., b] if matches_space!(b) => this = rem,
-            _ => return this,
-        }
-    }
-}
-
 /// Removes all instances of `needle` from the start and end of `this`.
 ///
 /// # Example
@@ -1204,115 +1140,3 @@ pub(crate) const fn __bytes_rfind_keep<'a>(mut this: &'a [u8], needle: &[u8]) ->
     byte_find_then! {rem_then_elem, this, needle, |next| {}}
 }
 
-/// A const equivalent of
-/// [`<[T]>::first_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.first_mut)
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// assert_eq!(slice::first_mut(&mut [8, 5, 3]), Some(&mut 8));
-///
-/// assert_eq!(slice::first_mut(&mut [5, 3]), Some(&mut 5));
-///
-/// assert_eq!(slice::first_mut(&mut [3]), Some(&mut 3));
-///
-/// assert_eq!(slice::first_mut::<u8>(&mut []), None);
-///
-/// ```
-///
-pub const fn first_mut<T>(slice: &mut [T]) -> Option<&mut T> {
-    if let [first, ..] = slice {
-        Some(first)
-    } else {
-        None
-    }
-}
-
-/// A const equivalent of
-/// [`<[T]>::last_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.last_mut)
-///
-/// # Const stabilization
-///
-/// The equivalent std function was const-stabilized in Rust 1.83.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// assert_eq!(slice::last_mut(&mut [3, 5, 8]), Some(&mut 8));
-///
-/// assert_eq!(slice::last_mut(&mut [3, 5]), Some(&mut 5));
-///
-/// assert_eq!(slice::last_mut(&mut [3]), Some(&mut 3));
-///
-/// assert_eq!(slice::last_mut::<u8>(&mut []), None);
-///
-/// ```
-pub const fn last_mut<T>(slice: &mut [T]) -> Option<&mut T> {
-    if let [.., last] = slice {
-        Some(last)
-    } else {
-        None
-    }
-}
-
-/// A const equivalent of
-/// [`<[T]>::split_first_mut`
-/// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_first_mut)
-///
-/// # Const stabilization
-///
-/// The equivalent std function was const-stabilized in Rust 1.83.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// assert_eq!(slice::split_first_mut(&mut [5, 8, 13, 21]), Some((&mut 5, &mut [8, 13, 21][..])));
-/// assert_eq!(slice::split_first_mut(&mut [8, 13, 21]), Some((&mut 8, &mut [13, 21][..])));
-/// assert_eq!(slice::split_first_mut(&mut [13, 21]), Some((&mut 13, &mut [21][..])));
-/// assert_eq!(slice::split_first_mut(&mut [21]), Some((&mut 21, &mut [][..])));
-/// assert_eq!(slice::split_first_mut::<()>(&mut []), None);
-///
-/// ```
-///
-pub const fn split_first_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
-    if let [first, rem @ ..] = slice {
-        Some((first, rem))
-    } else {
-        None
-    }
-}
-
-/// A const equivalent of
-/// [`<[T]>::split_last_mut`
-/// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_last_mut)
-///
-/// # Const stabilization
-///
-/// The equivalent std function was const-stabilized in Rust 1.83.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// assert_eq!(slice::split_last_mut(&mut [8, 13, 21, 5]), Some((&mut 5, &mut [8, 13, 21][..])));
-/// assert_eq!(slice::split_last_mut(&mut [13, 21, 8]), Some((&mut 8, &mut [13, 21][..])));
-/// assert_eq!(slice::split_last_mut(&mut [21, 13]), Some((&mut 13, &mut [21][..])));
-/// assert_eq!(slice::split_last_mut(&mut [21]), Some((&mut 21, &mut [][..])));
-/// assert_eq!(slice::split_last_mut::<()>(&mut []), None);
-///
-/// ```
-///
-pub const fn split_last_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
-    if let [rem @ .., last] = slice {
-        Some((last, rem))
-    } else {
-        None
-    }
-}

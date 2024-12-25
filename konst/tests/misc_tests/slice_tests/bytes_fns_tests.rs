@@ -411,27 +411,6 @@ fn bytes_strip_suffix_test() {
 }
 
 #[test]
-fn bytes_trim_test() {
-    assert_eq!(bytes_trim(b" \n\t\r \n\t\rfoo \n\t\r \n\t\r"), b"foo");
-}
-
-#[test]
-fn bytes_trim_start_test() {
-    assert_eq!(
-        bytes_trim_start(b" \n\t\r \n\t\rfoo \n\t\r \n\t\r"),
-        b"foo \n\t\r \n\t\r"
-    );
-}
-
-#[test]
-fn bytes_trim_end_test() {
-    assert_eq!(
-        bytes_trim_end(b" \n\t\r \n\t\rfoo \n\t\r \n\t\r"),
-        b" \n\t\r \n\t\rfoo"
-    );
-}
-
-#[test]
 fn bytes_trim_matches_test() {
     assert_eq!(bytes_trim_matches(b"-----foo-----", "--"), b"-foo-");
     assert_eq!(bytes_trim_matches(b"hehe", "qux"), b"hehe");

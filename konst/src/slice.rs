@@ -1,17 +1,17 @@
 //! `const fn` equivalents of slice methods.
 //!
-//! # Removed in 0.3.0
+//! # Removed in 0.4.0
 //!
-//! These functions were removed in 0.3.0 because there is an equivalent
+//! These functions were removed in 0.4.0 because there is an equivalent
 //! const fn in the standard library:
 //!
-//! - `first`
-//! - `last`
-//! - `split_first`
-//! - `split_last`
-//!
-//!
-//!
+//! - `bytes_trim_end`
+//! - `bytes_trim_start`
+//! - `bytes_trim`
+//! - `first_mut`
+//! - `last_mut`
+//! - `split_first_mut`
+//! - `split_last_mut`
 
 /// `const fn`s for comparing slices for equality and ordering.
 #[cfg(feature = "cmp")]
