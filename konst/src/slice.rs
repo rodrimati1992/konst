@@ -5,13 +5,13 @@
 //! These functions were removed in 0.4.0 because there is an equivalent
 //! const fn in the standard library:
 //!
-//! - `bytes_trim_end`
-//! - `bytes_trim_start`
-//! - `bytes_trim`
-//! - `first_mut`
-//! - `last_mut`
-//! - `split_first_mut`
-//! - `split_last_mut`
+//! - `bytes_trim_end`: [slice::trim_ascii_end]
+//! - `bytes_trim_start`: [slice::trim_ascii_start]
+//! - `bytes_trim`: [slice::trim_ascii]
+//! - `first_mut`: [slice::first_mut]
+//! - `last_mut`: [slice::last_mut]
+//! - `split_first_mut`: [slice::split_first_mut]
+//! - `split_last_mut`: [slice::split_last_mut]
 
 /// `const fn`s for comparing slices for equality and ordering.
 #[cfg(feature = "cmp")]

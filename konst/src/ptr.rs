@@ -1,14 +1,5 @@
 //! Const equivalents of raw pointer and [`NonNull`](core::ptr::NonNull) methods.
 //!
-//! # Removed in 0.3.0
-//!
-//! These functions were removed in 0.3.0 because there is an equivalent
-//! const fn in the standard library:
-//!
-//! - `deref`: raw pointers can be dereferenced since Rust 1.58.0
-//!
-//! - `deref_mut`: Rust 1.83.0 allows dereferencing mutable pointers.
-//!
 
 use core::ptr::NonNull;
 
@@ -102,6 +93,15 @@ pub const fn is_null<T: ?Sized>(ptr: *const T) -> bool {
 }
 
 /// Const equivalents of [`NonNull`](core::ptr::NonNull) methods.
+///
+/// # Removed in 0.4.0
+///
+/// These functions were removed in 0.4.0 because there is an equivalent
+/// const fn in the standard library:
+///
+/// - `as_ref`: [NonNull::as_ref]
+/// - `as_mut`: [NonNull::as_mut]
+///
 pub mod nonnull {
     use core::ptr::NonNull;
 
@@ -125,79 +125,6 @@ pub mod nonnull {
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     pub const fn new<T: ?Sized>(ptr: *mut T) -> Option<NonNull<T>> {
         unsafe { core::mem::transmute(ptr) }
-    }
-
-    /// Const equivalent of [`NonNull::as_ref`](core::ptr::NonNull::as_ref).
-    ///
-    /// # Safety
-    ///
-    /// This has [the same safety requirements as `NonNull::as_ref`
-    /// ](https://doc.rust-lang.org/1.55.0/core/ptr/struct.NonNull.html#safety-3)
-    ///
-    /// # Const stabilization
-    ///
-    /// The equivalent std function was const-stabilized in Rust 1.73.0.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use konst::ptr::nonnull;
-    ///
-    /// use core::{
-    ///     ptr::NonNull,
-    ///     marker::PhantomData,
-    /// };
-    ///
-    /// const A: NonNull<u8> = nonnull::from_ref(&3);
-    /// const A_REF: &u8 = unsafe{ nonnull::as_ref(A) };
-    /// assert_eq!(A_REF, &3);
-    ///
-    /// const B: NonNull<str> = nonnull::from_ref("hello");
-    /// const B_REF: &str = unsafe{ nonnull::as_ref(B) };
-    /// assert_eq!(B_REF, "hello");
-    ///
-    /// ```
-    ///
-    pub const unsafe fn as_ref<'a, T: ?Sized>(ptr: NonNull<T>) -> &'a T {
-        &*(ptr.as_ptr() as *const T)
-    }
-
-    /// Const equivalent of [`NonNull::as_mut`](core::ptr::NonNull::as_mut).
-    ///
-    /// # Safety
-    ///
-    /// This has [the same safety requirements as `NonNull::as_mut`
-    /// ](https://doc.rust-lang.org/1.55.0/std/ptr/struct.NonNull.html#safety-4)
-    ///
-    /// # Const stabilization
-    ///
-    /// The equivalent std function was const-stabilized in Rust 1.83.0.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use konst::ptr::nonnull;
-    ///
-    /// use core::ptr::NonNull;
-    ///
-    /// assert_eq!(TUP, (13, 15, 18));
-    ///
-    /// const TUP: (u8, u8, u8) = unsafe {
-    ///     let mut tuple = (3, 5, 8);
-    ///     mutate(nonnull::from_mut(&mut tuple.0));
-    ///     mutate(nonnull::from_mut(&mut tuple.1));
-    ///     mutate(nonnull::from_mut(&mut tuple.2));
-    ///     tuple
-    /// };
-    ///
-    /// const unsafe fn mutate(x: NonNull<u8>) {
-    ///     *nonnull::as_mut(x) += 10;
-    /// }
-    ///
-    /// ```
-    ///
-    pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: NonNull<T>) -> &'a mut T {
-        &mut *ptr.as_ptr()
     }
 
     /// Const equivalent of
