@@ -420,22 +420,9 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 }
 
 /// A non-panicking version of
-/// [`<[T]>::first_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.first_mut)
+/// [`<[T]>::split_at_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at_mut)
 ///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// assert_eq!(slice::first_mut(&mut [8, 5, 3]), Some(&mut 8));
-///
-/// assert_eq!(slice::first_mut(&mut [5, 3]), Some(&mut 5));
-///
-/// assert_eq!(slice::first_mut(&mut [3]), Some(&mut 3));
-///
-/// assert_eq!(slice::first_mut::<u8>(&mut []), None);
-///
-/// ```
+/// If `at > slice.len()`, this returns a `slice`, empty slice pair.
 ///
 /// # Example
 ///
@@ -791,12 +778,6 @@ where
 #[inline(always)]
 pub(crate) const fn __bytes_rcontain(left: &[u8], pattern: &[u8]) -> bool {
     matches!(bytes_rfind(left, pattern), Some(_))
-}
-
-macro_rules! matches_space {
-    ($b:ident) => {
-        matches!($b, b'\t' | b'\n' | b'\r' | b' ')
-    };
 }
 
 /// Removes all instances of `needle` from the start and end of `this`.

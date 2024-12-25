@@ -171,9 +171,9 @@ pub mod nonnull {
     ///     tup
     /// };
     ///
-    /// const unsafe fn swap(x: NonNull<u8>, y: NonNull<u8>) {
-    ///     let xm = nn::as_mut(x);
-    ///     let ym = nn::as_mut(y);
+    /// const unsafe fn swap(mut x: NonNull<u8>, mut y: NonNull<u8>) {
+    ///     let xm = x.as_mut();
+    ///     let ym = y.as_mut();
     ///     let tmp = *xm;
     ///     *xm = *ym;
     ///     *ym = tmp;

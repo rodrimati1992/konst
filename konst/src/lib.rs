@@ -91,7 +91,7 @@
 //! 
 //! static PARSED: [u64; 5] = iter::collect_const!(u64 =>
 //!     string::split(CSV, ","),
-//!         map(string::trim),
+//!         map(str::trim_ascii),
 //!         map(|s| result::unwrap!(u64::from_str_radix(s, 10))),
 //! );
 //! 

@@ -639,7 +639,7 @@ impl<'a> Parser<'a> {
     /// ```
     pub const fn trim(mut self) -> Self {
         parsing! {self, FromBoth;
-            self.str = crate::string::trim(self.str);
+            self.str = self.str.trim_ascii();
         }
     }
 
@@ -661,7 +661,7 @@ impl<'a> Parser<'a> {
     /// ```
     pub const fn trim_start(mut self) -> Self {
         parsing! {self, FromStart;
-            self.str = crate::string::trim_start(self.str);
+            self.str = self.str.trim_ascii_start();
         }
     }
 
@@ -683,7 +683,7 @@ impl<'a> Parser<'a> {
     /// ```
     pub const fn trim_end(mut self) -> Self {
         parsing! {self, FromEnd;
-            self.str = crate::string::trim_end(self.str);
+            self.str = self.str.trim_ascii_end();
         }
     }
 

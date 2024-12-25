@@ -127,7 +127,7 @@ fn trim_start_end_test() {
                 "rev-sa"
             );
 
-            assert_eq!(string::trim_start(string), returned, "normal-c");
+            assert_eq!(string.trim_ascii_start(), returned, "normal-c");
         }
         {
             let rev_string = &*reverse(string);
@@ -141,7 +141,7 @@ fn trim_start_end_test() {
             assert_eq!(trimmed.start_offset(), 0, "rev-sa");
             assert_eq!(trimmed.parse_direction(), ParseDirection::FromEnd, "rev-sa");
 
-            assert_eq!(string::trim_end(rev_string), rev_returned, "rev-c");
+            assert_eq!(rev_string.trim_ascii_end(), rev_returned, "rev-c");
         }
     }
 

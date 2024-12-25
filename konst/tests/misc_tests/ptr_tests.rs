@@ -94,24 +94,24 @@ fn nonnull_from_ref_test() {
     let array_ptr: NonNull<[u8; 4]> = nonnull::from_ref(&[3, 5, 8, 13]);
 
     unsafe {
-        assert_eq!(nonnull::as_ref(str_ptr), "hello");
-        assert_eq!(nonnull::as_ref(array_ptr), &[3, 5, 8, 13]);
+        assert_eq!(str_ptr.as_ref(), "hello");
+        assert_eq!(array_ptr.as_ref(), &[3, 5, 8, 13]);
     }
 }
 
 #[test]
 fn nonnull_from_mut_test() {
     let slice = &mut [3u8, 5, 8, 13][..];
-    let str_ptr: NonNull<[u8]> = nonnull::from_mut(slice);
+    let mut str_ptr: NonNull<[u8]> = nonnull::from_mut(slice);
 
     let array = &mut [21, 34, 55, 89];
-    let array_ptr: NonNull<[u8; 4]> = nonnull::from_mut(array);
+    let mut array_ptr: NonNull<[u8; 4]> = nonnull::from_mut(array);
 
     unsafe {
-        nonnull::as_mut(str_ptr)[2] += 10;
-        nonnull::as_mut(array_ptr)[2] += 10;
+        str_ptr.as_mut()[2] += 10;
+        array_ptr.as_mut()[2] += 10;
 
-        assert_eq!(nonnull::as_mut(str_ptr), &mut [3u8, 5, 18, 13][..]);
-        assert_eq!(nonnull::as_mut(array_ptr), &mut [21, 34, 65, 89]);
+        assert_eq!(str_ptr.as_mut(), &mut [3u8, 5, 18, 13][..]);
+        assert_eq!(array_ptr.as_mut(), &mut [21, 34, 65, 89]);
     }
 }

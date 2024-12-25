@@ -1,5 +1,16 @@
 //! `const fn` equivalents of `str` methods.
 //!
+//! # Removed in 0.4.0
+//!
+//! These functions were removed in 0.4.0 because there is an equivalent
+//! const fn in the standard library:
+//!
+//! - `trim`: [`str::trim_ascii`]
+//! - `trim_start`: [`str::trim_ascii_start`]
+//! - `trim_end`: [`str::trim_ascii_end`]
+//!
+//!
+
 
 #[cfg(feature = "iter")]
 mod chars_methods;
@@ -714,73 +725,6 @@ where
             __from_u8_subslice_of_str,
         )
     }
-}
-
-/// A const subset of [`str::trim`] which only removes ascii whitespace.
-///
-/// # Const stabilization
-///
-/// The [equivalent std function](str::trim_ascii) was const-stabilized in Rust 1.80.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::string;
-///
-/// const TRIMMED: &str = string::trim("\nhello world  ");
-///
-/// assert_eq!(TRIMMED, "hello world");
-///
-/// ```
-pub const fn trim(this: &str) -> &str {
-    let trimmed = crate::slice::bytes_trim(this.as_bytes());
-    // safety: bytes_trim only removes ascii bytes
-    unsafe { __from_u8_subslice_of_str(trimmed) }
-}
-
-/// A const subset of [`str::trim_start`] which only removes ascii whitespace.
-///
-/// # Const stabilization
-///
-/// The [equivalent std function](str::trim_ascii_start) was const-stabilized in Rust 1.80.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::string;
-///
-/// const TRIMMED: &str = string::trim_start("\rfoo bar  ");
-///
-/// assert_eq!(TRIMMED, "foo bar  ");
-///
-/// ```
-pub const fn trim_start(this: &str) -> &str {
-    let trimmed = crate::slice::bytes_trim_start(this.as_bytes());
-    // safety: bytes_trim_start only removes ascii bytes
-    unsafe { __from_u8_subslice_of_str(trimmed) }
-}
-
-/// A const subset of [`str::trim_end`] which only removes ascii whitespace.
-///
-/// # Const stabilization
-///
-/// The [equivalent std function](str::trim_ascii_end) was const-stabilized in Rust 1.80.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::string;
-///
-/// const TRIMMED: &str = string::trim_end("\rfoo bar  ");
-///
-/// assert_eq!(TRIMMED, "\rfoo bar");
-///
-/// ```
-///
-pub const fn trim_end(this: &str) -> &str {
-    let trimmed = crate::slice::bytes_trim_end(this.as_bytes());
-    // safety: bytes_trim_end only removes ascii bytes
-    unsafe { __from_u8_subslice_of_str(trimmed) }
 }
 
 /// A const subset of [`str::trim_matches`].
