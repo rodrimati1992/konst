@@ -82,6 +82,10 @@ pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
 ///
 ///
 /// ```
+#[deprecated(
+    since = "0.3.16", 
+    note = "unsound for out of bounds pointers"
+)]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub const fn is_null<T: ?Sized>(ptr: *const T) -> bool {
     unsafe {
@@ -122,6 +126,10 @@ pub mod nonnull {
     ///
     ///
     /// ```
+    #[deprecated(
+        since = "0.3.16", 
+        note = "unsound for out of bounds pointers"
+    )]
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     pub const fn new<T: ?Sized>(ptr: *mut T) -> Option<NonNull<T>> {
         unsafe { core::mem::transmute(ptr) }
