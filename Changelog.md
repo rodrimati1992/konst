@@ -2,6 +2,12 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.3
 
+### 0.3.16
+
+Deprecated these functions:
+- `konst::ptr::is_null`
+- `konst::ptr::nonnull::new`
+
 ### 0.3.15
 
 Soft-removed `"mut_refs"` and `"nightly_mut_refs"` feature (by hidding it in docs), changed to using `"rust_1_83"` feature to enable `&mut`-taking `const fn`s. 
