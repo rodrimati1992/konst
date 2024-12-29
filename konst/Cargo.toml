@@ -1,6 +1,6 @@
 [package]
 name = "konst"
-version = "0.3.15"
+version = "0.3.16"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 rust-version = "1.83.0"
 edition = "2021"
@@ -46,7 +46,6 @@ features = ["rust_1_61"]
 [dependencies.const_panic]
 version = "0.2.11"
 features = ["rust_1_82"]
-default-features = false
 
 [features]
 default = ["cmp", "iter", "parsing_proc"]

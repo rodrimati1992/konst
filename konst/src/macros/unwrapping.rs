@@ -1,6 +1,6 @@
 /// `?`-like macro, which allows optionally mapping errors.
 ///
-/// `?` currently doesn't work in `const fn`s because as of Rust 1.65.0
+/// `?` currently doesn't work in `const fn`s because as of Rust 1.83.0
 /// trait methods don't work in `const fn`s.
 ///
 /// # Examples
