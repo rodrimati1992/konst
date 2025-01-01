@@ -53,8 +53,10 @@ macro_rules! define_parse_methods_inner{
         #[cfg(feature = "parsing")]
         #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
         pub const fn $fn_name(s: &str) -> Result<$parsing, $err> {
-            match Parser::new(s).$fn_name() {
-                Ok((num, parser)) if parser.is_empty() => Ok(num),
+            let mut parser = Parser::new(s);
+
+            match parser.$fn_name() {
+                Ok(num) if parser.is_empty() => Ok(num),
                 _ => Err($err {
                     _priv: (),
                 }),

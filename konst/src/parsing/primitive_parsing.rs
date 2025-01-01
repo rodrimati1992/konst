@@ -27,7 +27,7 @@ impl<'a> Parser<'a> {
     /// }
     ///
     /// /// Parses a `[u128; 2]` from a parser starting with `"<number>;<number>", eg: `"100;400"`.
-    /// const fn parse_pair(mut parser: Parser<'_>) -> ParseValueResult<'_, [u128; 2]> {
+    /// const fn parse_pair<'a>(parser: &mut Parser<'a>) -> ParseValueResult<'a, [u128; 2]> {
     ///     let mut ret = [0; 2];
     ///     
     ///     (ret[0], parser) = try_!(parser.parse_u128());
@@ -55,7 +55,7 @@ impl<'a> Parser<'a> {
     /// ```
     ///
     /// [`primitive::parse_u128`]: ../primitive/fn.parse_u128.html
-    pub const fn parse_u128(mut self) -> ParseValueResult<'a, u128> {
+    pub const fn parse_u128(&mut self) -> ParseValueResult<'a, u128> {
         parse_integer! {unsigned, (u128, u128), self}
     }
     /// Parses a `i128` until a non-digit is reached.
@@ -98,7 +98,7 @@ impl<'a> Parser<'a> {
     /// ```
     ///
     /// [`primitive::parse_i128`]: ../primitive/fn.parse_i128.html
-    pub const fn parse_i128(mut self) -> ParseValueResult<'a, i128> {
+    pub const fn parse_i128(&mut self) -> ParseValueResult<'a, i128> {
         parse_integer! {signed, (i128, u128), self}
     }
     /// Parses a `u64` until a non-digit is reached.
@@ -115,7 +115,7 @@ impl<'a> Parser<'a> {
     /// you can look at the docs for the [`Parser::parse_u128`](#method.parse_u128) method.
     ///
     /// [`primitive::parse_u64`]: ../primitive/fn.parse_u64.html
-    pub const fn parse_u64(mut self) -> ParseValueResult<'a, u64> {
+    pub const fn parse_u64(&mut self) -> ParseValueResult<'a, u64> {
         parse_integer! {unsigned, (u64, u64), self}
     }
     /// Parses a `i64` until a non-digit is reached.
@@ -132,7 +132,7 @@ impl<'a> Parser<'a> {
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
     /// [`primitive::parse_i64`]: ../primitive/fn.parse_i64.html
-    pub const fn parse_i64(mut self) -> ParseValueResult<'a, i64> {
+    pub const fn parse_i64(&mut self) -> ParseValueResult<'a, i64> {
         parse_integer! {signed, (i64, u64), self}
     }
     /// Parses a `u32` until a non-digit is reached.
@@ -149,7 +149,7 @@ impl<'a> Parser<'a> {
     /// you can look at the docs for the [`Parser::parse_u128`](#method.parse_u128) method.
     ///
     /// [`primitive::parse_u32`]: ../primitive/fn.parse_u32.html
-    pub const fn parse_u32(mut self) -> ParseValueResult<'a, u32> {
+    pub const fn parse_u32(&mut self) -> ParseValueResult<'a, u32> {
         parse_integer! {unsigned, (u32, u32), self}
     }
     /// Parses a `i32` until a non-digit is reached.
@@ -166,7 +166,7 @@ impl<'a> Parser<'a> {
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
     /// [`primitive::parse_i32`]: ../primitive/fn.parse_i32.html
-    pub const fn parse_i32(mut self) -> ParseValueResult<'a, i32> {
+    pub const fn parse_i32(&mut self) -> ParseValueResult<'a, i32> {
         parse_integer! {signed, (i32, u32), self}
     }
     /// Parses a `u16` until a non-digit is reached.
@@ -183,7 +183,7 @@ impl<'a> Parser<'a> {
     /// you can look at the docs for the [`Parser::parse_u128`](#method.parse_u128) method.
     ///
     /// [`primitive::parse_u16`]: ../primitive/fn.parse_u16.html
-    pub const fn parse_u16(mut self) -> ParseValueResult<'a, u16> {
+    pub const fn parse_u16(&mut self) -> ParseValueResult<'a, u16> {
         parse_integer! {unsigned, (u16, u16), self}
     }
     /// Parses a `i16` until a non-digit is reached.
@@ -200,7 +200,7 @@ impl<'a> Parser<'a> {
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
     /// [`primitive::parse_i16`]: ../primitive/fn.parse_i16.html
-    pub const fn parse_i16(mut self) -> ParseValueResult<'a, i16> {
+    pub const fn parse_i16(&mut self) -> ParseValueResult<'a, i16> {
         parse_integer! {signed, (i16, u16), self}
     }
     /// Parses a `u8` until a non-digit is reached.
@@ -217,7 +217,7 @@ impl<'a> Parser<'a> {
     /// you can look at the docs for the [`Parser::parse_u128`](#method.parse_u128) method.
     ///
     /// [`primitive::parse_u8`]: ../primitive/fn.parse_u8.html
-    pub const fn parse_u8(mut self) -> ParseValueResult<'a, u8> {
+    pub const fn parse_u8(&mut self) -> ParseValueResult<'a, u8> {
         parse_integer! {unsigned, (u8, u8), self}
     }
     /// Parses a `i8` until a non-digit is reached.
@@ -234,7 +234,7 @@ impl<'a> Parser<'a> {
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
     /// [`primitive::parse_i8`]: ../primitive/fn.parse_i8.html
-    pub const fn parse_i8(mut self) -> ParseValueResult<'a, i8> {
+    pub const fn parse_i8(&mut self) -> ParseValueResult<'a, i8> {
         parse_integer! {signed, (i8, u8), self}
     }
     /// Parses a `usize` until a non-digit is reached.
@@ -246,7 +246,7 @@ impl<'a> Parser<'a> {
     /// macro to parse a `usize`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// [`primitive::parse_usize`]: ../primitive/fn.parse_usize.html
-    pub const fn parse_usize(mut self) -> ParseValueResult<'a, usize> {
+    pub const fn parse_usize(&mut self) -> ParseValueResult<'a, usize> {
         parse_integer! {unsigned, (usize, usize), self}
     }
     /// Parses a `isize` until a non-digit is reached.
@@ -263,7 +263,7 @@ impl<'a> Parser<'a> {
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
     /// [`primitive::parse_isize`]: ../primitive/fn.parse_isize.html
-    pub const fn parse_isize(mut self) -> ParseValueResult<'a, isize> {
+    pub const fn parse_isize(&mut self) -> ParseValueResult<'a, isize> {
         parse_integer! {signed, (isize, usize), self}
     }
 }
@@ -370,7 +370,7 @@ impl<'a> Parser<'a> {
     /// ```
     ///
     /// [`primitive::parse_bool`]: ../primitive/fn.parse_bool.html
-    pub const fn parse_bool(mut self) -> ParseValueResult<'a, bool> {
+    pub const fn parse_bool(&mut self) -> ParseValueResult<'a, bool> {
         try_parsing! {self, FromStart, ret;
             match self.str.as_bytes() {
                 [b't', b'r', b'u', b'e', ..] => {

@@ -44,51 +44,6 @@ fn ptr_as_mut_test() {
 }
 
 #[test]
-fn ptr_is_null() {
-    let str_ptr: *const str = "hello";
-    let array_ptr: *const [u8; 4] = &[3, 5, 8, 13];
-
-    assert!(!ptr::is_null(str_ptr));
-    assert!(!ptr::is_null(array_ptr));
-    assert!(ptr::is_null(null::<u8>()));
-}
-
-#[test]
-fn nonnull_new_test() {
-    let str_ptr: Option<NonNull<str>> = nonnull::new("hello" as *const _ as *mut _);
-
-    let array_ptr: Option<NonNull<[u8; 4]>> = nonnull::new(&[3u8, 5, 8, 13] as *const _ as *mut _);
-
-    let null_ptr: Option<NonNull<u8>> = nonnull::new(null_mut());
-
-    unsafe {
-        assert_eq!(str_ptr.unwrap().as_ref(), "hello");
-        assert_eq!(array_ptr.unwrap().as_ref(), &[3, 5, 8, 13]);
-        assert_eq!(null_ptr, None);
-    }
-}
-
-#[test]
-fn nonnull_new_mut_test() {
-    let slice = &mut [3u8, 5, 8, 13][..];
-    let str_ptr: Option<NonNull<[u8]>> = nonnull::new(slice);
-
-    let array = &mut [21, 34, 55, 89];
-    let array_ptr: Option<NonNull<[u8; 4]>> = nonnull::new(array);
-
-    let null_ptr: Option<NonNull<u8>> = nonnull::new(null_mut());
-
-    unsafe {
-        str_ptr.unwrap().as_mut()[2] += 10;
-        array_ptr.unwrap().as_mut()[2] += 10;
-
-        assert_eq!(str_ptr.unwrap().as_mut(), &mut [3u8, 5, 18, 13][..]);
-        assert_eq!(array_ptr.unwrap().as_mut(), &mut [21, 34, 65, 89]);
-        assert_eq!(null_ptr, None);
-    }
-}
-
-#[test]
 fn nonnull_from_ref_test() {
     let str_ptr: NonNull<str> = nonnull::from_ref("hello");
     let array_ptr: NonNull<[u8; 4]> = nonnull::from_ref(&[3, 5, 8, 13]);

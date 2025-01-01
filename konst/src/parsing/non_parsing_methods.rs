@@ -59,7 +59,7 @@ impl<'a> Parser<'a> {
 
     /// Skips `byte_count` bytes from the parsed string,
     /// as well as however many bytes are required to be on a char boundary.
-    pub const fn skip(mut self, mut byte_count: usize) -> Self {
+    pub const fn skip(&mut self, mut byte_count: usize) -> &mut Self {
         let bytes = self.str.as_bytes();
         if byte_count > bytes.len() {
             byte_count = bytes.len()
@@ -77,7 +77,7 @@ impl<'a> Parser<'a> {
 
     /// Skips `byte_count` bytes from the back of the parsed string,
     /// as well as however many bytes are required to be on a char boundary.
-    pub const fn skip_back(mut self, byte_count: usize) -> Self {
+    pub const fn skip_back(&mut self, byte_count: usize) -> &mut Self {
         use konst_kernel::string::__is_char_boundary_bytes;
 
         let bytes = self.str.as_bytes();
@@ -90,28 +90,34 @@ impl<'a> Parser<'a> {
         self
     }
 
+    /// Returns a bytewise copy of `Self`
+    #[inline(always)]
+    pub const fn copy(&self) -> Self {
+        Self {..*self}
+    }
+
     /// Returns the remaining, unparsed string.
     #[inline(always)]
-    pub const fn remainder(self) -> &'a str {
+    pub const fn remainder(&self) -> &'a str {
         self.str
     }
 
     /// Gets the byte offset of this parser in the str slice that this
     /// was constructed from.
     #[inline(always)]
-    pub const fn start_offset(self) -> usize {
+    pub const fn start_offset(&self) -> usize {
         self.start_offset as _
     }
 
     /// Gets the end byte offset of this parser in the str slice that this
     /// was constructed from.
     #[inline(always)]
-    pub const fn end_offset(self) -> usize {
+    pub const fn end_offset(&self) -> usize {
         self.start_offset as usize + self.str.len()
     }
 
     /// The direction that the parser was last mutated from.
-    pub const fn parse_direction(self) -> ParseDirection {
+    pub const fn parse_direction(&self) -> ParseDirection {
         self.parse_direction
     }
 
@@ -133,13 +139,13 @@ impl<'a> Parser<'a> {
 
     /// The amount of unparsed bytes.
     #[inline(always)]
-    pub const fn len(self) -> usize {
+    pub const fn len(&self) -> usize {
         self.str.len()
     }
 
     /// Whether there are any bytes left to parse.
     #[inline(always)]
-    pub const fn is_empty(self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.str.is_empty()
     }
 }

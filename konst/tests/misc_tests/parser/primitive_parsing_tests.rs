@@ -9,15 +9,16 @@ use std::{
 fn check_parse<T, F>(num: T, method: F)
 where
     T: PartialEq + Display + Debug,
-    F: for<'a> Fn(Parser<'a>) -> Result<(T, Parser<'a>), ParseError<'a>>,
+    F: for<'a> Fn(&mut Parser<'a>) -> Result<T, ParseError<'a>>,
 {
     for suffix in ["", ";", "-", "--"].iter().copied() {
         let mut string = num.to_string();
         string.push_str(suffix);
 
-        let parser = Parser::new(&string).skip_back(0);
+        let mut parser = Parser::new(&string);
+        parser.skip_back(0);
         assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
-        let (parsed_num, parser) = method(parser).unwrap();
+        let parsed_num = method(&mut parser).unwrap();
 
         assert_eq!(num, parsed_num);
         assert_eq!(parser.remainder(), suffix);
@@ -28,7 +29,7 @@ where
 fn check_type<T, F>(min: T, max: T, method: F)
 where
     T: PartialEq + Display + Debug + Copy,
-    F: for<'a> Fn(Parser<'a>) -> Result<(T, Parser<'a>), ParseError<'a>>,
+    F: for<'a> Fn(&mut Parser<'a>) -> Result<T, ParseError<'a>>,
 {
     for num in [min, max].iter().copied() {
         check_parse(num, &method);
@@ -39,16 +40,16 @@ where
         assert!(add_one.is_ascii_digit());
         string.push(add_one);
 
-        let parser = Parser::new(&string);
-        let err = method(parser).unwrap_err();
+        let mut parser = Parser::new(&string);
+        let err = method(&mut parser).unwrap_err();
         assert_eq!(err.offset(), 0);
         assert_eq!(err.error_direction(), ParseDirection::FromStart);
         assert_eq!(err.kind(), ErrorKind::ParseInteger);
     }
 
     for notnum in ["", "-", "#", " "].iter().copied() {
-        let parser = Parser::new(notnum);
-        let err = method(parser).unwrap_err();
+        let mut parser = Parser::new(notnum);
+        let err = method(&mut parser).unwrap_err();
         assert_eq!(err.offset(), 0);
         assert_eq!(err.error_direction(), ParseDirection::FromStart);
         assert_eq!(err.kind(), ErrorKind::ParseInteger);
@@ -144,10 +145,10 @@ fn parse_bool_test() {
         (false, "false", ""),
         (false, "false-this-", "-this-"),
     ] {
-        let boolean;
-        let mut parser = Parser::new(string).skip_back(0);
+        let mut parser = Parser::new(string);
+        parser.skip_back(0);
         assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
-        (boolean, parser) = parser.parse_bool().unwrap();
+        let boolean = parser.parse_bool().unwrap();
         assert_eq!(boolean, value);
         assert_eq!(parser.remainder(), rem);
         assert_eq!(parser.parse_direction(), ParseDirection::FromStart);

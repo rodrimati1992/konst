@@ -487,13 +487,13 @@ macro_rules! __priv_pa_bytes_accessor {
     (set, ($place:expr, FromStart, outside_konst), $rem:expr) => {
         #[allow(unused_assignments)]
         {
-            $place = $place.skip($place.remainder().len() - $rem.len());
+            $place.skip($place.remainder().len() - $rem.len());
         }
     };
     (set, ($place:expr, FromEnd, outside_konst), $rem:expr) => {
         #[allow(unused_assignments)]
         {
-            $place = $place.skip_back($place.remainder().len() - $rem.len());
+            $place.skip_back($place.remainder().len() - $rem.len());
         }
     };
 }

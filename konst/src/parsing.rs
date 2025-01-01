@@ -83,13 +83,14 @@ use crate::string::{self, Pattern};
 ///         up, 0, 90, down, left, right,
 ///     ";
 ///     
-///     let parser = Parser::new(input);
-///     let (len, parser) = unwrap_ctx!(parser.parse_usize());
-///     (len, unwrap_ctx!(parser.strip_prefix(';')))
+///     let mut parser = Parser::new(input);
+///     let len = unwrap_ctx!(parser.parse_usize());
+///     unwrap_ctx!(parser.strip_prefix(';'));
+///     (len, parser)
 /// };
 ///
 /// const ANGLES: [Angle; LEN_AND_PARSER.0] =
-///     unwrap_ctx!(Angle::parse_array(LEN_AND_PARSER.1)).0;
+///     unwrap_ctx!(Angle::parse_array(&mut LEN_AND_PARSER.1)).0;
 ///
 /// fn main() {
 ///     assert_eq!(
@@ -113,26 +114,25 @@ use crate::string::{self, Pattern};
 ///         Angle((n % 360) as u16)
 ///     }
 ///
-///     const fn parse_array<const LEN: usize>(
-///         mut parser: Parser<'_>
-///     ) -> ParseValueResult<'_, [Angle; LEN]> {
+///     const fn parse_array<'p, const LEN: usize>(
+///         parser: &mut Parser<'p>
+///     ) -> ParseValueResult<'p, [Angle; LEN]> {
 ///         let mut ret = [Angle::UP; LEN];
 ///         
 ///         for_range!{i in 0..LEN =>
-///             (ret[i], parser) = try_!(Angle::parse(parser.trim_start()));
+///             ret[i] = try_!(Angle::parse(parser.trim_start()));
 ///             
-///             parser = parser.trim_start();
+///             parser.trim_start();
 ///             if !parser.is_empty() {
-///                 parser = try_!(parser.strip_prefix(','));
+///                 try_!(parser.strip_prefix(','));
 ///             }
 ///         }
 ///         Ok((ret, parser))
 ///     }
 ///
-///     pub const fn parse(mut parser: Parser<'_>) -> ParseValueResult<'_, Angle> {
-///         // this doesn't use the `rebind_if_ok` macro because it returns early.
-///         if let Ok((angle, parser)) = parser.parse_u64() {
-///             return Ok((Self::new(angle), parser))
+///     pub const fn parse<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Angle> {
+///         if let Ok(angle) = parser.parse_u64() {
+///             return Ok(Self::new(angle))
 ///         }
 ///         
 ///         let angle = parser_method!{parser, strip_prefix;
@@ -142,14 +142,14 @@ use crate::string::{self, Pattern};
 ///             "left" => Self::LEFT,
 ///             _ => return Err(parser.into_other_error(&"could not parse Direction"))
 ///         };
-///         Ok((angle, parser))
+///         Ok(angle)
 ///     }
 /// }
 ///
 ///
 /// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Parser<'a> {
     parse_direction: ParseDirection,
     // this allows split methods to return the empty string after
@@ -186,10 +186,10 @@ impl<'a> Parser<'a> {
     /// assert_eq!(VARS, ["foo", "bar", "baz"]);
     ///
     /// const VARS: [&str; 3] = {
-    ///     let parser = Parser::new("foo,bar,baz");
+    ///     let mut parser = Parser::new("foo,bar,baz");
     ///     
-    ///     let (foo, parser) = unwrap_ctx!(parser.split_terminator(','));
-    ///     let (bar, parser) = unwrap_ctx!(parser.split_terminator(','));
+    ///     let foo = unwrap_ctx!(parser.split_terminator(','));
+    ///     let bar = unwrap_ctx!(parser.split_terminator(','));
     ///     
     ///     // `.split_terminator(',')` errors here
     ///     // because there's no `,` in the remainder of the string,
@@ -200,9 +200,9 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     pub const fn split_terminator<'p, P>(
-        mut self,
+        &mut self,
         delimiter: P,
-    ) -> Result<(&'a str, Self), ParseError<'a>>
+    ) -> Result<&'a str, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
@@ -251,10 +251,10 @@ impl<'a> Parser<'a> {
     /// assert_eq!(VARS, ["baz", "bar", "foo"]);
     ///
     /// const VARS: [&str; 3] = {
-    ///     let parser = Parser::new("foo,bar,baz");
+    ///     let mut parser = Parser::new("foo,bar,baz");
     ///     
-    ///     let (baz, parser) = unwrap_ctx!(parser.rsplit_terminator(','));
-    ///     let (bar, parser) = unwrap_ctx!(parser.rsplit_terminator(','));
+    ///     let baz = unwrap_ctx!(parser.rsplit_terminator(','));
+    ///     let bar = unwrap_ctx!(parser.rsplit_terminator(','));
     ///     
     ///     // `.rsplit_terminator(',')` errors here
     ///     // because there's no `,` in the remainder of the string,
@@ -265,9 +265,9 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     pub const fn rsplit_terminator<'p, P>(
-        mut self,
+        &mut self,
         delimiter: P,
-    ) -> Result<(&'a str, Self), ParseError<'a>>
+    ) -> Result<&'a str, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
@@ -316,11 +316,11 @@ impl<'a> Parser<'a> {
     /// assert_eq!(VARS, ["foo", "bar", ""]);
     ///
     /// const VARS: [&str; 3] = {
-    ///     let parser = Parser::new("foo,bar,");
+    ///     let mut parser = Parser::new("foo,bar,");
     ///     
-    ///     let (foo, parser) = unwrap_ctx!(parser.split(','));
-    ///     let (bar, parser) = unwrap_ctx!(parser.split(','));
-    ///     let (empty, parser) = unwrap_ctx!(parser.split(','));
+    ///     let foo = unwrap_ctx!(parser.split(','));
+    ///     let bar = unwrap_ctx!(parser.split(','));
+    ///     let empty = unwrap_ctx!(parser.split(','));
     ///     
     ///     assert!(parser.split(',').is_err());
     ///     assert!(parser.remainder().is_empty());
@@ -329,7 +329,7 @@ impl<'a> Parser<'a> {
     /// };
     ///
     /// ```
-    pub const fn split<'p, P>(mut self, delimiter: P) -> Result<(&'a str, Self), ParseError<'a>>
+    pub const fn split<'p, P>(&mut self, delimiter: P) -> Result<&'a str, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
@@ -377,11 +377,11 @@ impl<'a> Parser<'a> {
     /// assert_eq!(VARS, ["baz", "bar", ""]);
     ///
     /// const VARS: [&str; 3] = {
-    ///     let parser = Parser::new(",bar,baz");
+    ///     let mut parser = Parser::new(",bar,baz");
     ///     
-    ///     let (baz, parser) = unwrap_ctx!(parser.rsplit(','));
-    ///     let (bar, parser) = unwrap_ctx!(parser.rsplit(','));
-    ///     let (empty, parser) = unwrap_ctx!(parser.rsplit(','));
+    ///     let baz = unwrap_ctx!(parser.rsplit(','));
+    ///     let bar = unwrap_ctx!(parser.rsplit(','));
+    ///     let empty = unwrap_ctx!(parser.rsplit(','));
     ///     
     ///     assert!(parser.rsplit(',').is_err());
     ///     assert!(parser.remainder().is_empty());
@@ -390,7 +390,7 @@ impl<'a> Parser<'a> {
     /// };
     ///
     /// ```
-    pub const fn rsplit<'p, P>(mut self, delimiter: P) -> Result<(&'a str, Self), ParseError<'a>>
+    pub const fn rsplit<'p, P>(&mut self, delimiter: P) -> Result<&'a str, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
@@ -479,9 +479,9 @@ impl<'a> Parser<'a> {
     /// ```
     ///
     pub const fn split_keep<'p, P>(
-        mut self,
+        &mut self,
         delimiter: P,
-    ) -> Result<(&'a str, Self), ParseError<'a>>
+    ) -> Result<&'a str, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
@@ -516,19 +516,19 @@ impl<'a> Parser<'a> {
     /// ### Basic
     ///
     /// ```
-    /// use konst::{Parser, rebind_if_ok};
+    /// use konst::Parser;
     ///
     /// let mut parser = Parser::new("foo;bar;baz;");
     ///
     /// assert!(parser.strip_prefix("aaa").is_err());
     ///
-    /// rebind_if_ok!{parser = parser.strip_prefix("foo;")}
+    /// _ = parser.strip_prefix("foo;");
     /// assert_eq!(parser.remainder(), "bar;baz;");
     ///
-    /// rebind_if_ok!{parser = parser.strip_prefix("bar;")}
+    /// _ = parser.strip_prefix("bar;");
     /// assert_eq!(parser.remainder(), "baz;");
     ///
-    /// rebind_if_ok!{parser = parser.strip_prefix("baz;")}
+    /// _ = parser.strip_prefix("baz;");
     /// assert_eq!(parser.remainder(), "");
     ///
     ///
@@ -537,27 +537,27 @@ impl<'a> Parser<'a> {
     /// ### `char` argument
     ///
     /// ```rust
-    /// use konst::{Parser, rebind_if_ok};
+    /// use konst::Parser;
     ///
     /// let mut parser = Parser::new("abcde");
     ///
-    /// rebind_if_ok!{parser = parser.strip_prefix('a')}
+    /// _ = parser.strip_prefix('a');
     /// assert_eq!(parser.remainder(), "bcde");
     ///
-    /// rebind_if_ok!{parser = parser.strip_prefix('b')}
+    /// _ = parser.strip_prefix('b');
     /// assert_eq!(parser.remainder(), "cde");
     ///
-    /// rebind_if_ok!{parser = parser.strip_prefix('c')}
+    /// _ = parser.strip_prefix('c');
     /// assert_eq!(parser.remainder(), "de");
     ///
     /// ```
     ///
     #[inline]
-    pub const fn strip_prefix<'p, P>(mut self, matched: P) -> Result<Self, ParseError<'a>>
+    pub const fn strip_prefix<'p, P>(&mut self, matched: P) -> Result<&mut Self, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
-        try_parsing! {self, FromStart;
+        try_parsing_ret_parser! {self, FromStart;
             match string::strip_prefix(self.str, matched) {
                 Some(x) => self.str = x,
                 None => throw!(ErrorKind::Strip),
@@ -576,19 +576,19 @@ impl<'a> Parser<'a> {
     /// ### `&str` argument
     ///
     /// ```
-    /// use konst::{Parser, rebind_if_ok};
+    /// use konst::Parser;
     ///
     /// let mut parser = Parser::new("foo;bar;baz;");
     ///
     /// assert!(parser.strip_suffix("aaa").is_err());
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix("baz;")}
+    /// _ = parser.strip_suffix("baz;");
     /// assert_eq!(parser.remainder(), "foo;bar;");
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix("bar;")}
+    /// _ = parser.strip_suffix("bar;");
     /// assert_eq!(parser.remainder(), "foo;");
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix("foo;")}
+    /// _ = parser.strip_suffix("foo;");
     /// assert_eq!(parser.remainder(), "");
     ///
     /// ```
@@ -596,27 +596,27 @@ impl<'a> Parser<'a> {
     /// ### `char` argument
     ///
     /// ```rust
-    /// use konst::{Parser, rebind_if_ok};
+    /// use konst::Parser;
     ///
     /// let mut parser = Parser::new("edcba");
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix('a')}
+    /// _ = parser.strip_suffix('a');
     /// assert_eq!(parser.remainder(), "edcb");
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix('b')}
+    /// _ = parser.strip_suffix('b');
     /// assert_eq!(parser.remainder(), "edc");
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix('c')}
+    /// _ = parser.strip_suffix('c');
     /// assert_eq!(parser.remainder(), "ed");
     ///
     /// ```
     ///
     #[inline]
-    pub const fn strip_suffix<'p, P>(mut self, matched: P) -> Result<Self, ParseError<'a>>
+    pub const fn strip_suffix<'p, P>(&mut self, matched: P) -> Result<&mut Self, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
-        try_parsing! {self, FromEnd;
+        try_parsing_ret_parser! {self, FromEnd;
             match string::strip_suffix(self.str, matched) {
                 Some(x) => self.str = x,
                 None => throw!(ErrorKind::Strip),
@@ -637,10 +637,11 @@ impl<'a> Parser<'a> {
     /// assert_eq!(parser.remainder(), "foo\n\t bar");
     ///
     /// ```
-    pub const fn trim(mut self) -> Self {
+    pub const fn trim(&mut self) -> &mut Self {
         parsing! {self, FromBoth;
             self.str = self.str.trim_ascii();
         }
+        self
     }
 
     /// Removes whitespace from the start of the parsed string.
@@ -659,10 +660,11 @@ impl<'a> Parser<'a> {
     /// assert_eq!(parser.remainder(), "bar");
     ///
     /// ```
-    pub const fn trim_start(mut self) -> Self {
+    pub const fn trim_start(&mut self) -> &mut Self {
         parsing! {self, FromStart;
             self.str = self.str.trim_ascii_start();
         }
+        self
     }
 
     /// Removes whitespace from the end of the parsed string.
@@ -681,10 +683,11 @@ impl<'a> Parser<'a> {
     /// assert_eq!(parser.remainder(), "foo,");
     ///
     /// ```
-    pub const fn trim_end(mut self) -> Self {
+    pub const fn trim_end(&mut self) -> &mut Self {
         parsing! {self, FromEnd;
             self.str = self.str.trim_ascii_end();
         }
+        self
     }
 
     /// Repeatedly removes all instances of `needle` from
@@ -714,13 +717,14 @@ impl<'a> Parser<'a> {
     /// assert_eq!(parser.remainder(), "world");
     /// ```
     ///
-    pub const fn trim_matches<'p, P>(mut self, needle: P) -> Self
+    pub const fn trim_matches<'p, P>(&mut self, needle: P) -> &mut Self
     where
         P: Pattern<'p>,
     {
         parsing! {self, FromBoth;
             self.str = crate::string::trim_matches(self.str, needle);
         }
+        self
     }
 
     /// Repeatedly removes all instances of `needle` from the start of the parsed string.
@@ -771,13 +775,14 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     ///
-    pub const fn trim_start_matches<'p, P>(mut self, needle: P) -> Self
+    pub const fn trim_start_matches<'p, P>(&mut self, needle: P) -> &mut Self
     where
         P: Pattern<'p>,
     {
         parsing! {self, FromStart;
             self.str = crate::string::trim_start_matches(self.str, needle);
         }
+        self
     }
 
     /// Repeatedly removes all instances of `needle` from the start of the parsed string.
@@ -794,17 +799,17 @@ impl<'a> Parser<'a> {
     ///
     /// {
     ///     let mut parser = Parser::new("Hello world!world!world!");
-    ///     parser = parser.trim_end_matches("world!");
+    ///     parser.trim_end_matches("world!");
     ///     assert_eq!(parser.remainder(), "Hello ");
     /// }
     /// {
     ///     let mut parser = Parser::new("Hi!        ");
-    ///     parser = parser.trim_end_matches("    ");
+    ///     parser.trim_end_matches("    ");
     ///     assert_eq!(parser.remainder(), "Hi!");
     /// }
     /// {
     ///     let mut parser = Parser::new("Bye!------");
-    ///     parser = parser.trim_end_matches("----");
+    ///     parser.trim_end_matches("----");
     ///     assert_eq!(parser.remainder(), "Bye!--");
     /// }
     ///
@@ -817,24 +822,25 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("world----    ");
     ///
-    /// parser = parser.trim_end_matches(' ');
+    /// parser.trim_end_matches(' ');
     /// assert_eq!(parser.remainder(), "world----");
     ///
-    /// parser = parser.trim_end_matches('-');
+    /// parser.trim_end_matches('-');
     /// assert_eq!(parser.remainder(), "world");
     ///
-    /// parser = parser.trim_end_matches('-');
+    /// parser.trim_end_matches('-');
     /// assert_eq!(parser.remainder(), "world");
     ///
     /// ```
     ///
-    pub const fn trim_end_matches<'p, P>(mut self, needle: P) -> Self
+    pub const fn trim_end_matches<'p, P>(&mut self, needle: P) -> &mut Self
     where
         P: Pattern<'p>,
     {
         parsing! {self, FromEnd;
             self.str = crate::string::trim_end_matches(self.str, needle);
         }
+        self
     }
 
     /// Skips the parser after the first instance of `needle`.
@@ -852,13 +858,13 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("foo--bar,baz--qux");
     ///
-    /// parser = unwrap_ctx!(parser.find_skip("--"));
+    /// unwrap_ctx!(parser.find_skip("--"));
     /// assert_eq!(parser.remainder(), "bar,baz--qux");
     ///
-    /// parser = unwrap_ctx!(parser.find_skip("bar,"));
+    /// unwrap_ctx!(parser.find_skip("bar,"));
     /// assert_eq!(parser.remainder(), "baz--qux");
     ///
-    /// parser = unwrap_ctx!(parser.find_skip("--"));
+    /// unwrap_ctx!(parser.find_skip("--"));
     /// assert_eq!(parser.remainder(), "qux");
     ///
     /// assert!(parser.find_skip("--").is_err());
@@ -872,19 +878,19 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("foo-bar,baz");
     ///
-    /// parser = unwrap_ctx!(parser.find_skip('-'));
+    /// unwrap_ctx!(parser.find_skip('-'));
     /// assert_eq!(parser.remainder(), "bar,baz");
     ///
-    /// parser = unwrap_ctx!(parser.find_skip(','));
+    /// unwrap_ctx!(parser.find_skip(','));
     /// assert_eq!(parser.remainder(), "baz");
     ///
     /// ```
     ///
-    pub const fn find_skip<'p, P>(mut self, needle: P) -> Result<Self, ParseError<'a>>
+    pub const fn find_skip<'p, P>(&mut self, needle: P) -> Result<&mut Self, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
-        try_parsing! {self, FromStart;
+        try_parsing_ret_parser! {self, FromStart;
             self.str = match crate::string::find_skip(self.str, needle) {
                 Some(x) => x,
                 None => throw!(ErrorKind::Find),
@@ -935,11 +941,11 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     ///
-    pub const fn rfind_skip<'p, P>(mut self, needle: P) -> Result<Self, ParseError<'a>>
+    pub const fn rfind_skip<'p, P>(&mut self, needle: P) -> Result<&mut Self, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
-        try_parsing! {self, FromEnd;
+        try_parsing_ret_parser! {self, FromEnd;
             self.str = match crate::string::rfind_skip(self.str, needle) {
                 Some(x) => x,
                 None => throw!(ErrorKind::Find),

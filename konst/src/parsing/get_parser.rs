@@ -88,7 +88,7 @@ macro_rules! impl_std_parser_one {
 
         impl StdParser<$type> {
             #[doc = $parse_with_docs]
-            pub const fn parse_with(parser: Parser<'_>) -> ParseValueResult<'_, $type> {
+            pub const fn parse_with<'a>(parser: &mut Parser<'a>) -> ParseValueResult<'a, $type> {
                 parser.$method()
             }
         }

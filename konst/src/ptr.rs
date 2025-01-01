@@ -1,7 +1,8 @@
 //! Const equivalents of raw pointer and [`NonNull`](core::ptr::NonNull) methods.
 //!
-
-use core::ptr::NonNull;
+//! # Removed in 0.4.0
+//!
+//! `is_null` was removed because it was deprecated in 0.3.0 for unsoundness.
 
 /// Const equivalent of
 /// [`<*const>::as_ref`](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_ref)
@@ -64,38 +65,6 @@ pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
     core::mem::transmute(ptr)
 }
 
-/// Const equivalent of
-/// [`<*const T>::is_null`](https://doc.rust-lang.org/std/primitive.pointer.html#method.is_null)
-///
-/// # Example
-///
-/// ```rust
-/// use konst::ptr;
-///
-/// use core::ptr::null;
-///
-/// const NULL_IS_NULL: bool = ptr::is_null(null::<u8>());
-/// const REFF_IS_NULL: bool = ptr::is_null(&100);
-///
-/// assert_eq!(NULL_IS_NULL, true);
-/// assert_eq!(REFF_IS_NULL, false);
-///
-///
-/// ```
-#[deprecated(
-    since = "0.3.16", 
-    note = "unsound for out of bounds pointers"
-)]
-#[allow(clippy::not_unsafe_ptr_arg_deref)]
-pub const fn is_null<T: ?Sized>(ptr: *const T) -> bool {
-    unsafe {
-        matches!(
-            core::mem::transmute::<*const T, Option<NonNull<T>>>(ptr),
-            None
-        )
-    }
-}
-
 /// Const equivalents of [`NonNull`](core::ptr::NonNull) methods.
 ///
 /// # Removed in 0.4.0
@@ -106,34 +75,11 @@ pub const fn is_null<T: ?Sized>(ptr: *const T) -> bool {
 /// - `as_ref`: [NonNull::as_ref]
 /// - `as_mut`: [NonNull::as_mut]
 ///
+/// 
+/// `new` was removed because it was deprecated in 0.3.0 for unsoundness.
+///
 pub mod nonnull {
     use core::ptr::NonNull;
-
-    /// Const equivalent of [`NonNull::new`](core::ptr::NonNull::new).
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use konst::ptr::nonnull;
-    ///
-    /// use core::ptr::{NonNull, null_mut};
-    ///
-    /// const NONE: Option<NonNull<u8>> = nonnull::new(null_mut());
-    /// const SOME: Option<NonNull<u8>> = nonnull::new(&100 as *const _ as *mut _);
-    ///
-    /// assert!(NONE.is_none());
-    /// assert_eq!(SOME.map(|x|unsafe{*x.as_ptr()}), Some(100));
-    ///
-    ///
-    /// ```
-    #[deprecated(
-        since = "0.3.16", 
-        note = "unsound for out of bounds pointers"
-    )]
-    #[allow(clippy::not_unsafe_ptr_arg_deref)]
-    pub const fn new<T: ?Sized>(ptr: *mut T) -> Option<NonNull<T>> {
-        unsafe { core::mem::transmute(ptr) }
-    }
 
     /// Const equivalent of
     /// [`<NonNull<T> as From<&T>>::from`

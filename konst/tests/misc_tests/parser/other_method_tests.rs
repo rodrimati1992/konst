@@ -17,8 +17,6 @@ const S: &str = "!Aq¡🧡🧠₀₁oñ个";
 
 #[test]
 fn test_skip() {
-    let parser = Parser::new(S);
-
     for (skip, start) in [
         (0, 0),
         (1, 1),
@@ -40,7 +38,8 @@ fn test_skip() {
         (28, 28),
         (29, 28),
     ] {
-        let parser = parser.skip(skip);
+        let mut parser = Parser::new(S);
+        parser.skip(skip);
         let rem = &S[start..];
         assert_eq!(parser.remainder(), rem);
         assert_eq!(parser.start_offset(), start, "rem: {rem:?}");
@@ -50,7 +49,6 @@ fn test_skip() {
 
 #[test]
 fn test_skip_back() {
-    let parser = Parser::new(S);
     for (skip, up_to) in [
         (0, 28),
         (1, 25),
@@ -75,7 +73,8 @@ fn test_skip_back() {
         (29, 0),
         (30, 0),
     ] {
-        let parser = parser.skip_back(skip);
+        let mut parser = Parser::new(S);
+        parser.skip_back(skip);
         assert_eq!(parser.remainder(), &S[..up_to]);
         assert_eq!(parser.start_offset(), 0);
         assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
@@ -84,13 +83,12 @@ fn test_skip_back() {
 
 #[test]
 fn test_with_start_offset() {
-    let mut item;
     let mut parser = Parser::with_start_offset("bar baz qux", 10);
 
     assert_eq!(parser.start_offset(), 10);
 
     for (exp_str, exp_so) in [("bar", 14), ("baz", 18), ("qux", 21)] {
-        (item, parser) = parser.split(' ').unwrap();
+        let item = parser.split(' ').unwrap();
         assert_eq!(item, exp_str);
         assert_eq!(parser.start_offset(), exp_so);
     }

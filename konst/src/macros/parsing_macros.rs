@@ -242,12 +242,12 @@ macro_rules! __priv_partial {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-macro_rules! try_parsing {
+macro_rules! try_parsing_ret_parser {
     ( $parser:ident, $parse_direction:ident $(,$ret:ident)*; $($code:tt)* ) => ({
         #![allow(unused_parens, unused_labels, unused_macros)]
 
         $parser.parse_direction = ParseDirection::$parse_direction;
-        let copy = $parser;
+        let copy = $parser.copy();
 
         let ($($ret),*) = 'ret: {
             partial!{throw = throw_out!(copy, $parse_direction,)}
@@ -266,12 +266,36 @@ macro_rules! try_parsing {
     })
 }
 
+macro_rules! try_parsing {
+    ( $parser:ident, $parse_direction:ident $(,$ret:ident)*; $($code:tt)* ) => ({
+        #![allow(unused_parens, unused_labels, unused_macros)]
+
+        $parser.parse_direction = ParseDirection::$parse_direction;
+        let copy = $parser.copy();
+
+        let ($($ret),*) = 'ret: {
+            partial!{throw = throw_out!(copy, $parse_direction,)}
+
+            #[allow(unreachable_code)]
+            {
+                $($code)*
+            }
+        };
+
+        enable_if_start!{$parse_direction,
+            $parser.start_offset += (copy.str.len() - $parser.str.len()) as u32;
+        }
+
+        Ok(($($ret),*))
+    })
+}
+
 macro_rules! parsing {
     ( $parser:ident, $parse_direction:ident $(,$ret:ident)*; $($code:tt)* ) => ({
         #![allow(unused_parens, unused_labels, unused_macros)]
 
         $parser.parse_direction = ParseDirection::$parse_direction;
-        enable_if_start!{$parse_direction, let copy = $parser; }
+        enable_if_start!{$parse_direction, let copy = $parser.copy(); }
 
         let ($($ret),*) = { $($code)* };
 
@@ -279,7 +303,7 @@ macro_rules! parsing {
             $parser.start_offset += (copy.str.len() - $parser.str.len()) as u32;
         }
 
-        ($($ret,)* $parser)
+        ($($ret),*)
     })
 }
 
