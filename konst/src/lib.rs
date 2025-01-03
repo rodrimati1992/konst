@@ -111,7 +111,7 @@
 //!     eq_str,
 //!     for_range, parser_method, try_, unwrap_ctx,
 //! };
-//!
+//! 
 //! const PARSED: Struct = {
 //!     // You can also parse strings from environment variables, or from an `include_str!(....)`
 //!     let input = "\
@@ -121,9 +121,9 @@
 //!         name = bob smith
 //!     ";
 //!     
-//!     unwrap_ctx!(parse_struct(Parser::new(input))).0
+//!     unwrap_ctx!(parse_struct(&mut Parser::new(input)))
 //! };
-//!
+//! 
 //! fn main(){
 //!     assert_eq!(
 //!         PARSED,
@@ -135,7 +135,7 @@
 //!         }
 //!     );
 //! }
-//!
+//! 
 //! #[derive(Debug, Clone, PartialEq, Eq)]
 //! pub struct Struct<'a> {
 //!     pub name: &'a str,
@@ -143,95 +143,93 @@
 //!     pub repeating: Shape,
 //!     pub colors: [Color; 4],
 //! }
-//!
+//! 
 //! #[derive(Debug, Clone, PartialEq, Eq)]
 //! pub enum Shape {
 //!     Circle,
 //!     Square,
 //!     Line,
 //! }
-//!
+//! 
 //! #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 //! pub enum Color {
 //!     Red,
 //!     Blue,
 //!     Green,
 //! }
-//!
-//! pub const fn parse_struct(mut parser: Parser<'_>) -> ParseValueResult<'_, Struct<'_>> {
+//! 
+//! pub const fn parse_struct<'a>(parser: &mut Parser<'a>) -> ParseValueResult<'a, Struct<'a>> {
 //!     let mut name = "<none>";
 //!     let mut amount = 0;
 //!     let mut repeating = Shape::Circle;
 //!     let mut colors = [Color::Red; 4];
 //!     
-//!     parser = parser.trim_end();
+//!     parser.trim_end();
 //!     if !parser.is_empty() {
 //!         loop {
-//!             let mut prev_parser = parser.trim_start();
-//!
-//!             parser = try_!(parser.find_skip('='));
-//!
+//!             let mut prev_parser = parser.trim_start().copy();
+//! 
+//!             try_!(parser.find_skip('='));
+//! 
 //!             parser_method!{prev_parser, strip_prefix;
-//!                 "name" => (name, parser) = try_!(parser.trim_start().split_keep('\n')),
-//!                 "amount" => (amount, parser) = try_!(parser.trim_start().parse_usize()),
-//!                 "repeating" => (repeating, parser) = try_!(parse_shape(parser.trim_start())),
-//!                 "colors" => (colors, parser) = try_!(parse_colors(parser.trim_start())),
+//!                 "name" => name = try_!(parser.trim_start().split_keep('\n')),
+//!                 "amount" => amount = try_!(parser.trim_start().parse_usize()),
+//!                 "repeating" => repeating = try_!(parse_shape(parser.trim_start())),
+//!                 "colors" => colors = try_!(parse_colors(parser.trim_start())),
 //!                 _ => {
 //!                     let err = &"could not parse Struct field name";
-//!                     return Err(prev_parser.into_other_error(err));
+//!                     return Err(prev_parser.to_other_error(err));
 //!                 }
 //!             }
-//!
+//! 
 //!             if parser.is_empty() {
 //!                 break
 //!             }
-//!             parser = try_!(parser.strip_prefix("\n"));
+//!             try_!(parser.strip_prefix("\n"));
 //!         }
 //!     }
-//!
-//!     Ok((Struct{name, amount, repeating, colors}, parser))
+//! 
+//!     Ok(Struct{name, amount, repeating, colors})
 //! }
-//!
-//! pub const fn parse_shape(mut parser: Parser<'_>) -> ParseValueResult<'_, Shape> {
+//! 
+//! pub const fn parse_shape<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Shape> {
 //!     let shape = parser_method!{parser, strip_prefix;
 //!         "circle" => Shape::Circle,
 //!         "square" => Shape::Square,
 //!         "line" => Shape::Line,
-//!         _ => return Err(parser.into_other_error(&"could not parse Shape"))
+//!         _ => return Err(parser.to_other_error(&"could not parse Shape"))
 //!     };
-//!     Ok((shape, parser))
+//!     Ok(shape)
 //! }
-//!
-//! pub const fn parse_colors<const LEN: usize>(
-//!     mut parser: Parser<'_>,
-//! ) -> ParseValueResult<'_, [Color; LEN]> {
+//! 
+//! pub const fn parse_colors<'p, const LEN: usize>(
+//!     parser: &mut Parser<'p>,
+//! ) -> ParseValueResult<'p, [Color; LEN]> {
 //!     let mut colors = [Color::Red; LEN];
-//!
+//! 
 //!     for_range!{i in 0..LEN =>
-//!         (colors[i], parser) = try_!(parse_color(parser.trim_start()));
+//!         colors[i] = try_!(parse_color(parser.trim_start()));
 //!         
 //!         match parser.strip_prefix(",") {
-//!             Ok(next) => parser = next,
+//!             Ok(_) => (),
 //!             Err(_) if i == LEN - 1 => {}
 //!             Err(e) => return Err(e),
 //!         }
 //!     }
-//!
-//!     Ok((colors, parser))
+//! 
+//!     Ok(colors)
 //! }
-//!
-//! pub const fn parse_color(mut parser: Parser<'_>) -> ParseValueResult<'_, Color> {
+//! 
+//! pub const fn parse_color<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Color> {
 //!     let color = parser_method!{parser, strip_prefix;
 //!         "red" => Color::Red,
 //!         "blue" => Color::Blue,
 //!         "green" => Color::Green,
-//!         _ => return Err(parser.into_other_error(&"could not parse Color"))
+//!         _ => return Err(parser.to_other_error(&"could not parse Color"))
 //!     };
-//!     Ok((color, parser))
+//!     Ok(color)
 //! }
-//!
-//!
-//!
+//! 
 //! ```
 //!
 //! # Cargo features

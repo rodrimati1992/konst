@@ -25,7 +25,7 @@
 ///
 /// let mut parser = Parser::new("hello world");
 ///
-/// parser = unwrap_ctx!(parser.strip_prefix("hello "));
+/// unwrap_ctx!(parser.strip_prefix("hello "));
 ///
 /// assert_eq!(parser.remainder(), "world");
 ///

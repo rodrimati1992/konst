@@ -64,22 +64,22 @@
 /// }
 ///
 /// impl Color {
-///     pub const fn try_parse(mut parser: Parser<'_>) -> ParseValueResult<'_, Color> {
+///     pub const fn try_parse<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Color> {
 ///         parser_method!{parser, strip_prefix;
-///             "Red"|"red" => Ok((Color::Red, parser)),
-///             "Blue"|"blue" => Ok((Color::Blue, parser)),
-///             "Green"|"green" => Ok((Color::Green, parser)),
-///             _ => Err(parser.into_other_error(&"could not parse Color")),
+///             "Red"|"red" => Ok(Color::Red),
+///             "Blue"|"blue" => Ok(Color::Blue),
+///             "Green"|"green" => Ok(Color::Green),
+///             _ => Err(parser.to_other_error(&"could not parse Color")),
 ///         }
 ///     }
 /// }
 ///
 /// const COLORS: [Color; 4] = {
-///     let parser = Parser::new("BlueRedGreenGreen");
-///     let (c0, parser) = unwrap_ctx!(Color::try_parse(parser));
-///     let (c1, parser) = unwrap_ctx!(Color::try_parse(parser));
-///     let (c2, parser) = unwrap_ctx!(Color::try_parse(parser));
-///     let (c3, _     ) = unwrap_ctx!(Color::try_parse(parser));
+///     let parser = &mut Parser::new("BlueRedGreenGreen");
+///     let c0 = unwrap_ctx!(Color::try_parse(parser));
+///     let c1 = unwrap_ctx!(Color::try_parse(parser));
+///     let c2 = unwrap_ctx!(Color::try_parse(parser));
+///     let c3 = unwrap_ctx!(Color::try_parse(parser));
 ///     
 ///     [c0, c1, c2, c3]
 /// };

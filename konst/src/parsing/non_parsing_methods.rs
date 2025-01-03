@@ -34,10 +34,10 @@ impl<'a> Parser<'a> {
     /// // "foo bar baz"
     /// let substr = konst::string::str_from("foo bar baz", 4);
     ///
-    /// let parser = Parser::with_start_offset(substr, 4);
+    /// let mut parser = Parser::with_start_offset(substr, 4);
     /// assert_eq!(parser.remainder(), "bar baz");
     ///
-    /// let (bar, parser) = parser.split(' ').unwrap();
+    /// let bar = parser.split(' ').unwrap();
     /// assert_eq!(bar, "bar");
     ///
     /// let err = parser.split_terminator(' ').unwrap_err();
@@ -133,7 +133,7 @@ impl<'a> Parser<'a> {
     ///
     /// [`ParseError`]: struct.ParseError.html
     /// [`ErrorKind::Other`]: ./enum.ErrorKind.html#variant.Other
-    pub const fn into_other_error(self, string: &'static &'static str) -> ParseError<'a> {
+    pub const fn to_other_error(&self, string: &'static &'static str) -> ParseError<'a> {
         ParseError::other_error(self, string)
     }
 
@@ -147,5 +147,10 @@ impl<'a> Parser<'a> {
     #[inline(always)]
     pub const fn is_empty(&self) -> bool {
         self.str.is_empty()
+    }
+
+    #[doc(hidden)]
+    pub const fn __borrow_mut(&mut self) -> &mut Self {
+        self
     }
 }

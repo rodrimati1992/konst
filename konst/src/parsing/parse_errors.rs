@@ -37,7 +37,7 @@ impl<'a> ParseError<'a> {
 
     /// Constructs a `ParseError`  for an `ErrorKind::Other` error with
     /// a customized error message.
-    pub const fn other_error(parser: Parser<'a>, extra_message: &'static &'static str) -> Self {
+    pub const fn other_error(parser: &Parser<'a>, extra_message: &'static &'static str) -> Self {
         Self {
             start_offset: parser.start_offset,
             end_offset: parser.start_offset + parser.str.len() as u32,

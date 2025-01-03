@@ -22,9 +22,9 @@ use core::marker::PhantomData;
 /// ```rust
 /// # /*
 /// impl SomeParser {
-///     const fn parse_with<'a>(
-///         _: konst::Parser<'a>
-///     ) -> Result<(This, konst::Parser<'a>), SomeErrorType>
+///     const fn parse_with<'p>(
+///         _: &mut konst::Parser<'p>
+///     ) -> Result<This, SomeErrorType>
 /// }
 /// # */
 /// ```
@@ -32,13 +32,13 @@ use core::marker::PhantomData;
 /// # Example
 ///
 /// ```rust
-/// use konst::{parse_with, try_rebind, unwrap_ctx};
+/// use konst::{parse_with, try_, unwrap_ctx};
 ///
 /// use konst::parsing::{HasParser, Parser, ParseValueResult};
 ///
 /// const PAIR: Pair = {
-///     let parser = Parser::new("100,200");
-///     unwrap_ctx!(parse_with!(parser, Pair)).0
+///     let mut parser = Parser::new("100,200");
+///     unwrap_ctx!(parse_with!(parser, Pair))
 /// };
 ///
 /// assert_eq!(PAIR, Pair(100, 200));
@@ -52,12 +52,12 @@ use core::marker::PhantomData;
 /// }
 ///
 /// impl Pair {
-///     const fn parse_with(mut parser: Parser<'_>) -> ParseValueResult<'_, Self> {
-///         try_rebind!{(let left, parser) = parse_with!(parser, u32)}
-///         try_rebind!{parser = parser.strip_prefix(',')}
-///         try_rebind!{(let right, parser) = parse_with!(parser, u64)}
+///     const fn parse_with<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Self> {
+///         let left = try_!(parse_with!(parser, u32));
+///         try_!(parser.strip_prefix(','));
+///         let right = try_!(parse_with!(parser, u64));
 ///
-///         Ok((Pair(left, right), parser))
+///         Ok(Pair(left, right))
 ///     }
 /// }
 /// ```

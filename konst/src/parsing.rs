@@ -90,7 +90,7 @@ use crate::string::{self, Pattern};
 /// };
 ///
 /// const ANGLES: [Angle; LEN_AND_PARSER.0] =
-///     unwrap_ctx!(Angle::parse_array(&mut LEN_AND_PARSER.1)).0;
+///     unwrap_ctx!(Angle::parse_array(&mut LEN_AND_PARSER.1));
 ///
 /// fn main() {
 ///     assert_eq!(
@@ -127,7 +127,7 @@ use crate::string::{self, Pattern};
 ///                 try_!(parser.strip_prefix(','));
 ///             }
 ///         }
-///         Ok((ret, parser))
+///         Ok(ret)
 ///     }
 ///
 ///     pub const fn parse<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Angle> {
@@ -140,7 +140,7 @@ use crate::string::{self, Pattern};
 ///             "right" => Self::RIGHT,
 ///             "down" => Self::DOWN,
 ///             "left" => Self::LEFT,
-///             _ => return Err(parser.into_other_error(&"could not parse Direction"))
+///             _ => return Err(parser.to_other_error(&"could not parse Direction"))
 ///         };
 ///         Ok(angle)
 ///     }
@@ -431,7 +431,7 @@ impl<'a> Parser<'a> {
     /// use konst::{
     ///     parsing::{Parser, ParseValueResult},
     ///     eq_str,
-    ///     for_range, parser_method, try_rebind, unwrap_ctx,
+    ///     for_range, parser_method, try_, unwrap_ctx,
     /// };
     ///
     /// assert_eq!(VALS, [
@@ -443,12 +443,12 @@ impl<'a> Parser<'a> {
     ///
     /// const VALS: [Value<'_>; 4] = {
     ///     let mut arr = [Value::Str(""); 4];
-    ///     let mut parser = Parser::new("shello,i3,i5,sworld");
+    ///     let parser = &mut Parser::new("shello,i3,i5,sworld");
     ///     
     ///     for_range!{i in 0..arr.len() =>
-    ///         (arr[i], parser) = unwrap_ctx!(parse_value(parser));
+    ///         arr[i] = unwrap_ctx!(parse_value(parser));
     ///         if !parser.is_empty() {
-    ///             parser = unwrap_ctx!(parser.strip_prefix(','))
+    ///             unwrap_ctx!(parser.strip_prefix(','));
     ///         }
     ///     }
     ///     
@@ -462,19 +462,19 @@ impl<'a> Parser<'a> {
     ///     U64(u64),
     /// }
     ///
-    /// pub const fn parse_value(mut parser: Parser<'_>) -> ParseValueResult<'_, Value<'_>> {
+    /// pub const fn parse_value<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Value<'p>> {
     ///     let val = parser_method!{parser, strip_prefix;
     ///         "s" => {
-    ///             try_rebind!{(let string, parser) = parser.split_keep(',')}
+    ///             let string = try_!(parser.split_keep(','));
     ///             Value::Str(string)
     ///         }
     ///         "i" => {
-    ///             try_rebind!{(let integer, parser) = parser.parse_u64()}
+    ///             let integer = try_!(parser.parse_u64());
     ///             Value::U64(integer)
     ///         }
-    ///         _ => return Err(parser.into_other_error(&"expected either `s` or `ì`"))
+    ///         _ => return Err(parser.to_other_error(&"expected either `s` or `ì`"))
     ///     };
-    ///     Ok((val, parser))
+    ///     Ok(val)
     /// }
     /// ```
     ///
@@ -633,7 +633,7 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("    foo\n\t bar    ");
     ///
-    /// parser = parser.trim();
+    /// parser.trim();
     /// assert_eq!(parser.remainder(), "foo\n\t bar");
     ///
     /// ```
@@ -653,10 +653,10 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("    foo\n\t bar");
     ///
-    /// parser = parser.trim_start();
+    /// parser.trim_start();
     /// assert_eq!(parser.remainder(), "foo\n\t bar");
     ///
-    /// parser = unwrap_ctx!(parser.strip_prefix("foo")).trim_start();
+    /// unwrap_ctx!(parser.strip_prefix("foo")).trim_start();
     /// assert_eq!(parser.remainder(), "bar");
     ///
     /// ```
@@ -676,10 +676,10 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("foo,\n    bar,\n    ");
     ///
-    /// parser = parser.trim_end();
+    /// parser.trim_end();
     /// assert_eq!(parser.remainder(), "foo,\n    bar,");
     ///
-    /// parser = unwrap_ctx!(parser.strip_suffix("bar,")).trim_end();
+    /// unwrap_ctx!(parser.strip_suffix("bar,")).trim_end();
     /// assert_eq!(parser.remainder(), "foo,");
     ///
     /// ```
@@ -702,7 +702,7 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("<><>hello<><>");
     ///
-    /// parser = parser.trim_matches("<>");
+    /// parser.trim_matches("<>");
     /// assert_eq!(parser.remainder(), "hello");
     /// ```
     ///
@@ -713,7 +713,7 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("    world   ");
     ///
-    /// parser = parser.trim_matches(' ');
+    /// parser.trim_matches(' ');
     /// assert_eq!(parser.remainder(), "world");
     /// ```
     ///
@@ -741,17 +741,17 @@ impl<'a> Parser<'a> {
     ///
     /// {
     ///     let mut parser = Parser::new("HelloHelloHello world!");
-    ///     parser = parser.trim_start_matches("Hello");
+    ///     parser.trim_start_matches("Hello");
     ///     assert_eq!(parser.remainder(), " world!");
     /// }
     /// {
     ///     let mut parser = Parser::new("        Hi!");
-    ///     parser = parser.trim_start_matches("    ");
+    ///     parser.trim_start_matches("    ");
     ///     assert_eq!(parser.remainder(), "Hi!");
     /// }
     /// {
     ///     let mut parser = Parser::new("------Bye!");
-    ///     parser = parser.trim_start_matches("----");
+    ///     parser.trim_start_matches("----");
     ///     assert_eq!(parser.remainder(), "--Bye!");
     /// }
     ///
@@ -764,13 +764,13 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("    ----world");
     ///
-    /// parser = parser.trim_start_matches(' ');
+    /// parser.trim_start_matches(' ');
     /// assert_eq!(parser.remainder(), "----world");
     ///
-    /// parser = parser.trim_start_matches('-');
+    /// parser.trim_start_matches('-');
     /// assert_eq!(parser.remainder(), "world");
     ///
-    /// parser = parser.trim_start_matches('-');
+    /// parser.trim_start_matches('-');
     /// assert_eq!(parser.remainder(), "world");
     ///
     /// ```
@@ -913,13 +913,13 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("foo--bar,baz--qux");
     ///
-    /// parser = unwrap_ctx!(parser.rfind_skip("--"));
+    /// unwrap_ctx!(parser.rfind_skip("--"));
     /// assert_eq!(parser.remainder(), "foo--bar,baz");
     ///
-    /// parser = unwrap_ctx!(parser.rfind_skip(",baz"));
+    /// unwrap_ctx!(parser.rfind_skip(",baz"));
     /// assert_eq!(parser.remainder(), "foo--bar");
     ///
-    /// parser = unwrap_ctx!(parser.rfind_skip("--"));
+    /// unwrap_ctx!(parser.rfind_skip("--"));
     /// assert_eq!(parser.remainder(), "foo");
     ///
     /// assert!(parser.rfind_skip("--").is_err());
@@ -933,10 +933,10 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("foo,bar-baz");
     ///
-    /// parser = unwrap_ctx!(parser.rfind_skip('-'));
+    /// unwrap_ctx!(parser.rfind_skip('-'));
     /// assert_eq!(parser.remainder(), "foo,bar");
     ///
-    /// parser = unwrap_ctx!(parser.rfind_skip(','));
+    /// unwrap_ctx!(parser.rfind_skip(','));
     /// assert_eq!(parser.remainder(), "foo");
     ///
     /// ```

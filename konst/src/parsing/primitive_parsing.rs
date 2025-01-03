@@ -20,8 +20,8 @@ impl<'a> Parser<'a> {
     /// };
     ///
     /// {
-    ///     let parser = Parser::new("12345");
-    ///     let (num, parser) = unwrap_ctx!(parser.parse_u128());
+    ///     let mut parser = Parser::new("12345");
+    ///     let num = unwrap_ctx!(parser.parse_u128());
     ///     assert_eq!(num, 12345);
     ///     assert!(parser.is_empty());
     /// }
@@ -30,27 +30,26 @@ impl<'a> Parser<'a> {
     /// const fn parse_pair<'a>(parser: &mut Parser<'a>) -> ParseValueResult<'a, [u128; 2]> {
     ///     let mut ret = [0; 2];
     ///     
-    ///     (ret[0], parser) = try_!(parser.parse_u128());
+    ///     ret[0] = try_!(parser.parse_u128());
     ///     
     ///     // parsing the `;``between the integers.
     ///     //
     ///     // Note that because we don't use `.trim_start()` afterwards,
     ///     // this can't be followed by spaces.
-    ///     parser = try_!(parser.strip_prefix(";"));
+    ///     try_!(parser.strip_prefix(";"));
     ///     
-    ///     (ret[1], parser) = try_!(parser.parse_u128());
+    ///     ret[1] = try_!(parser.parse_u128());
     ///     
-    ///     Ok((ret, parser))
+    ///     Ok(ret)
     /// }
-    /// const PAIR: ([u128; 2], Parser<'_>) = {
-    ///     let parser = Parser::new("1365;6789");
+    /// const PAIR: [u128; 2] = {
+    ///     let parser = &mut Parser::new("1365;6789");
     ///     unwrap_ctx!(parse_pair(parser))
     /// };
     ///
-    /// assert_eq!(PAIR.0[0], 1365);
-    /// assert_eq!(PAIR.0[1], 6789);
+    /// assert_eq!(PAIR[0], 1365);
+    /// assert_eq!(PAIR[1], 6789);
     ///
-    /// assert!(PAIR.1.is_empty());
     ///
     /// ```
     ///
@@ -69,29 +68,24 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx, rebind_if_ok};
+    /// use konst::{Parser, unwrap_ctx};
     ///
     /// {
-    ///     let parser = Parser::new("12345");
-    ///     let (num, parser) = unwrap_ctx!(parser.parse_i128());
+    ///     let mut parser = Parser::new("12345");
+    ///     let num = unwrap_ctx!(parser.parse_i128());
     ///     assert_eq!(num, 12345);
     ///     assert!(parser.is_empty());
     /// }
     /// {
-    ///     let mut num = 0;
     ///     let mut parser = Parser::new("-54321;6789");
     ///     
-    ///     // `rebind_if_ok` stores the return value of `.parse_i128()` in `num` and `parser`,
-    ///     // if `.parse_i128()` returned an `Ok((u128, Parser))`.
-    ///     rebind_if_ok!{(num, parser) = parser.parse_i128()}
-    ///     assert_eq!(num, -54321);
+    ///     assert_eq!(unwrap_ctx!(parser.parse_i128()), -54321);
     ///     assert_eq!(parser.remainder(), ";6789");
     ///
-    ///     rebind_if_ok!{parser = parser.strip_prefix(";")}
+    ///     _ = parser.strip_prefix(";");
     ///     assert_eq!(parser.remainder(), "6789");
     ///
-    ///     rebind_if_ok!{(num, parser) = parser.parse_i128()}
-    ///     assert_eq!(num, 6789);
+    ///     assert_eq!(unwrap_ctx!(parser.parse_i128()), 6789);
     ///     assert!(parser.is_empty());
     /// }
     ///
@@ -355,14 +349,14 @@ impl<'a> Parser<'a> {
     /// use konst::{Parser, unwrap_ctx};
     ///
     /// {
-    ///     let parser = Parser::new("falsemorestring");
-    ///     let (boolean, parser) = unwrap_ctx!(parser.parse_bool());
+    ///     let mut parser = Parser::new("falsemorestring");
+    ///     let boolean = unwrap_ctx!(parser.parse_bool());
     ///     assert_eq!(boolean, false);
     ///     assert_eq!(parser.remainder(), "morestring");
     /// }
     /// {
-    ///     let parser = Parser::new("truefoo");
-    ///     let (boolean, parser) = unwrap_ctx!(parser.parse_bool());
+    ///     let mut parser = Parser::new("truefoo");
+    ///     let boolean = unwrap_ctx!(parser.parse_bool());
     ///     assert_eq!(boolean, true);
     ///     assert_eq!(parser.remainder(), "foo");
     /// }
