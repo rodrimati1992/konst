@@ -24,7 +24,8 @@ pub(crate) const fn fmt_conc(slice: &[PanikVal<'_>]) -> [u8; CAP] {
         };
     }
 
-    crate::for_range! {slice_i in 0..slice.len() =>
+    let mut slice_i = 0;
+    while slice_i < slice.len() {
         match slice[slice_i] {
             PanikVal::Str(str) => {
                 let mut j = 0;
@@ -49,6 +50,8 @@ pub(crate) const fn fmt_conc(slice: &[PanikVal<'_>]) -> [u8; CAP] {
                 }
             }
         }
+
+        slice_i += 1;
     }
 
     out

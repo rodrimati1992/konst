@@ -18,4 +18,3 @@ pub use typewit::{
     TypeWitnessTypeArg,
 };
 
-include! {"polymorphism/type_eq_projection_fn.rs"}

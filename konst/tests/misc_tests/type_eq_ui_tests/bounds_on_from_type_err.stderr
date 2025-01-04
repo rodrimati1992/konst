@@ -1,5 +1,0 @@
-error[E0412]: cannot find type `T` in this scope
- --> tests/misc_tests/type_eq_ui_tests/bounds_on_from_type_err.rs:7:9
-  |
-7 |         T: core::fmt::Debug
-  |         ^ not found in this scope

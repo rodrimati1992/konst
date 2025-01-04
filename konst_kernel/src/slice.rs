@@ -1,6 +1,3 @@
-pub mod slice_for_konst;
-
-pub use self::slice_for_konst::*;
 
 #[doc(hidden)]
 #[macro_export]

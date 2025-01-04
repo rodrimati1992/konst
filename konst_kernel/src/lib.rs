@@ -43,7 +43,6 @@ pub mod __ {
 
     pub use crate::{
         maybe_uninit::{array_assume_init, uninit_array},
-        type_eq::make_project_fn::__make_projection_parse_generics,
     };
 
     pub use core::{
