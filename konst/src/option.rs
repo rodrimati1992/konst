@@ -8,6 +8,7 @@
 //! - `copied`: [`Option::copied`]
 //! - `flatten`: [`Option::flatten`]
 //! - `unwrap`: [`Option::unwrap`]
+//! - `NONE`: `const { None }`
 
 
 
@@ -32,7 +33,19 @@ pub use self::option_iterators::*;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::opt_unwrap_or as unwrap_or;
+pub use crate::__opt_unwrap_or as unwrap_or;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __opt_unwrap_or {
+    ($e:expr, $v:expr $(,)?) => {
+        match ($e, $v) {
+            ($crate::__::Some(x), _) => x,
+            ($crate::__::None, value) => value,
+        }
+    };
+}
+
 
 /// A const equivalent of [`Option::unwrap_or_else`]
 ///
@@ -60,7 +73,28 @@ pub use konst_kernel::opt_unwrap_or as unwrap_or;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::opt_unwrap_or_else as unwrap_or_else;
+pub use crate::__opt_unwrap_or_else as unwrap_or_else;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __opt_unwrap_or_else {
+    ($e:expr, || $v:expr $(,)?) => {
+        match $e {
+            $crate::__::Some(x) => x,
+            $crate::__::None => $v,
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take no arguments")
+    };
+    ($e:expr, $v:expr $(,)?) => {
+        match $e {
+            $crate::__::Some(x) => x,
+            $crate::__::None => $v(),
+        }
+    };
+}
+
 
 /// A const equivalent of [`Option::ok_or`]
 ///
@@ -78,7 +112,19 @@ pub use konst_kernel::opt_unwrap_or_else as unwrap_or_else;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_kernel::opt_ok_or as ok_or;
+pub use crate::__opt_ok_or as ok_or;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __opt_ok_or {
+    ($e:expr, $v:expr $(,)?) => {
+        match ($e, $v) {
+            ($crate::__::Some(x), _) => $crate::__::Ok(x),
+            ($crate::__::None, value) => $crate::__::Err(value),
+        }
+    };
+}
+
 
 /// A const equivalent of [`Option::ok_or_else`]
 ///
@@ -105,7 +151,29 @@ pub use konst_kernel::opt_ok_or as ok_or;
 /// }
 /// ```
 #[doc(inline)]
-pub use konst_kernel::opt_ok_or_else as ok_or_else;
+pub use crate::__opt_ok_or_else as ok_or_else;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __opt_ok_or_else {
+    ($e:expr, || $v:expr $(,)?) => {
+        match $e {
+            $crate::__::Some(x) => $crate::__::Ok(x),
+            $crate::__::None => $crate::__::Err($v),
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take no arguments")
+    };
+    ($e:expr, $v:expr $(,)?) => {
+        match $e {
+            $crate::__::Some(x) => $crate::__::Ok(x),
+            $crate::__::None => $crate::__::Err($v()),
+        }
+    };
+}
+
+
 
 /// A const equivalent of [`Option::map`]
 ///
@@ -133,7 +201,27 @@ pub use konst_kernel::opt_ok_or_else as ok_or_else;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_kernel::opt_map as map;
+pub use crate::__opt_map as map;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __opt_map {
+    ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
+        match $opt {
+            $crate::__::Some($param) => $crate::__::Some($mapper),
+            $crate::__::None => $crate::__::None,
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($opt:expr, $function:path $(,)?) => {
+        match $opt {
+            $crate::__::Some(x) => $crate::__::Some($function(x)),
+            $crate::__::None => $crate::__::None,
+        }
+    };
+}
 
 /// A const equivalent of [`Option::and_then`]
 ///
@@ -167,7 +255,27 @@ pub use konst_kernel::opt_map as map;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_kernel::opt_and_then as and_then;
+pub use crate::__opt_and_then as and_then;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __opt_and_then {
+    ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
+        match $opt {
+            $crate::__::Some($param) => $mapper,
+            $crate::__::None => $crate::__::None,
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($opt:expr, $function:path $(,)?) => {
+        match $opt {
+            $crate::__::Some(x) => $function(x),
+            $crate::__::None => $crate::__::None,
+        }
+    };
+}
 
 /// A const equivalent of [`Option::or_else`]
 ///
@@ -195,7 +303,28 @@ pub use konst_kernel::opt_and_then as and_then;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_kernel::opt_or_else as or_else;
+pub use crate::__opt_or_else as or_else;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __opt_or_else {
+    ($opt:expr, || $mapper:expr $(,)? ) => {
+        match $opt {
+            $crate::__::Some(x) => $crate::__::Some(x),
+            $crate::__::None => $mapper,
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take no arguments")
+    };
+    ($opt:expr, $function:path $(,)?) => {
+        match $opt {
+            $crate::__::Some(x) => $crate::__::Some(x),
+            $crate::__::None => $function(),
+        }
+    };
+}
+
 
 /// A const equivalent of [`Option::filter`]
 ///
@@ -225,30 +354,32 @@ pub use konst_kernel::opt_or_else as or_else;
 ///
 /// ```
 #[doc(inline)]
-pub use konst_kernel::opt_filter as filter;
+pub use crate::__opt_filter as filter;
 
-declare_generic_const! {
-    /// Usable to do `[None::<T>; LEN]` when `T` is non-`Copy`.
-    ///
-    /// As of Rust 1.65.0, `[None::<T>; LEN]` is not valid for non-`Copy` types,
-    /// but `[CONST; LEN]` does work, like in the example below.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use konst::option::NONE;
-    ///
-    /// use std::mem::{self, MaybeUninit};
-    ///
-    /// const TEN: [Option<String>; 10] = [NONE::V; 10];
-    ///
-    /// let ten = [NONE::<String>::V; 10];
-    ///
-    /// // the `vec` macro only needs `Option<String>` to be clonable, not Copy.
-    /// assert_eq!(vec![None::<String>; 10], TEN);
-    ///
-    /// assert_eq!(vec![None::<String>; 10], ten);
-    ///
-    for[T]
-    pub const NONE[T]: Option<T> = None;
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __opt_filter {
+    ($e:expr, |$param:pat_param| $v:expr $(,)?) => {
+        match $e {
+            $crate::__::Some(x)
+                if {
+                    let $param = &x;
+                    $v
+                } =>
+            {
+                $crate::__::Some(x)
+            }
+            _ => $crate::__::None,
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($e:expr, $function:path $(,)?) => {
+        match $e {
+            $crate::__::Some(x) if $function(&x) => $crate::__::Some(x),
+            _ => $crate::__::None,
+        }
+    };
 }
+
