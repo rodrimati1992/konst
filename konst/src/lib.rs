@@ -302,8 +302,6 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
-include! {"./root_module_macros.rs"}
-
 #[macro_use]
 #[doc(hidden)]
 pub mod macros;
