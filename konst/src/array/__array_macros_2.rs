@@ -3,7 +3,7 @@
 #[macro_export]
 macro_rules! __array_map_by_val {
     ($array:expr, $($closure:tt)* ) => (
-        $crate::__::__parse_closure_1!{
+        $crate::__parse_closure_1!{
             ($crate::__array_map2__with_parsed_closure)
             ($array,)
             (array_map),
@@ -53,7 +53,7 @@ macro_rules! __array_from_fn2 {
 #[macro_export]
 macro_rules! __array_from_fn2__splitted_type_and_closure {
     ($type:tt $($closure_unparsed:tt)*) => {
-        $crate::__::__parse_closure_1!{
+        $crate::__parse_closure_1!{
             ($crate::__array_from_fn_with_parsed_closure)
             ($type)
             (from_fn),
@@ -73,7 +73,7 @@ macro_rules! __array_from_fn_with_parsed_closure {
     ) => ({
         let mut i = 0usize;
 
-        let arr $(: $crate::__::__unparenthesize_ty!($($type)*))? =
+        let arr $(: $crate::__unparenthesize_ty!($($type)*))? =
             $crate::__array_map2__with_parsed_closure!{
                 $crate::__::unit_array(),
                 (()) $(-> $ret)? {

@@ -309,7 +309,8 @@ pub mod macros;
 #[doc(hidden)]
 pub mod __for_cmp_impls;
 
-// pub mod other;
+#[doc(hidden)]
+pub mod __utils;
 
 #[cfg(feature = "alloc")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "alloc")))]
@@ -356,11 +357,6 @@ pub mod parsing;
 pub mod ptr;
 
 mod utils;
-
-#[allow(unused_imports)]
-mod utils_1_56 {
-    pub(crate) use konst_kernel::__priv_transmute;
-}
 
 #[cfg(feature = "parsing")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
@@ -412,18 +408,6 @@ pub mod __ {
     }
 
     pub use crate::__for_cmp_impls::U8Ordering;
-
-
-    pub use konst_kernel::utils::{__parse_closure_1, __parse_closure_2};
-    pub use konst_kernel::__priv_transmute;
-    pub use konst_kernel::{
-        __unparenthesize_ty,
-        __unparen_pat,
-        __ty_or_und,
-        __annotate_type,
-        __choose,
-        __choose_alt,
-    };
 
     #[cfg(feature = "cmp")]
     pub use crate::cmp::{CmpWrapper, ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};

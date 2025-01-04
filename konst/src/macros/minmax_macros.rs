@@ -89,7 +89,7 @@ macro_rules! max {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 macro_rules! min_by {
     ($left:expr, $right:expr, $($comparator:tt)*) => {
-        $crate::__::__parse_closure_2!{
+        $crate::__parse_closure_2!{
             ($crate::__min_by)
             ($left, $right,)
             (min_by),
@@ -126,7 +126,7 @@ macro_rules! min_by {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 macro_rules! max_by {
     ($left:expr, $right:expr, $($comparator:tt)*) => {
-        $crate::__::__parse_closure_2!{
+        $crate::__parse_closure_2!{
             ($crate::__max_by)
             ($left, $right,)
             (max_by),
@@ -206,7 +206,7 @@ macro_rules! __max_by {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 macro_rules! min_by_key {
     ($left:expr, $right:expr, $($comparator:tt)*) => {
-        $crate::__::__parse_closure_1!{
+        $crate::__parse_closure_1!{
             ($crate::__minmax_by_key)
             ($left, $right, Greater,)
             (min_by_key),
@@ -244,7 +244,7 @@ macro_rules! min_by_key {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 macro_rules! max_by_key {
     ($left:expr, $right:expr, $($comparator:tt)*) => {
-        $crate::__::__parse_closure_1!{
+        $crate::__parse_closure_1!{
             ($crate::__minmax_by_key)
             ($right, $left, Less,)
             (max_by_key),

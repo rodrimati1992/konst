@@ -1,10 +1,3 @@
-#[cfg(test)]
-mod utils_tests;
-
-pub struct TypeAnnot<T> {
-    pub val: T,
-}
-
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __parse_closure_2 {
@@ -62,8 +55,6 @@ macro_rules! __parse_closure_2 {
     };
 }
 
-pub use __parse_closure_2;
-
 ////////////////////////////////////////////////////////////////////////////////////
 
 #[doc(hidden)]
@@ -118,8 +109,6 @@ macro_rules! __parse_closure_1 {
         $crate::__::compile_error!("expected a closure argument")
     };
 }
-
-pub use __parse_closure_1;
 
 #[doc(hidden)]
 #[macro_export]

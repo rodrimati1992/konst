@@ -44,7 +44,7 @@ macro_rules! __iterator_shared {
         $(next_back $next_back_block:block,)?
         fields = $fields:tt,
     ) => {
-        $crate::__::__choose_alt! {($is_copy) {
+        $crate::__choose_alt! {($is_copy) {
             /// Creates a clone of this iterator
             pub const fn copy(&self) -> Self {
                 let Self $fields = *self;
@@ -54,22 +54,22 @@ macro_rules! __iterator_shared {
 
         $(
             /// Reverses the iterator
-            pub const fn rev(self) -> $crate::__::__choose!($is_forward $Rev $Self) {                
-                $crate::__::__choose_alt! {($is_drop) {
+            pub const fn rev(self) -> $crate::__choose!($is_forward $Rev $Self) {                
+                $crate::__choose_alt! {($is_drop) {
                     $crate::destructure!{Self $fields = self}
                 } else {
                     let Self $fields = self;
                 }}
 
                 type Type<T> = T;
-                Type::<$crate::__::__choose!($is_forward $Rev $Self)> $fields
+                Type::<$crate::__choose!($is_forward $Rev $Self)> $fields
             }
         )?
 
         /// Advances the iterator and returns the next value.
         #[track_caller]
         pub const fn next(&mut $self) -> Option<$Item> {
-            $crate::__::__choose!{
+            $crate::__choose!{
                 $is_forward
                 $next_block
                 $($next_back_block)?
@@ -80,7 +80,7 @@ macro_rules! __iterator_shared {
             /// Removes and returns an element from the end of the iterator.
             #[track_caller]
             pub const fn next_back(&mut $self) -> Option<$Item> {
-                $crate::__::__choose!{
+                $crate::__choose!{
                     $is_forward
                     $next_back_block
                     $next_block

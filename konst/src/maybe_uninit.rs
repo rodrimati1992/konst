@@ -10,7 +10,7 @@
 //! - `UNINIT`: `const { MaybeUninit::uninit() }`
 //!
 
-use core::mem::MaybeUninit;
+use core::mem::{ManuallyDrop, MaybeUninit};
 
 declare_generic_const! {
     /// Generic constant for an uninitialized `[MaybeUninit<T>; N]`.
@@ -57,7 +57,15 @@ declare_generic_const! {
 ///
 /// assert_eq!(INITS, [21, 34]);
 /// ```
-pub use konst_kernel::maybe_uninit::uninit_array;
+#[inline(always)]
+pub const fn uninit_array<T, const LEN: usize>() -> [MaybeUninit<T>; LEN] {
+    union MakeMUArray<T, const LEN: usize> {
+        unit: (),
+        array: ManuallyDrop<[MaybeUninit<T>; LEN]>,
+    }
+
+    unsafe { ManuallyDrop::into_inner(MakeMUArray { unit: () }.array) }
+}
 
 /// Const equivalent of [`MaybeUninit::assume_init_mut`](core::mem::MaybeUninit::assume_init_mut)
 ///
@@ -162,4 +170,8 @@ pub const fn write<T>(md: &mut MaybeUninit<T>, value: T) -> &mut T {
 /// assert_eq!(INIT, [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]);
 ///
 /// ```
-pub use konst_kernel::maybe_uninit::array_assume_init;
+#[inline(always)]
+pub const unsafe fn array_assume_init<T, const N: usize>(md: [MaybeUninit<T>; N]) -> [T; N] {
+    crate::__priv_transmute! {[MaybeUninit<T>; N], [T; N], md}
+}
+

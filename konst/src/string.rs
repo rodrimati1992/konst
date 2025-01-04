@@ -1038,7 +1038,7 @@ macro_rules! byte_is_char_boundary {
     ($b:expr) => {
         ($b as i8) >= -0x40
     };
-}
+} use byte_is_char_boundary;
 
 #[doc(hidden)]
 #[inline]

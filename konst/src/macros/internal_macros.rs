@@ -35,7 +35,7 @@ macro_rules! __annotate_type {
         $expr
     };
     ($type:ty => $expr:expr) => {
-        $crate::utils::TypeAnnot::<$type> { val: $expr }.val
+        $crate::__utils::TypeAnnot::<$type> { val: $expr }.val
     };
 }
 

@@ -24,11 +24,6 @@ version = "=0.3.10"
 path = "../konst_proc_macros"
 optional = true
 
-[dependencies.konst_kernel]
-version = "=0.3.15"
-path = "../konst_kernel"
-features = []
-
 [dev-dependencies.rand]
 version = "0.8.4"
 default-features = false
@@ -52,15 +47,15 @@ default = ["cmp", "iter", "parsing_proc"]
 
 
 # Enables extra checks for debug
-debug = ["konst_kernel/debug"]
+debug = []
 cmp = []
-iter = ["konst_kernel/iter"]
+iter = []
 parsing_proc = ["parsing", "konst_proc_macros"]
 parsing = []
 
 rust_latest_stable = []
 
-alloc = ["konst_kernel/alloc"]
+alloc = []
 
 # Enables ui tests, which are intended for the latest stable release.
 # This is not enabled in CI, because it's way too sensitive to 
@@ -68,7 +63,7 @@ alloc = ["konst_kernel/alloc"]
 __ui = ["trybuild", "rust_latest_stable"]
 __cp_derive = ["const_panic/derive", "const_panic/non_basic"]
 
-docsrs = ["konst_kernel/docsrs"]
+docsrs = []
 
 
 

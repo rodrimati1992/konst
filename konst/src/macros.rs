@@ -28,11 +28,17 @@ mod bytes_fn_macros;
 mod declare_generic_const;
 
 #[macro_use]
+mod internal_macros;
+
+#[macro_use]
 mod polymorphism_macros;
 
 #[cfg(feature = "parsing_proc")]
 #[macro_use]
 mod parser_method;
+
+#[macro_use]
+mod parse_closures;
 
 #[cfg(feature = "parsing")]
 #[macro_use]

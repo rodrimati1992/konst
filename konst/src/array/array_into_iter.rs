@@ -314,7 +314,7 @@ impl<T, const N: usize> Drop for IntoIter<T, N> {
 #[doc(hidden)]
 const fn array_into_md<T, const N: usize>(arr: [T; N]) -> [MaybeUninit<T>; N] {
     unsafe {
-        crate::__::__priv_transmute! {[T; N], [MaybeUninit<T>; N], arr}
+        crate::__priv_transmute! {[T; N], [MaybeUninit<T>; N], arr}
     }
 }
 

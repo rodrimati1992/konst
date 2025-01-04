@@ -341,7 +341,7 @@ pub use __iter_eval as eval;
 #[macro_export]
 macro_rules! __iter_eval_inner {
     ($fixed:tt () $item:ident for_each($($closure:tt)*), $(,)* ) => {
-        $crate::__::__parse_closure_1!{
+        $crate::__parse_closure_1!{
             ($crate::__ie_for_each)
             ($fixed $item,)
             (for_each),
@@ -349,7 +349,7 @@ macro_rules! __iter_eval_inner {
         }
     };
     ($fixed:tt $vars:tt $item:ident any($($closure:tt)*), $(,)* ) => {
-        $crate::__::__parse_closure_1!{
+        $crate::__parse_closure_1!{
             ($crate::__ie_any)
             ($fixed $vars $item,)
             (any),
@@ -357,7 +357,7 @@ macro_rules! __iter_eval_inner {
         }
     };
     ($fixed:tt $vars:tt $item:ident all($($closure:tt)*), $(,)* ) => {
-        $crate::__::__parse_closure_1!{
+        $crate::__parse_closure_1!{
             ($crate::__ie_all)
             ($fixed $vars $item,)
             (all),
@@ -382,7 +382,7 @@ macro_rules! __iter_eval_inner {
         $item:ident
         $(position $(@$position:tt)?)? $(rposition $(@$rposition:tt)?)? ($($closure:tt)*), $(,)*
     ) => {
-        $crate::__::__parse_closure_1!{
+        $crate::__parse_closure_1!{
             ($crate::__ie_position)
             ($fixed $vars $item,)
             ($(position $(@$position)?)? $(rposition $(@$rposition)?)?),
@@ -390,7 +390,7 @@ macro_rules! __iter_eval_inner {
         }
     };
     ($fixed:tt $vars:tt $item:ident find_map ($($closure:tt)*), $(,)* ) => {
-        $crate::__::__parse_closure_1!{
+        $crate::__parse_closure_1!{
             ($crate::__ie_find_map)
             ($fixed $vars $item,)
             (find_map),
@@ -404,7 +404,7 @@ macro_rules! __iter_eval_inner {
         $(find $(@$find:tt)?)? $(rfind $(@$rfind:tt)?)? ($($closure:tt)*),
         $(,)*
     ) => {
-        $crate::__::__parse_closure_1!{
+        $crate::__parse_closure_1!{
             ($crate::__ie_find)
             ($fixed $vars $item,)
             ($(find $(@$find)?)? $(rfind $(@$rfind)?)?),
@@ -423,7 +423,7 @@ macro_rules! __iter_eval_inner {
         $item:ident
         $(fold $(@$fold:tt)?)? $(rfold $(@$rfold:tt)?)? ($accum:expr $(, $($closure:tt)*)?), $(,)*
     ) => {
-        $crate::__::__parse_closure_2!{
+        $crate::__parse_closure_2!{
             ($crate::__ie_fold)
             ($fixed $vars $item,)
             ($(fold $(@$fold)?)? $(rfold $(@$rfold)?)?),
@@ -485,7 +485,7 @@ macro_rules! __ie_for_each {
     ($fixed:tt $item:ident, ($($elem:tt)*) $(-> $ret_ty:ty)? $value:block) => {
         $crate::__ie_output! {
             $fixed
-            {let $($elem)* = $item; $crate::__::__annotate_type!($($ret_ty)? => $value);}
+            {let $($elem)* = $item; $crate::__annotate_type!($($ret_ty)? => $value);}
         }
     };
 }
@@ -498,7 +498,7 @@ macro_rules! __ie_any {
             $fixed
             {
                 let $($elem)* = $item;
-                let cond: $crate::__::bool = $crate::__::__annotate_type!($($ret_ty)? => $v);
+                let cond: $crate::__::bool = $crate::__annotate_type!($($ret_ty)? => $v);
                 if cond {
                     $cond = true;
                     $crate::__ie_break!{$fixed}
@@ -516,7 +516,7 @@ macro_rules! __ie_all {
             $fixed
             {
                 let $($elem)* = $item;
-                let cond: $crate::__::bool = $crate::__::__annotate_type!($($ret_ty)? => $v);
+                let cond: $crate::__::bool = $crate::__annotate_type!($($ret_ty)? => $v);
                 if !cond {
                     $cond = false;
                     $crate::__ie_break!{$fixed}
@@ -537,7 +537,7 @@ macro_rules! __ie_position {
             $fixed
             {
                 let $($elem)* = $item;
-                let cond: $crate::__::bool = $crate::__::__annotate_type!($($ret_ty)? => $v);
+                let cond: $crate::__::bool = $crate::__annotate_type!($($ret_ty)? => $v);
                 if cond {
                     $position = $crate::__::Some($i);
                     $crate::__ie_break!{$fixed}
@@ -557,7 +557,7 @@ macro_rules! __ie_find_map {
             $fixed
             {
                 let $($elem)* = $item;
-                $ret = $crate::__::__annotate_type!($($ret_ty)? => $v);
+                $ret = $crate::__annotate_type!($($ret_ty)? => $v);
                 if let $crate::__::Some(_) = $ret {
                     $crate::__ie_break!{$fixed}
                 }
@@ -574,7 +574,7 @@ macro_rules! __ie_find {
             $fixed
             {
                 let $($elem)* = &$item;
-                let cond: $crate::__::bool = $crate::__::__annotate_type!($($ret_ty)? => $v);
+                let cond: $crate::__::bool = $crate::__annotate_type!($($ret_ty)? => $v);
                 if cond {
                     $ret = $crate::__::Some($item);
                     $crate::__ie_break!{$fixed}
@@ -595,7 +595,7 @@ macro_rules! __ie_fold {
             $fixed
             {
                 let $($closure_params)* = ($accum, $item);
-                $accum = $crate::__::__annotate_type!($($ret_ty)? => $v);
+                $accum = $crate::__annotate_type!($($ret_ty)? => $v);
             }
         }
     };
