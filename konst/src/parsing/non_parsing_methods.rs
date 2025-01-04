@@ -64,7 +64,7 @@ impl<'a> Parser<'a> {
         if byte_count > bytes.len() {
             byte_count = bytes.len()
         } else {
-            use konst_kernel::string::__is_char_boundary_bytes;
+            use crate::string::__is_char_boundary_bytes;
             while !__is_char_boundary_bytes(bytes, byte_count) {
                 byte_count += 1;
             }
@@ -78,7 +78,7 @@ impl<'a> Parser<'a> {
     /// Skips `byte_count` bytes from the back of the parsed string,
     /// as well as however many bytes are required to be on a char boundary.
     pub const fn skip_back(&mut self, byte_count: usize) -> &mut Self {
-        use konst_kernel::string::__is_char_boundary_bytes;
+        use crate::string::__is_char_boundary_bytes;
 
         let bytes = self.str.as_bytes();
         let mut pos = self.str.len().saturating_sub(byte_count);

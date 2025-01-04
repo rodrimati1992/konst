@@ -3,9 +3,7 @@ use crate::{
     string,
 };
 
-use konst_kernel::{
-    string::{__find_next_char_boundary, __find_prev_char_boundary},
-};
+use crate::string::{__find_next_char_boundary, __find_prev_char_boundary};
 
 /// Converts a string spanning one character to its char value
 /// (as a u32)

@@ -130,7 +130,7 @@ impl<'a, 'p, P: Pattern<'p>> SplitTerminator<'a, 'p, P> {
                     Some(str_up_to(this, ret))
                 }
                 State::Empty(EmptyState::Continue) => {
-                    use konst_kernel::string::__find_next_char_boundary;
+                    use crate::string::__find_next_char_boundary;
 
                     let next_char = __find_next_char_boundary(self.this.as_bytes(), 0);
                     let (next_char, rem) = string::split_at(self.this, next_char);
@@ -216,7 +216,7 @@ impl<'a, 'p, P: Pattern<'p>> RSplitTerminator<'a, 'p, P> {
                     Some(str_from(this, ret))
                 }
                 State::Empty(EmptyState::Continue) => {
-                    use konst_kernel::string::__find_prev_char_boundary;
+                    use crate::string::__find_prev_char_boundary;
 
                     let bytes = self.this.as_bytes();
                     let next_char = __find_prev_char_boundary(bytes, bytes.len());

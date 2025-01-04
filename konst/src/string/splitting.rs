@@ -81,7 +81,7 @@ macro_rules! split_shared {
                     Some("")
                 }
                 EmptyState::Continue => {
-                    use konst_kernel::string::__find_next_char_boundary;
+                    use crate::string::__find_next_char_boundary;
 
                     let this = self.this;
 
@@ -104,7 +104,7 @@ macro_rules! split_shared {
                     Some("")
                 }
                 EmptyState::Continue => {
-                    use konst_kernel::string::__find_prev_char_boundary;
+                    use crate::string::__find_prev_char_boundary;
 
                     let this = self.this;
 
