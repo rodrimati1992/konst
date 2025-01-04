@@ -380,8 +380,6 @@ pub use ::const_panic;
 
 pub use crate::string::{cmp_str, eq_str};
 
-#[doc(no_inline)]
-pub use crate::result::unwrap_ctx;
 
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]

@@ -87,8 +87,19 @@
 /// ```
 ///
 /// [`Parser`]: ../parsing/struct.Parser.html
-#[doc(inline)]
-pub use konst_kernel::unwrap_ctx;
+#[macro_export]
+macro_rules! unwrap_ctx {
+    ($e:expr $(,)?) => {
+        match $e {
+            $crate::__::Ok(x) => x,
+            $crate::__::Err(e) => e.panic(),
+        }
+    };
+}
+
+#[doc(no_inline)]
+pub use crate::unwrap_ctx;
+
 
 /// A const equivalent of [`Result::unwrap_or`]
 ///
@@ -110,7 +121,19 @@ pub use konst_kernel::unwrap_ctx;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_unwrap_or as unwrap_or;
+pub use crate::__res_unwrap_or as unwrap_or;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_unwrap_or {
+    ($res:expr, $v:expr $(,)?) => {
+        match ($res, $v) {
+            ($crate::__::Ok(x), _) => x,
+            ($crate::__::Err(_), value) => value,
+        }
+    };
+}
+
 
 /// A const equivalent of [`Result::unwrap_or_else`]
 ///
@@ -141,7 +164,28 @@ pub use konst_kernel::res_unwrap_or as unwrap_or;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_unwrap_or_else as unwrap_or_else;
+pub use crate::__res_unwrap_or_else as unwrap_or_else;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_unwrap_or_else {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok(x) => x,
+            $crate::__::Err($param) => $expr,
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, $function:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok(x) => x,
+            $crate::__::Err(x) => $function(x),
+        }
+    };
+}
+
 
 /// Returns the error in the `Err` variant,
 /// otherwise runs a closure/function with the value in the `Ok` variant.
@@ -173,7 +217,28 @@ pub use konst_kernel::res_unwrap_or_else as unwrap_or_else;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_unwrap_err_or_else as unwrap_err_or_else;
+pub use crate::__res_unwrap_err_or_else as unwrap_err_or_else;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_unwrap_err_or_else {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok($param) => $expr,
+            $crate::__::Err(x) => x,
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, $function:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok(x) => $function(x),
+            $crate::__::Err(x) => x,
+        }
+    };
+}
+
 
 /// A const equivalent of [`Result::ok`]
 ///
@@ -195,7 +260,19 @@ pub use konst_kernel::res_unwrap_err_or_else as unwrap_err_or_else;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_ok as ok;
+pub use crate::__res_ok as ok;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_ok {
+    ($res:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok(x) => $crate::__::Some(x),
+            $crate::__::Err(_) => $crate::__::None,
+        }
+    };
+}
+
 
 /// A const equivalent of [`Result::err`]
 ///
@@ -217,7 +294,19 @@ pub use konst_kernel::res_ok as ok;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_err as err;
+pub use crate::__res_err as err;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_err {
+    ($res:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok(_) => $crate::__::None,
+            $crate::__::Err(x) => $crate::__::Some(x),
+        }
+    };
+}
+
 
 /// A const equivalent of [`Result::map`]
 ///
@@ -248,7 +337,28 @@ pub use konst_kernel::res_err as err;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_map as map;
+pub use crate::__res_map as map;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_map {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok($param) => $crate::__::Ok($expr),
+            $crate::__::Err(x) => $crate::__::Err(x),
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, $function:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok(param) => $crate::__::Ok($function(param)),
+            $crate::__::Err(x) => $crate::__::Err(x),
+        }
+    };
+}
+
 
 /// A const equivalent of [`Result::map_err`]
 ///
@@ -279,7 +389,28 @@ pub use konst_kernel::res_map as map;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_map_err as map_err;
+pub use crate::__res_map_err as map_err;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_map_err {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok(x) => $crate::__::Ok(x),
+            $crate::__::Err($param) => $crate::__::Err($expr),
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, $function:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok(x) => $crate::__::Ok(x),
+            $crate::__::Err(x) => $crate::__::Err($function(x)),
+        }
+    };
+}
+
 
 /// A const equivalent of [`Result::and_then`]
 ///
@@ -315,7 +446,28 @@ pub use konst_kernel::res_map_err as map_err;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_and_then as and_then;
+pub use crate::__res_and_then as and_then;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_and_then {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok($param) => $expr,
+            $crate::__::Err(x) => $crate::__::Err(x),
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, $function:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok(param) => $function(param),
+            $crate::__::Err(x) => $crate::__::Err(x),
+        }
+    };
+}
+
 
 /// A const equivalent of [`Result::or_else`]
 ///
@@ -351,11 +503,30 @@ pub use konst_kernel::res_and_then as and_then;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_or_else as or_else;
+pub use crate::__res_or_else as or_else;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_or_else {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok(x) => $crate::__::Ok(x),
+            $crate::__::Err($param) => $expr,
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, $function:expr $(,)?) => {
+        match $res {
+            $crate::__::Ok(x) => $crate::__::Ok(x),
+            $crate::__::Err(x) => $function(x),
+        }
+    };
+}
 
 
+#[doc(no_inline)]
 pub use const_panic::unwrap_ok as unwrap;
-
-
 
 
