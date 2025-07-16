@@ -206,7 +206,7 @@ fn test_split_at() {
 }
 
 const fn bytes_to_string(s: &[u8]) -> &str {
-    konst::result::unwrap_ctx!(string::from_utf8(s))
+    konst::result::unwrap!(core::str::from_utf8(s))
 }
 
 // this only needs to test that errors can be unwrapped in const contexts

@@ -5,6 +5,7 @@
 //! These functions were removed in 0.4.0 because there is an equivalent
 //! const fn in the standard library:
 //!
+//! - `from_utf8`: [`core::str::from_utf8`]
 //! - `trim`: [`str::trim_ascii`]
 //! - `trim_start`: [`str::trim_ascii_start`]
 //! - `trim_end`: [`str::trim_ascii_end`]
@@ -69,83 +70,6 @@ __declare_fns_with_docs! {
         cmp_comparison = crate::cmp::CmpWrapper(l).const_cmp(r),
         parameter_copyability = copy,
     ),
-}
-
-/// Delegates to [`core::str::from_utf8`],
-/// wrapping the error to provide a `panic` method for use in [`unwrap_ctx`]
-///
-/// # Example
-///
-/// ### Basic
-///
-/// ```rust
-/// use konst::{
-///     result::unwrap_ctx,
-///     string,
-/// };
-///
-/// const STR: &str = unwrap_ctx!(string::from_utf8(b"foo bar"));
-///
-/// assert_eq!(STR, "foo bar")
-/// ```
-///
-/// ### Compile-time error
-///
-/// ```compile_fail
-/// use konst::{
-///     result::unwrap_ctx,
-///     string,
-/// };
-///
-/// const _: &str = unwrap_ctx!(string::from_utf8(&[255, 255, 255]));
-/// ```
-///
-/// ```text
-/// error[E0080]: evaluation of constant value failed
-///  --> src/string.rs:88:17
-///   |
-/// 9 | const _: &str = unwrap_ctx!(string::from_utf8(&[255, 255, 255]));
-///   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the evaluated program panicked at 'invalid utf-8 sequence of 1 bytes from index 0', src/string.rs:9:17
-///   |
-///   = note: this error originates in the macro `unwrap_ctx` (in Nightly builds, run with -Z macro-backtrace for more info)
-///
-/// ```
-///
-/// [`unwrap_ctx`]: crate::result::unwrap_ctx
-pub const fn from_utf8(slice: &[u8]) -> Result<&str, Utf8Error> {
-    match core::str::from_utf8(slice) {
-        Ok(x) => Ok(x),
-        Err(e) => Err(Utf8Error(e)),
-    }
-}
-
-/// Wrapper around [`core::str::Utf8Error`]
-/// to provide a `panic` method for use in [`unwrap_ctx`],
-/// returned by [`from_utf8`](crate::string::from_utf8).
-///
-/// [`unwrap_ctx`]: crate::result::unwrap_ctx
-#[derive(Copy, Clone)]
-pub struct Utf8Error(pub core::str::Utf8Error);
-
-impl Utf8Error {
-    /// Panics with a `Display` formatted error message
-    #[track_caller]
-    pub const fn panic(self) -> ! {
-        let pvs = const_panic::StdWrapper(&self.0).to_panicvals(const_panic::FmtArg::DISPLAY);
-        const_panic::concat_panic(&[&pvs])
-    }
-}
-
-impl Debug for Utf8Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        Debug::fmt(&self.0, f)
-    }
-}
-
-impl Display for Utf8Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        Display::fmt(&self.0, f)
-    }
 }
 
 /// A const equivalent of
