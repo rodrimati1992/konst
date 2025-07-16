@@ -54,7 +54,7 @@ macro_rules! __iterator_shared {
 
         $(
             /// Reverses the iterator
-            pub const fn rev(self) -> $crate::__choose!($is_forward $Rev $Self) {                
+            pub const fn rev(self) -> $crate::__choose!($is_forward $Rev $Self) {
                 $crate::__choose_alt! {($is_drop) {
                     $crate::destructure!{Self $fields = self}
                 } else {

@@ -313,7 +313,6 @@ fn rchunks_mut_mixed_direction() {
     compare_with_std!(rchunks_mut)
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //                  chunks_exact iterator
 
@@ -465,8 +464,6 @@ fn rchunks_exact_mixed_direction() {
     compare_with_std!(rchunks_exact)
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //                  chunks_exact_mut iterator
 
@@ -476,7 +473,7 @@ fn slice_chunks_exact_mut_const_callable() {
 
     const fn __<'a>((slicea, sliceb, slicec): __Tup<&'a mut [u8]>) {
         let _: konst::slice::ChunksExactMut<'a, u8> = konst::slice::chunks_exact_mut(slicea, 3);
-        let _: konst::slice::ChunksExactMut<'a, u8> = 
+        let _: konst::slice::ChunksExactMut<'a, u8> =
             konst::slice::chunks_exact_mut(sliceb, 3).rev().rev();
 
         konst::slice::chunks_exact_mut(slicec, 3).next();
@@ -494,7 +491,10 @@ fn chunks_exact_mut_basic() {
     let slice: &mut [u8] = &mut [3, 5, 8, 13, 21, 34, 55];
     let sliceb: &mut [u8] = &mut [3, 5, 8, 13, 21, 34, 55];
 
-    must_panic(file_span!(), || konst::slice::chunks_exact_mut(&mut [0; 0], 0)).unwrap();
+    must_panic(file_span!(), || {
+        konst::slice::chunks_exact_mut(&mut [0; 0], 0)
+    })
+    .unwrap();
     must_panic(file_span!(), || konst::slice::chunks_exact_mut(slice, 0)).unwrap();
 
     for size in 1..10 {
@@ -550,7 +550,7 @@ fn slice_rchunks_exact_mut_const_callable() {
 
     const fn __<'a>((slicea, sliceb, slicec): __Tup<&'a mut [u8]>) {
         let _: konst::slice::RChunksExactMut<'a, u8> = konst::slice::rchunks_exact_mut(slicea, 3);
-        let _: konst::slice::RChunksExactMut<'a, u8> = 
+        let _: konst::slice::RChunksExactMut<'a, u8> =
             konst::slice::rchunks_exact_mut(sliceb, 3).rev().rev();
 
         konst::slice::rchunks_exact_mut(slicec, 3).next();
@@ -561,7 +561,6 @@ fn slice_rchunks_exact_mut_const_callable() {
         rev.next();
         rev.next_back();
     }
-
 }
 
 #[test]
@@ -569,7 +568,10 @@ fn rchunks_exact_mut_basic() {
     let slice: &mut [u8] = &mut [3, 5, 8, 13, 21, 34, 55];
     let sliceb: &mut [u8] = &mut [3, 5, 8, 13, 21, 34, 55];
 
-    must_panic(file_span!(), || konst::slice::rchunks_exact_mut(&mut [0; 0], 0)).unwrap();
+    must_panic(file_span!(), || {
+        konst::slice::rchunks_exact_mut(&mut [0; 0], 0)
+    })
+    .unwrap();
     must_panic(file_span!(), || konst::slice::rchunks_exact_mut(slice, 0)).unwrap();
 
     for size in 1..10 {

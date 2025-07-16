@@ -4,31 +4,31 @@ use core::mem::{ManuallyDrop, MaybeUninit};
 use crate::iter::{ConstIntoIter, IntoIterWrapper, IsIteratorKind, IsStdKind};
 
 /// Const equivalent of [`core::array::IntoIter`]
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use konst::array::{ArrayBuilder, IntoIter};
-/// 
+///
 /// assert_eq!(ARR, [21, 13, 8, 5, 3]);
-/// 
+///
 /// const ARR: [u32; 5] = reverse([3, 5, 8, 13, 21]);
-/// 
+///
 /// const fn reverse<T, const LEN: usize>(arr: [T; LEN]) -> [T; LEN] {
 ///     let mut iter = IntoIter::new(arr);
 ///     let mut builder = ArrayBuilder::new();
-/// 
+///
 ///     konst::while_let_Some!{item = iter.next_back() =>
 ///         builder.push(item);
 ///     }
-/// 
+///
 ///     // necessary to avoid "destructor cannot be evaluated at compile-time" error
 ///     iter.assert_is_empty();
-/// 
+///
 ///     builder.build()
 /// }
 /// ```
-/// 
+///
 /// [`ConstIntoIter`]: crate::iter::ConstIntoIter
 #[repr(C)]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
@@ -68,16 +68,16 @@ impl<T, const N: usize> IntoIter<T, N> {
     }
 
     /// Constructs an already-consumed IntoIter.
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```rust
     /// use konst::array::IntoIter;
-    /// 
+    ///
     /// let mut iter = IntoIter::<u8, 4>::empty();
-    /// 
+    ///
     /// assert_eq!(iter.next(), None);
-    /// 
+    ///
     /// ```
     pub const fn empty() -> Self {
         Self {
@@ -97,16 +97,16 @@ impl<T, const N: usize> IntoIter<T, N> {
 
     /// Asserts that the IntoIter is empty,
     /// allows using IntoIter in const.
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```rust
     /// use konst::array::IntoIter;
-    /// 
+    ///
     /// assert_eq!(SUM, 16);
-    /// 
+    ///
     /// const SUM: u64 = summer(IntoIter::new([3, 5, 8]));
-    /// 
+    ///
     /// const fn summer<const N: usize>(mut iter: IntoIter<u64, N>) -> u64 {
     ///     let mut sum = 0u64;
     ///     konst::while_let_Some!{item = iter.next() =>
@@ -124,25 +124,25 @@ impl<T, const N: usize> IntoIter<T, N> {
     }
 
     /// Gets the remainder of the array as a slice
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```rust
     /// use konst::array::IntoIter;
-    /// 
+    ///
     /// let mut iter = IntoIter::new([3, 5, 8]);
-    /// 
+    ///
     /// assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
-    /// 
+    ///
     /// assert!(iter.next().is_some());
     /// assert_eq!(iter.as_slice(), &[5, 8][..]);
-    /// 
+    ///
     /// assert!(iter.next().is_some());
     /// assert_eq!(iter.as_slice(), &[8][..]);
-    /// 
+    ///
     /// assert!(iter.next().is_some());
     /// assert_eq!(iter.as_slice(), &[][..]);
-    /// 
+    ///
     /// assert_eq!(iter.next(), None);
     /// assert_eq!(iter.as_slice(), &[][..]);
     /// ```
@@ -156,25 +156,25 @@ impl<T, const N: usize> IntoIter<T, N> {
     }
 
     /// Gets the remainder of the array as a mutable slice
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```rust
     /// use konst::array::IntoIter;
-    /// 
+    ///
     /// let mut iter = IntoIter::new([3, 5, 8]);
-    /// 
+    ///
     /// assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
-    /// 
+    ///
     /// assert!(iter.next().is_some());
     /// assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
-    /// 
+    ///
     /// assert!(iter.next().is_some());
     /// assert_eq!(iter.as_mut_slice(), &mut [8][..]);
-    /// 
+    ///
     /// assert!(iter.next().is_some());
     /// assert_eq!(iter.as_mut_slice(), &mut [][..]);
-    /// 
+    ///
     /// assert_eq!(iter.next(), None);
     /// assert_eq!(iter.as_mut_slice(), &mut [][..]);
     /// ```
@@ -188,33 +188,33 @@ impl<T, const N: usize> IntoIter<T, N> {
     }
 
     /// Gets a bitwise copy of this IntoIter, requires `T: Copy`.
-    pub const fn copy(&self) -> Self 
+    pub const fn copy(&self) -> Self
     where
-        T: Copy
+        T: Copy,
     {
-        Self {..*self}
+        Self { ..*self }
     }
 
     /// Gets the next element from the array
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```rust
     /// use konst::array::IntoIter;
-    /// 
+    ///
     /// let mut iter = IntoIter::new([3, 5, 8]);
-    /// 
+    ///
     /// assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
-    /// 
+    ///
     /// assert_eq!(iter.next(), Some(3));
     /// assert_eq!(iter.as_slice(), &[5, 8][..]);
-    /// 
+    ///
     /// assert_eq!(iter.next(), Some(5));
     /// assert_eq!(iter.as_slice(), &[8][..]);
-    /// 
+    ///
     /// assert_eq!(iter.next(), Some(8));
     /// assert_eq!(iter.as_slice(), &[][..]);
-    /// 
+    ///
     /// assert_eq!(iter.next(), None);
     /// assert_eq!(iter.as_slice(), &[][..]);
     /// ```
@@ -232,25 +232,25 @@ impl<T, const N: usize> IntoIter<T, N> {
     }
 
     /// Gets the next element from the end of the array
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```rust
     /// use konst::array::IntoIter;
-    /// 
+    ///
     /// let mut iter = IntoIter::new([3, 5, 8]);
-    /// 
+    ///
     /// assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
-    /// 
+    ///
     /// assert_eq!(iter.next_back(), Some(8));
     /// assert_eq!(iter.as_slice(), &[3, 5][..]);
-    /// 
+    ///
     /// assert_eq!(iter.next_back(), Some(5));
     /// assert_eq!(iter.as_slice(), &[3][..]);
-    /// 
+    ///
     /// assert_eq!(iter.next_back(), Some(3));
     /// assert_eq!(iter.as_slice(), &[][..]);
-    /// 
+    ///
     /// assert_eq!(iter.next_back(), None);
     /// assert_eq!(iter.as_slice(), &[][..]);
     /// ```
@@ -263,7 +263,7 @@ impl<T, const N: usize> IntoIter<T, N> {
 
         // SAFETY: self.array[index] is guaranteed initialized
         let ret = unsafe { self.array[index].assume_init_read() };
-        
+
         self.taken_back += 1;
 
         Some(ret)
@@ -305,11 +305,11 @@ impl<T, const N: usize> Drop for IntoIter<T, N> {
 
             let ptr = self.array.as_mut_ptr().cast::<T>();
 
-            core::ptr::slice_from_raw_parts_mut(ptr.add(self.taken_front), slice_len).drop_in_place();
+            core::ptr::slice_from_raw_parts_mut(ptr.add(self.taken_front), slice_len)
+                .drop_in_place();
         }
     }
 }
-
 
 #[doc(hidden)]
 const fn array_into_md<T, const N: usize>(arr: [T; N]) -> [MaybeUninit<T>; N] {
@@ -318,12 +318,10 @@ const fn array_into_md<T, const N: usize>(arr: [T; N]) -> [MaybeUninit<T>; N] {
     }
 }
 
-
 /////////////
 
-
 /// Const equivalent of `core::iter::Rev<core::array::IntoIter>`
-/// 
+///
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct IntoIterRev<T, const N: usize>(IntoIter<T, N>);
 
@@ -336,40 +334,40 @@ impl<T, const L: usize> ConstIntoIter for IntoIterRev<T, L> {
 impl<T, const N: usize> IntoIterRev<T, N> {
     /// Asserts that the IntoIterRev is empty,
     /// allows using IntoIterRev in const.
-    /// 
+    ///
     pub const fn assert_is_empty(self) {
         self.rev().assert_is_empty()
     }
     /// Gets the remainder of the array as a slice
-    /// 
+    ///
     pub const fn as_slice(&self) -> &[T] {
         self.0.as_slice()
     }
     /// Gets the remainder of the array as a mutable slice
-    /// 
+    ///
     pub const fn as_mut_slice(&mut self) -> &mut [T] {
         self.0.as_mut_slice()
     }
     /// Gets a bitwise copy of this IntoIter, requires `T: Copy`.
-    pub const fn copy(&self) -> Self 
+    pub const fn copy(&self) -> Self
     where
-        T: Copy
+        T: Copy,
     {
         Self(self.0.copy())
     }
     /// Gets the next element from the end of the array
-    /// 
+    ///
     pub const fn next(&mut self) -> Option<T> {
         self.0.next_back()
     }
     /// Gets the next element from the start of the array
-    /// 
+    ///
     pub const fn next_back(&mut self) -> Option<T> {
         self.0.next()
     }
     /// Reverses the array iterator
     pub const fn rev(self) -> IntoIter<T, N> {
-        crate::destructure!{Self(x) = self}
+        crate::destructure! {Self(x) = self}
         x
     }
 }

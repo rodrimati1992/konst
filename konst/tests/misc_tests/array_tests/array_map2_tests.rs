@@ -16,13 +16,10 @@ impl<T> Drop for Dropp<T> {
 impl<T> Dropp<T> {
     const fn into_inner(self) -> T {
         let this = core::mem::ManuallyDrop::new(self);
-        // SAFETY: #[repr(transparent)] guarantees the same representation 
+        // SAFETY: #[repr(transparent)] guarantees the same representation
         unsafe { std::mem::transmute_copy(&this) }
     }
 }
-
-
-
 
 #[derive(Debug, PartialEq)]
 struct NonCopy<T>(T);
@@ -52,10 +49,7 @@ fn array_map_drop() {
         array::map!(input, |nc| Dropp(nc.into_inner() as i8))
     }
 
-    assert_eq!(
-        map_foos([0, 1, 255u8].map(Dropp)),
-        [0, 1, -1i8].map(Dropp)
-    );
+    assert_eq!(map_foos([0, 1, 255u8].map(Dropp)), [0, 1, -1i8].map(Dropp));
 }
 
 #[test]

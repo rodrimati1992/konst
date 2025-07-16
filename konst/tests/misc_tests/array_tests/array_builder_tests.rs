@@ -91,7 +91,6 @@ fn build_panics_test() {
     let _ = this.build();
 }
 
-
 #[test]
 fn infer_length_from_consumer_test() {
     const fn _callable<T, const LEN: usize>(ab: &ArrayBuilder<T, LEN>, ac: &IntoIter<T, LEN>) {
@@ -110,7 +109,9 @@ fn infer_length_from_consumer_test() {
 
 #[test]
 fn copy_test() {
-    const fn _callable<T: Copy, const LEN: usize>(ac: &ArrayBuilder<T, LEN>) -> ArrayBuilder<T, LEN> {
+    const fn _callable<T: Copy, const LEN: usize>(
+        ac: &ArrayBuilder<T, LEN>,
+    ) -> ArrayBuilder<T, LEN> {
         ac.copy()
     }
 
@@ -128,7 +129,6 @@ fn clone_test() {
     fn _callable<T: Clone, const LEN: usize>(ac: &ArrayBuilder<T, LEN>) -> ArrayBuilder<T, LEN> {
         ac.clone()
     }
-
 
     let mut builder = ArrayBuilder::<String, 6>::new();
     builder.push(5.to_string());
@@ -165,6 +165,3 @@ fn drop_test() {
 
     assert!(set.borrow().iter().copied().eq([3u128, 5, 8]), "{set:?}");
 }
-
-
-

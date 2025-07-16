@@ -1,13 +1,8 @@
 use core::mem::ManuallyDrop;
 
-
-
 pub struct TypeAnnot<T> {
     pub val: T,
 }
-
-
-
 
 #[repr(C)]
 pub union Transmuter<F, T> {

@@ -93,7 +93,7 @@ impl<'a> Parser<'a> {
     /// Returns a bytewise copy of `Self`
     #[inline(always)]
     pub const fn copy(&self) -> Self {
-        Self {..*self}
+        Self { ..*self }
     }
 
     /// Returns the remaining, unparsed string.

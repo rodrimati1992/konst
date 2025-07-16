@@ -86,15 +86,15 @@
 #![cfg_attr(feature = "iter", doc = "```rust")]
 #![cfg_attr(not(feature = "iter"), doc = "```ignore")]
 //! use konst::{iter, result, string};
-//! 
+//!
 //! const CSV: &str = "3, 8, 13, 21, 34";
-//! 
+//!
 //! static PARSED: [u64; 5] = iter::collect_const!(u64 =>
 //!     string::split(CSV, ","),
 //!         map(str::trim_ascii),
 //!         map(|s| result::unwrap!(u64::from_str_radix(s, 10))),
 //! );
-//! 
+//!
 //! assert_eq!(PARSED, [3, 8, 13, 21, 34]);
 //! ```
 //!
@@ -111,7 +111,7 @@
 //!     eq_str,
 //!     for_range, parser_method, try_, unwrap_ctx,
 //! };
-//! 
+//!
 //! const PARSED: Struct = {
 //!     // You can also parse strings from environment variables, or from an `include_str!(....)`
 //!     let input = "\
@@ -123,7 +123,7 @@
 //!     
 //!     unwrap_ctx!(parse_struct(&mut Parser::new(input)))
 //! };
-//! 
+//!
 //! fn main(){
 //!     assert_eq!(
 //!         PARSED,
@@ -135,7 +135,7 @@
 //!         }
 //!     );
 //! }
-//! 
+//!
 //! #[derive(Debug, Clone, PartialEq, Eq)]
 //! pub struct Struct<'a> {
 //!     pub name: &'a str,
@@ -143,21 +143,21 @@
 //!     pub repeating: Shape,
 //!     pub colors: [Color; 4],
 //! }
-//! 
+//!
 //! #[derive(Debug, Clone, PartialEq, Eq)]
 //! pub enum Shape {
 //!     Circle,
 //!     Square,
 //!     Line,
 //! }
-//! 
+//!
 //! #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 //! pub enum Color {
 //!     Red,
 //!     Blue,
 //!     Green,
 //! }
-//! 
+//!
 //! pub const fn parse_struct<'a>(parser: &mut Parser<'a>) -> ParseValueResult<'a, Struct<'a>> {
 //!     let mut name = "<none>";
 //!     let mut amount = 0;
@@ -168,9 +168,9 @@
 //!     if !parser.is_empty() {
 //!         loop {
 //!             let mut prev_parser = parser.trim_start().copy();
-//! 
+//!
 //!             try_!(parser.find_skip('='));
-//! 
+//!
 //!             parser_method!{prev_parser, strip_prefix;
 //!                 "name" => name = try_!(parser.trim_start().split_keep('\n')),
 //!                 "amount" => amount = try_!(parser.trim_start().parse_usize()),
@@ -181,17 +181,17 @@
 //!                     return Err(prev_parser.to_other_error(err));
 //!                 }
 //!             }
-//! 
+//!
 //!             if parser.is_empty() {
 //!                 break
 //!             }
 //!             try_!(parser.strip_prefix("\n"));
 //!         }
 //!     }
-//! 
+//!
 //!     Ok(Struct{name, amount, repeating, colors})
 //! }
-//! 
+//!
 //! pub const fn parse_shape<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Shape> {
 //!     let shape = parser_method!{parser, strip_prefix;
 //!         "circle" => Shape::Circle,
@@ -201,12 +201,12 @@
 //!     };
 //!     Ok(shape)
 //! }
-//! 
+//!
 //! pub const fn parse_colors<'p, const LEN: usize>(
 //!     parser: &mut Parser<'p>,
 //! ) -> ParseValueResult<'p, [Color; LEN]> {
 //!     let mut colors = [Color::Red; LEN];
-//! 
+//!
 //!     for_range!{i in 0..LEN =>
 //!         colors[i] = try_!(parse_color(parser.trim_start()));
 //!         
@@ -216,10 +216,10 @@
 //!             Err(e) => return Err(e),
 //!         }
 //!     }
-//! 
+//!
 //!     Ok(colors)
 //! }
-//! 
+//!
 //! pub const fn parse_color<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Color> {
 //!     let color = parser_method!{parser, strip_prefix;
 //!         "red" => Color::Red,
@@ -229,7 +229,7 @@
 //!     };
 //!     Ok(color)
 //! }
-//! 
+//!
 //! ```
 //!
 //! # Cargo features
@@ -373,7 +373,6 @@ pub mod string;
 pub use ::const_panic;
 
 pub use crate::string::{cmp_str, eq_str};
-
 
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]

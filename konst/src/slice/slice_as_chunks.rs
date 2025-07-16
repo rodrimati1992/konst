@@ -143,10 +143,3 @@ pub const fn as_rchunks_mut<'a, T, const N: usize>(this: &mut [T]) -> (&mut [T],
 
     (rem, arrs)
 }
-
-
-
-
-
-
-

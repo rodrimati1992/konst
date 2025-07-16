@@ -40,13 +40,19 @@ fn as_chunks_mut() {
     let slice: &mut [u32] = &mut [1, 2, 3, 5, 8, 13, 21, 34];
 
     let pair2: (&mut [[u32; 2]], &mut [u32]) = slice::as_chunks_mut(slice);
-    assert_eq!(pair2, (&mut [[1, 2], [3, 5], [8, 13], [21, 34]][..], &mut [][..]));
+    assert_eq!(
+        pair2,
+        (&mut [[1, 2], [3, 5], [8, 13], [21, 34]][..], &mut [][..])
+    );
 
     let pair3: (&mut [[u32; 3]], &mut [u32]) = slice::as_chunks_mut(slice);
     assert_eq!(pair3, (&mut [[1, 2, 3], [5, 8, 13]][..], &mut [21, 34][..]));
 
     let pair4: (&mut [[u32; 4]], &mut [u32]) = slice::as_chunks_mut(slice);
-    assert_eq!(pair4, (&mut [[1, 2, 3, 5], [8, 13, 21, 34]][..], &mut [][..]));
+    assert_eq!(
+        pair4,
+        (&mut [[1, 2, 3, 5], [8, 13, 21, 34]][..], &mut [][..])
+    );
 }
 
 #[test]
@@ -237,7 +243,7 @@ fn array_chunks_mut_zero_chunk_len_panics() {
 #[test]
 fn array_chunks_mut_const_callable() {
     const fn _constable<'a, const M: usize>(
-        slice: &'a mut [u32]
+        slice: &'a mut [u32],
     ) -> slice::ArrayChunksMut<'a, u32, M> {
         slice::array_chunks_mut(slice)
     }

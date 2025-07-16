@@ -20,7 +20,6 @@ macro_rules! __collect_const_hidden {
     }}
 }
 
-
 /**
 Collects an iterator constant into an array
 
@@ -44,10 +43,10 @@ collect_const!(
 ```
 Where `$Item` is the type of the elements that'll be collected into an array.
 
-Where `$into_iterator` is any type that can be converted into a const iterator, with 
+Where `$into_iterator` is any type that can be converted into a const iterator, with
 [`konst::iter::into_iter`](crate::iter::into_iter).
 
-Where `$iterator_method` is any of the supported methods described in 
+Where `$iterator_method` is any of the supported methods described in
 the [`iterator_dsl`] module.
 
 # Examples
@@ -77,7 +76,7 @@ const ARR: [u8; 6] = iter::collect_const!(u8 =>
     // because by-value iteration over arrays is not supported.
     &[10, 20, 30],
         flat_map(|&n| {
-            // To allow returning references to arrays, the macro extends 
+            // To allow returning references to arrays, the macro extends
             // the lifetime of borrows to temporaries in return position.
             // The lifetime of the array is extended to the entire iterator chain.
             &[n - 1, n + 1]
@@ -94,7 +93,6 @@ assert_eq!(ARR, [9, 11, 19, 21, 29, 31]);
 */
 #[doc(inline)]
 pub use __collect_const_hidden as collect_const;
-
 
 #[doc(hidden)]
 #[macro_export]
@@ -178,7 +176,6 @@ macro_rules! __iter_collect_const {
     (@end $($tt:tt)*) => {};
 }
 
-
 #[doc(hidden)]
 pub enum CollectorCmd<Ret, T, const CAP: usize> {
     ComputeLength(TypeEq<usize, Ret>),
@@ -196,7 +193,3 @@ impl<T> MakeTypeWitness for CollectorCmd<usize, T, 0> {
 impl<T, const CAP: usize> MakeTypeWitness for CollectorCmd<[T; CAP], T, CAP> {
     const MAKE: Self = Self::BuildArray(TypeEq::NEW);
 }
-
-
-
-

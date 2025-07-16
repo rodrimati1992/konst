@@ -1,8 +1,8 @@
 use konst::slice::{
     bytes_contain, bytes_end_with, bytes_find, bytes_find_keep, bytes_find_skip, bytes_rcontain,
     bytes_rfind, bytes_rfind_keep, bytes_rfind_skip, bytes_start_with, bytes_strip_prefix,
-    bytes_strip_suffix, bytes_trim_end_matches, bytes_trim_matches,
-    bytes_trim_start_matches, slice_from, slice_up_to,
+    bytes_strip_suffix, bytes_trim_end_matches, bytes_trim_matches, bytes_trim_start_matches,
+    slice_from, slice_up_to,
 };
 
 // This doesn't use unsafe

@@ -91,7 +91,6 @@ pub const fn encode_utf8(char: char) -> Utf8Encoded {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::{encode_utf8, Utf8Encoded};
@@ -140,6 +139,4 @@ mod tests {
             assert_eq!(encode_utf8(c).as_bytes(), std_encoded.as_bytes());
         }
     }
-
-
 }

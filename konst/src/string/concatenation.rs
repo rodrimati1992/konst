@@ -131,7 +131,6 @@ pub const fn concat_sum_lengths(arg: __StrConcatArg) -> usize {
     sum
 }
 
-
 #[doc(hidden)]
 pub const fn concat_strs<const N: usize>(arg: __StrConcatArg) -> ArrayStr<N> {
     let mut out = [0u8; N];
@@ -177,7 +176,6 @@ macro_rules! __string_join_hidden {
         }
     }};
 }
-
 
 #[doc(hidden)]
 #[derive(Copy, Clone)]
@@ -284,10 +282,6 @@ impl<const N: usize> ArrayStr<N> {
         }
     }
 }
-
-
-
-
 
 /// Macro equivalent of `<[&str]>::concat`, which takes a constant as an argument.
 ///

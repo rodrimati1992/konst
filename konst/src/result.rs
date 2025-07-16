@@ -100,7 +100,6 @@ macro_rules! unwrap_ctx {
 #[doc(no_inline)]
 pub use crate::unwrap_ctx;
 
-
 /// A const equivalent of [`Result::unwrap_or`]
 ///
 /// # Example
@@ -133,7 +132,6 @@ macro_rules! __res_unwrap_or {
         }
     };
 }
-
 
 /// A const equivalent of [`Result::unwrap_or_else`]
 ///
@@ -185,7 +183,6 @@ macro_rules! __res_unwrap_or_else {
         }
     };
 }
-
 
 /// Returns the error in the `Err` variant,
 /// otherwise runs a closure/function with the value in the `Ok` variant.
@@ -239,7 +236,6 @@ macro_rules! __res_unwrap_err_or_else {
     };
 }
 
-
 /// A const equivalent of [`Result::ok`]
 ///
 /// # Example
@@ -273,7 +269,6 @@ macro_rules! __res_ok {
     };
 }
 
-
 /// A const equivalent of [`Result::err`]
 ///
 /// # Example
@@ -306,7 +301,6 @@ macro_rules! __res_err {
         }
     };
 }
-
 
 /// A const equivalent of [`Result::map`]
 ///
@@ -359,7 +353,6 @@ macro_rules! __res_map {
     };
 }
 
-
 /// A const equivalent of [`Result::map_err`]
 ///
 /// # Example
@@ -410,7 +403,6 @@ macro_rules! __res_map_err {
         }
     };
 }
-
 
 /// A const equivalent of [`Result::and_then`]
 ///
@@ -468,7 +460,6 @@ macro_rules! __res_and_then {
     };
 }
 
-
 /// A const equivalent of [`Result::or_else`]
 ///
 /// # Example
@@ -525,8 +516,5 @@ macro_rules! __res_or_else {
     };
 }
 
-
 #[doc(no_inline)]
 pub use const_panic::unwrap_ok as unwrap;
-
-

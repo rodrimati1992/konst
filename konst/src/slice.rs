@@ -15,7 +15,6 @@
 
 use core::fmt::{self, Display};
 
-
 /// `const fn`s for comparing slices for equality and ordering.
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
@@ -110,7 +109,6 @@ __declare_fns_with_docs! {
     ),
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /// The error produced by trying to convert from
@@ -142,9 +140,7 @@ impl Display for TryIntoArrayError {
     }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
-
 
 /// Tries to convert from `&[T]` to `&[T; N]`.
 ///
@@ -197,9 +193,7 @@ impl Display for TryIntoArrayError {
 ///
 /// [`try_into_array`]: ./macro.try_into_array.html
 #[inline]
-pub const fn try_into_array<T, const N: usize>(
-    slice: &[T],
-) -> Result<&[T; N], TryIntoArrayError> {
+pub const fn try_into_array<T, const N: usize>(slice: &[T]) -> Result<&[T; N], TryIntoArrayError> {
     if slice.len() == N {
         let ptr = slice.as_ptr() as *const [T; N];
         unsafe { Ok(&*ptr) }
@@ -210,7 +204,6 @@ pub const fn try_into_array<T, const N: usize>(
         })
     }
 }
-
 
 /// Tries to convert from `&mut [T]` to `&mut [T; N]`.
 ///
@@ -255,4 +248,3 @@ pub const fn try_into_array_mut<T, const N: usize>(
         })
     }
 }
-

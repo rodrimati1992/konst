@@ -30,7 +30,6 @@ macro_rules! __for_each {
     (@$other:ident $($tt:tt)*) =>{};
 }
 
-
 /// Iterates over all elements of an [iterator](crate::iter::ConstIntoIter),
 /// const equivalent of [`Iterator::for_each`]
 ///
@@ -114,4 +113,3 @@ macro_rules! __for_each {
 /// [`iterator_dsl`]: crate::iter::iterator_dsl
 #[doc(inline)]
 pub use __for_each_hidden as for_each;
-

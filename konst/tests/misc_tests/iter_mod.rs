@@ -898,22 +898,12 @@ fn test_type_annotate_param() {
 fn test_into_iter_on_mut_ref() {
     let mut range = ::konst::iter::into_iter!(0..10);
     let iter: &mut _ = ::konst::iter::into_iter!(&mut range);
-    
+
     assert_eq!(iter.next(), Some(0));
     assert_eq!(iter.next(), Some(1));
     assert_eq!(iter.next(), Some(2));
-    
+
     assert_eq!(range.next(), Some(3));
     assert_eq!(range.next(), Some(4));
     assert_eq!(range.next(), Some(5));
 }
-
-
-
-
-
-
-
-
-
-

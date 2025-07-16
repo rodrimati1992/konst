@@ -1,4 +1,3 @@
-
 macro_rules! partial{
     (
         $new_macro:ident = $macro:ident ! ($($prefix:tt)*)

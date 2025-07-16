@@ -25,10 +25,8 @@ pub mod kinds {
     pub enum IsStdKind {}
 }
 
-
 #[doc(no_inline)]
 pub use typewit::{
     self, simple_type_witness, type_fn, CallFn, HasTypeWitness, MakeTypeWitness, TypeEq, TypeFn,
     TypeWitnessTypeArg,
 };
-

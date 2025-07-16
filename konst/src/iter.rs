@@ -14,8 +14,8 @@ pub use crate::polymorphism::kinds::{IsIntoIterKind, IsIteratorKind, IsStdKind};
 
 #[doc(hidden)]
 pub mod collect_const;
-mod iterator_adaptors;
 mod for_each_macro;
+mod iterator_adaptors;
 pub mod iterator_dsl;
 
 mod combinator_methods;
@@ -33,13 +33,8 @@ pub use iterator_adaptors::*;
 
 #[doc(hidden)]
 pub use self::internal_iter_macros::{
-    __assert_item_ty,
-    __cim_method_not_found_err,
-    __cim_preprocess_methods,
-    __get_item_ty,
+    __assert_item_ty, __cim_method_not_found_err, __cim_preprocess_methods, __get_item_ty,
 };
-
-
 
 /// Trait for all the types that can be iterated over with ranges.
 ///
@@ -321,17 +316,17 @@ pub trait ConstIntoIter {
 /// that defines different methods depending on the
 /// value of `K`.
 #[repr(transparent)]
-pub struct IntoIterWrapper<I, K> 
+pub struct IntoIterWrapper<I, K>
 where
-    I: ConstIntoIter<Kind = K>
+    I: ConstIntoIter<Kind = K>,
 {
     /// The value to be converted into an iterator
     pub iter: ManuallyDrop<I>,
 }
 
-impl<T> IntoIterWrapper<T, IsStdKind> 
+impl<T> IntoIterWrapper<T, IsStdKind>
 where
-    T: ConstIntoIter<Kind = IsStdKind>
+    T: ConstIntoIter<Kind = IsStdKind>,
 {
     /// Performs the coercion to a type that has a `const_into_iter` method
     #[inline(always)]
@@ -340,9 +335,9 @@ where
     }
 }
 
-impl<T> IntoIterWrapper<T, IsIntoIterKind> 
+impl<T> IntoIterWrapper<T, IsIntoIterKind>
 where
-    T: ConstIntoIter<Kind = IsIntoIterKind>
+    T: ConstIntoIter<Kind = IsIntoIterKind>,
 {
     /// Performs the coercion to a type that has a `const_into_iter` method
     #[inline(always)]
@@ -351,9 +346,9 @@ where
     }
 }
 
-impl<T> IntoIterWrapper<T, IsIteratorKind> 
+impl<T> IntoIterWrapper<T, IsIteratorKind>
 where
-    T: ConstIntoIter<Kind = IsIteratorKind>
+    T: ConstIntoIter<Kind = IsIteratorKind>,
 {
     /// Performs the coercion to a type that has a `const_into_iter` method
     #[inline(always)]
@@ -361,7 +356,7 @@ where
         self
     }
 
-    /// Converts `T` into a const iterator. 
+    /// Converts `T` into a const iterator.
     /// Since `T` is already an iterator, this does nothing.
     #[inline(always)]
     pub const fn const_into_iter(self) -> T
@@ -376,7 +371,7 @@ where
 
 impl<'a, T> ConstIntoIter for &'a mut T
 where
-    T: ConstIntoIter<IntoIter = T, Kind = IsIteratorKind>
+    T: ConstIntoIter<IntoIter = T, Kind = IsIteratorKind>,
 {
     type Kind = IsIteratorKind;
     type Item = <T as ConstIntoIter>::Item;
@@ -430,7 +425,7 @@ where
 /// use konst::{iter, string};
 ///
 /// let mut iter: Countdown = iter::into_iter!(Number(3));
-/// 
+///
 /// assert_eq!(iter.next().unwrap(), 2);
 /// assert_eq!(iter.next().unwrap(), 1);
 /// assert_eq!(iter.next().unwrap(), 0);
@@ -483,7 +478,7 @@ where
 ///
 /// // `iter::into_iter` is an identity function when passed iterators
 /// let mut iter: string::Split<'_, '_, char> = iter::into_iter!(iter);
-/// 
+///
 /// assert_eq!(iter.next().unwrap(), "foo");
 /// assert_eq!(iter.next().unwrap(), "bar");
 /// assert_eq!(iter.next().unwrap(), "baz");
@@ -503,7 +498,7 @@ where
 ///
 /// // `iter::into_iter` is an identity function when passed mutable references to iterators
 /// let mut iter: &mut string::Split<'_, '_, char> = iter::into_iter!(&mut split);
-/// 
+///
 /// assert_eq!(iter.next().unwrap(), "foo");
 /// assert_eq!(iter.next().unwrap(), "bar");
 ///

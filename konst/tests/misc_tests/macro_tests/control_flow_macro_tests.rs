@@ -22,11 +22,10 @@ fn for_range_break_continue() {
     }
 }
 
-
 #[test]
 fn if_let_some_test() {
     const fn uses_macro<T>(opt: Option<T>) -> u32 {
-        konst::if_let_Some!{x = opt => {
+        konst::if_let_Some! {x = opt => {
             core::mem::forget(x);
             3
         } else {
@@ -38,13 +37,12 @@ fn if_let_some_test() {
     assert_eq!(uses_macro(None::<String>), 5);
 }
 
-
 #[test]
 fn while_let_some_test() {
     const fn uses_macro<T, const N: usize>(array: [T; N]) -> u32 {
         let mut iter = konst::array::IntoIter::new(array);
         let mut ret = 0;
-        konst::while_let_Some!{x = iter.next() => {
+        konst::while_let_Some! {x = iter.next() => {
             core::mem::forget(x);
             ret += 2;
         }}
@@ -58,8 +56,3 @@ fn while_let_some_test() {
     assert_eq!(uses_macro([3, 5, 8]), 6);
     assert_eq!(uses_macro([3, 5, 8, 13]), 8);
 }
-
-
-
-
-

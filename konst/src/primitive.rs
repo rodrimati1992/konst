@@ -1,5 +1,5 @@
 //! `const fn` equivalents of primitive type methods.
-//! 
+//!
 //! # Removed in 0.4.0
 //!
 //! These items were removed in 0.4.0 because there is an equivalent

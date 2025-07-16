@@ -11,7 +11,6 @@
 //!
 //!
 
-
 #[cfg(feature = "iter")]
 mod chars_methods;
 
@@ -356,7 +355,6 @@ pub const fn str_up_to(string: &str, len: usize) -> &str {
     }
 }
 
-
 /// A const equivalent of `&string[start..]`.
 ///
 /// If `string.len() < start`, this simply returns an empty string` back.
@@ -490,7 +488,6 @@ pub const fn is_char_boundary(string: &str, position: usize) -> bool {
     __is_char_boundary_bytes(string.as_bytes(), position)
 }
 
-
 /// Checks that the start and end are valid utf8 char boundaries
 /// when the `"debug"` feature is enabled.
 ///
@@ -518,8 +515,6 @@ pub const unsafe fn __from_u8_subslice_of_str(s: &[u8]) -> &str {
 
     core::str::from_utf8_unchecked(s)
 }
-
-
 
 /// A const equivalent of `string.get(..len)`.
 ///
@@ -1030,15 +1025,12 @@ where
     }
 }
 
-
-
-
-
 macro_rules! byte_is_char_boundary {
     ($b:expr) => {
         ($b as i8) >= -0x40
     };
-} use byte_is_char_boundary;
+}
+use byte_is_char_boundary;
 
 #[doc(hidden)]
 #[inline]
@@ -1086,5 +1078,3 @@ const fn non_char_boundary_panic(extreme: &str, index: usize) -> ! {
         PanicVal::write_str("` is not on a char boundary"),
     ]])
 }
-
-

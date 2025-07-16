@@ -327,8 +327,6 @@ fn slice_iter_rev() {
     }
 }
 
-
-
 #[cfg(feature = "iter")]
 #[test]
 fn slice_iter_mut_const_callable() {
@@ -338,7 +336,7 @@ fn slice_iter_mut_const_callable() {
         konst::slice::iter_mut(slice).next_back();
 
         let _: konst::slice::IterMut<'_, u8> = konst::slice::iter_mut(slice).rev().rev();
-        
+
         let mut rev: konst::slice::IterMutRev<'_, u8> = konst::slice::iter_mut(slice).rev();
         rev.next();
         rev.next_back();
@@ -361,9 +359,15 @@ fn slice_iter_mut_both_directions() {
 
     assert_eq!(collect_const_iter!(&mut *slice), slice_refs);
 
-    assert_eq!(collect_const_iter!(konst::slice::iter_mut(slice)), slice_refs);
+    assert_eq!(
+        collect_const_iter!(konst::slice::iter_mut(slice)),
+        slice_refs
+    );
 
-    assert_eq!(collect_const_iter!(konst::slice::iter_mut(slice).rev().rev()), slice_refs);
+    assert_eq!(
+        collect_const_iter!(konst::slice::iter_mut(slice).rev().rev()),
+        slice_refs
+    );
 
     assert_eq!(
         collect_const_iter!(konst::slice::iter_mut(slice).rev()),

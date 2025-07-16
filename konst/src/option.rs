@@ -10,8 +10,6 @@
 //! - `unwrap`: [`Option::unwrap`]
 //! - `NONE`: `const { None }`
 
-
-
 mod option_iterators;
 
 pub use self::option_iterators::*;
@@ -45,7 +43,6 @@ macro_rules! __opt_unwrap_or {
         }
     };
 }
-
 
 /// A const equivalent of [`Option::unwrap_or_else`]
 ///
@@ -95,7 +92,6 @@ macro_rules! __opt_unwrap_or_else {
     };
 }
 
-
 /// A const equivalent of [`Option::ok_or`]
 ///
 /// # Example
@@ -124,7 +120,6 @@ macro_rules! __opt_ok_or {
         }
     };
 }
-
 
 /// A const equivalent of [`Option::ok_or_else`]
 ///
@@ -172,8 +167,6 @@ macro_rules! __opt_ok_or_else {
         }
     };
 }
-
-
 
 /// A const equivalent of [`Option::map`]
 ///
@@ -325,7 +318,6 @@ macro_rules! __opt_or_else {
     };
 }
 
-
 /// A const equivalent of [`Option::filter`]
 ///
 /// # Example
@@ -382,4 +374,3 @@ macro_rules! __opt_filter {
         }
     };
 }
-

@@ -5,7 +5,6 @@ use crate::{
 
 use core::mem::ManuallyDrop;
 
-
 impl<'a, T, const N: usize> ConstIntoIter for &'a [T; N] {
     type Kind = IsStdKind;
     type IntoIter = Iter<'a, T>;
@@ -65,7 +64,6 @@ impl<'a, T> IntoIterWrapper<&&'a [T], IsStdKind> {
     }
 }
 
-
 /// Gets a const iterator over `slice`, const equivalent of
 /// [`<[T]>::iter`
 /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.iter)
@@ -113,7 +111,6 @@ impl<'a, T> IntoIterWrapper<&&'a [T], IsStdKind> {
 pub const fn iter<T>(slice: &[T]) -> Iter<'_, T> {
     Iter { slice }
 }
-
 
 /// Const equivalent of [`core::slice::Iter`].
 ///
@@ -275,7 +272,7 @@ impl<'a, T> IntoIterWrapper<&'a mut &mut [T], IsStdKind> {
 /// assert_eq!(fwd.next(), Some(&mut 5));
 /// assert_eq!(fwd.next(), Some(&mut 8));
 /// assert_eq!(fwd.next(), None);
-/// 
+///
 /// let mut rev = slice::iter_mut(&mut array).rev();
 /// assert_eq!(rev.next(), Some(&mut 8));
 /// assert_eq!(rev.next(), Some(&mut 5));
@@ -331,10 +328,10 @@ macro_rules! iter_mut_shared {
 /// This is constructed in either of these ways:
 /// ```rust
 /// # let a_mut_slice = &mut [3];
-/// # let _ = 
+/// # let _ =
 /// konst::slice::iter_mut(a_mut_slice)
 /// # ;
-/// # let _ = 
+/// # let _ =
 /// konst::iter::into_iter!(a_mut_slice)
 /// # ;
 /// ```
@@ -362,14 +359,12 @@ impl<'a, T> IterMutRev<'a, T> {
     iter_mut_shared! {is_forward = false}
 }
 
-
-
 /// Const equivalent of `core::iter::Rev<core::slice::IterMut<_>>`
 ///
 /// This is constructed in either of these ways:
 /// ```rust
 /// # let a_mut_slice = &mut [3];
-/// # let _ = 
+/// # let _ =
 /// konst::slice::iter_mut(a_mut_slice).rev()
 /// # ;
 /// # let _ =
@@ -439,7 +434,6 @@ macro_rules! iter_copied_shared {
     };
 }
 
-
 /// A const equivalent of `iter::Copied<slice::Iter<'a, T>>`.
 ///
 /// This const iterator can be created with [`iter_copied`].
@@ -452,7 +446,6 @@ impl<'a, T> ConstIntoIter for IterCopied<'a, T> {
     type IntoIter = Self;
     type Item = T;
 }
-
 
 /// A const equivalent of `iter::Rev<iter::Copied<slice::Iter<'a, T>>>`
 ///
@@ -764,7 +757,7 @@ mod requires_rust_1_64 {
     /// assert_eq!(iter.into_remainder(), &mut [55][..]);
     /// ```
     pub const fn array_chunks_mut<'a, T, const N: usize>(
-        slice: &'a mut [T]
+        slice: &'a mut [T],
     ) -> ArrayChunksMut<'a, T, N> {
         let (arrays, rem) = slice::as_chunks_mut(slice);
 
@@ -1192,7 +1185,7 @@ mod requires_rust_1_64 {
     ///
     /// let mut array = [3, 5, 8, 13, 21, 34, 55];
     /// let mut iter = slice::rchunks_mut(&mut array, 3);
-    /// 
+    ///
     /// assert_eq!(iter.next(), Some(&mut [21, 34, 55][..]));
     /// assert_eq!(iter.next(), Some(&mut [5, 8, 13][..]));
     /// assert_eq!(iter.next(), Some(&mut [3][..]));
@@ -1566,12 +1559,12 @@ mod requires_rust_1_64 {
     ///
     /// let mut array = [3, 5, 8, 13, 21];
     /// let mut iter = slice::chunks_exact_mut(&mut array, 2);
-    /// 
+    ///
     /// assert_eq!(iter.next(), Some(&mut [3, 5][..]));
     /// assert_eq!(iter.next(), Some(&mut [8, 13][..]));
     /// assert_eq!(iter.next(), None);
     /// assert_eq!(iter.into_remainder(), &mut [21][..]);
-    /// 
+    ///
     /// ```
     ///
     #[track_caller]
@@ -1699,18 +1692,18 @@ mod requires_rust_1_64 {
     ///
     /// let mut array = [3, 5, 8, 13, 21];
     /// let mut iter = slice::rchunks_exact_mut(&mut array, 2);
-    /// 
+    ///
     /// assert_eq!(iter.next(), Some(&mut [13, 21][..]));
     /// assert_eq!(iter.next(), Some(&mut [5, 8][..]));
     /// assert_eq!(iter.next(), None);
     /// assert_eq!(iter.into_remainder(), &mut [3][..]);
-    /// 
+    ///
     /// ```
     ///
     #[track_caller]
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
     pub const fn rchunks_exact_mut<T>(
-        slice: &mut [T], 
+        slice: &mut [T],
         chunk_size: usize,
     ) -> RChunksExactMut<'_, T> {
         assert!(chunk_size != 0, "chunk size must be non-zero");

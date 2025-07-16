@@ -199,10 +199,7 @@ impl<'a> Parser<'a> {
     /// };
     ///
     /// ```
-    pub const fn split_terminator<'p, P>(
-        &mut self,
-        delimiter: P,
-    ) -> Result<&'a str, ParseError<'a>>
+    pub const fn split_terminator<'p, P>(&mut self, delimiter: P) -> Result<&'a str, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
@@ -478,10 +475,7 @@ impl<'a> Parser<'a> {
     /// }
     /// ```
     ///
-    pub const fn split_keep<'p, P>(
-        &mut self,
-        delimiter: P,
-    ) -> Result<&'a str, ParseError<'a>>
+    pub const fn split_keep<'p, P>(&mut self, delimiter: P) -> Result<&'a str, ParseError<'a>>
     where
         P: Pattern<'p>,
     {

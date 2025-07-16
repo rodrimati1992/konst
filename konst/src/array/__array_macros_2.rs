@@ -1,4 +1,3 @@
-
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __array_map_by_val {
@@ -86,7 +85,6 @@ macro_rules! __array_from_fn_with_parsed_closure {
         arr
     });
 }
-
 
 #[doc(hidden)]
 #[macro_export]

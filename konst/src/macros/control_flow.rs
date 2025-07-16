@@ -1,10 +1,10 @@
 /// For loop over a range
-/// 
+///
 /// # Example
 ///     
 /// ```rust
 /// use konst::for_range;
-/// 
+///
 /// const LEN: usize = 10;
 /// const ARR: [u32; LEN] = {
 ///     let mut ret = [1; LEN];
@@ -13,10 +13,10 @@
 ///     }
 ///     ret
 /// };
-/// 
+///
 /// assert_eq!(ARR, [1, 1, 2, 3, 5, 8, 13, 21, 34, 55]);
 /// ```
-/// 
+///
 #[macro_export]
 macro_rules! for_range {
     ($pat:pat_param in $range:expr => $($code:tt)*) => {
@@ -32,14 +32,12 @@ macro_rules! for_range {
     };
 }
 
-
-
 /// Emulates by-value destructuring of a [`Some`] variant that contains a Drop type in const.
-/// 
+///
 /// # Motivation
-/// 
+///
 /// This macro works around the fact that this code
-/// 
+///
 /// ```rust,compile_fail
 /// const fn foo<T>(opt: Option<T>) -> Result<T, ()> {
 ///     match opt {
@@ -59,9 +57,9 @@ macro_rules! for_range {
 /// 6 | }
 ///   | - value is dropped here
 /// ```
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// assert_eq!(ok_or_none_error(Some(10)), Ok(10));
 /// assert_eq!(ok_or_none_error(None::<String>), Err(ItWasNoneError));
@@ -74,15 +72,15 @@ macro_rules! for_range {
 ///         Err(ItWasNoneError)
 ///     }}
 /// }
-/// 
+///
 /// #[derive(Debug, PartialEq, Eq)]
 /// struct ItWasNoneError;
 /// ```
-/// 
+///
 #[macro_export]
 macro_rules! if_let_Some {
     ($some:pat = $e:expr => $then:block $(else $else:block)?) => {
-        match $e {opt => 
+        match $e {opt =>
             if $crate::__::Option::is_some(&opt) {
                 let $some = opt.unwrap();
                 $then
@@ -94,16 +92,16 @@ macro_rules! if_let_Some {
     }
 }
 
-/// Emulates by-value a destructuring while let loop over a [`Some`] variant 
+/// Emulates by-value a destructuring while let loop over a [`Some`] variant
 /// that contains a Drop type in const.
-/// 
+///
 /// # Motivation
-/// 
+///
 /// This macro works around the fact that this code
-/// 
+///
 /// ```rust,compile_fail
 /// use konst::array::ArrayBuilder;
-/// 
+///
 /// const fn foo<T: SomeTrait>() -> [T; 3] {
 ///     let mut builder = ArrayBuilder::new();
 ///     while let Some(x) = produce_option(&builder) {
@@ -111,7 +109,7 @@ macro_rules! if_let_Some {
 ///     }
 ///     builder.build()
 /// }
-/// 
+///
 /// # trait SomeTrait {}
 /// # const fn produce_option<T: SomeTrait, U>(_: &U) -> Option<T> {
 /// #   None
@@ -128,16 +126,16 @@ macro_rules! if_let_Some {
 /// 11 |     }
 ///    |     - value is dropped here
 /// ```
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use konst::array::ArrayBuilder;
-/// 
+///
 /// assert_eq!(make_strings::<1>(), [String::new()]);
 /// assert_eq!(make_strings::<2>(), [String::new(), String::new()]);
 /// assert_eq!(make_strings::<3>(), [String::new(), String::new(), String::new()]);
-/// 
+///
 /// const fn make_strings<const N: usize>() -> [String; N] {
 ///     let mut builder = ArrayBuilder::new();
 ///     konst::while_let_Some!{x = produce_option(&builder) =>
@@ -145,7 +143,7 @@ macro_rules! if_let_Some {
 ///     }
 ///     builder.build()
 /// }
-/// 
+///
 /// const fn produce_option<const N: usize>(ab: &ArrayBuilder<String, N>) -> Option<String> {
 ///     if ab.is_full() {
 ///         None
@@ -154,12 +152,12 @@ macro_rules! if_let_Some {
 ///     }
 /// }
 /// ```
-/// 
+///
 #[macro_export]
 macro_rules! while_let_Some {
     ($some:pat = $e:expr => $($then:tt)*) => {
         loop {
-            match $e {opt => 
+            match $e {opt =>
                 if $crate::__::Option::is_some(&opt) {
                     let $some = opt.unwrap();
                     $($then)*
@@ -171,11 +169,3 @@ macro_rules! while_let_Some {
         }
     }
 }
-
-
-
-
-
-
-
-

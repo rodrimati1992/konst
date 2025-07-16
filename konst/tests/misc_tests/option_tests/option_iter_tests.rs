@@ -105,9 +105,8 @@ fn into_iter_test() {
         }
     }}
 
-
-    test_case!{option::into_iter}
-    test_case!{konst::iter::into_iter!}
+    test_case! {option::into_iter}
+    test_case! {konst::iter::into_iter!}
 }
 
 #[test]
@@ -131,4 +130,3 @@ fn into_iter_rev_test() {
         assert_eq!(iter.next_back(), None);
     }
 }
-

@@ -199,7 +199,7 @@ fn next_test() {
     assert_eq!(iter.next(), None);
     assert_eq!(iter.as_slice(), &[][..]);
     assert_eq!(iter.as_mut_slice(), &mut [][..]);
-    
+
     iter.assert_is_empty();
 }
 
@@ -323,16 +323,18 @@ fn drop_test() {
     assert!(set.borrow().iter().copied().eq([3u128, 34, 55]), "{set:?}");
 
     let _ = iter.next();
-    assert!(set.borrow().iter().copied().eq([3u128, 5, 34, 55]), "{set:?}");
+    assert!(
+        set.borrow().iter().copied().eq([3u128, 5, 34, 55]),
+        "{set:?}"
+    );
 
     drop(iter);
 
-    assert!(set.borrow().iter().copied().eq([3u128, 5, 8, 13, 21, 34, 55]), "{set:?}");
+    assert!(
+        set.borrow()
+            .iter()
+            .copied()
+            .eq([3u128, 5, 8, 13, 21, 34, 55]),
+        "{set:?}"
+    );
 }
-
-
-
-
-
-
-

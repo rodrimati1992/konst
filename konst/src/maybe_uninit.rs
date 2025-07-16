@@ -174,4 +174,3 @@ pub const fn write<T>(md: &mut MaybeUninit<T>, value: T) -> &mut T {
 pub const unsafe fn array_assume_init<T, const N: usize>(md: [MaybeUninit<T>; N]) -> [T; N] {
     crate::__priv_transmute! {[MaybeUninit<T>; N], [T; N], md}
 }
-

@@ -13,9 +13,6 @@ mod array_into_iter;
 #[cfg(feature = "iter")]
 pub use self::array_into_iter::{IntoIter, IntoIterRev};
 
-
-
-
 macro_rules! drop_warning {
     () => {
         concat!(

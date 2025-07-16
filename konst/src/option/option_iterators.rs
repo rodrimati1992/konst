@@ -2,8 +2,6 @@ use crate::iter::{ConstIntoIter, IntoIterWrapper, IsIteratorKind, IsStdKind};
 
 use core::mem::ManuallyDrop;
 
-
-
 impl<'a, T> ConstIntoIter for &'a Option<T> {
     type Kind = IsStdKind;
     type IntoIter = Iter<'a, T>;
@@ -33,26 +31,23 @@ impl<'a, T> IntoIterWrapper<&&'a Option<T>, IsStdKind> {
     }
 }
 
-
 /// Const equivalent of [`Option::iter`]
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use konst::option;
-/// 
+///
 /// let mut fwd = option::iter(&Some(5));
 /// assert_eq!(fwd.next(), Some(&5));
 /// assert_eq!(fwd.next(), None);
-/// 
+///
 /// let mut rev = option::iter(&Some(8)).rev();
 /// assert_eq!(rev.next(), Some(&8));
 /// assert_eq!(rev.next(), None);
 /// ```
 pub const fn iter<T>(opt: &Option<T>) -> Iter<'_, T> {
-    Iter {
-        opt: opt.as_ref()
-    }
+    Iter { opt: opt.as_ref() }
 }
 
 macro_rules! iter_shared {
@@ -132,14 +127,13 @@ impl<'a, T> IntoIterWrapper<&'a mut &mut Option<T>, IsStdKind> {
     }
 }
 
-
 /// Const equivalent of [`Option::iter_mut`]
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use konst::option;
-/// 
+///
 /// {
 ///     let mut opt = Some(13);
 ///     let mut fwd = option::iter_mut(&mut opt);
@@ -154,9 +148,7 @@ impl<'a, T> IntoIterWrapper<&'a mut &mut Option<T>, IsStdKind> {
 /// }
 /// ```
 pub const fn iter_mut<T>(opt: &mut Option<T>) -> IterMut<'_, T> {
-    IterMut {
-        opt: opt.as_mut()
-    }
+    IterMut { opt: opt.as_mut() }
 }
 
 macro_rules! iter_mut_shared {
@@ -224,12 +216,12 @@ impl<T> IntoIterWrapper<Option<T>, IsStdKind> {
 }
 
 /// Const equivalent of [`Option::into_iter`]
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use konst::option;
-/// 
+///
 /// {
 ///     let mut opt = Some(13);
 ///     let mut fwd = option::into_iter(opt);
@@ -294,4 +286,3 @@ impl<T> IntoIter<T> {
 impl<T> IntoIterRev<T> {
     into_iter_shared! {is_forward = false}
 }
-

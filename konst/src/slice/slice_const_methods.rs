@@ -1,6 +1,5 @@
 use crate::slice::{BytesPattern, PatternNorm};
 
-
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __slice_from_impl {
@@ -30,9 +29,6 @@ macro_rules! __slice_up_to_impl {
         $slice.$split_at($len as _).0
     }};
 }
-
-
-
 
 /// A const equivalent of `slice.get(index)`
 ///
@@ -1161,4 +1157,3 @@ where
 pub(crate) const fn __bytes_rfind_keep<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'a [u8]> {
     byte_find_then! {rem_then_elem, this, needle, |next| {}}
 }
-

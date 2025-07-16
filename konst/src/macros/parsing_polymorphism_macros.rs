@@ -60,9 +60,7 @@ macro_rules! parse_with {
         match $parser.__borrow_mut() {
             parser @ $crate::Parser { .. } => {
                 let res: $crate::__::Result<_, _> =
-                    <<$type as $crate::parsing::HasParser>::Parser>::parse_with(
-                        parser
-                    );
+                    <<$type as $crate::parsing::HasParser>::Parser>::parse_with(parser);
                 res
             }
         }
