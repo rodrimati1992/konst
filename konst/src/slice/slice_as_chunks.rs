@@ -1,6 +1,6 @@
 use crate::slice;
 
-/// Const equivalent of
+/// Stable equivalent of
 /// [`<[T]>::as_chunks`](https://doc.rust-lang.org/std/primitive.slice.html#method.as_chunks)
 ///
 /// The equivalent std function is unstable as of Rust 1.83.0.
@@ -35,7 +35,7 @@ pub const fn as_chunks<'a, T, const N: usize>(this: &[T]) -> (&[[T; N]], &[T]) {
     (arrs, rem)
 }
 
-/// Const equivalent of
+/// Stable equivalent of
 /// [`<[T]>::as_rchunks`](https://doc.rust-lang.org/std/primitive.slice.html#method.as_rchunks)
 ///
 /// The equivalent std function is unstable as of Rust 1.83.0.
@@ -70,7 +70,7 @@ pub const fn as_rchunks<'a, T, const N: usize>(this: &[T]) -> (&[T], &[[T; N]]) 
     (rem, arrs)
 }
 
-/// Const equivalent of
+/// Stable equivalent of
 /// [`<[T]>::as_chunks_mut`
 /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.as_chunks_mut)
 ///
@@ -107,7 +107,7 @@ pub const fn as_chunks_mut<'a, T, const N: usize>(this: &mut [T]) -> (&mut [[T; 
     (arrs, rem)
 }
 
-/// Const equivalent of
+/// Stable equivalent of
 /// [`<[T]>::as_rchunks_mut`
 /// ](https://doc.rust-lang.org/std/primitive.slice.html#method.as_rchunks_mut)
 ///

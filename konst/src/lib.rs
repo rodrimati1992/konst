@@ -329,7 +329,6 @@ pub mod cmp;
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub mod iter;
 
-/// const equivalents of `core::ffi` functions
 pub mod ffi;
 
 pub mod polymorphism;

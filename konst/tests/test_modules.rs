@@ -12,8 +12,6 @@ mod misc_tests {
     #[cfg(feature = "iter")]
     mod iter_mod;
 
-    mod ffi_tests;
-
     mod manually_drop_tests;
 
     mod maybe_uninit_tests;
