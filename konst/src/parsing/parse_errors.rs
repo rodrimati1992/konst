@@ -10,7 +10,7 @@ use core::{
 /// This error type knows [`where`](#method.offset) the error happened,
 /// in what [`direction`](#method.error_direction) the string was being parsed,
 /// and the [`kind`](#method.kind) of error that happened.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone)]
 pub struct ParseError<'a> {
     start_offset: u32,
     end_offset: u32,
@@ -81,7 +81,7 @@ impl<'a> ParseError<'a> {
         self.kind
     }
 
-    const fn extra_message(&self) -> &str {
+    const fn extra_message(&self) -> &'static str {
         self.extra_message
     }
 
@@ -138,6 +138,136 @@ impl<'a> Display for ParseError<'a> {
         Ok(())
     }
 }
+
+const _: () = {
+    use const_panic::{
+        flatten_panicvals,
+        fmt::{self as cfmt, ComputePvCount, FmtArg, FmtKind},
+        PanicFmt, PanicVal,
+    };
+
+    impl PanicFmt for ParseError<'_> {
+        type This = Self;
+        type Kind = const_panic::IsCustomType;
+
+        const PV_COUNT: usize = ComputePvCount {
+            field_amount: 5,
+            summed_pv_count: <u32>::PV_COUNT
+                + <u32>::PV_COUNT
+                + <ParseDirection>::PV_COUNT
+                + <ErrorKind>::PV_COUNT
+                + <&'static &'static str>::PV_COUNT,
+            delimiter: cfmt::TypeDelim::Braced,
+        }
+        .call();
+    }
+
+    impl<'a> ParseError<'a> {
+        /// Formats a ParseError
+        pub const fn to_panicvals(&self, fmtarg: FmtArg) -> [PanicVal<'a>; ParseError::PV_COUNT] {
+            match fmtarg.fmt_kind {
+                FmtKind::Debug => {
+                    flatten_panicvals! {fmtarg;
+                        "ParseError",
+                        open: cfmt::OpenBrace,
+                            // cfmt::COMMA_SEP must only be used between fields
+                            "start_offset: ", u32 => self.start_offset, cfmt::COMMA_SEP,
+                            "end_offset: ", u32 => self.end_offset, cfmt::COMMA_SEP,
+                            "direction: ", ParseDirection => self.direction, cfmt::COMMA_SEP,
+                            "kind: ", ErrorKind => self.kind, cfmt::COMMA_SEP,
+                            "extra_message: ", &'static &'static str =>
+                                self.extra_message, cfmt::COMMA_TERM,
+                        // the `close:` format override decrements the indentation.
+                        close: cfmt::CloseBrace,
+                    }
+                }
+                _ => const_panic::utils::flatten_panicvals(&[&[
+                    PanicVal::write_str(self.error_for_direction()),
+                    PanicVal::from_usize(self.offset(), FmtArg::DEBUG),
+                    PanicVal::write_str(" byte offset"),
+                    PanicVal::write_str(self.error_suffix()),
+                    PanicVal::write_str(self.extra_message()),
+                ]]),
+            }
+        }
+    }
+
+    impl fmt::Debug for ParseError<'_> {
+        fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+            fmt.debug_struct("ParseError")
+                .field("start_offset", &self.start_offset)
+                .field("end_offset", &self.end_offset)
+                .field("direction", &self.direction)
+                .field("kind", &self.kind)
+                .field("extra_message", &self.extra_message)
+                .finish()
+        }
+    }
+
+    ////
+
+    macro_rules! fieldless_enum_fmt {
+        ($self:expr, [$($variant:ident)*]) => (
+            match $self {
+                $(Self::$variant => PanicVal::write_str(stringify!($variant)),)*
+            }
+        )
+    }
+
+    impl PanicFmt for ParseDirection {
+        type This = Self;
+        type Kind = const_panic::IsCustomType;
+
+        const PV_COUNT: usize = 1;
+    }
+
+    impl ParseDirection {
+        /// Formats a ParseDirection
+        pub const fn to_panicval<'a>(&self, _fmtarg: FmtArg) -> PanicVal<'a> {
+            fieldless_enum_fmt! {self, [FromStart FromEnd FromBoth]}
+        }
+
+        /// Formats a ParseDirection
+        pub const fn to_panicvals<'a>(
+            &self,
+            fmtarg: FmtArg,
+        ) -> [PanicVal<'a>; ParseDirection::PV_COUNT] {
+            [self.to_panicval(fmtarg)]
+        }
+    }
+
+    ////
+
+    impl PanicFmt for ErrorKind {
+        type This = Self;
+        type Kind = const_panic::IsCustomType;
+
+        const PV_COUNT: usize = 1;
+    }
+
+    impl ErrorKind {
+        /// Formats an ErrorKind
+        pub const fn to_panicval<'a>(&self, _fmtarg: FmtArg) -> PanicVal<'a> {
+            fieldless_enum_fmt! {self, [
+                ParseInteger
+                ParseBool
+                Find
+                Strip
+                SplitExhausted
+                DelimiterNotFound
+                Other
+            ]}
+        }
+
+        /// Formats a ErrorKind
+        pub const fn to_panicvals<'a>(
+            &self,
+            fmtarg: FmtArg,
+        ) -> [PanicVal<'a>; ErrorKind::PV_COUNT] {
+            [self.to_panicval(fmtarg)]
+        }
+    }
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 

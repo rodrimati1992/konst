@@ -27,8 +27,6 @@ mod priv_string_tests;
 
 mod pattern;
 
-use core::fmt::{self, Debug, Display};
-
 pub use self::pattern::Pattern;
 
 pub(crate) use self::pattern::PatternNorm;

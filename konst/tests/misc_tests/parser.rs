@@ -1,3 +1,5 @@
+mod parser_error_fmt_tests;
+
 mod primitive_parsing_tests;
 
 mod trim_and_strip_and_find;

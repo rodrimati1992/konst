@@ -17,33 +17,6 @@ fn deref_mut_test() {
 }
 
 #[test]
-fn ptr_as_ref_test() {
-    let str_ptr: *const str = "hello";
-    let array_ptr: *const [u8; 4] = &[3, 5, 8, 13];
-
-    unsafe {
-        assert_eq!(ptr::as_ref(str_ptr), Some("hello"));
-        assert_eq!(ptr::as_ref(array_ptr), Some(&[3, 5, 8, 13]));
-        assert_eq!(ptr::as_ref(null::<u8>()), None);
-    }
-}
-
-#[test]
-fn ptr_as_mut_test() {
-    let slice_ptr: *mut [u8] = &mut [3, 5, 8];
-    let array_ptr: *mut [u8; 4] = &mut [13, 21, 34, 55];
-
-    unsafe {
-        ptr::as_mut(slice_ptr).unwrap()[1] += 10;
-        ptr::as_mut(array_ptr).unwrap()[1] += 10;
-
-        assert_eq!(ptr::as_mut(slice_ptr), Some(&mut [3, 15, 8][..]));
-        assert_eq!(ptr::as_mut(array_ptr), Some(&mut [13, 31, 34, 55]));
-        assert_eq!(ptr::as_mut(null_mut::<u8>()), None);
-    }
-}
-
-#[test]
 fn nonnull_from_ref_test() {
     let str_ptr: NonNull<str> = nonnull::from_ref("hello");
     let array_ptr: NonNull<[u8; 4]> = nonnull::from_ref(&[3, 5, 8, 13]);
