@@ -5,6 +5,25 @@ use konst::parsing::{ErrorKind, ParseDirection, ParseError, Parser};
 type Buff = ArrayString<256>;
 
 #[test]
+fn free_parse_bool_test() {
+    let err = konst::primitive::parse_bool("--").unwrap_err();
+
+    macro_rules! case {
+        ($fmtarg:ident, $fmtstring:literal) => {{
+            assert_eq!(
+                Buff::from_panicvals(&err.to_panicvals(FmtArg::$fmtarg)).unwrap(),
+                *format!(concat!("{:", $fmtstring, "}"), err),
+            );
+        }};
+    }
+
+    case! {DEBUG, "?"}
+    case! {ALT_DEBUG, "#?"}
+    case! {DISPLAY, ""}
+    case! {ALT_DISPLAY, "#"}
+}
+
+#[test]
 fn parser_error_fmt_equiv() {
     let parser = Parser::new(" - - - ");
 

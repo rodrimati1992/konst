@@ -72,7 +72,7 @@ define_parse_methods! {
         /// ```rust
         /// use konst::{
         ///     primitive::{ParseBoolResult, parse_bool},
-        ///     unwrap_ctx,
+        ///     result::unwrap,
         /// };
         ///
         /// const T: ParseBoolResult = parse_bool("true");
@@ -82,8 +82,8 @@ define_parse_methods! {
         /// assert_eq!(F, Ok(false));
         ///
         /// // This is how you can unwrap bools parsed from strings, at compile-time.
-        /// const T2: bool = unwrap_ctx!(parse_bool("true"));
-        /// const F2: bool = unwrap_ctx!(parse_bool("false"));
+        /// const T2: bool = unwrap!(parse_bool("true"));
+        /// const F2: bool = unwrap!(parse_bool("false"));
         ///
         /// assert_eq!(T2, true);
         /// assert_eq!(F2, false);
@@ -101,7 +101,6 @@ define_parse_methods! {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// An alias for `Result<bool, konst::primitive::ParseBoolError>`
-#[cfg(feature = "parsing")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
 pub type ParseBoolResult = Result<bool, ParseBoolError>;
 
@@ -110,22 +109,54 @@ pub type ParseBoolResult = Result<bool, ParseBoolError>;
 use core::fmt::{self, Display};
 
 /// The error returned by bool-parsing methods.
-#[cfg(feature = "parsing")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(PartialEq, Eq, Copy, Clone)]
 pub struct ParseBoolError {
     _priv: (),
 }
 
-impl Display for ParseBoolError {
+impl fmt::Debug for ParseBoolError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str("could not parse a bool")
+        f.debug_struct("ParseBoolError").finish()
     }
 }
 
-impl ParseBoolError {
-    /// Panics with this error as the message
-    pub const fn panic(&self) -> ! {
-        panic!("could not parse a bool");
+impl Display for ParseBoolError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.write_str(Self::DISPLAY_ERR)
     }
 }
+
+const _: () = {
+    use const_panic::{
+        fmt::{FmtArg, FmtKind},
+        PanicFmt, PanicVal,
+    };
+
+    impl PanicFmt for ParseBoolError {
+        type This = Self;
+        type Kind = const_panic::IsCustomType;
+
+        const PV_COUNT: usize = 1;
+    }
+
+    impl<'a> ParseBoolError {
+        const DISPLAY_ERR: &'static str = "could not parse a bool";
+
+        /// Formats a ParseBoolError
+        pub const fn to_panicval(&self, fmtarg: FmtArg) -> PanicVal<'static> {
+            match fmtarg.fmt_kind {
+                FmtKind::Display => PanicVal::write_str(Self::DISPLAY_ERR),
+                _ => PanicVal::write_str("ParseBoolError"),
+            }
+        }
+
+        /// Formats a ParseBoolError
+        pub const fn to_panicvals(
+            &self,
+            fmtarg: FmtArg,
+        ) -> [PanicVal<'static>; ParseBoolError::PV_COUNT] {
+            [self.to_panicval(fmtarg)]
+        }
+    }
+};
