@@ -119,26 +119,62 @@ pub struct TryIntoArrayError {
     array_len: usize,
 }
 
-impl TryIntoArrayError {
-    /// For panicking with an error message.
-    pub const fn panic(&self) -> ! {
-        use const_panic::{FmtArg, PanicVal};
-
-        const_panic::concat_panic(&[&[
-            PanicVal::write_str("could not convert slice of length `"),
-            PanicVal::from_usize(self.slice_len, FmtArg::DEBUG),
-            PanicVal::write_str("` to array of length`"),
-            PanicVal::from_usize(self.array_len, FmtArg::DEBUG),
-            PanicVal::write_str("`"),
-        ]])
-    }
-}
-
 impl Display for TryIntoArrayError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("Could not cast slice to array reference")
+        write!(
+            f,
+            "could not convert slice of length `{}` to array of length `{}`",
+            self.slice_len, self.array_len,
+        )
     }
 }
+
+const _: () = {
+    use const_panic::{
+        flatten_panicvals,
+        fmt::{self as cfmt, ComputePvCount, FmtArg, FmtKind},
+        PanicFmt, PanicVal,
+    };
+
+    impl PanicFmt for TryIntoArrayError {
+        type This = Self;
+        type Kind = const_panic::IsCustomType;
+
+        const PV_COUNT: usize = ComputePvCount {
+            field_amount: 2,
+            summed_pv_count: <usize>::PV_COUNT * 2,
+            delimiter: cfmt::TypeDelim::Braced,
+        }
+        .call();
+    }
+
+    impl TryIntoArrayError {
+        /// Formats a TryIntoArrayError
+        pub const fn to_panicvals(
+            &self,
+            fmtarg: FmtArg,
+        ) -> [PanicVal<'static>; TryIntoArrayError::PV_COUNT] {
+            match fmtarg.fmt_kind {
+                FmtKind::Debug => {
+                    flatten_panicvals! {fmtarg;
+                        "TryIntoArrayError",
+                        open: cfmt::OpenBrace,
+                            "slice_len: ", usize => self.slice_len, cfmt::COMMA_SEP,
+                            "array_len: ", usize => self.array_len, cfmt::COMMA_TERM,
+                        close: cfmt::CloseBrace,
+                    }
+                }
+                _ => const_panic::utils::flatten_panicvals(&[&[
+                    PanicVal::write_str("could not convert slice of length `"),
+                    PanicVal::from_usize(self.slice_len, FmtArg::DEBUG),
+                    PanicVal::write_str("` to array of length `"),
+                    PanicVal::from_usize(self.array_len, FmtArg::DEBUG),
+                    PanicVal::write_str("`"),
+                ]]),
+            }
+        }
+    }
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -152,7 +188,6 @@ impl Display for TryIntoArrayError {
 /// use konst::{
 ///     slice::{TryIntoArrayError, try_into_array},
 ///     result,
-///     unwrap_ctx,
 /// };
 ///
 ///
@@ -179,7 +214,7 @@ impl Display for TryIntoArrayError {
 /// const fn arr_3() -> &'static [u64; 3] {
 ///     let slice: &[u64] = &[3, 5, 8];
 ///
-///     let array = unwrap_ctx!(try_into_array(slice));
+///     let array = result::unwrap!(try_into_array(slice));
 ///     
 ///     // You can destructure the array into its elements like this
 ///     let [a, b, c] = *array;
@@ -212,11 +247,11 @@ pub const fn try_into_array<T, const N: usize>(slice: &[T]) -> Result<&[T; N], T
 /// # Example
 ///
 /// ```rust
-/// use konst::{slice, unwrap_ctx};
+/// use konst::{slice, result};
 ///
 /// const fn mut_array_from<const LEN: usize>(slice: &mut [u8], from: usize) -> &mut [u8; LEN] {
 ///     let sliced = slice::slice_range_mut(slice, from, from + LEN);
-///     unwrap_ctx!(slice::try_into_array_mut(sliced))
+///     result::unwrap!(slice::try_into_array_mut(sliced))
 /// }
 ///
 /// # fn main() {

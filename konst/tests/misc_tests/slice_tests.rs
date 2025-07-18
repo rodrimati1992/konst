@@ -225,6 +225,27 @@ fn try_into_array_mut_test() {
     assert!(try_into_array_mut::<_, 6>(&mut slice).is_err());
 }
 
+#[test]
+fn try_into_array_fmt_test() {
+    type Buff = const_panic::ArrayString<256>;
+
+    let err = try_into_array::<_, 0>(&[1]).unwrap_err();
+
+    macro_rules! fmt_case {
+        ($fmtarg:ident, $fmtstring:literal) => {{
+            assert_eq!(
+                Buff::from_panicvals(&err.to_panicvals(const_panic::FmtArg::$fmtarg)).unwrap(),
+                *format!(concat!("{:", $fmtstring, "}"), err),
+            );
+        }};
+    }
+
+    fmt_case! {DEBUG, "?"}
+    fmt_case! {ALT_DEBUG, "#?"}
+    fmt_case! {DISPLAY, ""}
+    fmt_case! {ALT_DISPLAY, "#"}
+}
+
 #[cfg(feature = "iter")]
 #[test]
 fn slice_iter_const_callable() {

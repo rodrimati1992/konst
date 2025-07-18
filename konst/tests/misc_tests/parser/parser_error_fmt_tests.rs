@@ -1,4 +1,4 @@
-use const_panic::{flatten_panicvals as f_pvs, ArrayString, FmtArg};
+use const_panic::{ArrayString, FmtArg};
 
 use konst::parsing::{ErrorKind, ParseDirection, ParseError, Parser};
 
