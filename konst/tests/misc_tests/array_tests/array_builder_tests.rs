@@ -45,8 +45,8 @@ fn as_slice_test() {
 
     let mut this: ArrayBuilder<_, 3> = ArrayBuilder::new();
 
-    assert_eq!((&this).as_slice(), &[][..]);
-    assert_eq!(this.as_mut_slice(), &mut [][..]);
+    assert_eq!((&this).as_slice(), &[0; 0][..]);
+    assert_eq!(this.as_mut_slice(), &mut [0; 0][..]);
 
     this.push(3);
     assert_eq!((&this).as_slice(), &[3][..]);

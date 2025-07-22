@@ -24,7 +24,7 @@ mod primitive_parsing;
 
 pub use self::{
     get_parser::{HasParser, StdParser},
-    parse_errors::{ErrorKind, ParseDirection, ParseError, ParseValueResult, ParserResult},
+    parse_errors::{ErrorKind, ParseDirection, ParseError, ParseValueResult},
 };
 
 use crate::string::{self, Pattern};

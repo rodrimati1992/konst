@@ -21,7 +21,7 @@ error: unexpected end of macro invocation
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
    |
 note: while trying to match meta-variable `$Item:ty`
-  --> $WORKSPACE/konst_kernel/src/collect_const.rs
+  --> src/iter/collect_const.rs
    |
    |         $Item:ty =>
    |         ^^^^^^^^

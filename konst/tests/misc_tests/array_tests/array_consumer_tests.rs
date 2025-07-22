@@ -97,8 +97,8 @@ fn as_slice_test() {
 
     {
         let mut iter: IntoIter<u8, 0> = IntoIter::new([]);
-        assert_eq!(iter.as_slice(), &[][..]);
-        assert_eq!(iter.as_mut_slice(), &[][..]);
+        assert_eq!(iter.as_slice(), &[0; 0][..]);
+        assert_eq!(iter.as_mut_slice(), &[0; 0][..]);
     }
 
     {
@@ -119,12 +119,12 @@ fn as_slice_test() {
         assert_eq!(iter.as_mut_slice(), &mut [5][..]);
 
         assert_eq!(iter.next(), Some(5));
-        assert_eq!(iter.as_slice(), &[][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [][..]);
+        assert_eq!(iter.as_slice(), &[0; 0][..]);
+        assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
         assert_eq!(iter.next_back(), None);
-        assert_eq!(iter.as_slice(), &[][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [][..]);
+        assert_eq!(iter.as_slice(), &[0; 0][..]);
+        assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
         iter.assert_is_empty();
     }
@@ -141,8 +141,8 @@ fn as_slice_rev_test() {
 
     {
         let mut iter: IntoIterRev<u8, 0> = IntoIter::new([]).rev();
-        assert_eq!(iter.as_slice(), &[][..]);
-        assert_eq!(iter.as_mut_slice(), &[][..]);
+        assert_eq!(iter.as_slice(), &[0; 0][..]);
+        assert_eq!(iter.as_mut_slice(), &[0; 0][..]);
     }
 
     {
@@ -163,12 +163,12 @@ fn as_slice_rev_test() {
         assert_eq!(iter.as_mut_slice(), &mut [5][..]);
 
         assert_eq!(iter.next_back(), Some(5));
-        assert_eq!(iter.as_slice(), &[][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [][..]);
+        assert_eq!(iter.as_slice(), &[0; 0][..]);
+        assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
         assert_eq!(iter.next(), None);
-        assert_eq!(iter.as_slice(), &[][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [][..]);
+        assert_eq!(iter.as_slice(), &[0; 0][..]);
+        assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
         iter.assert_is_empty();
     }
@@ -193,12 +193,12 @@ fn next_test() {
     assert_eq!(iter.as_mut_slice(), &mut [8][..]);
 
     assert_eq!(iter.next(), Some(8));
-    assert_eq!(iter.as_slice(), &[][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [][..]);
+    assert_eq!(iter.as_slice(), &[0; 0][..]);
+    assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
     assert_eq!(iter.next(), None);
-    assert_eq!(iter.as_slice(), &[][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [][..]);
+    assert_eq!(iter.as_slice(), &[0; 0][..]);
+    assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
     iter.assert_is_empty();
 }
@@ -222,12 +222,12 @@ fn next_back_test() {
     assert_eq!(iter.as_mut_slice(), &mut [3][..]);
 
     assert_eq!(iter.next_back(), Some(3));
-    assert_eq!(iter.as_slice(), &[][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [][..]);
+    assert_eq!(iter.as_slice(), &[0; 0][..]);
+    assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
     assert_eq!(iter.next_back(), None);
-    assert_eq!(iter.as_slice(), &[][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [][..]);
+    assert_eq!(iter.as_slice(), &[0; 0][..]);
+    assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
     iter.assert_is_empty();
 }

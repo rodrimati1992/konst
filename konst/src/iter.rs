@@ -82,7 +82,7 @@ include! {"./iter/iter_eval_macro.rs"}
 /// # type Item = u8;
 /// # impl SomeIterator {
 /// // Equivalent to `Iterator::next`
-/// const fn next(self) -> Option<Item> {
+/// const fn next(&mut self) -> Option<Item> {
 /// #   loop{}
 /// # }
 /// # }
@@ -97,7 +97,7 @@ include! {"./iter/iter_eval_macro.rs"}
 /// # type Item = u8;
 /// # impl SomeIterator {
 /// // equivalent to `DoubleEndedÌterator::mext_back`
-/// const fn next_back(self) -> Option<Item> {
+/// const fn next_back(&mut self) -> Option<Item> {
 /// #   loop{}
 ///     // ... some code...
 /// }

@@ -75,8 +75,8 @@ jobs:
         cargo test --no-default-features --features "debug ${{env.rustv}} iter"
         cargo test --no-default-features --features "debug ${{env.rustv}} parsing_proc"
         cargo test --no-default-features --features "debug ${{env.rustv}} parsing"
-        cargo test --no-default-features --features "debug ${{env.rustv}} __cp_derive"
-        cargo test --no-default-features --features "debug ${{env.rustv}} __cp_derive alloc cmp iter parsing_proc"
+        cargo test --no-default-features --features "debug ${{env.rustv}} const_panic_derive"
+        cargo test --no-default-features --features "debug ${{env.rustv}} const_panic_derive alloc cmp iter parsing_proc"
 
     - uses: actions/checkout@v2
     - name: ci-nighly
@@ -93,7 +93,7 @@ jobs:
         cd "${{github.workspace}}/konst/"
         
         cargo test --no-default-features --features "debug rust_latest_stable"
-        cargo test --no-default-features --features "debug __cp_derive alloc cmp iter parsing_proc rust_latest_stable"
+        cargo test --no-default-features --features "debug const_panic_derive alloc cmp iter parsing_proc rust_latest_stable"
 
         MIRI_NIGHTLY=nightly-$(curl -s https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/miri)
         echo "Installing latest nightly with Miri"

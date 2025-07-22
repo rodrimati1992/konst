@@ -287,12 +287,12 @@ impl<const N: usize> ArrayStr<N> {
 ///
 /// This acts like a compile-time-evaluated version of this function:
 /// ```rust
-/// # trait StrOrChar: Copy {}
-/// pub const fn str_concat(strings: &'static [impl StrOrChar]) -> &'static str
+/// # use konst::string::Pattern;
+/// pub const fn str_concat(strings: &'static [impl Pattern<'static>]) -> &'static str
 /// # { "" }
 /// ```
 ///
-/// Where `impl StrOrChar` is either a `&'static str` or `char`
+/// Where `Pattern<'static>` is either a `&'static str` or `char`
 ///
 /// # Example
 ///
@@ -324,15 +324,15 @@ pub use __string_concat_hidden as str_concat;
 ///
 /// This acts like a compile-time-evaluated version of this function:
 /// ```rust
-/// # trait StrOrChar: Copy {}
+/// # use konst::string::Pattern;
 /// pub const fn str_join(
-///     delimiter: impl StrOrChar,
+///     delimiter: impl Pattern<'static>,
 ///     strings: &'static [&'static str],
 /// ) -> &'static str
 /// # { "" }
 /// ```
 ///
-/// Where `impl StrOrChar` is either a `&'static str` or `char`
+/// Where `impl Pattern<'static>` is either a `&'static str` or `char`
 ///
 /// # Example
 ///

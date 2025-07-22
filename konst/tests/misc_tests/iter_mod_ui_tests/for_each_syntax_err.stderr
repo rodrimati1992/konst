@@ -5,7 +5,7 @@ error: unexpected end of macro invocation
   |               ^^^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
   |
 note: while trying to match meta-variable `$pattern:pat_param`
- --> $WORKSPACE/konst_kernel/src/iter.rs
+ --> src/iter/for_each_macro.rs
   |
   |     ($pattern:pat_param in $($rem:tt)*) => ({
   |      ^^^^^^^^^^^^^^^^^^
@@ -17,7 +17,7 @@ error: unexpected end of macro invocation
   |                                       ^ missing tokens in macro arguments
   |
 note: while trying to match keyword `in`
- --> $WORKSPACE/konst_kernel/src/iter.rs
+ --> src/iter/for_each_macro.rs
   |
   |     ($pattern:pat_param in $($rem:tt)*) => ({
   |                         ^^

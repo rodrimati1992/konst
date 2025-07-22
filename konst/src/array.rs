@@ -21,7 +21,7 @@ macro_rules! drop_warning {
             "`return` inside the closure passed to this macro ",
             "attempts to return from the function where this macro is called, ",
             "which drops the array elements, ",
-            "and dropping isn't allowed in const as of Rust 1.83.0.",
+            "and dropping isn't allowed in const as of Rust 1.88.0.",
             "\n\n",
             "The same applies to `?`, ",
             "and labelled `break`/`continue` into labels from outside the closure.",

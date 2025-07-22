@@ -3,7 +3,7 @@
 //! # `typewit`
 //!
 //! This crate uses [`typewit`] for emulating trait based polymorphism in const fns,
-//! because trait methods cannot be called in `const fn`s on stable(as of Rust 1.83.0)
+//! because trait methods cannot be called in `const fn`s on stable(as of Rust 1.88.0)
 //!
 
 /// Markers used to classify types, used as `Kind` associated types.

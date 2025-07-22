@@ -395,7 +395,7 @@ pub mod __ {
     pub use core::{
         assert,
         cmp::Ordering::{self, Equal, Greater, Less},
-        compile_error,
+        compile_error, concat,
         marker::PhantomData,
         matches,
         mem::{self, forget, ManuallyDrop, MaybeUninit},
@@ -405,6 +405,7 @@ pub mod __ {
         primitive::{bool, str, u8, usize},
         ptr,
         result::Result::{self, Err, Ok},
+        stringify,
     };
 
     pub mod v {

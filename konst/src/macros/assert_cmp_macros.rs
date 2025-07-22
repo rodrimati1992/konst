@@ -101,8 +101,8 @@ macro_rules! cmp_assertc_docs {
 /// The `const_panic::PanicFmt` derive that this example uses
 /// requres enabling `const_panic`'s `"derive"` feature.
 ///
-#[cfg_attr(feature = "__cp_derive", doc = "```rust")]
-#[cfg_attr(not(feature = "__cp_derive"), doc = "```ignore")]
+#[cfg_attr(feature = "const_panic_derive", doc = "```rust")]
+#[cfg_attr(not(feature = "const_panic_derive"), doc = "```ignore")]
 /// use konst::assertc_eq;
 /// use konst::const_panic::PanicFmt;
 ///

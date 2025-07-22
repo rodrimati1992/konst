@@ -290,8 +290,5 @@ pub enum ErrorKind {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Result alias for functions that mutate the parser fallibly.
-pub type ParserResult<'a, E = ParseError<'a>> = Result<(), E>;
-
 /// Result alias for functions that parse values.
 pub type ParseValueResult<'a, T, E = ParseError<'a>> = Result<T, E>;

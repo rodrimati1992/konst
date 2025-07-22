@@ -66,12 +66,11 @@ alloc = []
 # This is not enabled in CI, because it's way too sensitive to 
 # changes in how rustc formats errors
 __ui = ["trybuild", "rust_latest_stable"]
-__cp_derive = ["const_panic/derive", "const_panic/non_basic"]
 
 docsrs = []
 
 
 
 [package.metadata.docs.rs]
-features = ["docsrs", "alloc", "cmp", "parsing_proc", "rust_latest_stable", "nightly_mut_refs"]
+features = ["docsrs", "alloc", "const_panic_derive", "cmp", "parsing_proc", "rust_latest_stable", "nightly_mut_refs"]
 

@@ -131,7 +131,7 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 ///
 /// # Motivation
 ///
-/// This macro works around a limitation of Rust as of 1.83,
+/// This macro works around a limitation of Rust as of 1.88,
 /// where in a const context, a non-`Drop` type can't be destructured into its elements/fields
 /// if any of them is `Drop`.
 ///
@@ -223,7 +223,7 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 /// # Examples
 ///
 /// These examples demonstrate destructuring non-Copy types in const,
-/// which can't be done with built-in destructuring as of Rust 1.83.
+/// which can't be done with built-in destructuring as of Rust 1.88.
 ///
 /// ### Braced Struct
 ///

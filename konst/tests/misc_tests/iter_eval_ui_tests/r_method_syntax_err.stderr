@@ -36,7 +36,7 @@ error: rfold method expects accumulator and closure arguments
 12 |     konst::iter::eval!(R, rfold());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::__iter_eval` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::__iter_eval_inner` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `rfold` expects to be passed a 2-parameter closure
   --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:13:5
