@@ -36,10 +36,6 @@ pub use self::internal_iter_macros::{
     __assert_item_ty, __cim_method_not_found_err, __cim_preprocess_methods, __get_item_ty,
 };
 
-/// Trait for all the types that can be iterated over with ranges.
-///
-/// This trait is sealed and can only be implemented by `konst`
-#[doc(inline)]
 pub use self::step::Step;
 
 include! {"./iter/iter_eval_macro.rs"}

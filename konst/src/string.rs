@@ -6,6 +6,7 @@
 //! const fn in the standard library:
 //!
 //! - `from_utf8`: [`core::str::from_utf8`]
+//! - `is_char_boundary`: [`core::str::is_char_boundary`]
 //! - `trim`: [`str::trim_ascii`]
 //! - `trim_start`: [`str::trim_ascii_start`]
 //! - `trim_end`: [`str::trim_ascii_end`]
@@ -374,40 +375,6 @@ pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
     } else {
         non_char_boundary_panic("start", start)
     }
-}
-
-/// Const equivalent of [`str::is_char_boundary`].
-///
-/// # Example
-///
-/// ```
-/// use konst::string::is_char_boundary;
-///
-/// let string =  "锈 is 🧠";
-///
-/// // Start of "锈"
-/// assert!(is_char_boundary(string, 0));
-/// assert!(!is_char_boundary(string, 1));
-/// assert!(!is_char_boundary(string, 2));
-///
-/// // start of " "
-/// assert!(is_char_boundary(string, 3));
-///
-/// // start of "🧠"
-/// assert!(is_char_boundary(string, 7));
-/// assert!(!is_char_boundary(string, 8));
-///
-/// // end of string
-/// assert!(is_char_boundary(string, string.len()));
-///
-/// // after end of string
-/// assert!(!is_char_boundary(string, string.len() + 1));
-///
-///
-/// ```
-#[inline]
-pub const fn is_char_boundary(string: &str, position: usize) -> bool {
-    __is_char_boundary_bytes(string.as_bytes(), position)
 }
 
 /// Checks that the start and end are valid utf8 char boundaries

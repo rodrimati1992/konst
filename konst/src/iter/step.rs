@@ -2,7 +2,9 @@ use typewit::{HasTypeWitness, MakeTypeWitness, TypeEq, TypeWitnessTypeArg};
 
 use core::{marker::PhantomData, ops::RangeInclusive};
 
-#[doc(hidden)]
+/// Trait for all the types that can be iterated over with ranges.
+///
+/// This trait is sealed and can only be implemented by `konst`
 pub trait Step: HasTypeWitness<__StepWitness<Self>> + Copy {
     /// The minimum value of the type.
     const MIN_VAL: Self;
