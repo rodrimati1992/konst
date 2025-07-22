@@ -53,7 +53,8 @@
 /// ```rust
 /// use konst::{
 ///     parsing::{Parser, ParseValueResult},
-///     parser_method, unwrap_ctx,
+///     result,
+///     parser_method,
 /// };
 ///
 /// #[derive(Debug, PartialEq)]
@@ -76,10 +77,10 @@
 ///
 /// const COLORS: [Color; 4] = {
 ///     let parser = &mut Parser::new("BlueRedGreenGreen");
-///     let c0 = unwrap_ctx!(Color::try_parse(parser));
-///     let c1 = unwrap_ctx!(Color::try_parse(parser));
-///     let c2 = unwrap_ctx!(Color::try_parse(parser));
-///     let c3 = unwrap_ctx!(Color::try_parse(parser));
+///     let c0 = result::unwrap!(Color::try_parse(parser));
+///     let c1 = result::unwrap!(Color::try_parse(parser));
+///     let c2 = result::unwrap!(Color::try_parse(parser));
+///     let c3 = result::unwrap!(Color::try_parse(parser));
 ///     
 ///     [c0, c1, c2, c3]
 /// };
@@ -95,7 +96,7 @@
 /// ```rust
 /// use konst::{
 ///     parsing::{Parser, ParseValueResult},
-///     parser_method, unwrap_ctx,
+///     parser_method,
 /// };
 ///
 /// {
@@ -167,7 +168,7 @@
 /// ```rust
 /// use konst::{
 ///     parsing::{Parser, ParseValueResult},
-///     parser_method, unwrap_ctx,
+///     parser_method,
 /// };
 ///
 /// {

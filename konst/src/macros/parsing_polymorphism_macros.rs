@@ -6,11 +6,11 @@
 /// standard library and user-defined types.
 ///
 /// ```rust
-/// use konst::{parse_with, try_, unwrap_ctx};
+/// use konst::{parse_with, result, try_};
 ///
 /// use konst::parsing::{HasParser, Parser, ParseValueResult};
 ///
-/// const PAIR: (u32, Foo) = unwrap_ctx!(parse_pair(&mut Parser::new("100,Baz")));
+/// const PAIR: (u32, Foo) = result::unwrap!(parse_pair(&mut Parser::new("100,Baz")));
 ///
 /// assert_eq!(PAIR.0, 100);
 /// assert_eq!(PAIR.1, Foo::Baz);

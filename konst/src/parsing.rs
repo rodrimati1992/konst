@@ -73,7 +73,8 @@ use crate::string::{self, Pattern};
 #[cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
 /// use konst::{
 ///     parsing::{Parser, ParseValueResult},
-///     for_range, parser_method, try_, unwrap_ctx,
+///     result,
+///     for_range, parser_method, try_,
 /// };
 ///
 /// // We need to parse the length into a separate const to use it as the length of the array.
@@ -84,13 +85,13 @@ use crate::string::{self, Pattern};
 ///     ";
 ///     
 ///     let mut parser = Parser::new(input);
-///     let len = unwrap_ctx!(parser.parse_usize());
-///     unwrap_ctx!(parser.strip_prefix(';'));
+///     let len = result::unwrap!(parser.parse_usize());
+///     result::unwrap!(parser.strip_prefix(';'));
 ///     (len, parser)
 /// };
 ///
 /// const ANGLES: [Angle; LEN_AND_PARSER.0] =
-///     unwrap_ctx!(Angle::parse_array(&mut LEN_AND_PARSER.1));
+///     result::unwrap!(Angle::parse_array(&mut LEN_AND_PARSER.1));
 ///
 /// fn main() {
 ///     assert_eq!(
@@ -178,18 +179,15 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{
-    ///     result::unwrap_ctx,
-    ///     Parser,
-    /// };
+    /// use konst::{Parser, result};
     ///
     /// assert_eq!(VARS, ["foo", "bar", "baz"]);
     ///
     /// const VARS: [&str; 3] = {
     ///     let mut parser = Parser::new("foo,bar,baz");
     ///     
-    ///     let foo = unwrap_ctx!(parser.split_terminator(','));
-    ///     let bar = unwrap_ctx!(parser.split_terminator(','));
+    ///     let foo = result::unwrap!(parser.split_terminator(','));
+    ///     let bar = result::unwrap!(parser.split_terminator(','));
     ///     
     ///     // `.split_terminator(',')` errors here
     ///     // because there's no `,` in the remainder of the string,
@@ -240,18 +238,15 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{
-    ///     result::unwrap_ctx,
-    ///     Parser,
-    /// };
+    /// use konst::{Parser, result};
     ///
     /// assert_eq!(VARS, ["baz", "bar", "foo"]);
     ///
     /// const VARS: [&str; 3] = {
     ///     let mut parser = Parser::new("foo,bar,baz");
     ///     
-    ///     let baz = unwrap_ctx!(parser.rsplit_terminator(','));
-    ///     let bar = unwrap_ctx!(parser.rsplit_terminator(','));
+    ///     let baz = result::unwrap!(parser.rsplit_terminator(','));
+    ///     let bar = result::unwrap!(parser.rsplit_terminator(','));
     ///     
     ///     // `.rsplit_terminator(',')` errors here
     ///     // because there's no `,` in the remainder of the string,
@@ -305,19 +300,16 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{
-    ///     result::unwrap_ctx,
-    ///     Parser,
-    /// };
+    /// use konst::{Parser, result};
     ///
     /// assert_eq!(VARS, ["foo", "bar", ""]);
     ///
     /// const VARS: [&str; 3] = {
     ///     let mut parser = Parser::new("foo,bar,");
     ///     
-    ///     let foo = unwrap_ctx!(parser.split(','));
-    ///     let bar = unwrap_ctx!(parser.split(','));
-    ///     let empty = unwrap_ctx!(parser.split(','));
+    ///     let foo = result::unwrap!(parser.split(','));
+    ///     let bar = result::unwrap!(parser.split(','));
+    ///     let empty = result::unwrap!(parser.split(','));
     ///     
     ///     assert!(parser.split(',').is_err());
     ///     assert!(parser.remainder().is_empty());
@@ -366,19 +358,16 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{
-    ///     result::unwrap_ctx,
-    ///     Parser,
-    /// };
+    /// use konst::{Parser, result};
     ///
     /// assert_eq!(VARS, ["baz", "bar", ""]);
     ///
     /// const VARS: [&str; 3] = {
     ///     let mut parser = Parser::new(",bar,baz");
     ///     
-    ///     let baz = unwrap_ctx!(parser.rsplit(','));
-    ///     let bar = unwrap_ctx!(parser.rsplit(','));
-    ///     let empty = unwrap_ctx!(parser.rsplit(','));
+    ///     let baz = result::unwrap!(parser.rsplit(','));
+    ///     let bar = result::unwrap!(parser.rsplit(','));
+    ///     let empty = result::unwrap!(parser.rsplit(','));
     ///     
     ///     assert!(parser.rsplit(',').is_err());
     ///     assert!(parser.remainder().is_empty());
@@ -427,8 +416,8 @@ impl<'a> Parser<'a> {
     ///
     /// use konst::{
     ///     parsing::{Parser, ParseValueResult},
-    ///     eq_str,
-    ///     for_range, parser_method, try_, unwrap_ctx,
+    ///     result,
+    ///     eq_str, for_range, parser_method, try_,
     /// };
     ///
     /// assert_eq!(VALS, [
@@ -443,9 +432,9 @@ impl<'a> Parser<'a> {
     ///     let parser = &mut Parser::new("shello,i3,i5,sworld");
     ///     
     ///     for_range!{i in 0..arr.len() =>
-    ///         arr[i] = unwrap_ctx!(parse_value(parser));
+    ///         arr[i] = result::unwrap!(parse_value(parser));
     ///         if !parser.is_empty() {
-    ///             unwrap_ctx!(parser.strip_prefix(','));
+    ///             result::unwrap!(parser.strip_prefix(','));
     ///         }
     ///     }
     ///     
@@ -623,7 +612,7 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("    foo\n\t bar    ");
     ///
@@ -643,14 +632,14 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("    foo\n\t bar");
     ///
     /// parser.trim_start();
     /// assert_eq!(parser.remainder(), "foo\n\t bar");
     ///
-    /// unwrap_ctx!(parser.strip_prefix("foo")).trim_start();
+    /// result::unwrap!(parser.strip_prefix("foo")).trim_start();
     /// assert_eq!(parser.remainder(), "bar");
     ///
     /// ```
@@ -666,14 +655,14 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("foo,\n    bar,\n    ");
     ///
     /// parser.trim_end();
     /// assert_eq!(parser.remainder(), "foo,\n    bar,");
     ///
-    /// unwrap_ctx!(parser.strip_suffix("bar,")).trim_end();
+    /// result::unwrap!(parser.strip_suffix("bar,")).trim_end();
     /// assert_eq!(parser.remainder(), "foo,");
     ///
     /// ```
@@ -848,17 +837,17 @@ impl<'a> Parser<'a> {
     /// ### `&str` argument
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("foo--bar,baz--qux");
     ///
-    /// unwrap_ctx!(parser.find_skip("--"));
+    /// result::unwrap!(parser.find_skip("--"));
     /// assert_eq!(parser.remainder(), "bar,baz--qux");
     ///
-    /// unwrap_ctx!(parser.find_skip("bar,"));
+    /// result::unwrap!(parser.find_skip("bar,"));
     /// assert_eq!(parser.remainder(), "baz--qux");
     ///
-    /// unwrap_ctx!(parser.find_skip("--"));
+    /// result::unwrap!(parser.find_skip("--"));
     /// assert_eq!(parser.remainder(), "qux");
     ///
     /// assert!(parser.find_skip("--").is_err());
@@ -868,14 +857,14 @@ impl<'a> Parser<'a> {
     /// ### `char` argument
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("foo-bar,baz");
     ///
-    /// unwrap_ctx!(parser.find_skip('-'));
+    /// result::unwrap!(parser.find_skip('-'));
     /// assert_eq!(parser.remainder(), "bar,baz");
     ///
-    /// unwrap_ctx!(parser.find_skip(','));
+    /// result::unwrap!(parser.find_skip(','));
     /// assert_eq!(parser.remainder(), "baz");
     ///
     /// ```
@@ -903,17 +892,17 @@ impl<'a> Parser<'a> {
     /// ### `&str` argument
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("foo--bar,baz--qux");
     ///
-    /// unwrap_ctx!(parser.rfind_skip("--"));
+    /// result::unwrap!(parser.rfind_skip("--"));
     /// assert_eq!(parser.remainder(), "foo--bar,baz");
     ///
-    /// unwrap_ctx!(parser.rfind_skip(",baz"));
+    /// result::unwrap!(parser.rfind_skip(",baz"));
     /// assert_eq!(parser.remainder(), "foo--bar");
     ///
-    /// unwrap_ctx!(parser.rfind_skip("--"));
+    /// result::unwrap!(parser.rfind_skip("--"));
     /// assert_eq!(parser.remainder(), "foo");
     ///
     /// assert!(parser.rfind_skip("--").is_err());
@@ -923,14 +912,14 @@ impl<'a> Parser<'a> {
     /// ### `char` argument
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("foo,bar-baz");
     ///
-    /// unwrap_ctx!(parser.rfind_skip('-'));
+    /// result::unwrap!(parser.rfind_skip('-'));
     /// assert_eq!(parser.remainder(), "foo,bar");
     ///
-    /// unwrap_ctx!(parser.rfind_skip(','));
+    /// result::unwrap!(parser.rfind_skip(','));
     /// assert_eq!(parser.remainder(), "foo");
     ///
     /// ```

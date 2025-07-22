@@ -16,12 +16,12 @@ impl<'a> Parser<'a> {
     /// ```rust
     /// use konst::{
     ///     parsing::{Parser, ParseValueResult},
-    ///     unwrap_ctx, try_,
+    ///     result, try_,
     /// };
     ///
     /// {
     ///     let mut parser = Parser::new("12345");
-    ///     let num = unwrap_ctx!(parser.parse_u128());
+    ///     let num = result::unwrap!(parser.parse_u128());
     ///     assert_eq!(num, 12345);
     ///     assert!(parser.is_empty());
     /// }
@@ -44,7 +44,7 @@ impl<'a> Parser<'a> {
     /// }
     /// const PAIR: [u128; 2] = {
     ///     let parser = &mut Parser::new("1365;6789");
-    ///     unwrap_ctx!(parse_pair(parser))
+    ///     result::unwrap!(parse_pair(parser))
     /// };
     ///
     /// assert_eq!(PAIR[0], 1365);
@@ -68,24 +68,24 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// {
     ///     let mut parser = Parser::new("12345");
-    ///     let num = unwrap_ctx!(parser.parse_i128());
+    ///     let num = result::unwrap!(parser.parse_i128());
     ///     assert_eq!(num, 12345);
     ///     assert!(parser.is_empty());
     /// }
     /// {
     ///     let mut parser = Parser::new("-54321;6789");
     ///     
-    ///     assert_eq!(unwrap_ctx!(parser.parse_i128()), -54321);
+    ///     assert_eq!(result::unwrap!(parser.parse_i128()), -54321);
     ///     assert_eq!(parser.remainder(), ";6789");
     ///
     ///     _ = parser.strip_prefix(";");
     ///     assert_eq!(parser.remainder(), "6789");
     ///
-    ///     assert_eq!(unwrap_ctx!(parser.parse_i128()), 6789);
+    ///     assert_eq!(result::unwrap!(parser.parse_i128()), 6789);
     ///     assert!(parser.is_empty());
     /// }
     ///
@@ -346,17 +346,17 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// {
     ///     let mut parser = Parser::new("falsemorestring");
-    ///     let boolean = unwrap_ctx!(parser.parse_bool());
+    ///     let boolean = result::unwrap!(parser.parse_bool());
     ///     assert_eq!(boolean, false);
     ///     assert_eq!(parser.remainder(), "morestring");
     /// }
     /// {
     ///     let mut parser = Parser::new("truefoo");
-    ///     let boolean = unwrap_ctx!(parser.parse_bool());
+    ///     let boolean = result::unwrap!(parser.parse_bool());
     ///     assert_eq!(boolean, true);
     ///     assert_eq!(parser.remainder(), "foo");
     /// }

@@ -18,11 +18,10 @@
 //! at compile-time.
 //!
 //! ```rust
-//! use konst::{
-//!     eq_str,
-//!     option,
-//!     result::unwrap_ctx,
-//! };
+//! use konst::{eq_str, option, result};
+//! use konst::const_panic::{self, PanicFmt, PanicVal, FmtArg};
+//!
+//! use std::fmt::{self, Display};
 //!
 //! #[derive(Debug, PartialEq)]
 //! enum Direction {
@@ -47,7 +46,7 @@
 //!
 //! const CHOICE: &str = option::unwrap_or!(option_env!("chosen-direction"), "forward");
 //!
-//! const DIRECTION: Direction = unwrap_ctx!(Direction::try_parse(CHOICE));
+//! const DIRECTION: Direction = result::unwrap!(Direction::try_parse(CHOICE));
 //!
 //! fn main() {
 //!     match DIRECTION {
@@ -58,10 +57,11 @@
 //!     }
 //! }
 //!
-//! #[derive(Debug, PartialEq)]
+//! // To use the `PanicFmt` derive you need to enable the "const_panic_derive" feature
+//! #[derive(Debug, PartialEq, PanicFmt)]
+//! #[pfmt(display_fmt = Self::display_fmt)]
 //! pub struct ParseDirectionError;
 //!
-//! use std::fmt::{self, Display};
 //!
 //! impl Display for ParseDirectionError {
 //!     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -70,10 +70,16 @@
 //! }
 //!
 //! impl ParseDirectionError {
-//!     const fn panic(&self) -> ! {
-//!         panic!("failed to parse a Direction")
+//!     const fn display_fmt(
+//!         &self,
+//!         fmtarg: FmtArg,
+//!     ) -> [PanicVal<'_>; ParseDirectionError::PV_COUNT] {
+//!         const_panic::flatten_panicvals!{fmtarg, ParseDirectionError::PV_COUNT;
+//!             "Failed to parse a Direction"
+//!         }
 //!     }
 //! }
+//!
 //!
 //! ```
 //!
@@ -108,8 +114,8 @@
 #![cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
 //! use konst::{
 //!     parsing::{Parser, ParseValueResult},
-//!     eq_str,
-//!     for_range, parser_method, try_, unwrap_ctx,
+//!     result,
+//!     eq_str, for_range, parser_method, try_,
 //! };
 //!
 //! const PARSED: Struct = {
@@ -121,7 +127,7 @@
 //!         name = bob smith
 //!     ";
 //!     
-//!     unwrap_ctx!(parse_struct(&mut Parser::new(input)))
+//!     result::unwrap!(parse_struct(&mut Parser::new(input)))
 //! };
 //!
 //! fn main(){
@@ -252,6 +258,9 @@
 //! - `"parsing"`(enabled by default):
 //! Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
 //! the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
+//!
+//! - `"const_panic_derive"`:
+//! Enables the "derive" feature of the `const_panic` public dependency.
 //!
 //! - `"alloc"`:
 //! Enables items that use types from the [`alloc`] crate, including `Vec` and `String`.

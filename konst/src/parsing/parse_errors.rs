@@ -85,23 +85,6 @@ impl<'a> ParseError<'a> {
         self.extra_message
     }
 
-    /// For panicking with an error message,
-    /// this is called by the [`unwrap_ctx`] macro.
-    ///
-    /// [`unwrap_ctx`]: ../result/macro.unwrap_ctx.html
-    #[track_caller]
-    pub const fn panic(&self) -> ! {
-        use const_panic::{FmtArg, PanicVal};
-
-        const_panic::concat_panic(&[&[
-            PanicVal::write_str(self.error_for_direction()),
-            PanicVal::from_usize(self.offset(), FmtArg::DEBUG),
-            PanicVal::write_str(" byte offset"),
-            PanicVal::write_str(self.error_suffix()),
-            PanicVal::write_str(self.extra_message()),
-        ]])
-    }
-
     const fn error_for_direction(&self) -> &'static str {
         match self.direction {
             ParseDirection::FromStart => "error from the start at the ",

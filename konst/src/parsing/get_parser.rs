@@ -32,13 +32,13 @@ use core::marker::PhantomData;
 /// # Example
 ///
 /// ```rust
-/// use konst::{parse_with, try_, unwrap_ctx};
+/// use konst::{parse_with, result, try_};
 ///
 /// use konst::parsing::{HasParser, Parser, ParseValueResult};
 ///
 /// const PAIR: Pair = {
 ///     let mut parser = Parser::new("100,200");
-///     unwrap_ctx!(parse_with!(parser, Pair))
+///     result::unwrap!(parse_with!(parser, Pair))
 /// };
 ///
 /// assert_eq!(PAIR, Pair(100, 200));

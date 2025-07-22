@@ -42,6 +42,10 @@ features = ["rust_1_61"]
 version = "0.2.13"
 features = ["rust_1_88"]
 
+[dev-dependencies.const_panic]
+version = "0.2.13"
+features = ["rust_1_88", "derive"]
+
 [features]
 default = ["cmp", "iter", "parsing_proc"]
 
@@ -52,6 +56,7 @@ cmp = []
 iter = []
 parsing_proc = ["parsing", "konst_proc_macros"]
 parsing = []
+const_panic_derive = ["const_panic/derive"]
 
 rust_latest_stable = []
 
