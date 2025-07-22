@@ -656,7 +656,7 @@ mod requires_rust_1_64 {
     /// assert_eq!(iter.remainder(), &[55][..]);
     /// ```
     pub const fn array_chunks<'a, T, const N: usize>(slice: &'a [T]) -> ArrayChunks<'a, T, N> {
-        let (arrays, rem) = slice::as_chunks(slice);
+        let (arrays, rem) = slice.as_chunks();
 
         ArrayChunks { arrays, rem }
     }
@@ -759,7 +759,7 @@ mod requires_rust_1_64 {
     pub const fn array_chunks_mut<'a, T, const N: usize>(
         slice: &'a mut [T],
     ) -> ArrayChunksMut<'a, T, N> {
-        let (arrays, rem) = slice::as_chunks_mut(slice);
+        let (arrays, rem) = slice.as_chunks_mut();
 
         ArrayChunksMut { arrays, rem }
     }

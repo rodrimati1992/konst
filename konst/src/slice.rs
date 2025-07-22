@@ -5,6 +5,10 @@
 //! These functions were removed in 0.4.0 because there is an equivalent
 //! const fn in the standard library:
 //!
+//! - `as_chunks`: [slice::as_chunks]
+//! - `as_rchunks`: [slice::as_rchunks]
+//! - `as_chunks_mut`: [slice::as_chunks_mut]
+//! - `as_rchunks_mut`: [slice::as_rchunks_mut]
 //! - `bytes_trim_end`: [slice::trim_ascii_end]
 //! - `bytes_trim_start`: [slice::trim_ascii_start]
 //! - `bytes_trim`: [slice::trim_ascii]
@@ -21,7 +25,6 @@ use core::fmt::{self, Display};
 pub mod cmp;
 
 mod bytes_pattern;
-mod slice_as_chunks;
 mod slice_concatenation;
 mod slice_const_methods;
 
@@ -32,7 +35,6 @@ pub use bytes_pattern::BytesPattern;
 
 pub(crate) use bytes_pattern::PatternNorm;
 
-pub use self::slice_as_chunks::*;
 pub use self::slice_concatenation::*;
 pub use self::slice_const_methods::*;
 
