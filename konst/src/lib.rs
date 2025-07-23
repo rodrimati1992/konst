@@ -398,7 +398,7 @@ pub mod __ {
         compile_error, concat,
         marker::PhantomData,
         matches,
-        mem::{self, forget, ManuallyDrop, MaybeUninit},
+        mem::{self, ManuallyDrop, MaybeUninit},
         ops::Range,
         option::Option::{self, None, Some},
         panic,
@@ -407,6 +407,10 @@ pub mod __ {
         result::Result::{self, Err, Ok},
         stringify,
     };
+
+    pub const fn forget<T>(x: T) {
+        core::mem::forget(x)
+    }
 
     pub mod v {
         pub use core::{

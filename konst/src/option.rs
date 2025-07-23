@@ -77,18 +77,21 @@ pub use crate::__opt_unwrap_or_else as unwrap_or_else;
 macro_rules! __opt_unwrap_or_else {
     ($e:expr, || $v:expr $(,)?) => {
         match $e {
-            $crate::__::Some(x) => x,
-            $crate::__::None => $v,
+            opt => {
+                if let $crate::__::Some(_) = opt {
+                    $crate::__::Option::unwrap(opt)
+                } else {
+                    $crate::__::forget(opt);
+                    $v
+                }
+            }
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
         compile_error!("expected the closure to take no arguments")
     };
     ($e:expr, $v:expr $(,)?) => {
-        match $e {
-            $crate::__::Some(x) => x,
-            $crate::__::None => $v(),
-        }
+        $crate::__opt_unwrap_or_else! {$e, || $v()}
     };
 }
 
@@ -153,18 +156,21 @@ pub use crate::__opt_ok_or_else as ok_or_else;
 macro_rules! __opt_ok_or_else {
     ($e:expr, || $v:expr $(,)?) => {
         match $e {
-            $crate::__::Some(x) => $crate::__::Ok(x),
-            $crate::__::None => $crate::__::Err($v),
+            opt => {
+                if let $crate::__::Some(_) = opt {
+                    $crate::__::Ok($crate::__::Option::unwrap(opt))
+                } else {
+                    $crate::__::forget(opt);
+                    $crate::__::Err($v)
+                }
+            }
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
         compile_error!("expected the closure to take no arguments")
     };
     ($e:expr, $v:expr $(,)?) => {
-        match $e {
-            $crate::__::Some(x) => $crate::__::Ok(x),
-            $crate::__::None => $crate::__::Err($v()),
-        }
+        $crate::__opt_ok_or_else! {$e, || $v()}
     };
 }
 
@@ -201,18 +207,22 @@ pub use crate::__opt_map as map;
 macro_rules! __opt_map {
     ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
         match $opt {
-            $crate::__::Some($param) => $crate::__::Some($mapper),
-            $crate::__::None => $crate::__::None,
+            opt => {
+                if let $crate::__::Some(_) = opt {
+                    let $param = $crate::__::Option::unwrap(opt);
+                    $crate::__::Some($mapper)
+                } else {
+                    $crate::__::forget(opt);
+                    $crate::__::None
+                }
+            }
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
     ($opt:expr, $function:path $(,)?) => {
-        match $opt {
-            $crate::__::Some(x) => $crate::__::Some($function(x)),
-            $crate::__::None => $crate::__::None,
-        }
+        $crate::__opt_map! {$opt, |x| $function(x)}
     };
 }
 
@@ -255,18 +265,22 @@ pub use crate::__opt_and_then as and_then;
 macro_rules! __opt_and_then {
     ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
         match $opt {
-            $crate::__::Some($param) => $mapper,
-            $crate::__::None => $crate::__::None,
+            opt => {
+                if let $crate::__::Some(_) = opt {
+                    let $param = $crate::__::Option::unwrap(opt);
+                    $mapper
+                } else {
+                    $crate::__::forget(opt);
+                    $crate::__::None
+                }
+            }
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
     ($opt:expr, $function:path $(,)?) => {
-        match $opt {
-            $crate::__::Some(x) => $function(x),
-            $crate::__::None => $crate::__::None,
-        }
+        $crate::__opt_and_then! {$opt, |x| $function(x)}
     };
 }
 
@@ -303,18 +317,18 @@ pub use crate::__opt_or_else as or_else;
 macro_rules! __opt_or_else {
     ($opt:expr, || $mapper:expr $(,)? ) => {
         match $opt {
-            $crate::__::Some(x) => $crate::__::Some(x),
-            $crate::__::None => $mapper,
+            opt @ $crate::__::Some(_) => opt,
+            opt @ $crate::__::None => {
+                $crate::__::forget(opt);
+                $mapper
+            }
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
         compile_error!("expected the closure to take no arguments")
     };
     ($opt:expr, $function:path $(,)?) => {
-        match $opt {
-            $crate::__::Some(x) => $crate::__::Some(x),
-            $crate::__::None => $function(),
-        }
+        $crate::__opt_or_else! {$opt, || $function()}
     };
 }
 

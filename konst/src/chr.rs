@@ -32,10 +32,8 @@ pub struct Utf8Encoded {
 impl Utf8Encoded {
     /// Gets the utf8-encoded char as a `&str`
     pub const fn as_str(&self) -> &str {
-        /// SAFETY: Utf8Encoded.as_bytes() returns a byte slice that is valid utf8
-        unsafe {
-            core::str::from_utf8_unchecked(self.as_bytes())
-        }
+        // SAFETY: Utf8Encoded.as_bytes() returns a byte slice that is valid utf8
+        unsafe { core::str::from_utf8_unchecked(self.as_bytes()) }
     }
 
     /// Gets the utf8-encoded char as a `&[u8]`
