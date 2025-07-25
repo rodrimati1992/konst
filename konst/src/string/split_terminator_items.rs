@@ -99,6 +99,7 @@ impl<'a, 'p, P: Pattern<'p>> ConstIntoIter for SplitTerminator<'a, 'p, P> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = &'a str;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, 'p, P: Pattern<'p>> SplitTerminator<'a, 'p, P> {
@@ -185,6 +186,7 @@ impl<'a, 'p, P: Pattern<'p>> ConstIntoIter for RSplitTerminator<'a, 'p, P> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = &'a str;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, 'p, P: Pattern<'p>> RSplitTerminator<'a, 'p, P> {

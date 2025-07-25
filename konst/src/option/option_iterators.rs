@@ -6,12 +6,14 @@ impl<'a, T> ConstIntoIter for &'a Option<T> {
     type Kind = IsStdKind;
     type IntoIter = Iter<'a, T>;
     type Item = &'a T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> ConstIntoIter for &&'a Option<T> {
     type Kind = IsStdKind;
     type IntoIter = Iter<'a, T>;
     type Item = &'a T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> IntoIterWrapper<&'a Option<T>, IsStdKind> {
@@ -76,6 +78,7 @@ impl<'a, T> ConstIntoIter for Iter<'a, T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = &'a T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 /// Const equivalent of `core::iter::Rev<core::option::Iter<T>>`
@@ -86,6 +89,7 @@ impl<'a, T> ConstIntoIter for IterRev<'a, T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = &'a T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> Iter<'a, T> {
@@ -102,12 +106,14 @@ impl<'a, T> ConstIntoIter for &'a mut Option<T> {
     type Kind = IsStdKind;
     type IntoIter = IterMut<'a, T>;
     type Item = &'a mut T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> ConstIntoIter for &'a mut &mut Option<T> {
     type Kind = IsStdKind;
     type IntoIter = IterMut<'a, T>;
     type Item = &'a mut T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> IntoIterWrapper<&'a mut Option<T>, IsStdKind> {
@@ -178,6 +184,7 @@ impl<'a, T> ConstIntoIter for IterMut<'a, T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = &'a mut T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 /// Const equivalent of `core::iter::Rev<core::option::IterMut<T>>`
@@ -188,6 +195,7 @@ impl<'a, T> ConstIntoIter for IterMutRev<'a, T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = &'a mut T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> IterMut<'a, T> {
@@ -204,6 +212,7 @@ impl<T> ConstIntoIter for Option<T> {
     type Kind = IsStdKind;
     type IntoIter = IntoIter<T>;
     type Item = T;
+    const ITEMS_NEED_DROP: bool = core::mem::needs_drop::<T>();
 }
 
 impl<T> IntoIterWrapper<Option<T>, IsStdKind> {
@@ -267,6 +276,7 @@ impl<T> ConstIntoIter for IntoIter<T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = T;
+    const ITEMS_NEED_DROP: bool = core::mem::needs_drop::<T>();
 }
 
 /// Const equivalent of `core::iter::Rev<core::option::IntoIter<T>>`
@@ -277,6 +287,7 @@ impl<T> ConstIntoIter for IntoIterRev<T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = T;
+    const ITEMS_NEED_DROP: bool = core::mem::needs_drop::<T>();
 }
 
 impl<T> IntoIter<T> {

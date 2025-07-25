@@ -62,6 +62,7 @@ macro_rules! __for_each {
 ///     type Kind = IsIteratorKind;
 ///     type IntoIter = Self;
 ///     type Item = u8;
+///     const ITEMS_NEED_DROP: bool = false;
 /// }
 ///
 /// impl Upto10 {

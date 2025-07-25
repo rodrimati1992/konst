@@ -13,11 +13,15 @@ macro_rules! impl_std_kinds {
                 type Kind = IsStdKind;
                 type IntoIter = $iter<T>;
                 type Item = T;
+                // `T: Copy` so it doesn't need dropping
+                const ITEMS_NEED_DROP: bool = false;
             }
             impl<T: Step> ConstIntoIter for &$ty<T> {
                 type Kind = IsStdKind;
                 type IntoIter = $iter<T>;
                 type Item = T;
+                // `T: Copy` so it doesn't need dropping
+                const ITEMS_NEED_DROP: bool = false;
             }
         )*
     )
@@ -45,6 +49,9 @@ impl<T: Step> ConstIntoIter for RangeIter<T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = T;
+
+    // `T: Copy` so it doesn't need dropping
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 /// Reversed const-iterator for [`Range`](core::ops::Range)
@@ -65,6 +72,9 @@ impl<T: Step> ConstIntoIter for RangeIterRev<T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = T;
+
+    // `T: Copy` so it doesn't need dropping
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 /// Const-iterator for [`RangeInclusive`](core::ops::RangeInclusive)
@@ -84,6 +94,9 @@ impl<T: Step> ConstIntoIter for RangeInclusiveIter<T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = T;
+
+    // `T: Copy` so it doesn't need dropping
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 /// Reversed const-iterator for [`RangeInclusive`](core::ops::RangeInclusive)
@@ -103,6 +116,9 @@ impl<T: Step> ConstIntoIter for RangeInclusiveIterRev<T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = T;
+
+    // `T: Copy` so it doesn't need dropping
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 /// Const-iterator for [`RangeFrom`](core::ops::RangeFrom)
@@ -121,6 +137,9 @@ impl<T: Step> ConstIntoIter for RangeFromIter<T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = T;
+
+    // `T: Copy` so it doesn't need dropping
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 macro_rules! int_range_shared {

@@ -25,6 +25,7 @@ impl<T> ConstIntoIter for Repeat<T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = T;
+    const ITEMS_NEED_DROP: bool = core::mem::needs_drop::<T>();
 }
 
 impl<T: Copy> Repeat<T> {

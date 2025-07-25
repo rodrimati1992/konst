@@ -9,12 +9,14 @@ impl<'a, T, const N: usize> ConstIntoIter for &'a [T; N] {
     type Kind = IsStdKind;
     type IntoIter = Iter<'a, T>;
     type Item = &'a T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T, const N: usize> ConstIntoIter for &&'a [T; N] {
     type Kind = IsStdKind;
     type IntoIter = Iter<'a, T>;
     type Item = &'a T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T, const N: usize> IntoIterWrapper<&'a [T; N], IsStdKind> {
@@ -38,6 +40,7 @@ impl<'a, T> ConstIntoIter for &'a [T] {
     type Kind = IsStdKind;
     type IntoIter = Iter<'a, T>;
     type Item = &'a T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> IntoIterWrapper<&'a [T], IsStdKind> {
@@ -53,6 +56,7 @@ impl<'a, T> ConstIntoIter for &&'a [T] {
     type Kind = IsStdKind;
     type IntoIter = Iter<'a, T>;
     type Item = &'a T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> IntoIterWrapper<&&'a [T], IsStdKind> {
@@ -131,6 +135,7 @@ impl<'a, T> ConstIntoIter for Iter<'a, T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = &'a T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 macro_rules! iter_shared {
@@ -185,6 +190,7 @@ impl<'a, T> ConstIntoIter for IterRev<'a, T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = &'a T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> Iter<'a, T> {
@@ -201,12 +207,14 @@ impl<'a, T, const N: usize> ConstIntoIter for &'a mut [T; N] {
     type Kind = IsStdKind;
     type IntoIter = IterMut<'a, T>;
     type Item = &'a mut T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T, const N: usize> ConstIntoIter for &'a mut &mut [T; N] {
     type Kind = IsStdKind;
     type IntoIter = IterMut<'a, T>;
     type Item = &'a mut T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T, const N: usize> IntoIterWrapper<&'a mut [T; N], IsStdKind> {
@@ -230,6 +238,7 @@ impl<'a, T> ConstIntoIter for &'a mut [T] {
     type Kind = IsStdKind;
     type IntoIter = IterMut<'a, T>;
     type Item = &'a mut T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> IntoIterWrapper<&'a mut [T], IsStdKind> {
@@ -245,6 +254,7 @@ impl<'a, T> ConstIntoIter for &'a mut &mut [T] {
     type Kind = IsStdKind;
     type IntoIter = IterMut<'a, T>;
     type Item = &'a mut T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> IntoIterWrapper<&'a mut &mut [T], IsStdKind> {
@@ -343,12 +353,14 @@ impl<'a, T> ConstIntoIter for IterMut<'a, T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = &'a mut T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> ConstIntoIter for IterMutRev<'a, T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = &'a mut T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T> IterMut<'a, T> {
@@ -445,6 +457,7 @@ impl<'a, T> ConstIntoIter for IterCopied<'a, T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 /// A const equivalent of `iter::Rev<iter::Copied<slice::Iter<'a, T>>>`
@@ -483,6 +496,7 @@ impl<'a, T> ConstIntoIter for IterCopiedRev<'a, T> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl<'a, T: Copy> IterCopied<'a, T> {
@@ -596,6 +610,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::Windows>`
@@ -616,6 +631,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     impl<'a, T> Windows<'a, T> {
@@ -700,6 +716,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a [T; N];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::ArrayChunks>`
@@ -711,6 +728,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a [T; N];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     impl<'a, T, const N: usize> ArrayChunks<'a, T, N> {
@@ -804,6 +822,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a mut [T; N];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::ArrayChunksMut>`
@@ -815,6 +834,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a mut [T; N];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     impl<'a, T, const N: usize> ArrayChunksMut<'a, T, N> {
@@ -913,6 +933,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::Chunks>`
@@ -933,6 +954,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     impl<'a, T> Chunks<'a, T> {
@@ -1025,6 +1047,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a mut [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::ChunksMut>`
@@ -1045,6 +1068,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a mut [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     impl<'a, T> ChunksMut<'a, T> {
@@ -1138,6 +1162,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::RChunks>`
@@ -1158,6 +1183,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     impl<'a, T> RChunks<'a, T> {
@@ -1250,6 +1276,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a mut [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::RChunksMut>`
@@ -1270,6 +1297,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a mut [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     impl<'a, T> RChunksMut<'a, T> {
@@ -1380,6 +1408,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::ChunksExact>`
@@ -1401,6 +1430,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     impl<'a, T> ChunksExact<'a, T> {
@@ -1510,6 +1540,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::RChunksExact>`
@@ -1531,6 +1562,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     impl<'a, T> RChunksExact<'a, T> {
@@ -1643,6 +1675,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a mut [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::ChunksExactMut>`
@@ -1664,6 +1697,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a mut [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     impl<'a, T> ChunksExactMut<'a, T> {
@@ -1778,6 +1812,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a mut [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     /// Const equivalent of `core::iter::Rev<core::slice::RChunksExactMut>`
@@ -1799,6 +1834,7 @@ mod requires_rust_1_64 {
         type Kind = IsIteratorKind;
         type IntoIter = Self;
         type Item = &'a mut [T];
+        const ITEMS_NEED_DROP: bool = false;
     }
 
     impl<'a, T> RChunksExactMut<'a, T> {

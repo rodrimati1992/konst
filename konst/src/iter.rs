@@ -52,6 +52,11 @@ include! {"./iter/iter_eval_macro.rs"}
 /// - [`IsIteratorKind` kind](#isiteratorkind)
 /// - Standard library types, of the [`IsStdKind`] kind
 ///
+/// If the iterator needs dropping,
+/// it must only drop the items it'd produce if iterated over.
+/// This is so that the `konst::iter` macros can support iterators that drop their items,
+/// but don't deallocate memory or free other resources.
+///
 /// ### `IsIntoIterKind`
 ///
 /// These are user-defined types convertible to const iterators.
@@ -140,6 +145,7 @@ include! {"./iter/iter_eval_macro.rs"}
 ///     type Kind = iter::IsIntoIterKind;
 ///     type IntoIter = konst::slice::Iter<'a, T>;
 ///     type Item = &'a T;
+///     const ITEMS_NEED_DROP: bool = false;
 /// }
 ///
 /// impl<'a, T> GetSlice<'a, T> {
@@ -175,6 +181,7 @@ include! {"./iter/iter_eval_macro.rs"}
 ///     type Kind = iter::IsIteratorKind;
 ///     type IntoIter = Self;
 ///     type Item = u8;
+///     const ITEMS_NEED_DROP: bool = false;
 /// }
 ///
 /// impl Countdown {
@@ -230,6 +237,7 @@ include! {"./iter/iter_eval_macro.rs"}
 ///     type Kind = iter::IsIteratorKind;
 ///     type IntoIter = Self;
 ///     type Item = u8;
+///     const ITEMS_NEED_DROP: bool = false;
 /// }
 ///
 /// impl Hours {
@@ -273,6 +281,7 @@ include! {"./iter/iter_eval_macro.rs"}
 ///     type Kind = iter::IsIteratorKind;
 ///     type IntoIter = Self;
 ///     type Item = u8;
+///     const ITEMS_NEED_DROP: bool = false;
 /// }
 ///
 /// impl HoursRev {
@@ -308,6 +317,14 @@ pub trait ConstIntoIter {
 
     /// The iterator that this can be converted into.
     type IntoIter: ConstIntoIter<Item = Self::Item>;
+
+    /// Whether the iterator items need to be dropped.
+    ///
+    /// Define this as:
+    /// - `false`: if the items don't need dropping
+    /// - `true`: if the items do need dropping
+    /// - `core::mem::needs_drop::<Self::Item>()`: if the you're not sure
+    const ITEMS_NEED_DROP: bool;
 }
 
 /// Wrapper for `ConstIntoIter` implementors,
@@ -377,6 +394,7 @@ where
     type Kind = IsIteratorKind;
     type Item = <T as ConstIntoIter>::Item;
     type IntoIter = &'a mut T;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -440,6 +458,7 @@ where
 ///     type Kind = iter::IsIntoIterKind;
 ///     type Item = u32;
 ///     type IntoIter = Countdown;
+///     const ITEMS_NEED_DROP: bool = false;
 /// }
 ///
 /// impl Number {
@@ -454,6 +473,7 @@ where
 ///     type Kind = iter::IsIteratorKind;
 ///     type Item = u32;
 ///     type IntoIter = Self;
+///     const ITEMS_NEED_DROP: bool = false;
 /// }
 ///
 /// impl Countdown {

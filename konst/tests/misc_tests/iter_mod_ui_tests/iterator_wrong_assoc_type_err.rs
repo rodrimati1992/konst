@@ -6,6 +6,7 @@ impl ConstIntoIter for WrongItem {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = u8;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl WrongItem {
@@ -25,6 +26,7 @@ impl ConstIntoIter for WrongIntoIter {
     type Kind = IsIteratorKind;
     type IntoIter = konst::slice::IterCopied<'static, u8>;
     type Item = u8;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 impl WrongIntoIter {

@@ -73,11 +73,13 @@ impl ConstIntoIter for Chars<'_> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = char;
+    const ITEMS_NEED_DROP: bool = false;
 }
 impl ConstIntoIter for RChars<'_> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = char;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 macro_rules! chars_shared {
@@ -191,11 +193,13 @@ impl ConstIntoIter for CharIndices<'_> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = (usize, char);
+    const ITEMS_NEED_DROP: bool = false;
 }
 impl ConstIntoIter for RCharIndices<'_> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = (usize, char);
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 macro_rules! chars_shared {

@@ -42,6 +42,7 @@ impl<T, const L: usize> ConstIntoIter for [T; L] {
     type Kind = IsStdKind;
     type IntoIter = IntoIter<T, L>;
     type Item = T;
+    const ITEMS_NEED_DROP: bool = core::mem::needs_drop::<T>();
 }
 
 impl<T, const L: usize> IntoIterWrapper<[T; L], IsStdKind> {
@@ -55,6 +56,7 @@ impl<T, const L: usize> ConstIntoIter for IntoIter<T, L> {
     type Kind = IsIteratorKind;
     type IntoIter = IntoIter<T, L>;
     type Item = T;
+    const ITEMS_NEED_DROP: bool = core::mem::needs_drop::<T>();
 }
 
 impl<T, const N: usize> IntoIter<T, N> {
@@ -329,6 +331,7 @@ impl<T, const L: usize> ConstIntoIter for IntoIterRev<T, L> {
     type Kind = IsIteratorKind;
     type IntoIter = IntoIterRev<T, L>;
     type Item = T;
+    const ITEMS_NEED_DROP: bool = core::mem::needs_drop::<T>();
 }
 
 impl<T, const N: usize> IntoIterRev<T, N> {
