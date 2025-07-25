@@ -33,7 +33,7 @@
 //!
 //! impl Direction {
 //!     const fn try_parse(input: &str) -> Result<Self, ParseDirectionError> {
-//!         // As of Rust 1.65.0, string patterns don't work in const contexts
+//!         // As of Rust 1.88.0, string patterns don't work in const contexts
 //!         match () {
 //!             _ if eq_str(input, "forward") => Ok(Direction::Forward),
 //!             _ if eq_str(input, "backward") => Ok(Direction::Backward),
@@ -278,7 +278,7 @@
 //!
 //! # Minimum Supported Rust Version
 //!
-//! `konst` requires Rust 1.65.0.
+//! `konst` requires Rust 1.88.0.
 //!
 //! Features that require newer versions of Rust, or the nightly compiler,
 //! need to be explicitly enabled with crate features.

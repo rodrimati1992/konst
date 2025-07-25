@@ -2,7 +2,7 @@
 name = "konst"
 version = "0.3.16"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
-rust-version = "1.83.0"
+rust-version = "1.88.0"
 edition = "2021"
 license = "Zlib"
 description = "Const equivalents of std functions, compile-time comparison, and parsing"

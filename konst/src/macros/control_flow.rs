@@ -46,7 +46,7 @@ macro_rules! for_range {
 ///     }
 /// }
 /// ```
-/// causes this error as of Rust 1.83:
+/// causes this error as of Rust 1.88:
 /// ```text
 /// error[E0493]: destructor of `Option<T>` cannot be evaluated at compile-time
 ///  --> src/lib.rs:1:17
@@ -115,7 +115,7 @@ macro_rules! if_let_Some {
 /// #   None
 /// # }
 /// ```
-/// causes this error as of Rust 1.83:
+/// causes this error as of Rust 1.88:
 /// ```text
 /// error[E0493]: destructor of `Option<T>` cannot be evaluated at compile-time
 ///   --> konst/src/macros/control_flow.rs:92:25

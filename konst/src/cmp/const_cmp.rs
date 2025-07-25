@@ -40,7 +40,7 @@ use core::marker::PhantomData;
 /// ```
 /// use konst::{
 ///     cmp::{ConstCmp, IsNotStdKind},
-///     const_cmp, const_eq, try_equal,
+///     assertc_eq, assertc_ne, const_cmp, const_eq, try_equal,
 /// };
 ///
 /// use std::cmp::Ordering;
@@ -71,9 +71,9 @@ use core::marker::PhantomData;
 ///     let foo = MyType{x: "hello", y: &[3, 5, 8, 13]};
 ///     let bar = MyType{x: "world", y: &[3, 5, 8, 13]};
 ///
-///     assert!(matches!(const_cmp!(foo, foo), Ordering::Equal));
-///     assert!(matches!(const_cmp!(foo, bar), Ordering::Less));
-///     assert!(matches!(const_cmp!(bar, foo), Ordering::Greater));
+///     assertc_eq!(const_cmp!(foo, foo), Ordering::Equal);
+///     assertc_eq!(const_cmp!(foo, bar), Ordering::Less);
+///     assertc_eq!(const_cmp!(bar, foo), Ordering::Greater);
 ///     assert!(const_eq!(foo, foo));
 ///     assert!(!const_eq!(foo, bar));
 /// };
@@ -88,6 +88,7 @@ use core::marker::PhantomData;
 ///
 /// ```
 /// use konst::{const_cmp, const_eq, impl_cmp, try_equal};
+/// use konst::{assertc_eq, assertc_ne};
 ///
 /// use std::cmp::Ordering;
 ///
@@ -118,9 +119,9 @@ use core::marker::PhantomData;
 ///     let foo = MyType{x: "hello", y: &[3, 5, 8, 13]};
 ///     let bar = MyType{x: "world", y: &[3, 5, 8, 13]};
 ///
-///     assert!(matches!(const_cmp!(foo, foo), Ordering::Equal));
-///     assert!(matches!(const_cmp!(foo, bar), Ordering::Less));
-///     assert!(matches!(const_cmp!(bar, foo), Ordering::Greater));
+///     assertc_eq!(const_cmp!(foo, foo), Ordering::Equal);
+///     assertc_eq!(const_cmp!(foo, bar), Ordering::Less);
+///     assertc_eq!(const_cmp!(bar, foo), Ordering::Greater);
 ///     assert!(const_eq!(foo, foo));
 ///     assert!(!const_eq!(foo, bar));
 /// };
@@ -129,9 +130,9 @@ use core::marker::PhantomData;
 ///     let foo = MyType{x: "hello", y: &[false]};
 ///     let bar = MyType{x: "hello", y: &[true]};
 ///
-///     assert!(matches!(const_cmp!(foo, foo), Ordering::Equal));
-///     assert!(matches!(const_cmp!(foo, bar), Ordering::Less));
-///     assert!(matches!(const_cmp!(bar, foo), Ordering::Greater));
+///     assertc_eq!(const_cmp!(foo, foo), Ordering::Equal);
+///     assertc_eq!(const_cmp!(foo, bar), Ordering::Less);
+///     assertc_eq!(const_cmp!(bar, foo), Ordering::Greater);
 ///     assert!(const_eq!(foo, foo));
 ///     assert!(!const_eq!(foo, bar));
 /// };
@@ -227,7 +228,9 @@ impl<T: ?Sized + ConstCmpUnref> ConstCmpUnrefHelper<IsRefKind> for &mut T {
 /// Hack used to automatically wrap standard library types inside [`CmpWrapper`],
 /// while leaving user defined types unwrapped.
 ///
-/// This can be constructed with he [`NEW` associated constant](#associatedconstant.NEW)
+/// You're not intended to use this directly, the intended way to coerce a type
+/// into a type with a `const_eq` and/or `const_cmp` method is
+/// with the [`coerce_to_cmp`] macro.
 ///
 /// # Type parameters
 ///

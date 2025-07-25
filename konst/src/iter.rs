@@ -1,8 +1,10 @@
 //! Const equivalent of iterators with a specific `next` function signature.
 //!
 //! The docs for [`ConstIntoIter`] has more information on
-//! const equivalents of IntoIterator and Iterator.
+//! const equivalents of [`IntoIterator`] and [`Iterator`].
 //!
+//! [`IntoIterator`]: core::iter::IntoIterator
+//! [`Iterator`]: core::iter::Iterator
 
 #[macro_use]
 mod internal_iter_macros;
@@ -311,6 +313,9 @@ pub trait ConstIntoIter {
 /// Wrapper for `ConstIntoIter` implementors,
 /// that defines different methods depending on the
 /// value of `K`.
+///
+/// You're not intended to use this directly, the intended way to convert a type
+/// into a const iterator is with the [`into_iter`] macro.
 #[repr(transparent)]
 pub struct IntoIterWrapper<I, K>
 where

@@ -2,7 +2,7 @@ use typewit::{HasTypeWitness, MakeTypeWitness, TypeEq, TypeWitnessTypeArg};
 
 use core::{marker::PhantomData, ops::RangeInclusive};
 
-/// Trait for all the types that can be iterated over with ranges.
+/// Trait for all the types that ranges can iterate over.
 ///
 /// This trait is sealed and can only be implemented by `konst`
 pub trait Step: HasTypeWitness<__StepWitness<Self>> + Copy {

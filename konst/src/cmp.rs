@@ -1,4 +1,6 @@
 //! Comparisong-related items.
+//!
+//! The main item here is the [`ConstCmp`] trait.
 
 mod cmp_wrapper;
 

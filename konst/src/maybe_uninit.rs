@@ -75,7 +75,7 @@ pub const fn uninit_array<T, const LEN: usize>() -> [MaybeUninit<T>; LEN] {
 /// # Safety
 ///
 /// This has [the same safety requirements as `MaybeUninit::array_assume_init`
-/// ](https://doc.rust-lang.org/1.55.0/core/mem/union.MaybeUninit.html#safety-5)
+/// ](https://doc.rust-lang.org/1.88.0/core/mem/union.MaybeUninit.html#safety-5)
 ///
 /// # Example
 ///
