@@ -1,4 +1,4 @@
-/// `?`-like macro, which allows optionally mapping errors.
+/// `?`-like macro for [`Result`], which allows optionally mapping errors.
 ///
 /// `?` currently doesn't work in `const fn`s because as of Rust 1.88.0
 /// trait methods don't work in `const fn`s.
@@ -116,6 +116,8 @@ macro_rules! try_ {
 }
 
 /// `?`-like macro for `Option`s.
+///
+/// Returns `None` on `$opt == None`, unwraps `$opt` if it is `Some`.
 ///
 /// # Example
 ///

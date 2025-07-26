@@ -6,7 +6,7 @@
 //! const fn in the standard library:
 //!
 //! - `from_utf8`: [`core::str::from_utf8`]
-//! - `is_char_boundary`: [`core::str::is_char_boundary`]
+//! - `is_char_boundary`: [`str::is_char_boundary`]
 //! - `trim`: [`str::trim_ascii`]
 //! - `trim_start`: [`str::trim_ascii_start`]
 //! - `trim_end`: [`str::trim_ascii_end`]

@@ -50,7 +50,7 @@ fn parser_error_fmt_equiv() {
 
             let pe = match error_kind {
                 ErrorKind::Other => parser.copy().to_other_error(&"oh hi!"),
-                _ => parser.copy().into_error(error_kind),
+                _ => parser.to_error(error_kind),
             };
 
             assert_eq!(pe.kind(), error_kind);

@@ -24,7 +24,7 @@ pub struct ParseError<'a> {
 impl<'a> ParseError<'a> {
     /// Constructs a `ParseError`.
     #[inline(always)]
-    pub const fn new(parser: Parser<'a>, kind: ErrorKind) -> Self {
+    pub const fn new(parser: &Parser<'a>, kind: ErrorKind) -> Self {
         Self {
             start_offset: parser.start_offset,
             end_offset: parser.start_offset + parser.str.len() as u32,
@@ -70,8 +70,7 @@ impl<'a> ParseError<'a> {
         }) as usize
     }
 
-    /// The direction that this error happened from,
-    /// either from the start or the end.
+    /// The direction that this error happened from.
     pub const fn error_direction(&self) -> ParseDirection {
         self.direction
     }

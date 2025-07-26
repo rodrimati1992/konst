@@ -274,19 +274,7 @@ macro_rules! __priv_const_cmp_for {
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 #[macro_export]
 macro_rules! try_equal {
-    (break $ord:expr $(,)*) => {
-        match $ord {
-            $crate::__::Ordering::Equal => $crate::__::Ordering::Equal,
-            ord => return ord,
-        }
-    };
     ($ord:expr $(,)*) => {
-        match $ord {
-            $crate::__::Ordering::Equal => $crate::__::Ordering::Equal,
-            ord => return ord,
-        }
-    };
-    (break; $ord:expr $(,)*) => {
         match $ord {
             $crate::__::Ordering::Equal => $crate::__::Ordering::Equal,
             ord => return ord,

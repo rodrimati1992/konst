@@ -124,7 +124,7 @@ impl<'a> Parser<'a> {
     /// Constructs a [`ParseError`] for this point in parsing.
     ///
     /// [`ParseError`]: struct.ParseError.html
-    pub const fn into_error(self, kind: ErrorKind) -> ParseError<'a> {
+    pub const fn to_error(&self, kind: ErrorKind) -> ParseError<'a> {
         ParseError::new(self, kind)
     }
 

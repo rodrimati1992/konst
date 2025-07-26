@@ -7,12 +7,12 @@
 //! (instead of only part of it),
 //! then you want to look in the module for that type, eg: [`primitive::parse_bool`].
 //!
-//! If you do want to parse a type fron only part of a string, then you can use
-//! [`Parser`]'s `parse_*` methods, or the [`parse_with`] macro.
+//! If you do want to parse a type from only part of a string, then you can use
+//! [`Parser`]'s `parse_*` methods, or the [`parse_type`] macro.
 //!
 //! [`Parser`]: ./struct.Parser.html
 //! [`primitive::parse_bool`]: ../primitive/fn.parse_bool.html
-//! [`parse_with`]: ../macro.parse_with.html
+//! [`parse_type`]: self::parse_type
 //!
 
 mod get_parser;
@@ -27,38 +27,18 @@ pub use self::{
     parse_errors::{ErrorKind, ParseDirection, ParseError, ParseValueResult},
 };
 
+#[doc(no_inline)]
+pub use crate::{parse_type, parser_method};
+
 use crate::string::{self, Pattern};
 
 /// For parsing and traversing over strings in const contexts.
 ///
 /// If you're looking for functions to parse some type from an entire string
 /// (instead of only part of it),
-/// then you want to look in the module for that type, eg: [`primitive::parse_u64`].
+/// then you want to look in the module for that type, eg: [`primitive`](crate::primitive).
 ///
 /// [`primitive::parse_u64`]: ../primitive/fn.parse_u64.html
-///
-/// # Mutation
-///
-/// Because `konst` only requires Rust 1.65.0,
-/// in order to mutate a parser you must reassign the parser returned by its methods.
-/// <br>eg: `parser = parser.trim_start();`
-///
-/// To help make this more ergonomic for `Result`-returning methods, you can use these macros:
-///
-/// - [`try_rebind`]:
-/// Like the `?` operator,
-/// but also reassigns variables and declares new ones with the value in the `Ok` variant.
-///
-/// - [`rebind_if_ok`]:
-/// Like an `if let Ok`,
-/// but also reassigns variables and declares new ones with the value in the `Ok` variant.
-///
-/// - [`parser_method`]:
-/// Parses any of the string literal patterns using a supported `Parser` method.
-///
-/// [`try_rebind`]: ../macro.try_rebind.html
-/// [`rebind_if_ok`]: ../macro.rebind_if_ok.html
-/// [`parser_method`]: crate::parser_method
 ///
 /// # Examples
 ///

@@ -78,6 +78,8 @@ macro_rules! __opt_unwrap_or_else {
     ($e:expr, || $v:expr $(,)?) => {
         match $e {
             opt => {
+                // using Option::unwrap to work around the inability to
+                // destructure Option<T: Drop> by value in const
                 if let $crate::__::Some(_) = opt {
                     $crate::__::Option::unwrap(opt)
                 } else {
@@ -157,6 +159,8 @@ macro_rules! __opt_ok_or_else {
     ($e:expr, || $v:expr $(,)?) => {
         match $e {
             opt => {
+                // using Option::unwrap to work around the inability to
+                // destructure Option<T: Drop> by value in const
                 if let $crate::__::Some(_) = opt {
                     $crate::__::Ok($crate::__::Option::unwrap(opt))
                 } else {
@@ -208,6 +212,8 @@ macro_rules! __opt_map {
     ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
         match $opt {
             opt => {
+                // using Option::unwrap to work around the inability to
+                // destructure Option<T: Drop> by value in const
                 if let $crate::__::Some(_) = opt {
                     let $param = $crate::__::Option::unwrap(opt);
                     $crate::__::Some($mapper)
@@ -266,6 +272,8 @@ macro_rules! __opt_and_then {
     ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
         match $opt {
             opt => {
+                // using Option::unwrap to work around the inability to
+                // destructure Option<T: Drop> by value in const
                 if let $crate::__::Some(_) = opt {
                     let $param = $crate::__::Option::unwrap(opt);
                     $mapper

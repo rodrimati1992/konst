@@ -44,6 +44,11 @@
 /// [`trim_start_matches`]: parsing/struct.Parser.html#method.trim_start_matches
 /// [`trim_end_matches`]: parsing/struct.Parser.html#method.trim_end_matches
 ///
+/// # Evaluation order
+///
+/// Patterns are evaluated from left to right.
+///
+/// Branches are evaluated from top to bottom.
 ///
 /// # Example
 ///

@@ -4,7 +4,7 @@ use core::marker::PhantomData;
 
 /// Gets a type that parses `Self` with a `parse_with` method.
 ///
-/// Implementing this trait allows parsing a type with the [`parse_with`] macro.
+/// Implementing this trait allows parsing a type with the [`parse_type`] macro.
 ///
 /// # Implementing this trait
 ///
@@ -32,13 +32,13 @@ use core::marker::PhantomData;
 /// # Example
 ///
 /// ```rust
-/// use konst::{parse_with, result, try_};
+/// use konst::{parse_type, result, try_};
 ///
 /// use konst::parsing::{HasParser, Parser, ParseValueResult};
 ///
 /// const PAIR: Pair = {
 ///     let mut parser = Parser::new("100,200");
-///     result::unwrap!(parse_with!(parser, Pair))
+///     result::unwrap!(parse_type!(parser, Pair))
 /// };
 ///
 /// assert_eq!(PAIR, Pair(100, 200));
@@ -53,16 +53,16 @@ use core::marker::PhantomData;
 ///
 /// impl Pair {
 ///     const fn parse_with<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Self> {
-///         let left = try_!(parse_with!(parser, u32));
+///         let left = try_!(parse_type!(parser, u32));
 ///         try_!(parser.strip_prefix(','));
-///         let right = try_!(parse_with!(parser, u64));
+///         let right = try_!(parse_type!(parser, u64));
 ///
 ///         Ok(Pair(left, right))
 ///     }
 /// }
 /// ```
 ///
-/// [`parse_with`]: ../macro.parse_with.html
+/// [`parse_type`]: ../macro.parse_type.html
 /// [`HasParser::Parser`]: #associatedtype.Parser
 ///
 pub trait HasParser: Sized {
@@ -74,9 +74,11 @@ pub trait HasParser: Sized {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Parses a standard library type, determined by the `StdType` type parameter.
+/// Parses a standard library type out of a [`Parser`],
+/// determined by the `StdType` type parameter.
 ///
-///
+/// Note: since this uses [`Parser`], it doesn't parse the entire string,
+/// it parses the starting bytes that successfully parse as the target type.
 ///
 pub struct StdParser<StdType>(PhantomData<StdType>);
 

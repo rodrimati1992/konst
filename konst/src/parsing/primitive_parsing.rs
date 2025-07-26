@@ -6,9 +6,9 @@ impl<'a> Parser<'a> {
     /// Parses a `u128` until a non-digit is reached.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
-    /// you can use [`primitive::parse_u128`]
+    /// you can use [`u128::from_str_radix`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `u128`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
@@ -53,16 +53,15 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     ///
-    /// [`primitive::parse_u128`]: ../primitive/fn.parse_u128.html
     pub const fn parse_u128(&mut self) -> ParseValueResult<'a, u128> {
         parse_integer! {unsigned, (u128, u128), self}
     }
     /// Parses a `i128` until a non-digit is reached.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
-    /// you can use [`primitive::parse_i128`]
+    /// you can use [`i128::from_str_radix`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `i128`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
@@ -91,16 +90,15 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     ///
-    /// [`primitive::parse_i128`]: ../primitive/fn.parse_i128.html
     pub const fn parse_i128(&mut self) -> ParseValueResult<'a, i128> {
         parse_integer! {signed, (i128, u128), self}
     }
     /// Parses a `u64` until a non-digit is reached.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
-    /// you can use [`primitive::parse_u64`]
+    /// you can use [`u64::from_str_radix`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `u64`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
@@ -108,16 +106,15 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_u128`](#method.parse_u128) method.
     ///
-    /// [`primitive::parse_u64`]: ../primitive/fn.parse_u64.html
     pub const fn parse_u64(&mut self) -> ParseValueResult<'a, u64> {
         parse_integer! {unsigned, (u64, u64), self}
     }
     /// Parses a `i64` until a non-digit is reached.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
-    /// you can use [`primitive::parse_i64`]
+    /// you can use [`i64::from_str_radix`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `i64`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
@@ -125,16 +122,15 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
-    /// [`primitive::parse_i64`]: ../primitive/fn.parse_i64.html
     pub const fn parse_i64(&mut self) -> ParseValueResult<'a, i64> {
         parse_integer! {signed, (i64, u64), self}
     }
     /// Parses a `u32` until a non-digit is reached.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
-    /// you can use [`primitive::parse_u32`]
+    /// you can use [`u32::from_str_radix`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `u32`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
@@ -142,16 +138,15 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_u128`](#method.parse_u128) method.
     ///
-    /// [`primitive::parse_u32`]: ../primitive/fn.parse_u32.html
     pub const fn parse_u32(&mut self) -> ParseValueResult<'a, u32> {
         parse_integer! {unsigned, (u32, u32), self}
     }
     /// Parses a `i32` until a non-digit is reached.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
-    /// you can use [`primitive::parse_i32`]
+    /// you can use [`i32::from_str_radix`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `i32`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
@@ -159,16 +154,15 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
-    /// [`primitive::parse_i32`]: ../primitive/fn.parse_i32.html
     pub const fn parse_i32(&mut self) -> ParseValueResult<'a, i32> {
         parse_integer! {signed, (i32, u32), self}
     }
     /// Parses a `u16` until a non-digit is reached.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
-    /// you can use [`primitive::parse_u16`]
+    /// you can use [`u16::from_str_radix`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `u16`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
@@ -176,16 +170,15 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_u128`](#method.parse_u128) method.
     ///
-    /// [`primitive::parse_u16`]: ../primitive/fn.parse_u16.html
     pub const fn parse_u16(&mut self) -> ParseValueResult<'a, u16> {
         parse_integer! {unsigned, (u16, u16), self}
     }
     /// Parses a `i16` until a non-digit is reached.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
-    /// you can use [`primitive::parse_i16`]
+    /// you can use [`i16::from_str_radix`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `i16`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
@@ -193,16 +186,15 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
-    /// [`primitive::parse_i16`]: ../primitive/fn.parse_i16.html
     pub const fn parse_i16(&mut self) -> ParseValueResult<'a, i16> {
         parse_integer! {signed, (i16, u16), self}
     }
     /// Parses a `u8` until a non-digit is reached.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
-    /// you can use [`primitive::parse_u8`]
+    /// you can use [`u8::from_str_radix`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `u8`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
@@ -210,16 +202,15 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_u128`](#method.parse_u128) method.
     ///
-    /// [`primitive::parse_u8`]: ../primitive/fn.parse_u8.html
     pub const fn parse_u8(&mut self) -> ParseValueResult<'a, u8> {
         parse_integer! {unsigned, (u8, u8), self}
     }
     /// Parses a `i8` until a non-digit is reached.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
-    /// you can use [`primitive::parse_i8`]
+    /// you can use [`i8::from_str_radix`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `i8`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
@@ -227,28 +218,26 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
-    /// [`primitive::parse_i8`]: ../primitive/fn.parse_i8.html
     pub const fn parse_i8(&mut self) -> ParseValueResult<'a, i8> {
         parse_integer! {signed, (i8, u8), self}
     }
     /// Parses a `usize` until a non-digit is reached.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
-    /// you can use [`primitive::parse_usize`]
+    /// you can use [`usize::from_str_radix`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `usize`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
-    /// [`primitive::parse_usize`]: ../primitive/fn.parse_usize.html
     pub const fn parse_usize(&mut self) -> ParseValueResult<'a, usize> {
         parse_integer! {unsigned, (usize, usize), self}
     }
     /// Parses a `isize` until a non-digit is reached.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
-    /// you can use [`primitive::parse_isize`]
+    /// you can use [`isize::from_str_radix`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `isize`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example
@@ -256,7 +245,6 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
-    /// [`primitive::parse_isize`]: ../primitive/fn.parse_isize.html
     pub const fn parse_isize(&mut self) -> ParseValueResult<'a, isize> {
         parse_integer! {signed, (isize, usize), self}
     }
@@ -340,7 +328,7 @@ impl<'a> Parser<'a> {
     /// (erroring if the string isn't exactly `"true"` or `"false"`),
     /// you can use [`primitive::parse_bool`]
     ///
-    /// You also can use the [`parse_with`](../macro.parse_with.html)
+    /// You also can use the [`parse_type`](../macro.parse_type.html)
     /// macro to parse a `bool`, and other [`HasParser`](./trait.HasParser.html) types.
     ///
     /// # Example

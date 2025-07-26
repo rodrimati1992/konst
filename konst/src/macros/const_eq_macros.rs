@@ -118,7 +118,8 @@ macro_rules! const_eq {
 /// Compares the items using the passed function, which must evaluate to a `bool`.
 /// [example](#compare_ranges_incluside)
 ///
-///
+/// An *item* is whatever element the passed-in types contain.
+/// e.g.: `T` is the item type for `&[T]`, `Option<T>`, and `Range<T>`.
 ///
 /// # Examples
 ///

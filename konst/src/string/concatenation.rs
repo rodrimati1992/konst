@@ -356,7 +356,8 @@ pub use __string_concat_hidden as str_concat;
 #[doc(inline)]
 pub use __string_join_hidden as str_join;
 
-/// Makes a `&'static str` from an const iterator over `&str`s or `char`s
+/// Constructs a `&'static str` by concatenatating a const iterator over
+/// `&str`s or `char`s.
 ///
 /// # Example
 ///

@@ -91,10 +91,10 @@ macro_rules! parsing {
 
 macro_rules! throw_out {
     ($copy:ident, $parse_direction:ident, $kind:expr) => {
-        return Err(crate::parsing::ParseError::new($copy, $kind))
+        return Err(crate::parsing::ParseError::new(&$copy, $kind))
     };
     ($copy:ident, $parse_direction:ident, $kind:expr, map_err = $func:ident) => {
-        return Err($func(crate::parsing::ParseError::new($copy, $kind)))
+        return Err($func(crate::parsing::ParseError::new(&$copy, $kind)))
     };
 }
 

@@ -92,8 +92,8 @@ macro_rules! if_let_Some {
     }
 }
 
-/// Emulates by-value a destructuring while let loop over a [`Some`] variant
-/// that contains a Drop type in const.
+/// Emulates a by-value `while let Some` loop over
+/// `Drop`-type-containing `Option`s in const.
 ///
 /// # Motivation
 ///

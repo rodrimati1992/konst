@@ -39,7 +39,7 @@ declare_generic_const! {
     pub const UNINIT_ARRAY[T; N]: [MaybeUninit<T>; N] = [const { MaybeUninit::uninit() }; N];
 }
 
-/// Const equivalent of [`MaybeUninit::uninit_array`](core::mem::MaybeUninit::uninit_array)
+/// Constructs an uninitialized `[MaybeUninit<T>; N]`.
 ///
 /// # Example
 ///
