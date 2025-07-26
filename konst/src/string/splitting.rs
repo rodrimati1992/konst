@@ -1,6 +1,6 @@
 use crate::{
     iter::{ConstIntoIter, IsIteratorKind},
-    string::{self, str_from, str_up_to, Pattern, PatternNorm},
+    string::{self, Pattern, PatternNorm, str_from, str_up_to},
 };
 
 /// Const equivalent of [`str::split`].

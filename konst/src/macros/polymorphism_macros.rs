@@ -262,8 +262,13 @@ macro_rules! coerce_to_cmp {
             }
         }
     }};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __coerce_to_cmp2 {
     ($left:expr, $right:expr $(,)*) => {{
-        match (&$left, &$right) {
+        match ($left, $right) {
             (left, right) => {
                 let l_marker = $crate::__::IsAConstCmp::NEW;
                 let r_marker = $crate::__::IsAConstCmp::NEW;

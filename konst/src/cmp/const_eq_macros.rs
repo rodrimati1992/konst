@@ -62,8 +62,11 @@ pub use crate::__const_eq as const_eq;
 #[macro_export]
 macro_rules! __const_eq {
     ($left:expr, $right:expr $(,)*) => {
-        match $crate::coerce_to_cmp!($left, $right) {
-            (left, right) => left.const_eq(right),
+        match (&$left, &$right) {
+            (left, right) => {
+                let (left, right) = $crate::__coerce_to_cmp2!(left, right);
+                left.const_eq(right)
+            }
         }
     };
 }

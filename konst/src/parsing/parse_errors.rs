@@ -123,9 +123,8 @@ impl<'a> Display for ParseError<'a> {
 
 const _: () = {
     use const_panic::{
-        flatten_panicvals,
+        PanicFmt, PanicVal, flatten_panicvals,
         fmt::{self as cfmt, ComputePvCount, FmtArg, FmtKind},
-        PanicFmt, PanicVal,
     };
 
     impl PanicFmt for ParseError<'_> {

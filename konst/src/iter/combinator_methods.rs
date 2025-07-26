@@ -413,7 +413,11 @@ macro_rules! __cim_output_layer {
         $item:ident
         (
             $((
-                { $($var:ident = $var_expr:expr),* $(,)? }
+                {
+                    $(#let $let_var:ident = $let_expr:expr;)*
+                    $($var:ident = $var_expr:expr),*
+                    $(,)?
+                }
                 $($code:tt)*
             ))*
         )
@@ -421,6 +425,7 @@ macro_rules! __cim_output_layer {
         $each:tt
         $finish:tt
     ) => ({
+        $($(let $let_var = $let_expr;)*)*
         match ($(($($var_expr,)*),)*) {
             ($(($(mut $var,)*),)*) => {
                 $($extra_init)*
@@ -495,8 +500,9 @@ macro_rules! __cim_flat_map {
             (
                 (
                     {
+                        #let iter_ = $v;
                         iter = $crate::iter::into_iter!(
-                            $crate::__annotate_type!{$($ret_ty)? => $v}
+                            $crate::__annotate_type!{$($ret_ty)? => iter_}
                         )
                     }
                     let $crate::__::Some($item) = iter.$next_fn() else {

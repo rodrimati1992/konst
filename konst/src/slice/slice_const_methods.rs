@@ -783,11 +783,7 @@ pub(crate) const fn __bytes_rfind(left: &[u8], pattern: &[u8]) -> Option<usize> 
         }
     }
 
-    if matching.is_empty() {
-        Some(i)
-    } else {
-        None
-    }
+    if matching.is_empty() { Some(i) } else { None }
 }
 
 /// Returns whether `pattern` is contained inside `left`, searching in reverse.

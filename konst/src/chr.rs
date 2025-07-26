@@ -94,7 +94,7 @@ pub const fn encode_utf8(char: char) -> Utf8Encoded {
 
 #[cfg(test)]
 mod tests {
-    use super::{encode_utf8, Utf8Encoded};
+    use super::{Utf8Encoded, encode_utf8};
 
     fn as_bytes(fmt: &Utf8Encoded) -> &[u8] {
         &fmt.encoded[..fmt.len as usize]

@@ -610,13 +610,19 @@ macro_rules! __ie_output {
             $item:ident
             (
                 $((
-                    {$($var_a:ident = $var_a_expr:expr),* $(,)?}
+                    {
+                        $(#let $let_var:ident = $let_expr:expr;)*  
+                        $($var_a:ident = $var_a_expr:expr),* 
+                        $(,)?
+                    }
                     $($code:tt)*
                 ))*
             )
         )
         $each:tt
     ) => ({
+        $($(let $let_var = $let_expr;)*)*
+
         match ($($( $var_a_expr,)?)*) {
             ($($(mut $var_a,)?)*) => {
                 $($label:)? loop {

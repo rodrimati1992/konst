@@ -1,4 +1,4 @@
-use konst::cmp::{const_cmp, const_eq, ConstCmp, IsNotStdKind};
+use konst::cmp::{ConstCmp, IsNotStdKind, const_cmp, const_eq};
 
 use std::cmp::Ordering;
 

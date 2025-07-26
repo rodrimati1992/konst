@@ -1,6 +1,6 @@
 use const_panic::{ArrayString, FmtArg};
 
-use konst::parsing::{ErrorKind, ParseDirection, ParseError, Parser};
+use konst::parsing::{ErrorKind, ParseDirection, Parser};
 
 type Buff = ArrayString<256>;
 

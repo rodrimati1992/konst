@@ -1,6 +1,6 @@
 #![allow(clippy::len_without_is_empty)]
 
-use crate::chr::{encode_utf8, Utf8Encoded};
+use crate::chr::{Utf8Encoded, encode_utf8};
 
 #[doc(hidden)]
 pub struct __NormalizeConcatArg<T: 'static>(pub &'static [T]);

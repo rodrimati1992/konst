@@ -17,7 +17,7 @@ macro_rules! compare_with_std {
                 let mut iter = iter::into_iter!(start $($range_op)* end);
 
                 for _ in 0..=20 {
-                    let pair = if rng.gen() {
+                    let pair = if rng.r#gen() {
                         history.push("next");
                         (iter.next(), std_iter.next())
                     } else {

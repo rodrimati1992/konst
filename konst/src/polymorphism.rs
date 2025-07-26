@@ -27,6 +27,6 @@ pub mod kinds {
 
 #[doc(no_inline)]
 pub use typewit::{
-    self, simple_type_witness, type_fn, CallFn, HasTypeWitness, MakeTypeWitness, TypeEq, TypeFn,
-    TypeWitnessTypeArg,
+    self, CallFn, HasTypeWitness, MakeTypeWitness, TypeEq, TypeFn, TypeWitnessTypeArg,
+    simple_type_witness, type_fn,
 };

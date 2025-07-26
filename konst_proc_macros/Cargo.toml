@@ -1,9 +1,9 @@
 [package]
 name = "konst_proc_macros"
-version = "0.3.10"
+version = "0.4.0"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
-rust-version = "1.65.0"
-edition = "2021"
+rust-version = "1.88.0"
+edition = "2024"
 license = "Zlib"
 description = "Implementation detail of the `konst` crate"
 documentation = "https://docs.rs/konst/"

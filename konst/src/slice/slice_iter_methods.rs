@@ -514,20 +514,12 @@ mod requires_rust_1_64 {
 
     #[inline(always)]
     pub(crate) const fn some_if_nonempty<T>(slice: &[T]) -> Option<&[T]> {
-        if let [] = slice {
-            None
-        } else {
-            Some(slice)
-        }
+        if let [] = slice { None } else { Some(slice) }
     }
 
     #[inline(always)]
     pub(crate) const fn some_if_nonempty_mut<T>(slice: &mut [T]) -> Option<&mut [T]> {
-        if let [] = slice {
-            None
-        } else {
-            Some(slice)
-        }
+        if let [] = slice { None } else { Some(slice) }
     }
 
     /// Const equivalent of

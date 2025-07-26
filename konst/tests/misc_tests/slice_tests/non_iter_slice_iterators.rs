@@ -22,7 +22,7 @@ macro_rules! compare_with_std {
 
                 let mut history = Vec::new();
                 for _ in 0..10 {
-                    let pair = if rng.gen() {
+                    let pair = if rng.r#gen() {
                         history.push("next");
                         (iter.next(), std_iter.next())
                     } else {

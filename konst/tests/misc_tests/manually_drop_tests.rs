@@ -47,7 +47,7 @@ fn as_inner_mut_test() {
 #[test]
 fn take_test() {
     const unsafe fn _callable<T>(md: &mut ManuallyDrop<T>) -> T {
-        manually_drop::take(md)
+        unsafe { manually_drop::take(md) }
     }
 
     let mut reff = ManuallyDrop::new(&0u32);

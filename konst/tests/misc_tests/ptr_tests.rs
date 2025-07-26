@@ -1,6 +1,6 @@
-use konst::ptr::{self, nonnull};
+use konst::ptr::nonnull;
 
-use std::ptr::{null, null_mut, NonNull};
+use std::ptr::NonNull;
 
 #[test]
 fn deref_mut_test() {

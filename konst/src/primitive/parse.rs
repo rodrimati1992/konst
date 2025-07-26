@@ -129,8 +129,8 @@ impl Display for ParseBoolError {
 
 const _: () = {
     use const_panic::{
-        fmt::{FmtArg, FmtKind},
         PanicFmt, PanicVal,
+        fmt::{FmtArg, FmtKind},
     };
 
     impl PanicFmt for ParseBoolError {

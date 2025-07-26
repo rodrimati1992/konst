@@ -395,11 +395,7 @@ fn find_map_test() {
     {
         const fn calls_const_fn(slice: &[u16]) -> Option<u16> {
             const fn func(n: &u16) -> Option<u16> {
-                if *n % 2 == 0 {
-                    Some(*n * 10)
-                } else {
-                    None
-                }
+                if *n % 2 == 0 { Some(*n * 10) } else { None }
             }
 
             iter::eval!(slice, find_map(func))
@@ -733,13 +729,7 @@ fn filter_retty_test() {
 
     iter::eval!(
         konst::slice::iter_copied(&[3u8, 5, 8, 13, 21]),
-        filter(|&x| -> bool {
-            if x % 2 == 0 {
-                Def::DEF
-            } else {
-                Def::DEF_OTHER
-            }
-        }),
+        filter(|&x| -> bool { if x % 2 == 0 { Def::DEF } else { Def::DEF_OTHER } }),
         for_each(|x| vect.push(x))
     );
 
@@ -752,13 +742,7 @@ fn map_retty_test() {
 
     iter::eval!(
         &[3u8, 5, 8, 13, 21],
-        map(|&x| -> usize {
-            if x % 2 == 0 {
-                Def::DEF
-            } else {
-                Def::DEF_OTHER
-            }
-        }),
+        map(|&x| -> usize { if x % 2 == 0 { Def::DEF } else { Def::DEF_OTHER } }),
         for_each(|x| vect.push(x))
     );
 
@@ -790,13 +774,7 @@ fn take_while_retty_test() {
 
     iter::eval!(
         konst::slice::iter_copied(&[0, 1, 2, 3, 4]),
-        take_while(|x| -> bool {
-            if *x < 3 {
-                Def::DEF_OTHER
-            } else {
-                Def::DEF
-            }
-        }),
+        take_while(|x| -> bool { if *x < 3 { Def::DEF_OTHER } else { Def::DEF } }),
         for_each(|x| vect.push(x))
     );
 
@@ -809,13 +787,7 @@ fn skip_while_retty_test() {
 
     iter::eval!(
         konst::slice::iter_copied(&[0, 1, 2, 3, 4, 5]),
-        skip_while(|x| -> bool {
-            if *x < 3 {
-                Def::DEF_OTHER
-            } else {
-                Def::DEF
-            }
-        }),
+        skip_while(|x| -> bool { if *x < 3 { Def::DEF_OTHER } else { Def::DEF } }),
         for_each(|x| vect.push(x))
     );
 

@@ -1,4 +1,4 @@
-use core::mem::{forget, ManuallyDrop};
+use core::mem::{ManuallyDrop, forget};
 
 use konst::{manually_drop as md, option};
 

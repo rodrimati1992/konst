@@ -62,8 +62,11 @@ pub use crate::__const_cmp as const_cmp;
 #[macro_export]
 macro_rules! __const_cmp {
     ($left:expr, $right:expr $(,)*) => {
-        match $crate::coerce_to_cmp!($left, $right) {
-            (left, right) => left.const_cmp(right),
+        match (&$left, &$right) {
+            (left, right) => {
+                let (left, right) = $crate::__coerce_to_cmp2!(left, right);
+                left.const_cmp(right)
+            }
         }
     };
 }
@@ -223,9 +226,7 @@ macro_rules! __priv_const_cmp_for {
         let $r = &$right;
         $eq_expr
     }};
-    ($left:expr, $right:expr, $func:path $(,)*) => {{
-        $func(&$left, &$right)
-    }};
+    ($left:expr, $right:expr, $func:path $(,)*) => {{ $func(&$left, &$right) }};
 }
 
 /// Evaluates to `$ord` if it is `Ordering::Equal`,

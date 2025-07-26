@@ -402,7 +402,7 @@ pub const unsafe fn __from_u8_subslice_of_str(s: &[u8]) -> &str {
         }
     }
 
-    core::str::from_utf8_unchecked(s)
+    unsafe { core::str::from_utf8_unchecked(s) }
 }
 
 /// A const equivalent of `string.get(..len)`.
