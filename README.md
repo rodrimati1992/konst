@@ -116,10 +116,10 @@ This requires the `"parsing"` feature (enabled by default).
 
 ```rust
 use konst::{
-    parsing::{Parser, ParseValueResult},
+    parsing::{Parser, ParseValueResult, parser_method},
     result,
     eq_str,
-    for_range, parser_method, try_,
+    for_range, try_,
 };
 
 const PARSED: Struct = {
@@ -298,7 +298,7 @@ need to be explicitly enabled with crate features.
 [`polymorphism`]: https://docs.rs/konst/*/konst/polymorphism/index.html
 [`parsing`]: https://docs.rs/konst/*/konst/parsing/index.html
 [`primitive`]: https://docs.rs/konst/*/konst/primitive/index.html
-[`parser_method`]: https://docs.rs/konst/*/konst/macro.parser_method.html
+[`parser_method`]: https://docs.rs/konst/*/konst/parsing/macro.parser_method.html
 [`Parser`]: https://docs.rs/konst/*/konst/parsing/struct.Parser.html
 [`Parser::parse_u128`]: https://docs.rs/konst/*/konst/parsing/struct.Parser.html#method.parse_u128
 [`destructure`]: https://docs.rs/konst/*/konst/macro.destructure.html

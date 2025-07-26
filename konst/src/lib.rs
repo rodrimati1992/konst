@@ -113,9 +113,9 @@
 #![cfg_attr(feature = "parsing_proc", doc = "```rust")]
 #![cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
 //! use konst::{
-//!     parsing::{Parser, ParseValueResult},
+//!     parsing::{Parser, ParseValueResult, parser_method},
 //!     result,
-//!     eq_str, for_range, parser_method, try_,
+//!     eq_str, for_range, try_,
 //! };
 //!
 //! const PARSED: Struct = {
@@ -292,7 +292,7 @@
 //! [`const_cmp_for`]: ./macro.const_cmp_for.html
 //! [`parsing`]: ./parsing/index.html
 //! [`primitive`]: ./primitive/index.html
-//! [`parser_method`]: macro.parser_method.html
+//! [`parser_method`]: crate::parsing::parser_method
 //! [`Parser`]: ./parsing/struct.Parser.html
 //! [`Parser::parse_u128`]: ./parsing/struct.Parser.html#method.parse_u128
 //! [`destructure`]: ./macro.destructure.html

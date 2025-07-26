@@ -6,9 +6,9 @@
 /// standard library and user-defined types.
 ///
 /// ```rust
-/// use konst::{parse_type, result, try_};
+/// use konst::{result, try_};
 ///
-/// use konst::parsing::{HasParser, Parser, ParseValueResult};
+/// use konst::parsing::{HasParser, Parser, ParseValueResult, parse_type};
 ///
 /// const PAIR: (u32, Foo) = result::unwrap!(parse_pair(&mut Parser::new("100,Baz")));
 ///
@@ -51,11 +51,14 @@
 /// }
 /// ```
 ///
-/// [`Parser`]: ./parsing/struct.Parser.html
-/// [`HasParser`]: ./parsing/trait.HasParser.html
-#[macro_export]
+/// [`Parser`]: crate::parsing::Parser
+/// [`HasParser`]: crate::parsing::HasParser
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
-macro_rules! parse_type {
+pub use crate::__parse_type as parse_type;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __parse_type {
     ($parser:expr, $type:ty $(,)*) => {
         match $parser.__borrow_mut() {
             parser @ $crate::Parser { .. } => {

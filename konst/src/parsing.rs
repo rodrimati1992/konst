@@ -18,7 +18,11 @@
 mod get_parser;
 mod non_parsing_methods;
 mod parse_errors;
+mod parsing_polymorphism_macros;
 mod primitive_parsing;
+
+#[cfg(feature = "parsing_proc")]
+mod parser_method_macro;
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -27,8 +31,12 @@ pub use self::{
     parse_errors::{ErrorKind, ParseDirection, ParseError, ParseValueResult},
 };
 
-#[doc(no_inline)]
-pub use crate::{parse_type, parser_method};
+#[cfg(feature = "parsing_proc")]
+#[doc(inline)]
+pub use self::parser_method_macro::parser_method;
+
+#[doc(inline)]
+pub use self::parsing_polymorphism_macros::parse_type;
 
 use crate::string::{self, Pattern};
 
@@ -52,9 +60,9 @@ use crate::string::{self, Pattern};
 #[cfg_attr(feature = "parsing_proc", doc = "```rust")]
 #[cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
 /// use konst::{
-///     parsing::{Parser, ParseValueResult},
+///     parsing::{Parser, ParseValueResult, parser_method},
 ///     result,
-///     for_range, parser_method, try_,
+///     for_range, try_,
 /// };
 ///
 /// // We need to parse the length into a separate const to use it as the length of the array.
@@ -395,9 +403,9 @@ impl<'a> Parser<'a> {
     #[cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
     ///
     /// use konst::{
-    ///     parsing::{Parser, ParseValueResult},
+    ///     parsing::{Parser, ParseValueResult, parser_method},
     ///     result,
-    ///     eq_str, for_range, parser_method, try_,
+    ///     eq_str, for_range, try_,
     /// };
     ///
     /// assert_eq!(VALS, [
@@ -472,7 +480,7 @@ impl<'a> Parser<'a> {
     ///
     /// For calling `strip_prefix` with multiple alternative `matched` string literals,
     /// you can use the [`parser_method`] macro,
-    /// [example](crate::parser_method#parsing-enum-example)
+    /// [example](self::parser_method#parsing-enum-example)
     ///
     /// # Examples
     ///
@@ -693,7 +701,7 @@ impl<'a> Parser<'a> {
     /// Repeatedly removes all instances of `needle` from the start of the parsed string.
     ///
     /// For trimming with multiple `needle`s, you can use the [`parser_method`] macro,
-    /// [example](crate::parser_method#trimming-example)
+    /// [example](self::parser_method#trimming-example)
     ///
     /// # Example
     ///
@@ -751,7 +759,7 @@ impl<'a> Parser<'a> {
     /// Repeatedly removes all instances of `needle` from the start of the parsed string.
     ///
     /// For trimming with multiple `needle`s, you can use the [`parser_method`] macro,
-    /// [example](crate::parser_method#trimming-example)
+    /// [example](self::parser_method#trimming-example)
     ///
     /// # Example
     ///
@@ -810,7 +818,7 @@ impl<'a> Parser<'a> {
     ///
     /// For calling `find_skip` with multiple alternative `needle` string literals,
     /// you can use the [`parser_method`] macro,
-    /// [example](crate::parser_method#find-example)
+    /// [example](self::parser_method#find-example)
     ///
     /// # Example
     ///
@@ -865,7 +873,7 @@ impl<'a> Parser<'a> {
     ///
     /// For calling `rfind_skip` with multiple alternative `needle` string literals,
     /// you can use the [`parser_method`] macro,
-    /// [example](crate::parser_method#find-example)
+    /// [example](self::parser_method#find-example)
     ///
     /// # Example
     ///

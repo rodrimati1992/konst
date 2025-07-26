@@ -37,12 +37,12 @@
 /// Note that passing a macro that expands to a literal doesn't work here,
 /// `concat` and `stringify` are special cased to work.
 ///
-/// [`find_skip`]: parsing/struct.Parser.html#method.find_skip
-/// [`rfind_skip`]: parsing/struct.Parser.html#method.rfind_skip
-/// [`strip_prefix`]: parsing/struct.Parser.html#method.strip_prefix
-/// [`strip_suffix`]: parsing/struct.Parser.html#method.strip_suffix
-/// [`trim_start_matches`]: parsing/struct.Parser.html#method.trim_start_matches
-/// [`trim_end_matches`]: parsing/struct.Parser.html#method.trim_end_matches
+/// [`find_skip`]: crate::parsing::Parser#method.find_skip
+/// [`rfind_skip`]: crate::parsing::Parser#method.rfind_skip
+/// [`strip_prefix`]: crate::parsing::Parser#method.strip_prefix
+/// [`strip_suffix`]: crate::parsing::Parser#method.strip_suffix
+/// [`trim_start_matches`]: crate::parsing::Parser#method.trim_start_matches
+/// [`trim_end_matches`]: crate::parsing::Parser#method.trim_end_matches
 ///
 /// # Evaluation order
 ///
@@ -57,9 +57,8 @@
 ///
 /// ```rust
 /// use konst::{
-///     parsing::{Parser, ParseValueResult},
+///     parsing::{Parser, ParseValueResult, parser_method},
 ///     result,
-///     parser_method,
 /// };
 ///
 /// #[derive(Debug, PartialEq)]
@@ -99,10 +98,7 @@
 /// ### `find_skip`
 ///
 /// ```rust
-/// use konst::{
-///     parsing::{Parser, ParseValueResult},
-///     parser_method,
-/// };
+/// use konst::parsing::{Parser, ParseValueResult, parser_method};
 ///
 /// {
 ///     let mut parser = Parser::new("baz_foo_bar_foo");
@@ -171,10 +167,7 @@
 /// ### Trimming
 ///
 /// ```rust
-/// use konst::{
-///     parsing::{Parser, ParseValueResult},
-///     parser_method,
-/// };
+/// use konst::parsing::{Parser, ParseValueResult, parser_method};
 ///
 /// {
 ///     let mut parser = Parser::new("foobarhellofoobar");
@@ -195,11 +188,14 @@
 /// }
 /// ```
 ///
-/// [`Parser`]: parsing/struct.Parser.html
-#[cfg(feature = "parsing_proc")]
+/// [`Parser`]: crate::parsing::Parser
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_proc")))]
+pub use crate::__parser_method as parser_method;
+
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing_proc")))]
 #[macro_export]
-macro_rules! parser_method {
+#[doc(hidden)]
+macro_rules! __parser_method {
     ($place:expr, find_skip; $($branches:tt)* ) => {
         $crate::__priv_pa_normalize_branches!{
             ($place, FromStart, __priv_pa_find_skip, outside_konst)

@@ -32,9 +32,9 @@ use core::marker::PhantomData;
 /// # Example
 ///
 /// ```rust
-/// use konst::{parse_type, result, try_};
+/// use konst::{result, try_};
 ///
-/// use konst::parsing::{HasParser, Parser, ParseValueResult};
+/// use konst::parsing::{HasParser, Parser, ParseValueResult, parse_type};
 ///
 /// const PAIR: Pair = {
 ///     let mut parser = Parser::new("100,200");
@@ -62,7 +62,7 @@ use core::marker::PhantomData;
 /// }
 /// ```
 ///
-/// [`parse_type`]: ../macro.parse_type.html
+/// [`parse_type`]: crate::parsing::parse_type
 /// [`HasParser::Parser`]: #associatedtype.Parser
 ///
 pub trait HasParser: Sized {

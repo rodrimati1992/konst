@@ -1,4 +1,4 @@
-use konst::{parser_method, Parser};
+use konst::parsing::{parser_method, Parser};
 
 fn reverse(s: &str) -> String {
     s.chars().rev().collect()
