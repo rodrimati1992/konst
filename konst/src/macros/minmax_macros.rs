@@ -19,7 +19,7 @@ macro_rules! min {
     ($left:expr, $right:expr) => {
         match ($left, $right) {
             (left, right) => {
-                if let $crate::__::Greater = $crate::const_cmp!(left, right) {
+                if let $crate::__::Greater = $crate::cmp::const_cmp!(left, right) {
                     right
                 } else {
                     left
@@ -50,7 +50,7 @@ macro_rules! max {
     ($left:expr, $right:expr) => {
         match ($left, $right) {
             (left, right) => {
-                if let $crate::__::Greater = $crate::const_cmp!(left, right) {
+                if let $crate::__::Greater = $crate::cmp::const_cmp!(left, right) {
                     left
                 } else {
                     right
@@ -69,16 +69,18 @@ macro_rules! max {
 /// # Example
 ///
 /// ```rust
+/// use konst::cmp::const_cmp;
+///
 /// // passing a pseudo-closure as the comparator
-/// const AAA: u32 = konst::min_by!(3u32, 10, |&l, &r| konst::const_cmp!(l, r / 4));
+/// const AAA: u32 = konst::min_by!(3u32, 10, |&l, &r| const_cmp!(l, r / 4));
 /// assert_eq!(AAA, 10);
 ///
 /// // Both arguments compare equal, so the first argument (`12`) is returned.
-/// const MIN_OF_EQ: u32 = konst::min_by!(12, 6, |l, r: &u32| konst::const_cmp!(*l % 3, *r % 3));
+/// const MIN_OF_EQ: u32 = konst::min_by!(12, 6, |l, r: &u32| const_cmp!(*l % 3, *r % 3));
 /// assert_eq!(MIN_OF_EQ, 12);
 ///
 /// const fn cmp_len(l: &str, r: &str) -> std::cmp::Ordering {
-///     konst::const_cmp!(l.len(), r.len())
+///     const_cmp!(l.len(), r.len())
 /// }
 ///
 /// // passing a function as the comparator
@@ -106,16 +108,18 @@ macro_rules! min_by {
 /// # Example
 ///
 /// ```rust
+/// use konst::cmp::const_cmp;
+///
 /// // passing a pseudo-closure as the comparator
-/// const AAA: u32 = konst::max_by!(3u32, 10, |&l, &r| konst::const_cmp!(l, r / 4));
+/// const AAA: u32 = konst::max_by!(3u32, 10, |&l, &r| const_cmp!(l, r / 4));
 /// assert_eq!(AAA, 3);
 ///
 /// // Both arguments compare equal, so the second argument (`6`) is returned.
-/// const MAX_OF_EQ: u32 = konst::max_by!(12, 6, |l: &u32, r| konst::const_cmp!(*l % 3, *r % 3));
+/// const MAX_OF_EQ: u32 = konst::max_by!(12, 6, |l: &u32, r| const_cmp!(*l % 3, *r % 3));
 /// assert_eq!(MAX_OF_EQ, 6);
 ///
 /// const fn cmp_len(l: &str, r: &str) -> std::cmp::Ordering {
-///     konst::const_cmp!(l.len(), r.len())
+///     konst::cmp::const_cmp!(l.len(), r.len())
 /// }
 ///
 /// // passing a function as the comparator
@@ -274,7 +278,7 @@ macro_rules! __minmax_by_key {
                     $v
                 };
 
-                if let $crate::__::$ord = $crate::const_cmp!(left_key, right_key) {
+                if let $crate::__::$ord = $crate::cmp::const_cmp!(left_key, right_key) {
                     right
                 } else {
                     left

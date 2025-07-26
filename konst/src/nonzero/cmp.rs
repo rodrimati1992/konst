@@ -6,6 +6,8 @@ use core::{
     },
 };
 
+use crate::cmp::const_ord_macros::cmp_int;
+
 macro_rules! declare_nonzero_integers {
     (
         ($type:ty, ($eq_fn_name:ident, $cmp_fn_name:ident))

@@ -12,7 +12,7 @@
 /// This demonstrates how you can implement equality and ordering comparison for a generic struct.
 ///
 /// ```rust
-/// use konst::{const_cmp, const_eq, impl_cmp, try_equal};
+/// use konst::cmp::{const_cmp, const_eq, impl_cmp, try_equal};
 ///
 /// use std::{
 ///     cmp::Ordering,
@@ -61,7 +61,7 @@
 /// This demonstrates how you can implement equality and ordering comparison for an enum.
 ///
 /// ```rust
-/// use konst::{const_cmp, const_eq, impl_cmp, try_equal};
+/// use konst::cmp::{const_cmp, const_eq, impl_cmp, try_equal};
 ///
 /// use std::cmp::Ordering;
 ///
@@ -114,10 +114,12 @@
 ///
 /// [`ConstCmp`]: crate::cmp::ConstCmp
 ///
-#[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
+pub use crate::__impl_cmp as impl_cmp;
+
+#[doc(hidden)]
 #[macro_export]
-macro_rules! impl_cmp {
+macro_rules! __impl_cmp {
     (
         $($rem:tt)*
     ) => (

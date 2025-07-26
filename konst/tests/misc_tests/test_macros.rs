@@ -1,6 +1,6 @@
 macro_rules! assertc_eq_rets {
     ($ty:ty, $function:expr => $left:expr, $right:expr, $expected:expr) => {{
-        use konst::const_eq;
+        use konst::cmp::const_eq;
 
         let left: $ty = $left;
         let right: $ty = $right;
@@ -107,7 +107,7 @@ macro_rules! assertc_opt_eq_rets {
 
 macro_rules! assertc_cmp {
     ($ty:ty, $function:expr => $left:expr, $right:expr, $expected:expr) => {{
-        use konst::const_cmp;
+        use konst::cmp::const_cmp;
 
         let left: $ty = $left;
         let right: $ty = $right;

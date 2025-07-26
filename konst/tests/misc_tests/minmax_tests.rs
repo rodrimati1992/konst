@@ -1,7 +1,4 @@
-use konst::{
-    cmp::{ConstCmp, IsNotStdKind},
-    const_cmp, const_eq,
-};
+use konst::cmp::{const_cmp, const_eq, ConstCmp, IsNotStdKind};
 
 use std::cmp::Ordering;
 
@@ -103,7 +100,7 @@ fn max_custom_test() {
 }
 
 const fn cmp_mod10(l: &u32, r: &u32) -> std::cmp::Ordering {
-    konst::const_cmp!(*l % 10, *r % 10)
+    konst::cmp::const_cmp!(*l % 10, *r % 10)
 }
 const fn cmp_nc_mod10(l: &NonCopy, r: &NonCopy) -> std::cmp::Ordering {
     cmp_mod10(&l.0, &r.0)
@@ -127,7 +124,7 @@ fn min_by_test() {
         konst::min_by!(5, 8, |l: &u128, r: &u128| {
             assert_type::<_, &u128>(&l);
             assert_type::<_, &u128>(&r);
-            konst::const_cmp!(l, r)
+            konst::cmp::const_cmp!(l, r)
         }),
         5,
     );
@@ -182,7 +179,7 @@ fn max_by_test() {
         konst::max_by!(5, 8, |l: &u128, r: &u128| {
             assert_type::<_, &u128>(&l);
             assert_type::<_, &u128>(&r);
-            konst::const_cmp!(l, r)
+            konst::cmp::const_cmp!(l, r)
         }),
         8,
     );

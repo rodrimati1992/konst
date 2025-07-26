@@ -216,8 +216,8 @@ macro_rules! __priv_std_kind_impl {
 ///
 /// ```rust
 /// use konst::{
-///     cmp::CmpWrapper,
-///     coerce_to_cmp, impl_cmp,
+///     cmp::{CmpWrapper, impl_cmp},
+///     coerce_to_cmp
 /// };
 ///
 /// struct Unit;

@@ -3,6 +3,8 @@ use core::{
     marker::{PhantomData, PhantomPinned},
 };
 
+use crate::cmp::const_ord_macros::cmp_int;
+
 __delegate_const_eq! {
     /// Compares two `Ordering` for equality.
     #[inline]

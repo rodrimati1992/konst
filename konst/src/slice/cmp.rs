@@ -31,7 +31,7 @@ __delegate_const_eq! {
 
     /// Compares two `&[&str]` for equality.
     pub const fn eq_slice_str(ref l: &[&str], r: &[&str]) -> bool {
-        crate::const_eq_for!(slice; l, r, crate::eq_str)
+        crate::cmp::const_eq_for!(slice; l, r, crate::eq_str)
     }
 }
 
@@ -40,7 +40,7 @@ __delegate_const_ord! {
 
     /// Compares two `&[&str]`, returning the order of `left` relative to `right`.
     pub const fn cmp_slice_str(ref left: &[&str], right: &[&str]) -> Ordering {
-        crate::const_cmp_for!(slice; left, right, crate::cmp_str)
+        crate::cmp::const_cmp_for!(slice; left, right, crate::cmp_str)
     }
 }
 
@@ -49,7 +49,7 @@ __delegate_const_eq! {
 
     /// Compares two `&[&[u8]]` for equality.
     pub const fn eq_slice_bytes(ref l: &[&[u8]], r: &[&[u8]]) -> bool {
-        crate::const_eq_for!(slice; l, r, eq_slice_u8)
+        crate::cmp::const_eq_for!(slice; l, r, eq_slice_u8)
     }
 }
 
@@ -58,7 +58,7 @@ __delegate_const_ord! {
 
     /// Compares two `&[&[u8]]`, returning the order of `left` relative to `right`.
     pub const fn cmp_slice_bytes(ref left: &[&[u8]], right: &[&[u8]]) -> Ordering {
-        crate::const_cmp_for!(slice; left, right, cmp_slice_u8)
+        crate::cmp::const_cmp_for!(slice; left, right, cmp_slice_u8)
     }
 }
 

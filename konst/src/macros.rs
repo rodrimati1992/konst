@@ -1,12 +1,6 @@
 #[cfg(feature = "cmp")]
 mod assert_cmp_macros;
 
-#[macro_use]
-mod const_eq_macros;
-
-#[macro_use]
-mod const_ord_macros;
-
 #[cfg(feature = "cmp")]
 #[macro_use]
 mod minmax_macros;
@@ -39,9 +33,6 @@ mod parse_closures;
 #[cfg(feature = "parsing")]
 #[macro_use]
 mod parsing_macros;
-
-#[macro_use]
-mod impl_cmp;
 
 #[macro_use]
 pub(crate) mod unwrapping;

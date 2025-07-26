@@ -1,5 +1,7 @@
 use core::cmp::Ordering;
 
+use crate::cmp::const_ord_macros::cmp_int;
+
 macro_rules! declare_int_cmp_fn {
     (
         ($type:ty, ($cmp_fn_name:ident))

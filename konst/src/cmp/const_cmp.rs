@@ -39,8 +39,8 @@ use core::marker::PhantomData;
 ///
 /// ```
 /// use konst::{
-///     cmp::{ConstCmp, IsNotStdKind},
-///     assertc_eq, assertc_ne, const_cmp, const_eq, try_equal,
+///     cmp::{ConstCmp, IsNotStdKind, const_cmp, const_eq, try_equal},
+///     assertc_eq, assertc_ne
 /// };
 ///
 /// use std::cmp::Ordering;
@@ -87,7 +87,7 @@ use core::marker::PhantomData;
 /// multiple implementations with different type arguments.
 ///
 /// ```
-/// use konst::{const_cmp, const_eq, impl_cmp, try_equal};
+/// use konst::cmp::{const_cmp, const_eq, impl_cmp, try_equal};
 /// use konst::{assertc_eq, assertc_ne};
 ///
 /// use std::cmp::Ordering;

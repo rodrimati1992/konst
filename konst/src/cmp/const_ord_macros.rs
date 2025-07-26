@@ -11,7 +11,7 @@
 /// # Example
 ///
 /// ```rust
-/// use konst::{const_cmp, impl_cmp, try_equal};
+/// use konst::cmp::{const_cmp, impl_cmp, try_equal};
 ///
 /// use std::cmp::Ordering;
 ///
@@ -55,10 +55,12 @@
 /// ```
 ///
 /// [`ConstCmp`]: crate::cmp::ConstCmp
-#[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
+pub use crate::__const_cmp as const_cmp;
+
+#[doc(hidden)]
 #[macro_export]
-macro_rules! const_cmp {
+macro_rules! __const_cmp {
     ($left:expr, $right:expr $(,)*) => {
         match $crate::coerce_to_cmp!($left, $right) {
             (left, right) => left.const_cmp(right),
@@ -80,7 +82,7 @@ macro_rules! const_cmp {
 /// ### Slices
 ///
 /// ```rust
-/// use konst::{const_cmp, const_cmp_for, try_equal};
+/// use konst::cmp::{const_cmp, const_cmp_for, try_equal};
 ///
 /// use std::cmp::Ordering;
 ///
@@ -106,7 +108,7 @@ macro_rules! const_cmp {
 /// ### Options
 ///
 /// ```rust
-/// use konst::{const_cmp, const_cmp_for, try_equal};
+/// use konst::cmp::{const_cmp, const_cmp_for, try_equal};
 ///
 /// use std::cmp::Ordering;
 ///
@@ -145,10 +147,12 @@ macro_rules! const_cmp {
 /// [`const_cmp`]: macro.const_cmp.html
 /// [`cmp::Ordering`]: https://doc.rust-lang.org/core/cmp/enum.Ordering.html
 ///
-#[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
+pub use crate::__const_cmp_for as const_cmp_for;
+
+#[doc(hidden)]
 #[macro_export]
-macro_rules! const_cmp_for {
+macro_rules! __const_cmp_for {
     (
         slice;
         $left_slice:expr,
@@ -230,7 +234,7 @@ macro_rules! __priv_const_cmp_for {
 /// # Example
 ///
 /// ```rust
-/// use konst::{const_cmp, impl_cmp, try_equal};
+/// use konst::cmp::{const_cmp, impl_cmp, try_equal};
 ///
 /// use std::cmp::Ordering;
 ///
@@ -270,10 +274,12 @@ macro_rules! __priv_const_cmp_for {
 ///
 /// ```
 ///
-#[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
+pub use crate::__try_equal as try_equal;
+
+#[doc(hidden)]
 #[macro_export]
-macro_rules! try_equal {
+macro_rules! __try_equal {
     ($ord:expr $(,)*) => {
         match $ord {
             $crate::__::Ordering::Equal => $crate::__::Ordering::Equal,
@@ -294,3 +300,4 @@ macro_rules! cmp_int {
         }
     }};
 }
+pub(crate) use cmp_int;
