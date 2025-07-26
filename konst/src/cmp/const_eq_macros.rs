@@ -309,8 +309,8 @@ macro_rules! __const_eq {
 ///
 /// ```
 ///
-/// [`ConstCmp`]: const::cmp::ConstCmp
-/// [`const_eq`]: macro.const_eq.html
+/// [`ConstCmp`]: crate::cmp::ConstCmp
+/// [`const_eq`]: crate::cmp::const_eq
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub use crate::__const_eq_for as const_eq_for;
 
@@ -406,10 +406,10 @@ macro_rules! __const_eq_for {
 #[macro_export]
 macro_rules! __priv_const_eq_for {
     ($left:expr, $right:expr, ) => {
-        $crate::coerce_to_cmp!($left).const_eq(&$right)
+        $crate::cmp::coerce_to_cmp!($left).const_eq(&$right)
     };
     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
-        $crate::coerce_to_cmp!({
+        $crate::cmp::coerce_to_cmp!({
             let $l = &$left;
             $key_expr
         })

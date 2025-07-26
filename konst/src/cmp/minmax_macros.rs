@@ -8,14 +8,17 @@
 /// # Example
 ///
 /// ```rust
-/// const M: u32 = konst::min!(3u32, 5);
+/// const M: u32 = konst::cmp::min!(3u32, 5);
 /// assert_eq!(M, 3);
 /// ```
 ///
 /// [`ConstCmp`]: crate::cmp::ConstCmp
-#[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
-macro_rules! min {
+pub use crate::__min as min;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __min {
     ($left:expr, $right:expr) => {
         match ($left, $right) {
             (left, right) => {
@@ -39,14 +42,17 @@ macro_rules! min {
 /// # Example
 ///
 /// ```rust
-/// const M: &str = konst::max!("world", "hello");
+/// const M: &str = konst::cmp::max!("world", "hello");
 /// assert_eq!(M, "world");
 /// ```
 ///
 /// [`ConstCmp`]: crate::cmp::ConstCmp
-#[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
-macro_rules! max {
+pub use crate::__max as max;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __max {
     ($left:expr, $right:expr) => {
         match ($left, $right) {
             (left, right) => {
@@ -72,11 +78,11 @@ macro_rules! max {
 /// use konst::cmp::const_cmp;
 ///
 /// // passing a pseudo-closure as the comparator
-/// const AAA: u32 = konst::min_by!(3u32, 10, |&l, &r| const_cmp!(l, r / 4));
+/// const AAA: u32 = konst::cmp::min_by!(3u32, 10, |&l, &r| const_cmp!(l, r / 4));
 /// assert_eq!(AAA, 10);
 ///
 /// // Both arguments compare equal, so the first argument (`12`) is returned.
-/// const MIN_OF_EQ: u32 = konst::min_by!(12, 6, |l, r: &u32| const_cmp!(*l % 3, *r % 3));
+/// const MIN_OF_EQ: u32 = konst::cmp::min_by!(12, 6, |l, r: &u32| const_cmp!(*l % 3, *r % 3));
 /// assert_eq!(MIN_OF_EQ, 12);
 ///
 /// const fn cmp_len(l: &str, r: &str) -> std::cmp::Ordering {
@@ -84,15 +90,18 @@ macro_rules! max {
 /// }
 ///
 /// // passing a function as the comparator
-/// const BBB: &str = konst::min_by!("he", "bar", cmp_len);
+/// const BBB: &str = konst::cmp::min_by!("he", "bar", cmp_len);
 /// assert_eq!(BBB, "he");
 /// ```
-#[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
-macro_rules! min_by {
+pub use crate::__min_by as min_by;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __min_by {
     ($left:expr, $right:expr, $($comparator:tt)*) => {
         $crate::__parse_closure_2!{
-            ($crate::__min_by)
+            ($crate::__min_by_inner)
             ($left, $right,)
             (min_by),
 
@@ -111,11 +120,11 @@ macro_rules! min_by {
 /// use konst::cmp::const_cmp;
 ///
 /// // passing a pseudo-closure as the comparator
-/// const AAA: u32 = konst::max_by!(3u32, 10, |&l, &r| const_cmp!(l, r / 4));
+/// const AAA: u32 = konst::cmp::max_by!(3u32, 10, |&l, &r| const_cmp!(l, r / 4));
 /// assert_eq!(AAA, 3);
 ///
 /// // Both arguments compare equal, so the second argument (`6`) is returned.
-/// const MAX_OF_EQ: u32 = konst::max_by!(12, 6, |l: &u32, r| const_cmp!(*l % 3, *r % 3));
+/// const MAX_OF_EQ: u32 = konst::cmp::max_by!(12, 6, |l: &u32, r| const_cmp!(*l % 3, *r % 3));
 /// assert_eq!(MAX_OF_EQ, 6);
 ///
 /// const fn cmp_len(l: &str, r: &str) -> std::cmp::Ordering {
@@ -123,15 +132,18 @@ macro_rules! min_by {
 /// }
 ///
 /// // passing a function as the comparator
-/// const BBB: &str = konst::max_by!("he", "bar", cmp_len);
+/// const BBB: &str = konst::cmp::max_by!("he", "bar", cmp_len);
 /// assert_eq!(BBB, "bar");
 /// ```
-#[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
-macro_rules! max_by {
+pub use crate::__max_by as max_by;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __max_by {
     ($left:expr, $right:expr, $($comparator:tt)*) => {
         $crate::__parse_closure_2!{
-            ($crate::__max_by)
+            ($crate::__max_by_inner)
             ($left, $right,)
             (max_by),
 
@@ -142,7 +154,7 @@ macro_rules! max_by {
 
 #[macro_export]
 #[doc(hidden)]
-macro_rules! __min_by {
+macro_rules! __min_by_inner {
     (
         $left:expr, $right:expr,
         ($($closure_params:tt)*) $(-> $ret_ty:ty)? $ret_val:block
@@ -162,7 +174,7 @@ macro_rules! __min_by {
 
 #[macro_export]
 #[doc(hidden)]
-macro_rules! __max_by {
+macro_rules! __max_by_inner {
     (
         $left:expr, $right:expr,
         ($($closure_params:tt)*) $(-> $ret_ty:ty)? $ret_val:block
@@ -193,22 +205,26 @@ macro_rules! __max_by {
 ///
 /// ```rust
 /// // passing a pseudo-closure as the comparator
-/// const AAA: u32 = konst::min_by_key!(3u32, 10, |x| *x % 4);
+/// const AAA: u32 = konst::cmp::min_by_key!(3u32, 10, |x| *x % 4);
 /// assert_eq!(AAA, 10);
 ///
 /// // Both arguments compare equal, so the first argument (`16`) is returned.
-/// const MIN_OF_EQ: u32 = konst::min_by_key!(16u32, 8, |x| *x % 4);
+/// const MIN_OF_EQ: u32 = konst::cmp::min_by_key!(16u32, 8, |x| *x % 4);
 /// assert_eq!(MIN_OF_EQ, 16);
 ///
 /// // passing a function as the comparator
-/// const BBB: &str = konst::min_by_key!("foo", "he", str::len);
+/// const BBB: &str = konst::cmp::min_by_key!("foo", "he", str::len);
 /// assert_eq!(BBB, "he");
 /// ```
 ///
 /// [`ConstCmp`]: crate::cmp::ConstCmp
-#[macro_export]
+
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
-macro_rules! min_by_key {
+pub use crate::__min_by_key as min_by_key;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __min_by_key {
     ($left:expr, $right:expr, $($comparator:tt)*) => {
         $crate::__parse_closure_1!{
             ($crate::__minmax_by_key)
@@ -231,22 +247,26 @@ macro_rules! min_by_key {
 ///
 /// ```rust
 /// // passing a pseudo-closure as the comparator
-/// const AAA: u32 = konst::max_by_key!(3u32, 10, |x| *x % 4);
+/// const AAA: u32 = konst::cmp::max_by_key!(3u32, 10, |x| *x % 4);
 /// assert_eq!(AAA, 3);
 ///
 /// // Both arguments compare equal, so the second argument (`6`) is returned.
-/// const MAX_OF_EQ: u32 = konst::max_by_key!(12, 6, |x: &u32| *x % 4);
+/// const MAX_OF_EQ: u32 = konst::cmp::max_by_key!(12, 6, |x: &u32| *x % 4);
 /// assert_eq!(MAX_OF_EQ, 6);
 ///
 /// // passing a function as the comparator
-/// const BBB: &str = konst::max_by_key!("he", "bar", str::len);
+/// const BBB: &str = konst::cmp::max_by_key!("he", "bar", str::len);
 /// assert_eq!(BBB, "bar");
 /// ```
 ///
 /// [`ConstCmp`]: crate::cmp::ConstCmp
-#[macro_export]
+
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
-macro_rules! max_by_key {
+pub use crate::__max_by_key as max_by_key;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __max_by_key {
     ($left:expr, $right:expr, $($comparator:tt)*) => {
         $crate::__parse_closure_1!{
             ($crate::__minmax_by_key)

@@ -1,10 +1,6 @@
 #[cfg(feature = "cmp")]
 mod assert_cmp_macros;
 
-#[cfg(feature = "cmp")]
-#[macro_use]
-mod minmax_macros;
-
 #[macro_use]
 mod control_flow;
 

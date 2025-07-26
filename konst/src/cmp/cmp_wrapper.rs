@@ -2,16 +2,13 @@ use crate::cmp::{ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
 
 /// A wrapper type for std types, which defines `const_eq` and `const_cmp` methods for them.
 ///
-/// This is what [`coerce_to_cmp`](crate::coerce_to_cmp)
+/// This is what [`coerce_to_cmp`](crate::cmp::coerce_to_cmp)
 /// and the comparison macros convert standard library types into.
 ///
 /// # Example
 ///
 /// ```rust
-/// use konst::{
-///     cmp::CmpWrapper,
-///     coerce_to_cmp,
-/// };
+/// use konst::cmp::{CmpWrapper, coerce_to_cmp};
 ///
 /// use std::cmp::Ordering;
 ///

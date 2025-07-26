@@ -243,6 +243,7 @@ impl<T: ?Sized + ConstCmpUnref> ConstCmpUnrefHelper<IsRefKind> for &mut T {
 ///
 /// `R`: Is a type that implements [`ConstCmp`]
 ///
+/// [`coerce_to_cmp`]: crate::cmp::coerce_to_cmp
 #[allow(clippy::type_complexity)]
 pub struct IsAConstCmp<K, T: ?Sized, R: ?Sized>(
     PhantomData<(

@@ -4,7 +4,7 @@ macro_rules! __cmp_assert_inner {
     ($left:expr, $right:expr, $is_equal:ident, $operator:literal, $($($fmt:tt)+)?) => {
         match (&$left, &$right) {
             (left, right) => {
-                if let $is_equal = $crate::coerce_to_cmp!($left).const_eq(right) {
+                if let $is_equal = $crate::cmp::coerce_to_cmp!($left).const_eq(right) {
                     $crate::__::concat_panic!{
                         display: concat!(
                             "\nassertion failed: LEFT ",

@@ -147,7 +147,8 @@ macro_rules! __const_cmp {
 /// ```
 ///
 /// [`ConstCmp`]: crate::cmp::ConstCmp
-/// [`const_cmp`]: macro.const_cmp.html
+/// [`const_cmp`]: crate::cmp::const_cmp
+/// [`const_eq_for`]: crate::cmp::const_eq_for
 /// [`cmp::Ordering`]: https://doc.rust-lang.org/core/cmp/enum.Ordering.html
 ///
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
@@ -209,10 +210,10 @@ macro_rules! __const_cmp_for {
 #[macro_export]
 macro_rules! __priv_const_cmp_for {
     ($left:expr, $right:expr, ) => {
-        $crate::coerce_to_cmp!(&$left).const_cmp(&$right)
+        $crate::cmp::coerce_to_cmp!(&$left).const_cmp(&$right)
     };
     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
-        $crate::coerce_to_cmp!({
+        $crate::cmp::coerce_to_cmp!({
             let $l = &$left;
             $key_expr
         })

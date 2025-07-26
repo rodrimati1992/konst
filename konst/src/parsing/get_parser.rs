@@ -20,13 +20,15 @@ use core::marker::PhantomData;
 /// ```
 /// Then `SomeParser` is expected to have a `parse_with` associated function with this signature:
 /// ```rust
-/// # /*
+/// # struct SomeParser;
+/// # struct This;
+/// # struct SomeErrorType;
 /// impl SomeParser {
 ///     const fn parse_with<'p>(
 ///         _: &mut konst::Parser<'p>
 ///     ) -> Result<This, SomeErrorType>
+/// # { unimplemented!() }
 /// }
-/// # */
 /// ```
 ///
 /// # Example
