@@ -17,10 +17,9 @@ pub use crate::polymorphism::kinds::{IsIntoIterKind, IsIteratorKind, IsStdKind};
 #[doc(hidden)]
 pub mod collect_const;
 mod for_each_macro;
+mod iter_eval_macro;
 mod iterator_adaptors;
 pub mod iterator_dsl;
-
-mod combinator_methods;
 
 pub(crate) mod step;
 
@@ -31,16 +30,17 @@ pub use for_each_macro::for_each;
 pub use collect_const::collect_const;
 
 #[doc(inline)]
+pub use self::iter_eval_macro::eval;
+
+#[doc(hidden)]
+pub use self::internal_iter_macros::{__assert_item_ty, __get_item_ty, __items_needs_drop};
+
 pub use iterator_adaptors::*;
 
 #[doc(hidden)]
-pub use self::internal_iter_macros::{
-    __assert_item_ty, __cim_method_not_found_err, __cim_preprocess_methods, __get_item_ty,
-};
+pub use self::iter_eval_macro::__eval2_lowering;
 
 pub use self::step::Step;
-
-include! {"./iter/iter_eval_macro.rs"}
 
 /// Const analog of the [`IntoIterator`] trait.
 ///

@@ -111,19 +111,6 @@ fn collect_const_map() {
 
         assert_eq!(ARR, [3, 6, 9, 12]);
     }
-
-    {
-        const ARR: [usize; 4] = collect_const!(usize =>
-            (1..=4),
-                map(|x| {
-                    // testing that lifetime extension works
-                    &(x * 10)
-                }),
-                copied(),
-        );
-
-        assert_eq!(ARR, [10, 20, 30, 40]);
-    }
 }
 
 #[test]
@@ -174,10 +161,8 @@ fn collect_const_flat_map() {
             &[3, 5, 8],
                 flat_map(|x| {
                     let x10 = *x * 10;
-                    // testing that lifetime extension works
-                    &[x10, x10 + 1, x10 + 2]
+                    [x10, x10 + 1, x10 + 2]
                 }),
-                copied(),
         );
 
         assert_eq!(ARR, [30, 31, 32, 50, 51, 52, 80, 81, 82]);

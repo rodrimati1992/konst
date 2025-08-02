@@ -1,3 +1,24 @@
+// For closures passed by konst macros
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __fast_parse_closure_2 {
+    (
+        ($($macro:tt)*) ($($args:tt)*) $usage_site:tt,
+        |$pat1:tt $(: $pat1_ty:ty)?, $pat2:tt $(: $pat2_ty:ty)? $(,)?|
+        -> $ret_ty:ty $v:block $(,)?
+    ) => (
+        $($macro)* ! {
+            $($args)*
+            (
+                ($crate::__unparen_pat!($pat1), $crate::__unparen_pat!($pat2)):
+                ($crate::__ty_or_und!($($pat1_ty)?), $crate::__ty_or_und!($($pat2_ty)?))
+            )
+            -> $ret_ty
+            { $v }
+        }
+    );
+}
+
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __parse_closure_2 {
@@ -56,6 +77,24 @@ macro_rules! __parse_closure_2 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
+
+// For closures passed by konst macros
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __fast_parse_closure_1 {
+    (
+        ($($macro:tt)*) ($($args:tt)*) $usage_site:tt,
+        |$pat1:tt $(: $pat1_ty:ty)? $(,)?|
+        -> $ret_ty:ty $v:block $(,)?
+    ) => (
+        $($macro)* ! {
+            $($args)*
+            ($crate::__unparen_pat!($pat1): $crate::__ty_or_und!($($pat1_ty)?))
+            -> $ret_ty
+            { $v }
+        }
+    );
+}
 
 #[doc(hidden)]
 #[macro_export]
@@ -188,4 +227,19 @@ macro_rules! __parse_closure_emit_error {
             "-parameter closure",
         )}
     };
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __eval_closure {
+    (
+        $args:expr,
+        ($($params:tt)*) $(-> $ret_ty:ty)? { $block:expr }
+    ) => ({
+        let $($params)* = $args;
+        let ret $(: $ret_ty)? = $block;
+        ret
+    })
 }

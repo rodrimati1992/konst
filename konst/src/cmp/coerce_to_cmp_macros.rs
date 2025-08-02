@@ -59,7 +59,7 @@ macro_rules! __coerce_to_cmp {
             ref reference => {
                 let marker = $crate::__::IsAConstCmp::NEW;
                 if false {
-                    marker.infer_type(reference);
+                    _ = marker.infer_type(reference);
                 }
                 marker.coerce(reference)
             }
@@ -76,8 +76,8 @@ macro_rules! __coerce_to_cmp2 {
                 let l_marker = $crate::__::IsAConstCmp::NEW;
                 let r_marker = $crate::__::IsAConstCmp::NEW;
                 if false {
-                    l_marker.infer_type(left);
-                    r_marker.infer_type(right);
+                    _ = l_marker.infer_type(left);
+                    _ = r_marker.infer_type(right);
                 }
                 (l_marker.coerce(left), r_marker.unreference(right))
             }

@@ -94,8 +94,7 @@ fn iterator_rev_and_flat_map_test() {
         iter::eval! {
             slice,
                 rev(),
-                flat_map(|&[a, b, c]| -> &[u8; 3] {&[100 + a, b, c]}),
-                copied(),
+                flat_map(|&[a, b, c]| -> [u8; 3] {[100 + a, b, c]}),
                 enumerate(),
                 for_each(|(i, v)| arr[i] = v),
         }
@@ -107,9 +106,8 @@ fn iterator_rev_and_flat_map_test() {
 
         iter::eval! {
             slice,
-                flat_map(|&[a, b, c]| &[100 + a, b, c]),
+                flat_map(|&[a, b, c]| [100 + a, b, c]),
                 rev(),
-                copied(),
                 enumerate(),
                 for_each(|(i, v)| arr[i] = v),
         }
@@ -256,32 +254,6 @@ fn flat_map_nth_test() {
         (4, None),
     ] {
         assert_eq!(iter::eval!(&[3, 5], flat_map(range_f), nth(i)), v);
-    }
-}
-
-#[test]
-fn flat_map_rposition_test() {
-    const fn range_f(n: &usize) -> std::ops::Range<usize> {
-        let x10 = *n * 10;
-        x10..x10 + 2
-    }
-
-    for &(eq, v) in &[
-        (51, Some(0)),
-        (50, Some(1)),
-        (31, Some(2)),
-        (30, Some(3)),
-        (0, None),
-    ] {
-        assert_eq!(
-            iter::eval!(&[3, 5], flat_map(range_f), rposition(|e| e == eq)),
-            v
-        );
-
-        assert_eq!(
-            iter::eval!(&[3, 5], flat_map(range_f), rev(), position(|e| e == eq)),
-            v
-        );
     }
 }
 
@@ -677,53 +649,6 @@ fn position_tests() {
 }
 
 #[test]
-fn rposition_tests() {
-    const fn rposition_even(slice: &[u8]) -> Option<usize> {
-        iter::eval!(
-            slice,
-            rposition(|&elem| match elem % 4 {
-                1 => false,
-                3 => return Some(usize::MAX),
-                _ => true,
-            })
-        )
-    }
-
-    assert_eq!(rposition_even(&[]), None);
-    assert_eq!(rposition_even(&[1]), None);
-    assert_eq!(rposition_even(&[5, 1]), None);
-    assert_eq!(rposition_even(&[1, 0]), Some(0));
-    assert_eq!(rposition_even(&[0, 1]), Some(1));
-    assert_eq!(rposition_even(&[10, 1, 5]), Some(2));
-    assert_eq!(rposition_even(&[3, 1]), Some(usize::MAX));
-    assert_eq!(rposition_even(&[2, 3, 1]), Some(usize::MAX));
-
-    {
-        const fn calls_const_fn(slice: &[u8]) -> Option<usize> {
-            iter::eval!(slice, rposition(is_ru8_even,))
-        }
-
-        assert_eq!(calls_const_fn(&[]), None);
-        assert_eq!(calls_const_fn(&[1]), None);
-        assert_eq!(calls_const_fn(&[2]), Some(0));
-        assert_eq!(calls_const_fn(&[2, 1]), Some(1));
-        assert_eq!(calls_const_fn(&[4, 3, 1]), Some(2));
-    }
-
-    // explicit return type
-    {
-        assert_eq!(
-            iter::eval!(&[3, 5], rposition(|_| -> bool { Def::DEF })),
-            None,
-        );
-        assert_eq!(
-            iter::eval!(&[3, 5], rposition(|_| -> bool { Def::DEF_OTHER })),
-            Some(0),
-        );
-    }
-}
-
-#[test]
 fn filter_retty_test() {
     let mut vect = Vec::new();
 
@@ -842,7 +767,9 @@ fn test_type_annotate_param() {
     );
 
     assert_eq!(
-        iter::collect_const!(u8 => &[3, 5, 8],flat_map(|x: &u8| &[*x]),copied()),
+        iter::collect_const!(u8 =>
+            &[3, 5, 8],flat_map(|x: &u8| std::array::from_ref(x)),copied()
+        ),
         [3, 5, 8],
     );
 

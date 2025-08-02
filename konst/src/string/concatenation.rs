@@ -366,14 +366,7 @@ pub use __string_join_hidden as str_join;
 /// ```rust
 /// use konst::string;
 ///
-/// const S: &str = string::from_iter!(
-///     &["foo", "bar", "baz"],
-///         flat_map(|s| {
-///             // By value iteration over arrays isn't supported,
-///             // but by-reference iteration is supported
-///             &[*s, ", "]
-///         })
-/// );
+/// const S: &str = string::from_iter!(["foo", "bar", "baz"],flat_map(|s| [s, ", "]));
 ///
 /// assert_eq!(S, "foo, bar, baz, ");
 ///

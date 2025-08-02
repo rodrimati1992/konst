@@ -72,16 +72,7 @@ assert_eq!(ARR, [20, 22, 24, 26, 28, 30, 32, 34]);
 use konst::iter;
 
 const ARR: [u8; 6] = iter::collect_const!(u8 =>
-    // the `&` is required here,
-    // because by-value iteration over arrays is not supported.
-    &[10, 20, 30],
-        flat_map(|&n| {
-            // To allow returning references to arrays, the macro extends
-            // the lifetime of borrows to temporaries in return position.
-            // The lifetime of the array is extended to the entire iterator chain.
-            &[n - 1, n + 1]
-        }),
-        copied()
+    [10, 20, 30],flat_map(|n| [n - 1, n + 1]),
 );
 
 assert_eq!(ARR, [9, 11, 19, 21, 29, 31]);
@@ -99,7 +90,7 @@ pub use __collect_const_hidden as collect_const;
 macro_rules! __collect_const_iter_with {
     (
         $Item:ty,
-        $reassign_item:tt,
+        {$($reassign_item:tt)*},
         |$array:ident, $length:ident, $item:ident| $elem_initer:expr,
         elem_length = $elem_length:expr,
         =>
@@ -111,15 +102,18 @@ macro_rules! __collect_const_iter_with {
             let mut $array = $crate::maybe_uninit::uninit_array::<_, CAP_KO9Y329U2U>();
             let mut $length = 0usize;
 
-            $crate::__process_iter_args!{
-                ($crate::__iter_collect_const)
-                (cmd, $length, $elem_length, $reassign_item, $elem_initer;)
-                (
-                    $item,
-                    'zxe7hgbnjs,
-                    adapter,
-                )
+            $crate::iter::eval!{
                 $($rem)*
+                ,for_each(|$item| {
+                    $($reassign_item)*
+                    if let $crate::__::CollectorCmd::BuildArray(teq) = cmd {
+                        teq.reachability_hint(());
+
+                        $elem_initer
+                    }
+
+                    $length += $elem_length;
+                })
             }
 
             match cmd {
@@ -149,31 +143,6 @@ macro_rules! __collect_const_iter_with {
 
 
     };
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __iter_collect_const {
-    (
-        @each
-        $cmd:ident,
-        $length:ident,
-        $elem_length:expr,
-        {$($reassign_item:tt)*},
-        $elem_initer:expr;
-        ($item:ident adapter),
-        $(,)*
-    ) => ({
-        $($reassign_item)*
-        if let $crate::__::CollectorCmd::BuildArray(teq) = $cmd {
-            teq.reachability_hint(());
-
-            $elem_initer
-        }
-
-        $length += $elem_length;
-    });
-    (@end $($tt:tt)*) => {};
 }
 
 #[doc(hidden)]

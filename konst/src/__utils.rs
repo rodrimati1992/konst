@@ -22,3 +22,7 @@ macro_rules! __priv_transmute {
         )
     }};
 }
+
+pub const fn __overwrite<T>(mr: &mut T, val: T) {
+    core::mem::forget(core::mem::replace(mr, val))
+}

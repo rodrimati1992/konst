@@ -1,49 +1,23 @@
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __for_each_hidden {
-    ($pattern:pat_param in $($rem:tt)*) => ({
-        $crate::__process_iter_args!{
-            ($crate::__for_each)
-            (($pattern),)
-            (
-                item,
-                'zxe7hgbnjs,
-                adapter,
-            )
-            $($rem)*
+    (
+        $pattern:pat in $iterator:expr
+            $($(,)+ $iterator_method:ident ($($method_args:tt)*) )*
+            $(,)?
+        =>
+        $($code:tt)*
+    ) => ({
+        $crate::iter::eval!{
+            $iterator
+                $(, $iterator_method ($($method_args)*) )*
+                ,for_each(|$pattern| { $($code)* })
         }
     });
 }
 
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __for_each {
-    (
-        @each
-        ($pattern:pat_param),
-        ($item:ident adapter),
-        $(,)? => $($code:tt)*
-    ) => ({
-        let $pattern = $item;
-        $($code)*
-    });
-    (@$other:ident $($tt:tt)*) =>{};
-}
-
 /// Iterates over all elements of an [iterator](crate::iter::ConstIntoIter),
 /// const equivalent of [`Iterator::for_each`]
-///
-/// # Syntax
-///
-/// ```text
-/// for_each!{
-///     $pattern:pat in $iterator:expr
-///         $(,$iterator_method:ident ($($method_args:tt)*) )*
-///         $(,)?
-///     =>
-///     $($code:tt)*
-/// }
-/// ```
 ///
 /// This macro supports emulating iterator methods by expanding to equivalent code.
 /// They are documented in the [`iterator_dsl`] module,
