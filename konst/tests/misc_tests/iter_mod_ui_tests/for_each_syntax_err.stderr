@@ -60,6 +60,13 @@ error: method `foobar` is unsupported, expected one of:
        - for_each
        - fold
        - rfold
+       - cmp
+       - eq
+       - ne
+       - ge
+       - gt
+       - le
+       - lt
  --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:8:13
   |
 8 |     let _ = konst::iter::for_each!{_ in 0..10,foobar() => };

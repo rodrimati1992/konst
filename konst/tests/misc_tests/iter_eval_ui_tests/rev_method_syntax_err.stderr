@@ -48,6 +48,13 @@ error: method `rposition` is unsupported, expected one of:
        - for_each
        - fold
        - rfold
+       - cmp
+       - eq
+       - ne
+       - ge
+       - gt
+       - le
+       - lt
   --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:10:5
    |
 10 |     konst::iter::eval!(R, rev(),rposition(|_| false));

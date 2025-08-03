@@ -32,6 +32,13 @@ error: method `asdasdasd` is unsupported, expected one of:
        - for_each
        - fold
        - rfold
+       - cmp
+       - eq
+       - ne
+       - ge
+       - gt
+       - le
+       - lt
  --> tests/misc_tests/iter_eval_ui_tests/method_dispatch_err.rs:6:5
   |
 6 |     konst::iter::eval!(0usize..10, asdasdasd());

@@ -27,6 +27,28 @@ macro_rules! __iter_eval {
     );
 }
 
+#[cfg(feature = "cmp")]
+macro_rules! iter_cmp_docs {
+    () => {
+        concat! {
+            "\n\nThis is only available with the `\"cmp\"` feature (enabled by default) \n\n",
+            "```rust",
+        }
+    };
+}
+
+#[cfg(not(feature = "cmp"))]
+macro_rules! iter_cmp_docs {
+    () => {
+        concat! {
+            "\n\nThis is only available with the `\"cmp\"` feature (enabled by default) \n\n",
+            "```ignore",
+        }
+    };
+}
+
+use iter_cmp_docs;
+
 /**
 Emulates iterator method chains, by expanding to equivalent code.
 
@@ -64,6 +86,12 @@ instead of the start. Implementing it properly would require major changes.
 
 Consuming methods that use the `"cmp"` feature:
 - [`cmp`](#cmp)
+- [`eq`](#eq)
+- [`ne`](#ne)
+- [`ge`](#ge)
+- [`gt`](#gt)
+- [`le`](#le)
+- [`lt`](#lt)
 
 
 ### Adaptor Methods
@@ -311,7 +339,9 @@ assert_eq!(concat_u16s(&[3, 5, 8]), 0x0008_0005_0003);
 
 Const equivalent of [`Iterator::cmp`]
 
-```rust
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
 use std::cmp::Ordering;
 use konst::iter;
 
@@ -325,10 +355,127 @@ assert_eq!(compare_rev(&[3, 2, 1], &[1, 2, 3]), Ordering::Equal);
 
 assert_eq!(compare_rev(&[3, 2, 1], &[0]), Ordering::Greater);
 
-
 ```
 
+### `eq`
 
+Const equivalent of [`Iterator::eq`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::iter;
+
+const fn eq_rev(this: &[u16], other: &[u16]) -> bool {
+    iter::eval!(this,rev(),eq(other))
+}
+
+assert_eq!(eq_rev(&[3, 2, 1], &[4]), false);
+
+assert_eq!(eq_rev(&[3, 2, 1], &[1, 2, 3]), true);
+
+assert_eq!(eq_rev(&[3, 2, 1], &[0]), false);
+```
+
+### `ne`
+
+Const equivalent of [`Iterator::ne`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::iter;
+
+const fn ne_rev(this: &[u16], other: &[u16]) -> bool {
+    iter::eval!(this,rev(),ne(other))
+}
+
+assert_eq!(ne_rev(&[3, 2, 1], &[4]), true);
+
+assert_eq!(ne_rev(&[3, 2, 1], &[1, 2, 3]), false);
+
+assert_eq!(ne_rev(&[3, 2, 1], &[0]), true);
+```
+
+### `ge`
+
+Const equivalent of [`Iterator::ge`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::iter;
+
+const fn ge_rev(this: &[u16], other: &[u16]) -> bool {
+    iter::eval!(this,rev(),ge(other))
+}
+
+assert_eq!(ge_rev(&[3, 2, 1], &[4]), false);
+
+assert_eq!(ge_rev(&[3, 2, 1], &[1, 2, 3]), true);
+
+assert_eq!(ge_rev(&[3, 2, 1], &[0]), true);
+```
+
+### `gt`
+
+Const equivalent of [`Iterator::gt`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::iter;
+
+const fn gt_rev(this: &[u16], other: &[u16]) -> bool {
+    iter::eval!(this,rev(),gt(other))
+}
+
+assert_eq!(gt_rev(&[3, 2, 1], &[4]), false);
+
+assert_eq!(gt_rev(&[3, 2, 1], &[1, 2, 3]), false);
+
+assert_eq!(gt_rev(&[3, 2, 1], &[0]), true);
+```
+
+### `le`
+
+Const equivalent of [`Iterator::le`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::iter;
+
+const fn le_rev(this: &[u16], other: &[u16]) -> bool {
+    iter::eval!(this,rev(),le(other))
+}
+
+assert_eq!(le_rev(&[3, 2, 1], &[4]), true);
+
+assert_eq!(le_rev(&[3, 2, 1], &[1, 2, 3]), true);
+
+assert_eq!(le_rev(&[3, 2, 1], &[0]), false);
+```
+
+### `lt`
+
+Const equivalent of [`Iterator::lt`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::iter;
+
+const fn lt_rev(this: &[u16], other: &[u16]) -> bool {
+    iter::eval!(this,rev(),lt(other))
+}
+
+assert_eq!(lt_rev(&[3, 2, 1], &[4]), true);
+
+assert_eq!(lt_rev(&[3, 2, 1], &[1, 2, 3]), false);
+
+assert_eq!(lt_rev(&[3, 2, 1], &[0]), false);
+```
 
 <span id = "full-examples"></span>
 # Examples
@@ -908,6 +1055,62 @@ declare_eval2_lowering! {
         }}
     };
 
+    (fixed:tt [eq] ($other_iter:expr $(,)?)) => {
+        match $other_iter {other_iter => {
+            let mut other_iter = $crate::iter::into_iter!(other_iter);
+
+            let is_eq = $crate::iter::__eval2_lowering!{
+                $fixed
+                [__finder __finder] (accum = true, |l_item| {
+                    if let Some(r_item) = other_iter.next() {
+                        #[cfg(not(feature = "cmp"))]
+                        $crate::__::compile_error!{
+                            "iterator comparison methods require the  \"cmp\" feature"
+                        }
+
+                        #[cfg(feature = "cmp")]
+                        if !$crate::cmp::const_eq!(l_item, r_item) {
+                            accum = false;
+                            __iter2_returner!{}
+                        }
+                    } else {
+                        accum = false;
+                        __iter2_returner!{}
+                    }
+                })
+            };
+
+            is_eq && matches!(other_iter.next(), $crate::__::None)
+        }}
+    };
+    (fixed:tt [ne] $other_iter:tt) => {
+        !$crate::iter::__eval2_lowering!{$fixed [eq eq] $other_iter}
+    };
+    (fixed:tt [ge] $other_iter:tt) => {
+        $crate::__::matches!{
+            $crate::iter::__eval2_lowering!{$fixed [cmp cmp] $other_iter},
+            $crate::__::Greater | $crate::__::Equal
+        }
+    };
+    (fixed:tt [gt] $other_iter:tt) => {
+        $crate::__::matches!{
+            $crate::iter::__eval2_lowering!{$fixed [cmp cmp] $other_iter},
+            $crate::__::Greater
+        }
+    };
+    (fixed:tt [le] $other_iter:tt) => {
+        $crate::__::matches!{
+            $crate::iter::__eval2_lowering!{$fixed [cmp cmp] $other_iter},
+            $crate::__::Less | $crate::__::Equal
+        }
+    };
+    (fixed:tt [lt] $other_iter:tt) => {
+        $crate::__::matches!{
+            $crate::iter::__eval2_lowering!{$fixed [cmp cmp] $other_iter},
+            $crate::__::Less
+        }
+    };
+
     # secret methods
 
     (
@@ -994,6 +1197,12 @@ macro_rules! declare_eval2_lowering {
         #[doc(hidden)]
         #[macro_export]
         macro_rules! __eval2_lowering_ {
+            ($fixed:tt [$method_name:ident] $_($rem:tt)*) => {
+                $crate::__::compile_error!{
+                    "bug: expected `$method_name` argument to be written exactly twice"
+                }
+            };
+
             $(
                 (
                     $($_ $state0)? $({$($state0b)*})?

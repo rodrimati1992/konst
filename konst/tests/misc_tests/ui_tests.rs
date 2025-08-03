@@ -1,5 +1,12 @@
 // HELP:
 //
+// This is the command I use:
+// clear;clear; env TRYBUILD=overwrite\
+// cargo test --no-default-features \
+// --features "alloc parsing_proc iter cmp rust_latest_stable __ui"
+//
+// You'll need to run it with cmp enabled and disabled to run all the tests.
+//
 // use `cargo test --features "__ui debug" -- ui trybuild=filter_here`
 // to only  run UI tests
 
@@ -15,6 +22,8 @@ fn ui() {
         "iter_mod_ui_tests",
         "parser_ui_tests",
         "string_ui_tests",
+        #[cfg(not(feature = "cmp"))]
+        "iter_eval_no_cmp_feature_ui_tests",
     ] {
         t.compile_fail(format!("tests/misc_tests/{}/*err.rs", dir));
         t.pass(format!("tests/misc_tests/{}/*fine.rs", dir));
