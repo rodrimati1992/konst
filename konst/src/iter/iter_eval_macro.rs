@@ -60,6 +60,12 @@ The consuming methods listed alphabetically:
 `rposition` has been removed since it returned the distance from the end,
 instead of the start. Implementing it properly would require major changes.
 
+### Consuming cmp-based methods
+
+Consuming methods that use the `"cmp"` feature:
+- [`cmp`](#cmp)
+
+
 ### Adaptor Methods
 
 Adaptor methods are those that transform the iterator into a different iterator.
@@ -300,6 +306,29 @@ assert_eq!(concat_u16s(&[3, 5, 8]), 0x0008_0005_0003);
 
 
 ```
+
+### `cmp`
+
+Const equivalent of [`Iterator::cmp`]
+
+```rust
+use std::cmp::Ordering;
+use konst::iter;
+
+const fn compare_rev(this: &[u16], other: &[u16]) -> Ordering {
+    iter::eval!(this,rev(),cmp(other))
+}
+
+assert_eq!(compare_rev(&[3, 2, 1], &[4]), Ordering::Less);
+
+assert_eq!(compare_rev(&[3, 2, 1], &[1, 2, 3]), Ordering::Equal);
+
+assert_eq!(compare_rev(&[3, 2, 1], &[0]), Ordering::Greater);
+
+
+```
+
+
 
 <span id = "full-examples"></span>
 # Examples
@@ -835,6 +864,48 @@ declare_eval2_lowering! {
             [fold fold] $args
             $($rem)*
         }
+    };
+
+    (fixed:tt [cmp] ($other_iter:expr $(,)?)) => {
+        match $other_iter {other_iter => {
+            let mut other_iter = $crate::iter::into_iter!(other_iter);
+
+            let ord = $crate::iter::__eval2_lowering!{
+                $fixed
+                [__finder __finder] (accum = $crate::__::Equal, |l_item| {
+                    if let Some(r_item) = other_iter.next() {
+                        #[cfg(feature = "cmp")]
+                        {
+                            accum = $crate::cmp::const_cmp!(l_item, r_item);
+                        }
+
+                        #[cfg(not(feature = "cmp"))]
+                        {
+                            accum = $crate::__::Equal;
+                            $crate::__::compile_error!{
+                                "iterator comparison methods require the  \"cmp\" feature"
+                            }
+                        }
+
+                        if !$crate::__::matches!(accum, $crate::__::Equal) {
+                            __iter2_returner!{}
+                        }
+                    } else {
+                        accum = $crate::__::Greater;
+                        __iter2_returner!{}
+                    }
+                })
+            };
+
+            if let $crate::__::Equal = ord
+            && let Some(_) = other_iter.next()
+            {
+                $crate::__::Less
+            } else {
+                ord
+            }
+
+        }}
     };
 
     # secret methods

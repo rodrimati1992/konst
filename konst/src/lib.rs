@@ -424,7 +424,7 @@ pub mod __ {
     #[cfg(feature = "cmp")]
     pub use crate::cmp::{CmpWrapper, ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
 
-    #[cfg(feature = "cmp")]
+    #[cfg(feature = "iter")]
     pub use crate::iter::collect_const::CollectorCmd;
 
     pub use crate::array::__array_macros_2::unit_array;
