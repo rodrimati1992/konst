@@ -9,11 +9,22 @@ macro_rules! __iter_eval {
         $crate::iter::__eval2_lowering!{
             {
                 // instruction in the current iteration level
+                //
+                // Iteration levels are nested iterator loops,
+                // starts with only one (the one for `$iter`),
+                // then flatten and flat_map create more iteration levels.
                 []
-                // previous iterator levels
+                // instructions of the previous iteration levels
                 []
                 // variables declared at the top level
-                [[/* is_returning */] [/* regular variables */][/* iterator variables */ $iter;]]
+                [
+                    [
+                        // is_returning: used to do nested break-with-a-value,
+                        //               while dropping the items of iterators
+                    ]
+                    [/* regular variables */]
+                    [/* iterator variables */ $iter;]
+                ]
             }
 
             $([$methods $methods] ($($args)*))*
@@ -1021,17 +1032,9 @@ declare_eval2_lowering! {
                 $fixed
                 [__finder __finder] (accum = $crate::__::Equal, |l_item| {
                     if let Some(r_item) = other_iter.next() {
-                        #[cfg(feature = "cmp")]
-                        {
+                        $crate::__iter2_require_cmp!{
+                            "iterator comparison methods require the  \"cmp\" feature";
                             accum = $crate::cmp::const_cmp!(l_item, r_item);
-                        }
-
-                        #[cfg(not(feature = "cmp"))]
-                        {
-                            accum = $crate::__::Equal;
-                            $crate::__::compile_error!{
-                                "iterator comparison methods require the  \"cmp\" feature"
-                            }
                         }
 
                         if !$crate::__::matches!(accum, $crate::__::Equal) {
@@ -1063,15 +1066,12 @@ declare_eval2_lowering! {
                 $fixed
                 [__finder __finder] (accum = true, |l_item| {
                     if let Some(r_item) = other_iter.next() {
-                        #[cfg(not(feature = "cmp"))]
-                        $crate::__::compile_error!{
-                            "iterator comparison methods require the  \"cmp\" feature"
-                        }
-
-                        #[cfg(feature = "cmp")]
-                        if !$crate::cmp::const_eq!(l_item, r_item) {
-                            accum = false;
-                            __iter2_returner!{}
+                        $crate::__iter2_require_cmp!{
+                            "iterator comparison methods require the  \"cmp\" feature";
+                            if !$crate::cmp::const_eq!(l_item, r_item) {
+                                accum = false;
+                                __iter2_returner!{}
+                            }
                         }
                     } else {
                         accum = false;
@@ -1512,6 +1512,22 @@ macro_rules! __iter2_interpreter {
     ) => {
         let $item_param = $item;
         $code
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+#[cfg(feature = "cmp")]
+macro_rules! __iter2_require_cmp {
+    ($error_msg:expr; $($code:tt)*) => { $($code)* }
+}
+
+#[doc(hidden)]
+#[macro_export]
+#[cfg(not(feature = "cmp"))]
+macro_rules! __iter2_require_cmp {
+    ($error_msg:expr; $($code:tt)*) => {
+        $crate::__::compile_error! {$error_msg}
     };
 }
 
