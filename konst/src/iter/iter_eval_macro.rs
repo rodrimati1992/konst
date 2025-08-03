@@ -1083,30 +1083,30 @@ declare_eval2_lowering! {
             is_eq && matches!(other_iter.next(), $crate::__::None)
         }}
     };
-    (fixed:tt [ne] $other_iter:tt) => {
-        !$crate::iter::__eval2_lowering!{$fixed [eq eq] $other_iter}
+    (fixed:tt [ne] ($other_iter:expr $(,)?)) => {
+        !$crate::iter::__eval2_lowering!{$fixed [eq eq] ($other_iter)}
     };
-    (fixed:tt [ge] $other_iter:tt) => {
+    (fixed:tt [ge] ($other_iter:expr $(,)?)) => {
         $crate::__::matches!{
-            $crate::iter::__eval2_lowering!{$fixed [cmp cmp] $other_iter},
+            $crate::iter::__eval2_lowering!{$fixed [cmp cmp] ($other_iter)},
             $crate::__::Greater | $crate::__::Equal
         }
     };
-    (fixed:tt [gt] $other_iter:tt) => {
+    (fixed:tt [gt] ($other_iter:expr $(,)?)) => {
         $crate::__::matches!{
-            $crate::iter::__eval2_lowering!{$fixed [cmp cmp] $other_iter},
+            $crate::iter::__eval2_lowering!{$fixed [cmp cmp] ($other_iter)},
             $crate::__::Greater
         }
     };
-    (fixed:tt [le] $other_iter:tt) => {
+    (fixed:tt [le] ($other_iter:expr $(,)?)) => {
         $crate::__::matches!{
-            $crate::iter::__eval2_lowering!{$fixed [cmp cmp] $other_iter},
+            $crate::iter::__eval2_lowering!{$fixed [cmp cmp] ($other_iter)},
             $crate::__::Less | $crate::__::Equal
         }
     };
-    (fixed:tt [lt] $other_iter:tt) => {
+    (fixed:tt [lt] ($other_iter:expr $(,)?)) => {
         $crate::__::matches!{
-            $crate::iter::__eval2_lowering!{$fixed [cmp cmp] $other_iter},
+            $crate::iter::__eval2_lowering!{$fixed [cmp cmp] ($other_iter)},
             $crate::__::Less
         }
     };

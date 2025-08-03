@@ -1,0 +1,55 @@
+error: invalid argument(s) for `cmp` method: ``
+ --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:1:31
+  |
+1 | const _: std::cmp::Ordering = konst::iter::eval!{0..10, cmp()};
+  |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `eq` method: ``
+ --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:3:17
+  |
+3 | const _: bool = konst::iter::eval!{0..10, eq()};
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `ne` method: ``
+ --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:5:17
+  |
+5 | const _: bool = konst::iter::eval!{0..10, ne()};
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `ge` method: ``
+ --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:7:17
+  |
+7 | const _: bool = konst::iter::eval!{0..10, ge()};
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `gt` method: ``
+ --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:9:17
+  |
+9 | const _: bool = konst::iter::eval!{0..10, gt()};
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `le` method: ``
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:11:17
+   |
+11 | const _: bool = konst::iter::eval!{0..10, le()};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `lt` method: ``
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:13:17
+   |
+13 | const _: bool = konst::iter::eval!{0..10, lt()};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

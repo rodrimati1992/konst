@@ -22,6 +22,8 @@ fn ui() {
         "iter_mod_ui_tests",
         "parser_ui_tests",
         "string_ui_tests",
+        #[cfg(feature = "cmp")]
+        "iter_eval_cmp_feature_ui_tests",
         #[cfg(not(feature = "cmp"))]
         "iter_eval_no_cmp_feature_ui_tests",
     ] {
