@@ -1,39 +1,64 @@
-error: `rev` does not take arguments, passed: 10
+error: invalid argument(s) for `rev` method: `10`
  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:4:5
   |
-4 |     konst::iter::eval!(R, rev(10));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4 |     konst::iter::eval!(R, rev(10), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
-  = note: this error originates in the macro `$crate::__cim_error_on_args` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: cannot call two iterator-reversing methods in `konst::iter` macros, called: rev
+error: iterators can't be reversed twice
  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:8:5
   |
-8 |     konst::iter::eval!(R, rev(),rev());
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+8 |     konst::iter::eval!(R, rev(),rev(),next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
-  = note: this error originates in the macro `$crate::__assert_first_rev` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the macro `$crate::__iter2_rev_asserts` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: cannot call two iterator-reversing methods in `konst::iter` macros, called: rfind
+error: iterators can't be reversed twice
  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:9:5
   |
 9 |     konst::iter::eval!(R, rev(),rfind(|_| false));
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
-  = note: this error originates in the macro `$crate::__assert_first_rev` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the macro `$crate::__iter2_rev_asserts` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: cannot call two iterator-reversing methods in `konst::iter` macros, called: rposition
+error: method `rposition` is unsupported, expected one of:
+       - map
+       - enumerate
+       - copied
+       - skip
+       - skip_while
+       - take
+       - take_while
+       - filter
+       - filter_map
+       - zip
+       - rev
+       - flatten
+       - flat_map
+       - find
+       - rfind
+       - find_map
+       - position
+       - all
+       - any
+       - nth
+       - next
+       - count
+       - for_each
+       - fold
+       - rfold
   --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:10:5
    |
 10 |     konst::iter::eval!(R, rev(),rposition(|_| false));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::__assert_first_rev` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: cannot call two iterator-reversing methods in `konst::iter` macros, called: rfold
+error: iterators can't be reversed twice
   --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:11:5
    |
 11 |     konst::iter::eval!(R, rev(),rfold(0, |_, _| 10));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::__assert_first_rev` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::__iter2_rev_asserts` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

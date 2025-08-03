@@ -14,7 +14,7 @@ warning: unreachable expression
   |     unreachable expression
   |
   = note: `#[warn(unreachable_code)]` on by default
-  = note: this warning originates in the macro `$crate::__call_iter_methods` which comes from the expansion of the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this warning originates in the macro `$crate::__eval_closure` which comes from the expansion of the macro `konst::iter::collect_const` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
  --> tests/misc_tests/collect_const_ui_tests/collect_const_break_err.rs:2:5

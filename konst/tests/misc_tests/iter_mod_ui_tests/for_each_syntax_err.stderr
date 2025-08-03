@@ -4,11 +4,11 @@ error: unexpected end of macro invocation
 1 | const _: () = konst::iter::for_each!{};
   |               ^^^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
   |
-note: while trying to match meta-variable `$pattern:pat_param`
+note: while trying to match meta-variable `$pattern:pat`
  --> src/iter/for_each_macro.rs
   |
-  |     ($pattern:pat_param in $($rem:tt)*) => ({
-  |      ^^^^^^^^^^^^^^^^^^
+  |         $pattern:pat in $iterator:expr
+  |         ^^^^^^^^^^^^
 
 error: unexpected end of macro invocation
  --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:3:39
@@ -19,45 +19,74 @@ error: unexpected end of macro invocation
 note: while trying to match keyword `in`
  --> src/iter/for_each_macro.rs
   |
-  |     ($pattern:pat_param in $($rem:tt)*) => ({
-  |                         ^^
+  |         $pattern:pat in $iterator:expr
+  |                      ^^
 
-error: expected iterator argument
- --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:5:15
+error: unexpected end of macro invocation
+ --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:5:42
   |
 5 | const _: () = konst::iter::for_each!{_ in};
-  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |                                          ^ missing tokens in macro arguments
   |
-  = note: this error originates in the macro `$crate::__process_iter_args` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
+note: while trying to match meta-variable `$iterator:expr`
+ --> src/iter/for_each_macro.rs
+  |
+  |         $pattern:pat in $iterator:expr
+  |                         ^^^^^^^^^^^^^^
 
-error: unsupported iterator method: foobar
+error: method `foobar` is unsupported, expected one of:
+       - map
+       - enumerate
+       - copied
+       - skip
+       - skip_while
+       - take
+       - take_while
+       - filter
+       - filter_map
+       - zip
+       - rev
+       - flatten
+       - flat_map
+       - find
+       - rfind
+       - find_map
+       - position
+       - all
+       - any
+       - nth
+       - next
+       - count
+       - for_each
+       - fold
+       - rfold
  --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:8:13
   |
 8 |     let _ = konst::iter::for_each!{_ in 0..10,foobar() => };
   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
-  = note: this error originates in the macro `$crate::iter::__cim_preprocess_methods` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: the `all` method cannot be called in this macro
+error: Cannot consume the iterator multiple times, first consumed by `all` method
   --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:12:13
    |
 12 |     let _ = konst::iter::for_each!{_ in 0..10,all(|_|false) => };
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::iter::__cim_method_not_found_err` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: the `find` method cannot be called in this macro
+error: Cannot consume the iterator multiple times, first consumed by `find` method
   --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:13:13
    |
 13 |     let _ = konst::iter::for_each!{_ in 0..10,find(|_|false) => };
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::iter::__cim_method_not_found_err` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: the `count` method cannot be called in this macro
+error: Cannot consume the iterator multiple times, first consumed by `count` method
   --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:14:13
    |
 14 |     let _ = konst::iter::for_each!{_ in 0..10,count() => };
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::iter::__cim_method_not_found_err` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)

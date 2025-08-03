@@ -1,40 +1,40 @@
 error: `filter` expects to be passed a 1-parameter closure
  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:5:5
   |
-5 |     konst::iter::eval!(R, filter());
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5 |     konst::iter::eval!(R, filter(), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `filter` expects to be passed a 1-parameter closure
  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:6:5
   |
-6 |     konst::iter::eval!(R, filter(||false));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+6 |     konst::iter::eval!(R, filter(||false), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `filter` expects valid closure syntax, passed closure without return value
  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:7:5
   |
-7 |     konst::iter::eval!(R, filter(|_|));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |     konst::iter::eval!(R, filter(|_|), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `filter` expects no arguments after closure argument
  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:8:5
   |
-8 |     konst::iter::eval!(R, filter(|_| false, 100));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+8 |     konst::iter::eval!(R, filter(|_| false, 100), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `filter` expects to be passed a 1-parameter closure
  --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:9:5
   |
-9 |     konst::iter::eval!(R, filter(|a, b|false));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+9 |     konst::iter::eval!(R, filter(|a, b|false), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
@@ -73,40 +73,40 @@ error: `find` expects to be passed a 1-parameter closure
 error: `filter_map` expects to be passed a 1-parameter closure
   --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:20:5
    |
-20 |     konst::iter::eval!(R, filter_map());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+20 |     konst::iter::eval!(R, filter_map(), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `filter_map` expects to be passed a 1-parameter closure
   --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:21:5
    |
-21 |     konst::iter::eval!(R, filter_map(||None));
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+21 |     konst::iter::eval!(R, filter_map(||None), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `filter_map` expects valid closure syntax, passed closure without return value
   --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:22:5
    |
-22 |     konst::iter::eval!(R, filter_map(|_|));
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+22 |     konst::iter::eval!(R, filter_map(|_|), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `filter_map` expects no arguments after closure argument
   --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:23:5
    |
-23 |     konst::iter::eval!(R, filter_map(|_| None, 100));
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+23 |     konst::iter::eval!(R, filter_map(|_| None, 100), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `filter_map` expects to be passed a 1-parameter closure
   --> tests/misc_tests/iter_eval_ui_tests/fi_method_syntax_err.rs:24:5
    |
-24 |     konst::iter::eval!(R, filter_map(|a, b|None));
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+24 |     konst::iter::eval!(R, filter_map(|a, b|None), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 

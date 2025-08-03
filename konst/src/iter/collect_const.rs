@@ -23,6 +23,11 @@ macro_rules! __collect_const_hidden {
 /**
 Collects an iterator constant into an array
 
+# Drop behavior
+
+The behavior regarding dropping iterators is
+[documented here](crate::iter::ConstIntoIter#dropping).
+
 # Iterator methods
 
 This macro supports emulating iterator methods by expanding to equivalent code.

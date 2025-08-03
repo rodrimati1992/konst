@@ -52,10 +52,14 @@ pub use self::step::Step;
 /// - [`IsIteratorKind` kind](#isiteratorkind)
 /// - Standard library types, of the [`IsStdKind`] kind
 ///
-/// If the iterator needs dropping,
-/// it must only drop the items it'd produce if iterated over.
-/// This is so that the `konst::iter` macros can support iterators that drop their items,
-/// but don't deallocate memory or free other resources.
+/// ### Dropping
+///
+/// Because dropping in const is not supported, the `konst::iter` macros:
+/// - drop the remaining items for iterators that impl `ConstIntoIter<ITEMS_NEED_DROP = true>`
+/// - `mem::forget` the iterator
+///
+/// because of this,
+/// iterators cannot manage heap allocations or other resources in their destructors.
 ///
 /// ### `IsIntoIterKind`
 ///

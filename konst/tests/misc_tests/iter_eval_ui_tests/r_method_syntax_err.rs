@@ -18,12 +18,4 @@ const _: () = {
     konst::iter::eval!(R, rfold(0, |_, _| 10, 100)); 
 };
 
-const _: () = {
-    konst::iter::eval!(R, rposition());
-    konst::iter::eval!(R, rposition(||false));
-    konst::iter::eval!(R, rposition(|_| false, 100));
-    konst::iter::eval!(R, rposition(|a, b|false));
-};
-
-
 fn main(){}

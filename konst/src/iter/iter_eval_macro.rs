@@ -18,13 +18,24 @@ macro_rules! __iter_eval {
 
             $([$methods $methods] ($($args)*))*
         }
-    )
+    );
+    (
+        $(, $methods:ident ($($args:tt)*))*
+        $(,)?
+    ) => (
+        $crate::__::compile_error!{ "expected iterator argument" }
+    );
 }
 
 /**
 Emulates iterator method chains, by expanding to equivalent code.
 
 For examples that use multiple methods [look here](#full-examples)
+
+# Drop behavior
+
+The behavior regarding dropping iterators is
+[documented here](crate::iter::ConstIntoIter#dropping).
 
 # Methods
 
@@ -45,6 +56,9 @@ The consuming methods listed alphabetically:
 - [`position`](#position)
 - [`rfind`](#rfind)
 - [`rfold`](#rfold)
+
+`rposition` has been removed since it returned the distance from the end,
+instead of the start. Implementing it properly would require major changes.
 
 ### Adaptor Methods
 
@@ -230,8 +244,10 @@ assert_eq!(find_parsable(&["10", "20"]), Some(10));
 
 Const equivalent of [`DoubleEndedIterator::rfind`]
 
-Limitation: iterator-reversing methods can't be called more than once in
-the same macro invocation.
+Limitations iterator-reversing methods can't:
+- be called more than once in the same macro invocation.
+- be called after calling `take`,`take_while`,`skip`, or `skip_while`.
+
 
 ```rust
 use konst::iter;
@@ -332,7 +348,7 @@ declare_eval2_lowering! {
         $($rem:tt)*
     ) => {
         $crate::iter::__eval2_lowering!{
-            { [ $($prev_insts)* (map (__parse_closure_1) $($args)*)] $($fixed)* }
+            { [ $($prev_insts)* (map (__parse_closure_1) map $($args)*)] $($fixed)* }
 
             $($rem)*
         }
@@ -348,6 +364,7 @@ declare_eval2_lowering! {
                 [$($prev_insts)* (
                     map
                     (__fast_parse_closure_1)
+                    enumerate
                     |item| -> _ {
                         let item = (i, item);
                         i += 1;
@@ -364,7 +381,7 @@ declare_eval2_lowering! {
 
     (
         { [$($prev_insts:tt)*] $($fixed:tt)* }
-        [copied] ($($args:tt)*)
+        [copied] ()
         $($rem:tt)*
     ) => {
         $crate::iter::__eval2_lowering!{
@@ -372,6 +389,7 @@ declare_eval2_lowering! {
                 [$($prev_insts)* (
                     map
                     (__fast_parse_closure_1)
+                    copied
                     |item| -> _ {
                         let &item = item;
                         item
@@ -420,7 +438,7 @@ declare_eval2_lowering! {
                     truncating(skip_while)
                     |ref item| {
                         skipping = skipping && $crate::__parse_closure_1!{
-                            ($crate::__eval_closure) (item,) skip_while,
+                            ($crate::__eval_closure) (item,) (skip_while),
                             $($closure)*
                         };
                         if skipping {
@@ -473,7 +491,7 @@ declare_eval2_lowering! {
                     truncating(take_while)
                     |ref item| {
                         taking = taking && $crate::__parse_closure_1!{
-                            ($crate::__eval_closure) (item,) take_while,
+                            ($crate::__eval_closure) (item,) (take_while),
                             $($closure)*
                         };
                         if !taking {
@@ -500,7 +518,7 @@ declare_eval2_lowering! {
                     __inspector
                     |ref item| {
                         let filter_in: $crate::__::bool = $crate::__parse_closure_1!{
-                            ($crate::__eval_closure) (item,) filter,
+                            ($crate::__eval_closure) (item,) (filter),
                             $($args)*
                         };
 
@@ -526,10 +544,11 @@ declare_eval2_lowering! {
                 [$($prev_insts)* (
                     map
                     (__fast_parse_closure_1)
+                    filter_map
                     |item| -> _ {
                         $crate::if_let_Some!{
                             item = $crate::__parse_closure_1!{
-                                ($crate::__eval_closure) (item,) filter_map,
+                                ($crate::__eval_closure) (item,) (filter_map),
                                 $($args)*
                             } => {
                                 item
@@ -616,7 +635,7 @@ declare_eval2_lowering! {
                 [
                     $($prev_levels)*
                     $($prev_insts)*
-                    (map (__parse_closure_1) $($args)*)
+                    (map (__parse_closure_1) flat_map $($args)*)
                     (iterate [[] [,use_item;]])
                 ]
                 $tl_vars
@@ -634,7 +653,7 @@ declare_eval2_lowering! {
             $fixed
             [__finder __finder] (accum = $crate::__::None, |item| {
                 let found = $crate::__parse_closure_1!{
-                    ($crate::__eval_closure) (&item,) find,
+                    ($crate::__eval_closure) (&item,) (find),
                     $($closure)*
                 };
 
@@ -662,7 +681,7 @@ declare_eval2_lowering! {
             [__finder __finder] (accum = $crate::__::None, |item| {
                 $crate::if_let_Some!{found =
                     $crate::__parse_closure_1!{
-                        ($crate::__eval_closure) (item,) find,
+                        ($crate::__eval_closure) (item,) (find_map),
                         $($closure)*
                     } => {
                         $crate::__utils::__overwrite(&mut accum, $crate::__::Some(found));
@@ -679,7 +698,7 @@ declare_eval2_lowering! {
             $fixed
             [__finder __finder] (@vars(mut i = 0usize,) accum = $crate::__::None, |item| {
                 let found = $crate::__parse_closure_1!{
-                    ($crate::__eval_closure) (item,) find,
+                    ($crate::__eval_closure) (item,) (position),
                     $($closure)*
                 };
 
@@ -699,7 +718,7 @@ declare_eval2_lowering! {
             $fixed
             [__finder __finder] (accum = true, |item| {
                 accum = $crate::__parse_closure_1!{
-                    ($crate::__eval_closure) (item,) all,
+                    ($crate::__eval_closure) (item,) (all),
                     $($closure)*
                 };
 
@@ -716,7 +735,7 @@ declare_eval2_lowering! {
             $fixed
             [__finder __finder] (accum = false, |item| {
                 accum = $crate::__parse_closure_1!{
-                    ($crate::__eval_closure) (item,) all,
+                    ($crate::__eval_closure) (item,) (any),
                     $($closure)*
                 };
 
@@ -733,7 +752,7 @@ declare_eval2_lowering! {
             $fixed
             [__finder __finder] (@vars(mut i = $nth,) accum = $crate::__::None, |item| {
                 let _: $crate::__::usize = i;
-                if let $crate::__::Some(ni) = i.checked_sub(1) {
+                if let $crate::__::Some(ni) = $crate::__::usize::checked_sub(i, 1) {
                     i = ni;
                 } else {
                     $crate::__utils::__overwrite(&mut accum, $crate::__::Some(item));
@@ -919,8 +938,9 @@ macro_rules! declare_eval2_lowering {
                 $_($rem:tt)+
             ) => {
                 $crate::__::compile_error!{$crate::__::concat!{
-                    "Cannot use the `", $crate::__::stringify!($method_name) ,
-                    "` iterator method here"
+                    "Cannot consume the iterator multiple times, ",
+                    "first consumed by `", $crate::__::stringify!($method_name) ,
+                    "` method"
                 }}
             };
             $(
@@ -939,6 +959,37 @@ macro_rules! declare_eval2_lowering {
                     $($secret_m_expansion)*
                 };
             )*
+            (
+                $fixed:tt
+                [$method_name:ident $( $_($eval_method)? )* $( $_($cons_method)? )*]
+                ($_($args:tt)*)
+                $_($rem:tt)*
+            ) => {
+                $crate::__::compile_error!{$crate::__::concat!{
+                    "invalid argument(s) for `", $crate::__::stringify!($method_name),
+                    "` method: `", $crate::__::stringify!($_($args)*), "`"
+                }}
+            };
+            (
+                $fixed:tt
+                [$method_name:ident $__method_name:ident]
+                $_($rem:tt)*
+            ) => {
+                $crate::__::compile_error!{$crate::__::concat!{
+                    "method `", $crate::__::stringify!($method_name),
+                    "` is unsupported, expected one of:",
+                    $( "\n- ", $crate::__::stringify!($eval_method), )*
+                    $( "\n- ", $crate::__::stringify!($cons_method), )*
+                }}
+            };
+            (
+                $fixed:tt
+            ) => {
+                $crate::__::compile_error!{$crate::__::concat!{
+                    "expected one of these consumer methods at the end:`",
+                    $( "\n- ", $crate::__::stringify!($cons_method), )*
+                }}
+            };
             (
                 $_($rem:tt)+
             ) => {
@@ -963,7 +1014,7 @@ macro_rules! __iter2_finish_lowering {
 
         // previous iterator levels
         [
-            $({rev $($rev:tt)*})?
+            $({rev $($rev:tt)*})*
             $(($($prev_levels:tt)*))*
         ]
 
@@ -992,7 +1043,7 @@ macro_rules! __iter2_finish_lowering {
             [item next next_back ($($is_returning)?)]
             [item next next_back ($($is_returning)?)]
 
-            $((rev $($rev)*))?
+            $((rev $($rev)*))*
             (iterate @top_level [$vars $iters])
             $(($($prev_levels)*))*
             $($instrs_il)*
@@ -1075,12 +1126,14 @@ macro_rules! __iter2_interpreter {
         (
             map
             ($closure_parser:ident $($__closure_parser:tt)*)
+            $method_name:ident
+
             $($closure:tt)*
         )
         $($rem:tt)*
     ) => {
         let $item = $crate::$closure_parser!{
-            ($crate::__eval_closure) ($item,) map,
+            ($crate::__eval_closure) ($item,) ($method_name),
             $($closure)*
         };
 
@@ -1152,7 +1205,7 @@ macro_rules! __iter2_interpreter {
         (for_each $($closure:tt)*)
     ) => {
         let _: () = $crate::__parse_closure_1!{
-            ($crate::__eval_closure) ($item,) for_each,
+            ($crate::__eval_closure) ($item,) (for_each),
             $($closure)*
         };
     };
@@ -1167,7 +1220,7 @@ macro_rules! __iter2_interpreter {
         )
     ) => {
         $acc = $crate::$closure_parser!{
-            ($crate::__eval_closure) (($acc, $item,),) fold,
+            ($crate::__eval_closure) (($acc, $item,),) (fold),
             $($closure)*
         };
     };
@@ -1197,7 +1250,7 @@ macro_rules! __iter2_drop_iterator {
 macro_rules! __iter2_rev_asserts {
     ( $({rev $(@$is_rev:tt)? => $($__0:tt)*})? $(( $($instruction:tt)* ))* ) => {
         $(
-            $crate::__::compile_error!{"`rev()` can't be used twice"};
+            $crate::__::compile_error!{"iterators can't be reversed twice"};
             $(@$is_rev)?
         )?
 

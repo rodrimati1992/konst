@@ -23,6 +23,11 @@ macro_rules! __for_each_hidden {
 /// They are documented in the [`iterator_dsl`] module,
 /// because they are also supported by other `konst::iter` macros.
 ///
+/// # Drop behavior
+///
+/// The behavior regarding dropping iterators is
+/// [documented here](crate::iter::ConstIntoIter#dropping).
+///
 /// # Examples
 ///
 /// ### Custom iterator

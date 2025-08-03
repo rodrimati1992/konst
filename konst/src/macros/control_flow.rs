@@ -82,7 +82,7 @@ macro_rules! if_let_Some {
     ($some:pat = $e:expr => $then:block $(else $else:block)?) => {
         match $e {opt =>
             if $crate::__::Option::is_some(&opt) {
-                let $some = opt.unwrap();
+                let $some = $crate::__::Option::unwrap(opt);
                 $then
             } else {
                 $crate::__::forget(opt);
@@ -159,7 +159,7 @@ macro_rules! while_let_Some {
         loop {
             match $e {opt =>
                 if $crate::__::Option::is_some(&opt) {
-                    let $some = opt.unwrap();
+                    let $some = $crate::__::Option::unwrap(opt);
                     $($then)*
                 } else {
                     $crate::__::forget(opt);

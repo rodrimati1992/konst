@@ -1,66 +1,66 @@
 error: `flat_map` expects to be passed a 1-parameter closure
  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:5:5
   |
-5 |     konst::iter::eval!(R, flat_map());
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5 |     konst::iter::eval!(R, flat_map(), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `flat_map` expects to be passed a 1-parameter closure
  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:6:5
   |
-6 |     konst::iter::eval!(R, flat_map(||R));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+6 |     konst::iter::eval!(R, flat_map(||R), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `flat_map` expects valid closure syntax, passed closure without return value
  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:7:5
   |
-7 |     konst::iter::eval!(R, flat_map(|_|));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |     konst::iter::eval!(R, flat_map(|_|), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `flat_map` expects no arguments after closure argument
  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:8:5
   |
-8 |     konst::iter::eval!(R, flat_map(|_|R, 10));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+8 |     konst::iter::eval!(R, flat_map(|_|R, 10), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `flat_map` expects to be passed a 1-parameter closure
  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:9:5
   |
-9 |     konst::iter::eval!(R, flat_map(|a, b|R));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+9 |     konst::iter::eval!(R, flat_map(|a, b|R), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: `flatten` does not take arguments, passed: 10
+error: invalid argument(s) for `flatten` method: `10`
   --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:14:5
    |
-14 |     konst::iter::eval!(S, flatten(10));
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 |     konst::iter::eval!(S, flatten(10), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::__cim_error_on_args` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: fold method expects accumulator and closure arguments
+error: invalid argument(s) for `fold` method: ``
   --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:18:5
    |
 18 |     konst::iter::eval!(R, fold());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::__iter_eval_inner` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: `fold` expects to be passed a 2-parameter closure
+error: invalid argument(s) for `fold` method: `0`
   --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:19:5
    |
 19 |     konst::iter::eval!(R, fold(0));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `fold` expects to be passed a 2-parameter closure
   --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:20:5
@@ -141,3 +141,47 @@ error: `for_each` expects to be passed a 1-parameter closure
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0034]: multiple applicable items in scope
+ --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:5:5
+  |
+5 |     konst::iter::eval!(R, flat_map(), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+  |
+  = note: candidate #1 is defined in an impl for the type `IntoIterWrapper<T, IsIntoIterKind>`
+  = note: candidate #2 is defined in an impl for the type `IntoIterWrapper<T, IsIteratorKind>`
+  = note: candidate #3 is defined in an impl for the type `IntoIterWrapper<T, IsStdKind>`
+  = note: this error originates in the macro `$crate::iter::into_iter` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0034]: multiple applicable items in scope
+ --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:6:5
+  |
+6 |     konst::iter::eval!(R, flat_map(||R), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+  |
+  = note: candidate #1 is defined in an impl for the type `IntoIterWrapper<T, IsIntoIterKind>`
+  = note: candidate #2 is defined in an impl for the type `IntoIterWrapper<T, IsIteratorKind>`
+  = note: candidate #3 is defined in an impl for the type `IntoIterWrapper<T, IsStdKind>`
+  = note: this error originates in the macro `$crate::iter::into_iter` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0034]: multiple applicable items in scope
+ --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:7:5
+  |
+7 |     konst::iter::eval!(R, flat_map(|_|), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+  |
+  = note: candidate #1 is defined in an impl for the type `IntoIterWrapper<T, IsIntoIterKind>`
+  = note: candidate #2 is defined in an impl for the type `IntoIterWrapper<T, IsIteratorKind>`
+  = note: candidate #3 is defined in an impl for the type `IntoIterWrapper<T, IsStdKind>`
+  = note: this error originates in the macro `$crate::iter::into_iter` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0034]: multiple applicable items in scope
+ --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:9:5
+  |
+9 |     konst::iter::eval!(R, flat_map(|a, b|R), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+  |
+  = note: candidate #1 is defined in an impl for the type `IntoIterWrapper<T, IsIntoIterKind>`
+  = note: candidate #2 is defined in an impl for the type `IntoIterWrapper<T, IsIteratorKind>`
+  = note: candidate #3 is defined in an impl for the type `IntoIterWrapper<T, IsStdKind>`
+  = note: this error originates in the macro `$crate::iter::into_iter` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -1,11 +1,11 @@
 const R: core::ops::Range<usize> = 0..10;
 
 const _: () = {
-    konst::iter::eval!(R, map());
-    konst::iter::eval!(R, map(||false));
-    konst::iter::eval!(R, map(|_|));
-    konst::iter::eval!(R, map(|_| false, 100));
-    konst::iter::eval!(R, map(|a, b|false));
+    konst::iter::eval!(R, map(), next());
+    konst::iter::eval!(R, map(||false), next());
+    konst::iter::eval!(R, map(|_|), next());
+    konst::iter::eval!(R, map(|_| false, 100), next());
+    konst::iter::eval!(R, map(|a, b|false), next());
 };
 
 const _: () = {

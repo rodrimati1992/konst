@@ -8,7 +8,7 @@ warning: unreachable expression
   |                 unreachable expression
   |
   = note: `#[warn(unreachable_code)]` on by default
-  = note: this warning originates in the macro `$crate::__annotate_type` which comes from the expansion of the macro `string::from_iter` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this warning originates in the macro `$crate::__eval_closure` which comes from the expansion of the macro `string::from_iter` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0599]: no method named `as_bytesable` found for struct `__ElemDispatch<usize>` in the current scope
   --> tests/misc_tests/string_ui_tests/str_from_iter_err.rs:13:17

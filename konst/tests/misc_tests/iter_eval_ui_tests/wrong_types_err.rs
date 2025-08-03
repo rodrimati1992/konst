@@ -10,7 +10,7 @@ const _: () = {
 };
 
 const _: () = {
-    konst::iter::eval!(R, filter(|_| 10u8,));
+    konst::iter::eval!(R, filter(|_| 10u8,), next());
 };
 
 const _: () = {
@@ -19,7 +19,7 @@ const _: () = {
 
 
 const _: () = {
-    konst::iter::eval!(R, filter_map(|_| 10u8,));
+    konst::iter::eval!(R, filter_map(|_| 10u8,), next());
 };
 
 const _: () = {
@@ -63,23 +63,19 @@ const _: () = {
 };
 
 const _: () = {
-    konst::iter::eval!(R, rposition(|_| 10u8,));
+    konst::iter::eval!(R, skip(10u8), next());
 };
 
 const _: () = {
-    konst::iter::eval!(R, skip(10u8));
+    konst::iter::eval!(R, take(10u8), next());
 };
 
 const _: () = {
-    konst::iter::eval!(R, take(10u8));
+    konst::iter::eval!(R, skip_while(|_| None::<u32>,), next());
 };
 
 const _: () = {
-    konst::iter::eval!(R, skip_while(|_| None::<u32>,));
-};
-
-const _: () = {
-    konst::iter::eval!(R, take_while(|_| None::<u32>,));
+    konst::iter::eval!(R, take_while(|_| None::<u32>,), next());
 };
 
 

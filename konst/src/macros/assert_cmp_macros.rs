@@ -120,12 +120,12 @@ macro_rules! cmp_assertc_docs {
 ///     alignment: usize,
 /// }
 ///
-/// konst::impl_cmp!{
+/// konst::cmp::impl_cmp!{
 ///     impl Layout;
 ///     
 ///     pub const fn const_eq(&self, other: &Self) -> bool {
-///         konst::const_eq!(self.size, other.size) &&
-///         konst::const_eq!(self.alignment, other.alignment)
+///         konst::cmp::const_eq!(self.size, other.size) &&
+///         konst::cmp::const_eq!(self.alignment, other.alignment)
 ///     }
 /// }
 ///

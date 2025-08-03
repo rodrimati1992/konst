@@ -10,7 +10,7 @@ error[E0308]: mismatched types
   = note: expected array `[u8; CAP_KO9Y329U2U]`
              found array `[usize; CAP_KO9Y329U2U]`
 note: method defined here
- --> $CARGO/typewit-1.9.0/src/type_eq.rs
+ --> $CARGO/typewit-1.12.1/src/type_eq.rs
   |
   |     pub const fn to_right(self, from: L) -> R {
   |                  ^^^^^^^^

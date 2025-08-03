@@ -17,7 +17,7 @@ const _: () = {
 };
 
 const _: () = {
-    konst::iter::eval!(S, copied(10));
+    konst::iter::eval!(S, copied(10), next());
 };
 
 const _: () = {
@@ -25,7 +25,7 @@ const _: () = {
 };
 
 const _: () = {
-    konst::iter::eval!(R, enumerate(10));
+    konst::iter::eval!(R, enumerate(10), next());
 };
 
 

@@ -1,0 +1,39 @@
+error: Cannot call `rev()` after calling `take`
+ --> tests/misc_tests/iter_mod_ui_tests/illegal_rev_combinations_err.rs:1:23
+  |
+1 | const _: Option<u8> = konst::iter::eval!{0..10,take(0),rev(),next()};
+  |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__iter2_rev_assert_no_truncation` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: Cannot call `rev()` after calling `skip`
+ --> tests/misc_tests/iter_mod_ui_tests/illegal_rev_combinations_err.rs:3:23
+  |
+3 | const _: Option<u8> = konst::iter::eval!{0..10,skip(0),rev(),next()};
+  |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__iter2_rev_assert_no_truncation` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: Cannot call `rev()` after calling `take_while`
+ --> tests/misc_tests/iter_mod_ui_tests/illegal_rev_combinations_err.rs:5:23
+  |
+5 | const _: Option<u8> = konst::iter::eval!{0..10,take_while(|_| true),rev(),next()};
+  |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__iter2_rev_assert_no_truncation` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: Cannot call `rev()` after calling `skip_while`
+ --> tests/misc_tests/iter_mod_ui_tests/illegal_rev_combinations_err.rs:7:23
+  |
+7 | const _: Option<u8> = konst::iter::eval!{0..10,skip_while(|_| false),rev(),next()};
+  |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__iter2_rev_assert_no_truncation` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: iterators can't be reversed twice
+ --> tests/misc_tests/iter_mod_ui_tests/illegal_rev_combinations_err.rs:9:23
+  |
+9 | const _: Option<u8> = konst::iter::eval!{0..10,rev(),rev(),next()};
+  |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__iter2_rev_asserts` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

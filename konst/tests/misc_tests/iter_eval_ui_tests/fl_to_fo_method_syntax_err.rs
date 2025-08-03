@@ -2,16 +2,16 @@ const R: core::ops::Range<usize> = 0..10;
 const S: &[[u8; 2]] = &[[3, 5], [8, 13]];
 
 const _: () = {
-    konst::iter::eval!(R, flat_map());
-    konst::iter::eval!(R, flat_map(||R));
-    konst::iter::eval!(R, flat_map(|_|));
-    konst::iter::eval!(R, flat_map(|_|R, 10));
-    konst::iter::eval!(R, flat_map(|a, b|R));
+    konst::iter::eval!(R, flat_map(), next());
+    konst::iter::eval!(R, flat_map(||R), next());
+    konst::iter::eval!(R, flat_map(|_|), next());
+    konst::iter::eval!(R, flat_map(|_|R, 10), next());
+    konst::iter::eval!(R, flat_map(|a, b|R), next());
 };
 
 const _: () = {
-    konst::iter::eval!(S, flatten());
-    konst::iter::eval!(S, flatten(10));
+    konst::iter::eval!(S, flatten(), next());
+    konst::iter::eval!(S, flatten(10), next());
 };
 
 const _: () = {

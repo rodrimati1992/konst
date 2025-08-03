@@ -7,6 +7,11 @@ they expand to equivalent code, this allows the macros to work on stable.
 The [`collect_const`] macro is
 used in examples here purely for simplicity.
 
+# Drop behavior
+
+The behavior regarding dropping iterators is
+[documented here](crate::iter::ConstIntoIter#dropping).
+
 # Methods
 
 Every iterator method below behaves the same as in the [`Iterator`] trait,
