@@ -16,5 +16,13 @@ const _: bool = konst::iter::eval!{0..10, is_sorted_by()};
 
 const _: bool = konst::iter::eval!{0..10, is_sorted_by_key()};
 
+const _: Option<i32> = konst::iter::eval!{0..10, min_by()};
+
+const _: Option<i32> = konst::iter::eval!{0..10, min_by_key()};
+
+const _: Option<i32> = konst::iter::eval!{0..10, max_by()};
+
+const _: Option<i32> = konst::iter::eval!{0..10, max_by_key()};
+
 
 fn main(){}

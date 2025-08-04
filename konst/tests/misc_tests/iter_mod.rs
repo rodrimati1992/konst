@@ -4,7 +4,10 @@ mod collect_const_tests;
 mod iter_adaptor_tests;
 
 #[cfg(feature = "cmp")]
-mod iter_cmp_minmax_methods_tests;
+mod iter_cmp_methods_tests;
+
+#[cfg(feature = "cmp")]
+mod iter_minmax_methods_tests;
 
 const fn is_rru8_even(n: &&u8) -> bool {
     is_u8_even(**n)

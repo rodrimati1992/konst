@@ -1,7 +1,7 @@
 // HELP:
 //
 // This is the command I use:
-// clear;clear; env TRYBUILD=overwrite\
+// clear;clear; env TRYBUILD=overwrite \
 // cargo test --no-default-features \
 // --features "alloc parsing_proc iter cmp rust_latest_stable __ui"
 //

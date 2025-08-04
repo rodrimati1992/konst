@@ -42,6 +42,12 @@ error: method `asdasdasd` is unsupported, expected one of:
        - is_sorted
        - is_sorted_by
        - is_sorted_by_key
+       - max
+       - min
+       - max_by
+       - min_by
+       - max_by_key
+       - min_by_key
  --> tests/misc_tests/iter_eval_ui_tests/method_dispatch_err.rs:6:5
   |
 6 |     konst::iter::eval!(0usize..10, asdasdasd());

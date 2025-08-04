@@ -109,6 +109,13 @@ Consuming methods that use the `"cmp"` feature:
 - [`is_sorted_by`](#is_sorted_by)
 - [`is_sorted_by_key`](#is_sorted_by_key)
 
+- [`min`](#min)
+- [`min_by`](#min_by)
+- [`min_by_key`](#min_by_key)
+- [`max`](#max)
+- [`max_by`](#max_by)
+- [`max_by_key`](#max_by_key)
+
 
 ### Adaptor Methods
 
@@ -560,6 +567,140 @@ assert_eq!(is_sorted_by_len(&["foo"]), true);
 assert_eq!(is_sorted_by_len(&["foo", ""]), false);
 
 assert_eq!(is_sorted_by_len(&["foo", "bar", "hello"]), true);
+```
+
+### `min`
+
+Const equivalent of [`Iterator::min`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::cmp;
+use konst::iter;
+
+const fn min(slice: &[u8]) -> Option<u8> {
+    iter::eval!(slice,copied(),min())
+}
+
+assert_eq!(min(&[]), None::<u8>);
+
+assert_eq!(min(&[3]), Some(3));
+
+assert_eq!(min(&[3, 5]), Some(3));
+assert_eq!(min(&[5, 3]), Some(3));
+
+```
+
+### `min_by`
+
+Const equivalent of [`Iterator::min_by`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::cmp;
+use konst::iter;
+
+const fn min_by(slice: &[u8]) -> Option<u8> {
+    iter::eval!(slice,copied(),min_by(|&l, &r| cmp::const_cmp!(l % 10, r % 10)))
+}
+
+assert_eq!(min_by(&[]), None::<u8>);
+
+assert_eq!(min_by(&[3]), Some(3));
+
+assert_eq!(min_by(&[13, 5]), Some(13));
+assert_eq!(min_by(&[5, 13]), Some(13));
+```
+
+### `min_by_key`
+
+Const equivalent of [`Iterator::min_by_key`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::cmp;
+use konst::iter;
+
+const fn miner(slice: &[u8]) -> Option<u8> {
+    iter::eval!(slice,copied(),min_by_key(|&l| l % 10))
+}
+
+assert_eq!(miner(&[]), None::<u8>);
+
+assert_eq!(miner(&[3]), Some(3));
+
+assert_eq!(miner(&[13, 5]), Some(13));
+assert_eq!(miner(&[5, 13]), Some(13));
+```
+
+### `max`
+
+Const equivalent of [`Iterator::max`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::cmp;
+use konst::iter;
+
+const fn max(slice: &[u8]) -> Option<u8> {
+    iter::eval!(slice,copied(),max())
+}
+
+assert_eq!(max(&[]), None::<u8>);
+
+assert_eq!(max(&[3]), Some(3));
+
+assert_eq!(max(&[3, 5]), Some(5));
+assert_eq!(max(&[5, 3]), Some(5));
+
+```
+
+### `max_by`
+
+Const equivalent of [`Iterator::max_by`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::cmp;
+use konst::iter;
+
+const fn max_by(slice: &[u8]) -> Option<u8> {
+    iter::eval!(slice,copied(),max_by(|&l, &r| cmp::const_cmp!(l % 10, r % 10)))
+}
+
+assert_eq!(max_by(&[]), None::<u8>);
+
+assert_eq!(max_by(&[3]), Some(3));
+
+assert_eq!(max_by(&[13, 5]), Some(5));
+assert_eq!(max_by(&[5, 13]), Some(5));
+```
+
+### `max_by_key`
+
+Const equivalent of [`Iterator::max_by_key`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::cmp;
+use konst::iter;
+
+const fn maxer(slice: &[u8]) -> Option<u8> {
+    iter::eval!(slice,copied(),max_by_key(|&l| l % 10))
+}
+
+assert_eq!(maxer(&[]), None::<u8>);
+
+assert_eq!(maxer(&[3]), Some(3));
+
+assert_eq!(maxer(&[13, 5]), Some(5));
+assert_eq!(maxer(&[5, 13]), Some(5));
 ```
 
 <span id = "full-examples"></span>
@@ -1221,6 +1362,52 @@ declare_eval2_lowering! {
         }
     };
 
+    (fixed:tt [max] ()) => {
+        $crate::__iter2_minmax_impl!{
+            $fixed (l_item, r_item) ($crate::__::Less | $crate::__::Equal) {};
+            $crate::cmp::const_cmp!(l_item, r_item)
+        }
+    };
+
+    (fixed:tt [min] ()) => {
+        $crate::__iter2_minmax_impl!{
+            $fixed (l_item, r_item) ($crate::__::Greater) {};
+            $crate::cmp::const_cmp!(l_item, r_item)
+        }
+    };
+
+    (fixed:tt [max_by] ($($closure:tt)*)) => {
+        $crate::__iter2_minmax_impl!{
+            $fixed (l_item, r_item) ($crate::__::Less | $crate::__::Equal) {};
+            $crate::__parse_closure_2!(
+                ($crate::__eval_closure) ((&l_item, &r_item),) (max_by),
+                $($closure)*
+            )
+        }
+    };
+
+    (fixed:tt [min_by] ($($closure:tt)*)) => {
+        $crate::__iter2_minmax_impl!{
+            $fixed (l_item, r_item) ($crate::__::Greater) {};
+            $crate::__parse_closure_2!(
+                ($crate::__eval_closure) ((&l_item, &r_item),) (min_by),
+                $($closure)*
+            )
+        }
+    };
+
+    (fixed:tt [max_by_key] ($($closure:tt)*)) => {
+        $crate::__iter2_minmax_by_key_impl!{
+            $fixed [max_by_key] ($($closure)*) ($crate::__::Less | $crate::__::Equal)
+        }
+    };
+
+    (fixed:tt [min_by_key] ($($closure:tt)*)) => {
+        $crate::__iter2_minmax_by_key_impl!{
+            $fixed [min_by_key] ($($closure)*) ($crate::__::Greater)
+        }
+    };
+
     # secret methods
 
     (
@@ -1658,6 +1845,66 @@ macro_rules! __iter2_is_sorted_impl {
             })
         }
     }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __iter2_minmax_impl {
+    (
+        $fixed:tt ($l_item:ident, $r_item:ident) ($update_if:pat)
+        {$($convert_item_into_key:tt)*};
+        $minmaximizer:expr
+    ) => {
+        $crate::iter::__eval2_lowering!{
+            $fixed
+            [fold fold] (None, |mut prev, $r_item| {
+                $($convert_item_into_key)*
+
+                // `konst::cmp::const_cmp` (used in $minmaximizer) needs
+                // the type of `prev` to be inferred in statements before
+                // `$minmaximizer` to be able to do inherent method dispatch.
+                if false {
+                    $crate::iter::__infer_option_of(&$r_item, &prev)
+                }
+
+                if let Some($l_item) = prev {
+                    $crate::__iter2_require_cmp!{
+                        "min/max methods require the  \"cmp\" feature";
+                        if let $update_if = $minmaximizer {
+                            prev = Some($r_item);
+                        }
+                    }
+                } else {
+                    prev = Some($r_item);
+                }
+
+                prev
+            })
+        }
+    }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __iter2_minmax_by_key_impl {
+    ($fixed:tt [$method_name:ident] ($($closure:tt)*) ($update_if:pat) ) => {
+        $crate::option::map!(
+            $crate::__iter2_minmax_impl!{
+                $fixed (l_item, r_item) ($update_if)
+                {
+                    let r_item = (
+                        $crate::__parse_closure_1!{
+                            ($crate::__eval_closure) (&r_item,) (@default(0u8) $method_name),
+                            $($closure)*
+                        },
+                        r_item,
+                    );
+                };
+                $crate::cmp::const_cmp!(l_item.0, r_item.0)
+            },
+            |(_key, max)| max
+        )
+    };
 }
 
 #[doc(hidden)]
