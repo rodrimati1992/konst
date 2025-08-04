@@ -2,6 +2,7 @@ use core::mem::{ManuallyDrop, forget};
 
 use konst::{manually_drop as md, option};
 
+#[cfg(feature = "iter")]
 mod option_iter_tests;
 
 struct ImplsDrop<T>(T);

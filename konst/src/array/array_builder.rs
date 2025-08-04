@@ -27,6 +27,7 @@ use crate::array::IntoIter;
 /// };
 /// ```
 #[repr(C)]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct ArrayBuilder<T, const N: usize> {
     array: [MaybeUninit<T>; N],
     inited: usize,

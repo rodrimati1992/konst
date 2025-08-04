@@ -10,8 +10,10 @@
 //! - `unwrap`: [`Option::unwrap`]
 //! - `NONE`: `const { None }`
 
+#[cfg(feature = "iter")]
 mod option_iterators;
 
+#[cfg(feature = "iter")]
 pub use self::option_iterators::*;
 
 /// A const equivalent of [`Option::unwrap_or`]

@@ -1,3 +1,5 @@
+use konst::{option, slice};
+
 #[test]
 fn for_range_break_continue() {
     {
@@ -39,20 +41,24 @@ fn if_let_some_test() {
 
 #[test]
 fn while_let_some_test() {
-    const fn uses_macro<T, const N: usize>(array: [T; N]) -> u32 {
-        let mut iter = konst::array::IntoIter::new(array);
+    const fn uses_macro<T, const N: usize>(mut array: [Option<T>; N]) -> u32 {
+        let mut i = 0;
         let mut ret = 0;
-        konst::while_let_Some! {x = iter.next() => {
+        konst::while_let_Some! {x =
+            option::and_then!(slice::get_mut(&mut array, i), |x| x.take())
+        => {
             core::mem::forget(x);
             ret += 2;
+
+            i += 1;
         }}
-        iter.assert_is_empty();
+        core::mem::forget(array);
         ret
     }
 
-    assert_eq!(uses_macro([String::new(); 0]), 0);
-    assert_eq!(uses_macro([3]), 2);
-    assert_eq!(uses_macro([3, 5]), 4);
-    assert_eq!(uses_macro([3, 5, 8]), 6);
-    assert_eq!(uses_macro([3, 5, 8, 13]), 8);
+    assert_eq!(uses_macro([String::new(); 0].map(Some)), 0);
+    assert_eq!(uses_macro([3].map(Some)), 2);
+    assert_eq!(uses_macro([3, 5].map(Some)), 4);
+    assert_eq!(uses_macro([3, 5, 8].map(Some)), 6);
+    assert_eq!(uses_macro([3, 5, 8, 13].map(Some)), 8);
 }

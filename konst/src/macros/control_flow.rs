@@ -129,7 +129,11 @@ macro_rules! if_let_Some {
 ///
 /// # Example
 ///
-/// ```rust
+/// This example requires the `"iter"` feature (enabled by default),
+/// because it uses [`ArrayBuilder`](crate::array::ArrayBuilder).
+///
+#[cfg_attr(feature = "iter", doc = "```rust")]
+#[cfg_attr(not(feature = "iter"), doc = "```ignore")]
 /// use konst::array::ArrayBuilder;
 ///
 /// assert_eq!(make_strings::<1>(), [String::new()]);

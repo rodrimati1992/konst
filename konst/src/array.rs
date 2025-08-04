@@ -3,14 +3,18 @@
 #[doc(hidden)]
 pub mod __array_macros_2;
 
+#[cfg(feature = "iter")]
 mod array_builder;
 
+#[cfg(feature = "iter")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub use self::array_builder::ArrayBuilder;
 
 #[cfg(feature = "iter")]
 mod array_into_iter;
 
 #[cfg(feature = "iter")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub use self::array_into_iter::{IntoIter, IntoIterRev};
 
 macro_rules! drop_warning {
@@ -54,6 +58,8 @@ use drop_warning;
 /// ```
 ///
 #[doc(inline)]
+#[cfg(feature = "iter")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub use crate::__array_map_by_val as map;
 
 /// Const equivalent of [`array::from_fn`](core::array::from_fn).
@@ -80,4 +86,6 @@ pub use crate::__array_map_by_val as map;
 /// ```
 ///
 #[doc(inline)]
+#[cfg(feature = "iter")]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub use crate::__array_from_fn2 as from_fn;

@@ -7,7 +7,7 @@
 //
 // You'll need to run it with cmp enabled and disabled to run all the tests.
 //
-// use `cargo test --features "__ui debug" -- ui trybuild=filter_here`
+// use `cargo test --features "__ui debug <other_features>" -- ui trybuild=filter_here`
 // to only  run UI tests
 
 #[cfg(feature = "__ui")]
