@@ -5,6 +5,7 @@ use konst::{manually_drop as md, option};
 #[cfg(feature = "iter")]
 mod option_iter_tests;
 
+#[derive(Debug, PartialEq, Eq)]
 struct ImplsDrop<T>(T);
 
 impl<T> ImplsDrop<T> {
@@ -117,4 +118,23 @@ fn or_else_droppable_test() {
         constness().map(|opt| opt.map(ImplsDrop::into_inner)),
         [None, Some(5u32), Some(8u32)],
     );
+}
+
+#[test]
+fn get_or_insert_with_droppable_test() {
+    const fn defaulter() -> ImplsDrop<u32> {
+        ImplsDrop::new(8)
+    }
+
+    const fn constness() -> [Option<ImplsDrop<u32>>; 3] {
+        let mut arr = [None, None, Some(ImplsDrop::new(21))];
+
+        option::get_or_insert_with!(&mut arr[0], || ImplsDrop::new(3)).0 += 100;
+        option::get_or_insert_with!(&mut arr[1], defaulter).0 += 100;
+        option::get_or_insert_with!(&mut arr[2], || unreach()).0 += 100;
+
+        arr
+    }
+
+    assert_eq!(constness(), [103, 108, 121].map(ImplsDrop::new).map(Some));
 }

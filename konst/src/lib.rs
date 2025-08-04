@@ -398,7 +398,7 @@ pub mod __ {
         compile_error, concat,
         marker::PhantomData,
         matches,
-        mem::{self, ManuallyDrop, MaybeUninit},
+        mem::{self, ManuallyDrop, MaybeUninit, replace},
         ops::Range,
         option::Option::{self, None, Some},
         panic,

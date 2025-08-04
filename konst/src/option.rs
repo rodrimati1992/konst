@@ -92,7 +92,7 @@ macro_rules! __opt_unwrap_or_else {
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
-        compile_error!("expected the closure to take no arguments")
+        $crate::__::compile_error!("expected the closure to take no arguments")
     };
     ($e:expr, $v:expr $(,)?) => {
         $crate::__opt_unwrap_or_else! {$e, || $v()}
@@ -173,7 +173,7 @@ macro_rules! __opt_ok_or_else {
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
-        compile_error!("expected the closure to take no arguments")
+        $crate::__::compile_error!("expected the closure to take no arguments")
     };
     ($e:expr, $v:expr $(,)?) => {
         $crate::__opt_ok_or_else! {$e, || $v()}
@@ -227,7 +227,7 @@ macro_rules! __opt_map {
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
-        compile_error!("expected the closure to take a pattern as an argument")
+        $crate::__::compile_error!("expected the closure to take a pattern as an argument")
     };
     ($opt:expr, $function:path $(,)?) => {
         $crate::__opt_map! {$opt, |x| $function(x)}
@@ -287,7 +287,7 @@ macro_rules! __opt_and_then {
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
-        compile_error!("expected the closure to take a pattern as an argument")
+        $crate::__::compile_error!("expected the closure to take a pattern as an argument")
     };
     ($opt:expr, $function:path $(,)?) => {
         $crate::__opt_and_then! {$opt, |x| $function(x)}
@@ -335,7 +335,7 @@ macro_rules! __opt_or_else {
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
-        compile_error!("expected the closure to take no arguments")
+        $crate::__::compile_error!("expected the closure to take no arguments")
     };
     ($opt:expr, $function:path $(,)?) => {
         $crate::__opt_or_else! {$opt, || $function()}
@@ -389,7 +389,7 @@ macro_rules! __opt_filter {
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
-        compile_error!("expected the closure to take a pattern as an argument")
+        $crate::__::compile_error!("expected the closure to take a pattern as an argument")
     };
     ($e:expr, $function:path $(,)?) => {
         match $e {
@@ -397,4 +397,213 @@ macro_rules! __opt_filter {
             _ => $crate::__::None,
         }
     };
+}
+
+/// A const equivalent of [`Option::get_or_insert`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::option;
+///
+/// const AA: Option<u8> = {
+///     let mut ret = None;
+///     *option::get_or_insert!(&mut ret, 3) += 100;
+///     ret
+/// };
+///
+/// assert_eq!(AA, Some(103));
+///
+/// const BB: Option<u8> = {
+///     let mut ret = Some(5);
+///     *option::get_or_insert!(&mut ret, 0) += 100;
+///     ret
+/// };
+///
+/// assert_eq!(BB, Some(105));
+/// ```
+///
+#[doc(inline)]
+pub use crate::__get_or_insert as get_or_insert;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __get_or_insert {
+    ($opt:expr, $inserted:expr $(,)?) => {
+        match ($opt, $inserted) {
+            (Some(val), _inserted) => val,
+            (opt @ None, inserted) => {
+                $crate::__utils::__overwrite(opt, Some(inserted));
+
+                $crate::__::Option::as_mut(opt).unwrap()
+            }
+        }
+    };
+}
+
+/// A const equivalent of [`Option::get_or_insert_with`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::option;
+///
+/// const AA: Option<u8> = {
+///     let mut ret = None;
+///
+///     // You can use a closure-like syntax to pass code that maps the Some variant.
+///     // `return` inside the "closure" returns from the function where this macro is called.
+///     *option::get_or_insert_with!(&mut ret, || 3) += 100;
+///     ret
+/// };
+///
+/// assert_eq!(AA, Some(103));
+///
+///
+/// const BB: Option<u8> = {
+///     let mut ret = None;
+///     *option::get_or_insert_with!(&mut ret, func) += 100;
+///     ret
+/// };
+///
+/// assert_eq!(BB, Some(121));
+///
+/// const fn func() -> u8 {
+///     21
+/// }
+///
+///
+/// const CC: Option<u8> = {
+///     let mut ret = Some(5);
+///     *option::get_or_insert_with!(&mut ret, || unreachable!()) += 100;
+///     ret
+/// };
+///
+/// assert_eq!(CC, Some(105));
+/// ```
+///
+#[doc(inline)]
+pub use crate::__get_or_insert_with as get_or_insert_with;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __get_or_insert_with {
+    ($opt:expr, || $default:expr $(,)?) => {
+        match $opt {
+            Some(val) => val,
+            opt @ None => {
+                $crate::__utils::__overwrite(opt, Some($default));
+
+                $crate::__::Option::as_mut(opt).unwrap()
+            }
+        }
+    };
+    ($opt:expr, | $($anything:tt)* ) => {
+        $crate::__::compile_error!("expected the closure to take no arguments")
+    };
+    ($opt:expr, $default:expr $(,)?) => {
+        $crate::option::get_or_insert_with!($opt, || $default())
+    };
+}
+
+/// A const equivalent of [`Option::insert`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::option;
+///
+/// const AA: Option<u8> = {
+///     let mut ret = None;
+///     *option::insert!(&mut ret, 3) += 100;
+///     ret
+/// };
+///
+/// assert_eq!(AA, Some(103));
+///
+/// const BB: Option<u8> = {
+///     let mut ret = Some(5);
+///     *option::insert!(&mut ret, 13) += 100;
+///     ret
+/// };
+///
+/// assert_eq!(BB, Some(113));
+/// ```
+///
+#[doc(inline)]
+pub use crate::__insert as insert;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __insert {
+    ($opt:expr, $inserted:expr $(,)?) => {
+        match $opt {
+            opt => {
+                _ = $crate::__::replace(opt, Some($inserted));
+
+                $crate::__::Option::as_mut(opt).unwrap()
+            }
+        }
+    };
+}
+
+/// A const equivalent of [`Option::zip`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::option;
+///
+/// const VALS: [Option<(u8, char)>; 4] = [
+///     option::zip!(None, None),
+///     option::zip!(None, Some('a')),
+///     option::zip!(Some(3), None),
+///     option::zip!(Some(3), Some('a')),
+/// ];
+///
+/// assert_eq!(VALS, [None, None, None, Some((3, 'a'))]);
+/// ```
+///
+#[doc(inline)]
+pub use crate::__zip as zip;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __zip {
+    ($left:expr, $right:expr) => {
+        $crate::if_let_Some! {l = $left => {
+            $crate::if_let_Some!{r = $right => {
+                $crate::__::Some((l, r))
+            } else {
+                $crate::__::None
+            }}
+        } else {
+            $crate::__::None
+        }}
+    };
+}
+
+/// A const equivalent of [`Option::unzip`]
+///
+/// # Example
+///
+/// ```rust
+/// use konst::option;
+///
+/// const VALS: [(Option<u8>, Option<char>); 2] = [
+///     option::unzip(None),
+///     option::unzip(Some((3, 'a'))),
+/// ];
+///
+/// assert_eq!(VALS, [(None, None), (Some(3), Some('a'))]);
+/// ```
+///
+pub const fn unzip<T, U>(opt: Option<(T, U)>) -> (Option<T>, Option<U>) {
+    crate::if_let_Some! {tuple = opt => {
+        crate::destructure!{(l, r) = tuple}
+
+        (Some(l), Some(r))
+    } else {
+        (None, None)
+    }}
 }
