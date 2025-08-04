@@ -53,3 +53,19 @@ error: invalid argument(s) for `lt` method: ``
    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:15:17
+   |
+15 | const _: bool = konst::iter::eval!{0..10, is_sorted_by()};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by_key` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:17:17
+   |
+17 | const _: bool = konst::iter::eval!{0..10, is_sorted_by_key()};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

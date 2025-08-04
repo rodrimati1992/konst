@@ -12,5 +12,9 @@ const _: bool = konst::iter::eval!{0..10, le()};
 
 const _: bool = konst::iter::eval!{0..10, lt()};
 
+const _: bool = konst::iter::eval!{0..10, is_sorted_by()};
+
+const _: bool = konst::iter::eval!{0..10, is_sorted_by_key()};
+
 
 fn main(){}

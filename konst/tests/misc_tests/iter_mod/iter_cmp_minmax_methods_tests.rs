@@ -267,3 +267,61 @@ fn le_gt_method_test() {
     }
     .call();
 }
+
+#[test]
+fn is_sorted_test() {
+    const fn constness(slice: &[u8]) -> bool {
+        iter::eval! {slice, is_sorted()}
+    }
+
+    assert!(constness(&[]));
+    assert!(constness(&[1]));
+
+    assert!(!constness(&[1, 0]));
+    assert!(constness(&[1, 1]));
+    assert!(constness(&[1, 2]));
+
+    assert!(!constness(&[1, 0, 0]));
+    assert!(!constness(&[1, 1, 0]));
+    assert!(!constness(&[1, 2, 0]));
+    assert!(constness(&[1, 2, 3]));
+}
+
+#[test]
+fn is_sorted_by_test() {
+    const fn constness(slice: &[u8]) -> bool {
+        iter::eval! {slice, is_sorted_by(|l, r| **l >= **r)}
+    }
+
+    assert!(constness(&[]));
+    assert!(constness(&[1]));
+
+    assert!(constness(&[1, 0]));
+    assert!(constness(&[1, 1]));
+    assert!(!constness(&[1, 2]));
+
+    assert!(constness(&[1, 0, 0]));
+    assert!(constness(&[1, 1, 0]));
+    assert!(constness(&[2, 1, 0]));
+    assert!(!constness(&[1, 2, 0]));
+    assert!(!constness(&[1, 2, 3]));
+}
+
+#[test]
+fn is_sorted_by_key_test() {
+    const fn constness(slice: &[(u8,)]) -> bool {
+        iter::eval! {slice, is_sorted_by_key(|x| x.0)}
+    }
+
+    assert!(constness(&[].map(|x| (x,))));
+    assert!(constness(&[1].map(|x| (x,))));
+
+    assert!(!constness(&[1, 0].map(|x| (x,))));
+    assert!(constness(&[1, 1].map(|x| (x,))));
+    assert!(constness(&[1, 2].map(|x| (x,))));
+
+    assert!(!constness(&[1, 0, 0].map(|x| (x,))));
+    assert!(!constness(&[1, 1, 0].map(|x| (x,))));
+    assert!(!constness(&[1, 2, 0].map(|x| (x,))));
+    assert!(constness(&[1, 2, 3].map(|x| (x,))));
+}

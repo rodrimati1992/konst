@@ -53,3 +53,27 @@ error: iterator comparison methods require the  "cmp" feature
    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: is_sorted methods require the  "cmp" feature
+  --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:15:17
+   |
+15 | const _: bool = konst::iter::eval!{0..10, is_sorted()};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: is_sorted methods require the  "cmp" feature
+  --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:17:17
+   |
+17 | const _: bool = konst::iter::eval!{0..10, is_sorted_by(|l, r| true)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: is_sorted methods require the  "cmp" feature
+  --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:19:17
+   |
+19 | const _: bool = konst::iter::eval!{0..10, is_sorted_by_key(|x| x)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

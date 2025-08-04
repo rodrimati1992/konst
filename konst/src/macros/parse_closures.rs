@@ -194,6 +194,10 @@ macro_rules! __parse_closure_expr {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __parse_closure_no_expr_error {
+    ((@default($default:expr) $($usage_site:tt)*)) => ({
+        $crate::__parse_closure_no_expr_error!{$($usage_site)*}
+        $default
+    });
     (($($usage_site:tt)*)) => {
         $crate::__::compile_error!{$crate::__::concat!(
             "`",
@@ -206,6 +210,10 @@ macro_rules! __parse_closure_no_expr_error {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __parse_closure_trailing_expr_error {
+    ((@default($default:expr) $($usage_site:tt)*) $($rem:tt)*) => ({
+        $crate::__parse_closure_trailing_expr_error!{ ($($default)*) $($rem)*}
+        $default
+    });
     (($($usage_site:tt)*) $($rem:tt)*) => {
         $crate::__::compile_error!{$crate::__::concat!(
             "`",
@@ -218,6 +226,10 @@ macro_rules! __parse_closure_trailing_expr_error {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __parse_closure_emit_error {
+    ($count:tt (@default($default:expr) $($usage_site:tt)*)) => ({
+        $crate::__parse_closure_emit_error!{$count ($($usage_site)*)}
+        $default
+    });
     ($count:tt ($($usage_site:tt)*)) => {
         $crate::__::compile_error!{$crate::__::concat!(
             "`",

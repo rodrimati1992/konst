@@ -42,7 +42,9 @@ macro_rules! __iter_eval {
 macro_rules! iter_cmp_docs {
     () => {
         concat! {
-            "\n\nThis is only available with the `\"cmp\"` feature (enabled by default) \n\n",
+            "\n\nThis is only available with the `\"cmp\"` feature (enabled by default),\n",
+            "because it uses the [`ConstCmp`](crate::cmp::ConstCmp) trait ",
+            "for comparing items. \n\n",
             "```rust",
         }
     };
@@ -103,6 +105,9 @@ Consuming methods that use the `"cmp"` feature:
 - [`gt`](#gt)
 - [`le`](#le)
 - [`lt`](#lt)
+- [`is_sorted`](#is_sorted)
+- [`is_sorted_by`](#is_sorted_by)
+- [`is_sorted_by_key`](#is_sorted_by_key)
 
 
 ### Adaptor Methods
@@ -486,6 +491,75 @@ assert_eq!(lt_rev(&[3, 2, 1], &[4]), true);
 assert_eq!(lt_rev(&[3, 2, 1], &[1, 2, 3]), false);
 
 assert_eq!(lt_rev(&[3, 2, 1], &[0]), false);
+```
+
+### `is_sorted`
+
+Const equivalent of [`Iterator::is_sorted`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::iter;
+
+const fn downward(slice: &[u16]) -> bool {
+    iter::eval!(slice,rev(),is_sorted())
+}
+
+assert_eq!(downward(&[]), true);
+
+assert_eq!(downward(&[1]), true);
+
+assert_eq!(downward(&[1, 2]), false);
+
+assert_eq!(downward(&[2, 1]), true);
+```
+
+### `is_sorted_by`
+
+Const equivalent of [`Iterator::is_sorted_by`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::cmp;
+use konst::iter;
+
+const fn is_monotonically_increasing(slice: &[u16]) -> bool {
+    iter::eval!(slice,is_sorted_by(|l, r| **l < **r))
+}
+
+assert_eq!(is_monotonically_increasing(&[]), true);
+
+assert_eq!(is_monotonically_increasing(&[1]), true);
+
+assert_eq!(is_monotonically_increasing(&[1, 1]), false);
+
+assert_eq!(is_monotonically_increasing(&[1, 2]), true);
+
+```
+
+### `is_sorted_by_key`
+
+Const equivalent of [`Iterator::is_sorted_by_key`]
+
+*/
+#[doc = self::iter_cmp_docs!()]
+/**
+use konst::cmp;
+use konst::iter;
+
+const fn is_sorted_by_len(slice: &[&str]) -> bool {
+    iter::eval!(slice,is_sorted_by_key(|x| x.len()))
+}
+
+assert_eq!(is_sorted_by_len(&[]), true);
+
+assert_eq!(is_sorted_by_len(&["foo"]), true);
+
+assert_eq!(is_sorted_by_len(&["foo", ""]), false);
+
+assert_eq!(is_sorted_by_len(&["foo", "bar", "hello"]), true);
 ```
 
 <span id = "full-examples"></span>
@@ -1111,6 +1185,42 @@ declare_eval2_lowering! {
         }
     };
 
+    (fixed:tt [is_sorted] ()) => {
+        $crate::__iter2_is_sorted_impl!{
+            $fixed (l_item, r_item) {};
+            $crate::__::matches!(
+                $crate::cmp::const_cmp!(l_item, r_item),
+                $crate::__::Less | $crate::__::Equal
+            )
+        }
+    };
+
+    (fixed:tt [is_sorted_by] ($($closure:tt)*)) => {
+        $crate::__iter2_is_sorted_impl!{
+            $fixed (l_item, r_item) {};
+            $crate::__parse_closure_2!(
+                ($crate::__eval_closure) ((&l_item, &r_item),) (is_sorted_by),
+                $($closure)*
+            )
+        }
+    };
+
+    (fixed:tt [is_sorted_by_key] ($($closure:tt)*)) => {
+        $crate::__iter2_is_sorted_impl!{
+            $fixed (l_item, r_item)
+            {
+                let r_item = $crate::__parse_closure_1!{
+                    ($crate::__eval_closure) (r_item,) (@default(0u8) is_sorted_by_key),
+                    $($closure)*
+                };
+            };
+            $crate::__::matches!(
+                $crate::cmp::const_cmp!(l_item, r_item),
+                $crate::__::Less | $crate::__::Equal
+            )
+        }
+    };
+
     # secret methods
 
     (
@@ -1513,6 +1623,41 @@ macro_rules! __iter2_interpreter {
         let $item_param = $item;
         $code
     };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __iter2_is_sorted_impl {
+    (
+        $fixed:tt ($l_item:ident, $r_item:ident)
+        {$($convert_item_into_key:tt)*};
+        $comparator:expr
+    ) => {
+        $crate::iter::__eval2_lowering!{
+            $fixed
+            [__finder __finder] (@vars(mut prev = None,) accum = true, |$r_item| {
+                $($convert_item_into_key)*
+
+                // `konst::cmp::const_cmp` (used in $comparator) needs
+                // the type of `prev` to be inferred in statements before
+                // `$comparator` to be able to do inherent method dispatch.
+                if false {
+                    $crate::iter::__infer_option_of(&$r_item, &prev)
+                }
+
+                if let Some($l_item) = prev {
+                    $crate::__iter2_require_cmp!{
+                        "is_sorted methods require the  \"cmp\" feature";
+                        if !$comparator {
+                            accum = false;
+                            __iter2_returner!{}
+                        }
+                    }
+                }
+                prev = Some($r_item);
+            })
+        }
+    }
 }
 
 #[doc(hidden)]

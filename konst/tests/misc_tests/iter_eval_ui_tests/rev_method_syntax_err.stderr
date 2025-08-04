@@ -55,6 +55,9 @@ error: method `rposition` is unsupported, expected one of:
        - gt
        - le
        - lt
+       - is_sorted
+       - is_sorted_by
+       - is_sorted_by_key
   --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:10:5
    |
 10 |     konst::iter::eval!(R, rev(),rposition(|_| false));

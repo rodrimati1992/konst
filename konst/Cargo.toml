@@ -35,8 +35,9 @@ version = "1.0"
 optional = true
 
 [dependencies.typewit]
-version = "1.1"
-features = ["rust_1_61"]
+version = "1.12"
+default-features = false
+features = ["rust_1_83"]
 
 [dependencies.const_panic]
 version = "0.2.13"

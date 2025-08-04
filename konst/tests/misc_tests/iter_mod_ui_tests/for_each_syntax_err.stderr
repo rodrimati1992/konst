@@ -67,6 +67,9 @@ error: method `foobar` is unsupported, expected one of:
        - gt
        - le
        - lt
+       - is_sorted
+       - is_sorted_by
+       - is_sorted_by_key
  --> tests/misc_tests/iter_mod_ui_tests/for_each_syntax_err.rs:8:13
   |
 8 |     let _ = konst::iter::for_each!{_ in 0..10,foobar() => };
