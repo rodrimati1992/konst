@@ -56,40 +56,10 @@ impl Utf8Encoded {
 ///
 /// ```
 pub const fn encode_utf8(char: char) -> Utf8Encoded {
-    let u32 = char as u32;
-    match u32 {
-        0..=127 => Utf8Encoded {
-            encoded: [u32 as u8, 0, 0, 0],
-            len: 1,
-        },
-        0x80..=0x7FF => {
-            let b0 = 0b1100_0000 | (u32 >> 6) as u8;
-            let b1 = 0b1000_0000 | (u32 & 0b0011_1111) as u8;
-            Utf8Encoded {
-                encoded: [b0, b1, 0, 0],
-                len: 2,
-            }
-        }
-        0x800..=0xFFFF => {
-            let b0 = 0b1110_0000 | (u32 >> 12) as u8;
-            let b1 = 0b1000_0000 | ((u32 >> 6) & 0b0011_1111) as u8;
-            let b2 = 0b1000_0000 | (u32 & 0b0011_1111) as u8;
-            Utf8Encoded {
-                encoded: [b0, b1, b2, 0],
-                len: 3,
-            }
-        }
-        0x10000..=u32::MAX => {
-            let b0 = 0b1111_0000 | (u32 >> 18) as u8;
-            let b1 = 0b1000_0000 | ((u32 >> 12) & 0b0011_1111) as u8;
-            let b2 = 0b1000_0000 | ((u32 >> 6) & 0b0011_1111) as u8;
-            let b3 = 0b1000_0000 | (u32 & 0b0011_1111) as u8;
-            Utf8Encoded {
-                encoded: [b0, b1, b2, b3],
-                len: 4,
-            }
-        }
-    }
+    let mut encoded = [0u8; 4];
+    let len = char.encode_utf8(&mut encoded).len() as u8;
+
+    Utf8Encoded { encoded, len }
 }
 
 #[cfg(test)]
@@ -133,7 +103,7 @@ mod tests {
 
     #[cfg(not(miri))]
     #[test]
-    fn test_all_chars_as_byets() {
+    fn test_all_chars_as_bytes() {
         let mut buffer = [0u8; 10];
         for c in '\0'..=char::MAX {
             let std_encoded = c.encode_utf8(&mut buffer);
