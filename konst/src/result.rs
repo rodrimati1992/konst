@@ -26,9 +26,9 @@ pub use crate::__res_unwrap_or as unwrap_or;
 #[macro_export]
 macro_rules! __res_unwrap_or {
     ($res:expr, $v:expr $(,)?) => {
-        match ($res, $v) {
-            ($crate::__::Ok(x), _) => x,
-            ($crate::__::Err(_), value) => value,
+        match $crate::__ResT!($res, $v) {
+            $crate::__PResT!($crate::__::Ok(x), _) => x,
+            $crate::__PResT!($crate::__::Err(_), value) => value,
         }
     };
 }
@@ -68,16 +68,19 @@ pub use crate::__res_unwrap_or_else as unwrap_or_else;
 #[macro_export]
 macro_rules! __res_unwrap_or_else {
     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok(x) => x,
             $crate::__::Err($param) => $expr,
         }
     };
-    ($opt:expr, | $($anything:tt)* ) => {
+    ($res:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, || $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
     ($res:expr, $function:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok(x) => x,
             $crate::__::Err(x) => $function(x),
         }
@@ -120,16 +123,19 @@ pub use crate::__res_unwrap_err_or_else as unwrap_err_or_else;
 #[macro_export]
 macro_rules! __res_unwrap_err_or_else {
     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok($param) => $expr,
             $crate::__::Err(x) => x,
         }
     };
-    ($opt:expr, | $($anything:tt)* ) => {
+    ($res:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, || $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
     ($res:expr, $function:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok(x) => $function(x),
             $crate::__::Err(x) => x,
         }
@@ -162,7 +168,7 @@ pub use crate::__res_ok as ok;
 #[macro_export]
 macro_rules! __res_ok {
     ($res:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok(x) => $crate::__::Some(x),
             $crate::__::Err(_) => $crate::__::None,
         }
@@ -195,7 +201,7 @@ pub use crate::__res_err as err;
 #[macro_export]
 macro_rules! __res_err {
     ($res:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok(_) => $crate::__::None,
             $crate::__::Err(x) => $crate::__::Some(x),
         }
@@ -237,16 +243,19 @@ pub use crate::__res_map as map;
 #[macro_export]
 macro_rules! __res_map {
     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok($param) => $crate::__::Ok($expr),
             $crate::__::Err(x) => $crate::__::Err(x),
         }
     };
-    ($opt:expr, | $($anything:tt)* ) => {
+    ($res:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, || $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
     ($res:expr, $function:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok(param) => $crate::__::Ok($function(param)),
             $crate::__::Err(x) => $crate::__::Err(x),
         }
@@ -288,16 +297,19 @@ pub use crate::__res_map_err as map_err;
 #[macro_export]
 macro_rules! __res_map_err {
     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok(x) => $crate::__::Ok(x),
             $crate::__::Err($param) => $crate::__::Err($expr),
         }
     };
-    ($opt:expr, | $($anything:tt)* ) => {
+    ($res:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, || $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
     ($res:expr, $function:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok(x) => $crate::__::Ok(x),
             $crate::__::Err(x) => $crate::__::Err($function(x)),
         }
@@ -344,16 +356,19 @@ pub use crate::__res_and_then as and_then;
 #[macro_export]
 macro_rules! __res_and_then {
     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok($param) => $expr,
             $crate::__::Err(x) => $crate::__::Err(x),
         }
     };
-    ($opt:expr, | $($anything:tt)* ) => {
+    ($res:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, || $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
     ($res:expr, $function:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok(param) => $function(param),
             $crate::__::Err(x) => $crate::__::Err(x),
         }
@@ -400,16 +415,19 @@ pub use crate::__res_or_else as or_else;
 #[macro_export]
 macro_rules! __res_or_else {
     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok(x) => $crate::__::Ok(x),
             $crate::__::Err($param) => $expr,
         }
     };
-    ($opt:expr, | $($anything:tt)* ) => {
+    ($res:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, || $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
     ($res:expr, $function:expr $(,)?) => {
-        match $res {
+        match $crate::__Res!($res).res {
             $crate::__::Ok(x) => $crate::__::Ok(x),
             $crate::__::Err(x) => $function(x),
         }
@@ -418,3 +436,46 @@ macro_rules! __res_or_else {
 
 #[doc(no_inline)]
 pub use const_panic::unwrap_ok as unwrap;
+
+////////////////////////////////////////////////////////////
+
+// for asserting that a macro argument is a Result
+#[doc(hidden)]
+pub struct __Res<T, E> {
+    pub res: Result<T, E>,
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __Res {
+    ($($res:tt)*) => { $crate::result::__Res { res: $($res)* } };
+}
+
+// for asserting that a macro argument is a pair of Result<T, E> and T
+#[doc(hidden)]
+pub struct __ResT<T, E> {
+    pub res: Result<T, E>,
+    pub val: T,
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __ResT {
+    ($res:tt, $val:tt) => {
+        $crate::result::__ResT {
+            res: $res,
+            val: $val,
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __PResT {
+    ($res:pat, $val:pat) => {
+        $crate::result::__ResT {
+            res: $res,
+            val: $val,
+        }
+    };
+}

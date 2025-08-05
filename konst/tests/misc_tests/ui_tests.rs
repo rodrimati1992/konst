@@ -20,6 +20,7 @@ fn ui() {
         "collect_const_ui_tests",
         "iter_eval_ui_tests",
         "iter_mod_ui_tests",
+        "misc_macro_ui_tests",
         "parser_ui_tests",
         "string_ui_tests",
         #[cfg(feature = "cmp")]
