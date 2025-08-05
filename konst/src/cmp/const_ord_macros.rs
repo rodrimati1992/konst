@@ -75,9 +75,9 @@ macro_rules! __const_cmp {
 /// that can't be compared with [`const_cmp`].
 ///
 /// This macro takes the same
-/// [types](macro.const_eq_for.html#types-section) (except for range types),
-/// has the same  [limitations](macro.const_eq_for.html#limitations-section),
-/// and takes [arguments of the same form](macro.const_eq_for.html#arguments-section)
+/// [types](crate::cmp::const_eq_for#types-section) (except for range types),
+/// has the same  [limitations](crate::cmp::const_eq_for#limitations-section),
+/// and takes [arguments of the same form](crate::cmp::const_eq_for#arguments-section)
 /// as the [`const_eq_for`] macro
 ///
 /// # Examples
@@ -149,7 +149,7 @@ macro_rules! __const_cmp {
 /// [`ConstCmp`]: crate::cmp::ConstCmp
 /// [`const_cmp`]: crate::cmp::const_cmp
 /// [`const_eq_for`]: crate::cmp::const_eq_for
-/// [`cmp::Ordering`]: https://doc.rust-lang.org/core/cmp/enum.Ordering.html
+/// [`cmp::Ordering`]: core::cmp::Ordering
 ///
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub use crate::__const_cmp_for as const_cmp_for;

@@ -139,8 +139,8 @@ use core::marker::PhantomData;
 ///
 /// ```
 ///
-/// [`CmpWrapper`]: struct.CmpWrapper.html
-/// [`impl_cmp`]: ../macro.impl_cmp.html
+/// [`CmpWrapper`]: crate::cmp::CmpWrapper
+/// [`impl_cmp`]: crate::cmp::impl_cmp
 pub trait ConstCmp {
     /// What kind of type this is, this can be one of:
     ///

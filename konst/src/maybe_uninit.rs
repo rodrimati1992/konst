@@ -1,5 +1,4 @@
-//! Const fn equivalents of
-//! [`MaybeUninit<T>`](https://doc.rust-lang.org/core/mem/union.MaybeUninit.html) methods.
+//! Const fn equivalents of [`MaybeUninit<T>`](core::mem::MaybeUninit) methods.
 //!
 //! # Removed in 0.4.0
 //!
@@ -74,8 +73,7 @@ pub const fn uninit_array<T, const LEN: usize>() -> [MaybeUninit<T>; LEN] {
 ///
 /// # Safety
 ///
-/// This has [the same safety requirements as `MaybeUninit::array_assume_init`
-/// ](https://doc.rust-lang.org/1.88.0/core/mem/union.MaybeUninit.html#safety-5)
+/// This has the same safety requirements as [`MaybeUninit::array_assume_init`]
 ///
 /// # Example
 ///

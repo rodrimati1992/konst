@@ -10,8 +10,8 @@
 //! If you do want to parse a type from only part of a string, then you can use
 //! [`Parser`]'s `parse_*` methods, or the [`parse_type`] macro.
 //!
-//! [`Parser`]: ./struct.Parser.html
-//! [`primitive::parse_bool`]: ../primitive/fn.parse_bool.html
+//! [`Parser`]: crate::parsing::Parser
+//! [`primitive::parse_bool`]: crate::primitive::parse_bool
 //! [`parse_type`]: self::parse_type
 //!
 
@@ -45,8 +45,6 @@ use crate::string::{self, Pattern};
 /// If you're looking for functions to parse some type from an entire string
 /// (instead of only part of it),
 /// then you want to look in the module for that type, eg: [`primitive`](crate::primitive).
-///
-/// [`primitive::parse_u64`]: ../primitive/fn.parse_u64.html
 ///
 /// # Examples
 ///

@@ -125,19 +125,19 @@ in the  [`iterator_dsl`] module.
 
 The iterator adaptor methods, listed alphabetically
 (these links go to the [`iterator_dsl`] module):
-- [`copied`](./iterator_dsl/index.html#copied)
-- [`enumerate`](./iterator_dsl/index.html#enumerate)
-- [`filter_map`](./iterator_dsl/index.html#filter_map)
-- [`filter`](./iterator_dsl/index.html#filter)
-- [`flat_map`](./iterator_dsl/index.html#flat_map)
-- [`flatten`](./iterator_dsl/index.html#flatten)
-- [`map`](./iterator_dsl/index.html#map)
-- [`rev`](./iterator_dsl/index.html#rev)
-- [`skip_while`](./iterator_dsl/index.html#skip_while)
-- [`skip`](./iterator_dsl/index.html#skip)
-- [`take_while`](./iterator_dsl/index.html#take_while)
-- [`take`](./iterator_dsl/index.html#take)
-- [`zip`](./iterator_dsl/index.html#zip)
+- [`copied`](crate::iter::iterator_dsl#copied)
+- [`enumerate`](crate::iter::iterator_dsl#enumerate)
+- [`filter_map`](crate::iter::iterator_dsl#filter_map)
+- [`filter`](crate::iter::iterator_dsl#filter)
+- [`flat_map`](crate::iter::iterator_dsl#flat_map)
+- [`flatten`](crate::iter::iterator_dsl#flatten)
+- [`map`](crate::iter::iterator_dsl#map)
+- [`rev`](crate::iter::iterator_dsl#rev)
+- [`skip_while`](crate::iter::iterator_dsl#skip_while)
+- [`skip`](crate::iter::iterator_dsl#skip)
+- [`take_while`](crate::iter::iterator_dsl#take_while)
+- [`take`](crate::iter::iterator_dsl#take)
+- [`zip`](crate::iter::iterator_dsl#zip)
 
 
 ### `all`
@@ -734,7 +734,7 @@ assert_eq!(second_number("foo,8,bar,13,baz,21"), Some(13));
 ```
 
 
-[`iterator_dsl`]: ./iterator_dsl/index.html
+[`iterator_dsl`]: crate::iter::iterator_dsl
 
 */
 #[doc(inline)]

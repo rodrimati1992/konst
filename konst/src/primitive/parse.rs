@@ -21,14 +21,10 @@ macro_rules! define_parse_methods {
                     stringify!($parsing),
                     "` from only part of a string, you can use [`Parser::parse_",
                     stringify!($parsing),
-                    "`](../parsing/struct.Parser.html#method.parse_",
+                    "`](crate::parsing::Parser#method.parse_",
                     stringify!($parsing),
                     ")",
                     ".\n\n",
-                ),
-                concat!(
-                    "Like [`", stringify!($fn_name), "`](./fn.", stringify!($fn_name),".html)",
-                    "but takes a `&[u8]` argument."
                 ),
                 $(#[$attr])*,
                 $fn_name,
@@ -41,7 +37,6 @@ macro_rules! define_parse_methods {
 macro_rules! define_parse_methods_inner{
     (
         $s_docs:expr,
-        $b_docs:expr,
         $(#[$attr:meta])*,
         $fn_name:ident,
         $parsing:ty,

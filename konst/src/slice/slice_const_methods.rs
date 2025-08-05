@@ -332,8 +332,8 @@ pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
 ///
 /// For a const equivalent of `slice.get(..end)` there's [`get_up_to`].
 ///
-/// [`get_from`]: ./fn.get_from.html
-/// [`get_up_to`]: ./fn.get_up_to.html
+/// [`get_from`]: crate::slice::get_from
+/// [`get_up_to`]: crate::slice::get_up_to
 ///
 /// # Example
 ///
@@ -373,8 +373,8 @@ pub const fn get_range<T>(slice: &[T], start: usize, end: usize) -> Option<&[T]>
 ///
 /// For a const equivalent of `&mut slice[..end]` there's [`slice_up_to_mut`].
 ///
-/// [`slice_from_mut`]: ./fn.slice_from_mut.html
-/// [`slice_up_to_mut`]: ./fn.slice_up_to_mut.html
+/// [`slice_from_mut`]: crate::slice::slice_from_mut
+/// [`slice_up_to_mut`]: crate::slice::slice_up_to_mut
 ///
 /// # Example
 ///
@@ -403,8 +403,8 @@ pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &m
 ///
 /// For a const equivalent of `slice.get_mut(..end)` there's [`get_up_to_mut`].
 ///
-/// [`get_from_mut`]: ./fn.get_from_mut.html
-/// [`get_up_to_mut`]: ./fn.get_up_to_mut.html
+/// [`get_from_mut`]: crate::slice::get_from_mut
+/// [`get_up_to_mut`]: crate::slice::get_up_to_mut
 ///
 /// # Example
 ///

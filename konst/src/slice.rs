@@ -227,7 +227,6 @@ const _: () = {
 ///
 /// ```
 ///
-/// [`try_into_array`]: ./macro.try_into_array.html
 #[inline]
 pub const fn try_into_array<T, const N: usize>(slice: &[T]) -> Result<&[T; N], TryIntoArrayError> {
     if slice.len() == N {

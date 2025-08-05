@@ -9,7 +9,7 @@ impl<'a> Parser<'a> {
     /// you can use [`u128::from_str_radix`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `u128`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `u128`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     /// # Example
     ///
@@ -62,7 +62,7 @@ impl<'a> Parser<'a> {
     /// you can use [`i128::from_str_radix`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `i128`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `i128`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     /// # Example
     ///
@@ -99,7 +99,7 @@ impl<'a> Parser<'a> {
     /// you can use [`u64::from_str_radix`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `u64`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `u64`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     /// # Example
     ///
@@ -115,7 +115,7 @@ impl<'a> Parser<'a> {
     /// you can use [`i64::from_str_radix`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `i64`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `i64`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     /// # Example
     ///
@@ -131,7 +131,7 @@ impl<'a> Parser<'a> {
     /// you can use [`u32::from_str_radix`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `u32`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `u32`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     /// # Example
     ///
@@ -147,7 +147,7 @@ impl<'a> Parser<'a> {
     /// you can use [`i32::from_str_radix`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `i32`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `i32`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     /// # Example
     ///
@@ -163,7 +163,7 @@ impl<'a> Parser<'a> {
     /// you can use [`u16::from_str_radix`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `u16`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `u16`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     /// # Example
     ///
@@ -179,7 +179,7 @@ impl<'a> Parser<'a> {
     /// you can use [`i16::from_str_radix`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `i16`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `i16`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     /// # Example
     ///
@@ -195,7 +195,7 @@ impl<'a> Parser<'a> {
     /// you can use [`u8::from_str_radix`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `u8`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `u8`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     /// # Example
     ///
@@ -211,7 +211,7 @@ impl<'a> Parser<'a> {
     /// you can use [`i8::from_str_radix`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `i8`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `i8`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     /// # Example
     ///
@@ -227,7 +227,7 @@ impl<'a> Parser<'a> {
     /// you can use [`usize::from_str_radix`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `usize`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `usize`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     pub const fn parse_usize(&mut self) -> ParseValueResult<'a, usize> {
         parse_integer! {unsigned, (usize, usize), self}
@@ -238,7 +238,7 @@ impl<'a> Parser<'a> {
     /// you can use [`isize::from_str_radix`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `isize`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `isize`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     /// # Example
     ///
@@ -329,7 +329,7 @@ impl<'a> Parser<'a> {
     /// you can use [`primitive::parse_bool`]
     ///
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
-    /// macro to parse a `bool`, and other [`HasParser`](./trait.HasParser.html) types.
+    /// macro to parse a `bool`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
     /// # Example
     ///
@@ -351,7 +351,7 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     ///
-    /// [`primitive::parse_bool`]: ../primitive/fn.parse_bool.html
+    /// [`primitive::parse_bool`]: crate::primitive::parse_bool
     pub const fn parse_bool(&mut self) -> ParseValueResult<'a, bool> {
         try_parsing! {self, FromStart, ret;
             match self.str.as_bytes() {

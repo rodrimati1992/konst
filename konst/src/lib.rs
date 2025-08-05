@@ -286,16 +286,16 @@
 //!
 //!
 //! [`alloc`]: https://doc.rust-lang.org/alloc/
-//! [`const_eq`]: ./macro.const_eq.html
-//! [`const_eq_for`]: ./macro.const_eq_for.html
-//! [`const_cmp`]: ./macro.const_cmp.html
-//! [`const_cmp_for`]: ./macro.const_cmp_for.html
-//! [`parsing`]: ./parsing/index.html
-//! [`primitive`]: ./primitive/index.html
+//! [`const_eq`]: crate::cmp::const_eq
+//! [`const_eq_for`]: crate::cmp::const_eq_for
+//! [`const_cmp`]: crate::cmp::const_cmp
+//! [`const_cmp_for`]: crate::cmp::const_cmp_for
+//! [`parsing`]: crate::parsing
+//! [`primitive`]: crate::primitive
 //! [`parser_method`]: crate::parsing::parser_method
-//! [`Parser`]: ./parsing/struct.Parser.html
-//! [`Parser::parse_u128`]: ./parsing/struct.Parser.html#method.parse_u128
-//! [`destructure`]: ./macro.destructure.html
+//! [`Parser`]: crate::parsing::Parser
+//! [`Parser::parse_u128`]: crate::parsing::Parser#method.parse_u128
+//! [`destructure`]: crate::destructure
 //!
 #![deny(missing_docs)]
 #![deny(unused_results)]

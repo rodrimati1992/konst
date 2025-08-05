@@ -72,7 +72,7 @@ __declare_fns_with_docs! {
 }
 
 /// A const equivalent of
-/// [`str::starts_with`](https://doc.rust-lang.org/std/primitive.str.html#method.starts_with)
+/// [`str::starts_with`](core::primitive::str#method.starts_with)
 /// , taking a [`Pattern`] parameter.
 ///
 /// # Example
@@ -97,7 +97,7 @@ where
 }
 
 /// A const equivalent of
-/// [`str::ends_with`](https://doc.rust-lang.org/std/primitive.str.html#method.ends_with)
+/// [`str::ends_with`](core::primitive::str#method.ends_with)
 /// , taking a [`Pattern`] parameter.
 ///
 /// # Example
@@ -124,7 +124,7 @@ where
 }
 
 /// A const equivalent of
-/// [`str::find`](https://doc.rust-lang.org/std/primitive.str.html#method.find)
+/// [`str::find`](core::primitive::str#method.find)
 /// , taking a [`Pattern`] parameter.
 ///
 /// # Example
@@ -152,7 +152,7 @@ where
 }
 
 /// A const equivalent of
-/// [`str::contains`](https://doc.rust-lang.org/std/primitive.str.html#method.contains)
+/// [`str::contains`](core::primitive::str#method.contains)
 /// , taking a [`Pattern`] parameter.
 ///
 /// # Example
@@ -183,7 +183,7 @@ where
 }
 
 /// A const equivalent of
-/// [`str::rfind`](https://doc.rust-lang.org/std/primitive.str.html#method.rfind)
+/// [`str::rfind`](core::primitive::str#method.rfind)
 /// , taking a [`Pattern`] parameter.
 ///
 /// # Example
@@ -210,7 +210,7 @@ where
 }
 
 /// A const equivalent of
-/// [`str::contains`](https://doc.rust-lang.org/std/primitive.str.html#method.contains)
+/// [`str::contains`](core::primitive::str#method.contains)
 /// , taking a [`Pattern`] parameter.
 ///
 /// # Example
@@ -333,8 +333,8 @@ pub const fn str_from(string: &str, start: usize) -> &str {
 ///
 /// For a const equivalent of `&string[..end]` there's [`str_up_to`].
 ///
-/// [`str_from`]: ./fn.str_from.html
-/// [`str_up_to`]: ./fn.str_up_to.html
+/// [`str_from`]: crate::string::str_from
+/// [`str_up_to`]: crate::string::str_up_to
 ///
 /// # Panics
 ///
@@ -517,7 +517,7 @@ pub const fn get_from(string: &str, from: usize) -> Option<&str> {
 ///
 /// ```
 ///
-/// [`str::split_at`]: https://doc.rust-lang.org/std/primitive.str.html#method.split_at
+/// [`str::split_at`]: core::primitive::str#method.split_at
 pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
     (str_up_to(string, at), str_from(string, at))
 }
@@ -530,8 +530,8 @@ pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
 ///
 /// For a const equivalent of `string.get(..end)` there's [`get_up_to`].
 ///
-/// [`get_from`]: ./fn.get_from.html
-/// [`get_up_to`]: ./fn.get_up_to.html
+/// [`get_from`]: crate::string::get_from
+/// [`get_up_to`]: crate::string::get_up_to
 ///
 /// # Example
 ///
@@ -597,7 +597,7 @@ pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
 ///
 /// ```
 ///
-/// [`str::strip_prefix`]: https://doc.rust-lang.org/std/primitive.str.html#method.strip_prefix
+/// [`str::strip_prefix`]: core::primitive::str#method.strip_prefix
 pub const fn strip_prefix<'a, 'p, P>(string: &'a str, pattern: P) -> Option<&'a str>
 where
     P: Pattern<'p>,

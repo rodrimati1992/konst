@@ -123,7 +123,7 @@ impl<'a> Parser<'a> {
 
     /// Constructs a [`ParseError`] for this point in parsing.
     ///
-    /// [`ParseError`]: struct.ParseError.html
+    /// [`ParseError`]: crate::parsing::ParseError
     pub const fn to_error(&self, kind: ErrorKind) -> ParseError<'a> {
         ParseError::new(self, kind)
     }
@@ -131,8 +131,8 @@ impl<'a> Parser<'a> {
     /// Constructs a [`ParseError`] for this point in parsing,
     /// for an [`ErrorKind::Other`] with a custom error message.
     ///
-    /// [`ParseError`]: struct.ParseError.html
-    /// [`ErrorKind::Other`]: ./enum.ErrorKind.html#variant.Other
+    /// [`ParseError`]: crate::parsing::ParseError
+    /// [`ErrorKind::Other`]: crate::parsing::ErrorKind#variant.Other
     pub const fn to_other_error(&self, string: &'static &'static str) -> ParseError<'a> {
         ParseError::other_error(self, string)
     }
