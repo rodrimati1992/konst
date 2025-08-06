@@ -1,0 +1,197 @@
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:3:34
+  |
+3 | const _: () = option::unwrap_or!((), ());
+  |               -------------------^^-----
+  |               |                  |
+  |               |                  expected `Option<()>`, found `()`
+  |               arguments to this function are incorrect
+  |
+  = note:   expected enum `Option<()>`
+          found unit type `()`
+note: function defined here
+ --> src/option.rs
+  |
+  | pub const fn __opt_and_val<T>(opt: Option<T>, val: T) -> (Option<T>, T) {
+  |              ^^^^^^^^^^^^^
+help: try wrapping the expression in `Some`
+  |
+3 | const _: () = option::unwrap_or!(Some(()), ());
+  |                                  +++++  +
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:4:46
+  |
+4 | const _: () = option::unwrap_or!(None::<u8>, ());
+  |               -------------------------------^^-
+  |               |                              |
+  |               |                              expected `u8`, found `()`
+  |               arguments to this function are incorrect
+  |
+help: the return type of this call is `()` due to the type of the argument passed
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:4:15
+  |
+4 | const _: () = option::unwrap_or!(None::<u8>, ());
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--^
+  |                                              |
+  |                                              this argument influences the return type of `__opt_and_val`
+note: function defined here
+ --> src/option.rs
+  |
+  | pub const fn __opt_and_val<T>(opt: Option<T>, val: T) -> (Option<T>, T) {
+  |              ^^^^^^^^^^^^^
+  = note: this error originates in the macro `option::unwrap_or` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:4:15
+  |
+4 | const _: () = option::unwrap_or!(None::<u8>, ());
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+  |
+  = note: this error originates in the macro `option::unwrap_or` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:5:15
+  |
+5 | const _: () = option::unwrap_or!(None::<u8>, 0u8);
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+  |
+  = note: this error originates in the macro `option::unwrap_or` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:7:39
+  |
+7 | const _: () = option::unwrap_or_else!((), || ());
+  |               ------------------------^^--------
+  |               |                       |
+  |               |                       expected `Option<_>`, found `()`
+  |               arguments to this function are incorrect
+  |
+  = note:   expected enum `Option<_>`
+          found unit type `()`
+note: function defined here
+ --> src/option.rs
+  |
+  | pub const fn __opt<T>(opt: Option<T>) -> Option<T> {
+  |              ^^^^^
+help: try wrapping the expression in `Some`
+  |
+7 | const _: () = option::unwrap_or_else!(Some(()), || ());
+  |                                       +++++  +
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:8:54
+  |
+8 | const _: () = option::unwrap_or_else!(None::<u8>, || ());
+  |               ---------------------------------------^^-
+  |               |                                      |
+  |               |                                      expected `u8`, found `()`
+  |               arguments to this function are incorrect
+  |
+help: the return type of this call is `()` due to the type of the argument passed
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:8:15
+  |
+8 | const _: () = option::unwrap_or_else!(None::<u8>, || ());
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--^
+  |                                                      |
+  |                                                      this argument influences the return type of `__unwrap_or_else_helper`
+note: function defined here
+ --> src/option.rs
+  |
+  | pub const fn __unwrap_or_else_helper<T>(opt: Option<T>, val: T) -> T {
+  |              ^^^^^^^^^^^^^^^^^^^^^^^
+  = note: this error originates in the macro `option::unwrap_or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:8:15
+  |
+8 | const _: () = option::unwrap_or_else!(None::<u8>, || ());
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+  |
+  = note: this error originates in the macro `option::unwrap_or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:9:15
+  |
+9 | const _: () = option::unwrap_or_else!(None::<u8>, || 0u8);
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+  |
+  = note: this error originates in the macro `option::unwrap_or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:11:39
+   |
+11 | const _: Option<()> = option::filter!((), |_| ());
+   |                       ----------------^^---------
+   |                       |               |
+   |                       |               expected `Option<_>`, found `()`
+   |                       arguments to this function are incorrect
+   |
+   = note:   expected enum `Option<_>`
+           found unit type `()`
+note: function defined here
+  --> src/option.rs
+   |
+   | pub const fn __opt<T>(opt: Option<T>) -> Option<T> {
+   |              ^^^^^
+help: try wrapping the expression in `Some`
+   |
+11 | const _: Option<()> = option::filter!(Some(()), |_| ());
+   |                                       +++++  +
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:11:47
+   |
+11 | const _: Option<()> = option::filter!((), |_| ());
+   |                                               ^^ expected `bool`, found `()`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:12:55
+   |
+12 | const _: Option<()> = option::filter!(None::<u8>, |_| ());
+   |                                                       ^^ expected `bool`, found `()`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:12:23
+   |
+12 | const _: Option<()> = option::filter!(None::<u8>, |_| ());
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Option<()>`, found `Option<u8>`
+   |
+   = note: expected enum `Option<()>`
+              found enum `Option<u8>`
+   = note: this error originates in the macro `option::filter` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:14:30
+   |
+14 | const _: Option<(u8, u16)> = option::zip!((), ());
+   |                              ^^^^^^^^^^^^^^^^^^^^
+   |
+note: expected `Option<_>`, found `()`
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:14:43
+   |
+14 | const _: Option<(u8, u16)> = option::zip!((), ());
+   |                                           ^^
+   = note:   expected enum `Option<_>`
+           found unit type `()`
+note: expected `Option<_>`, found `()`
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_other_type_err.rs:14:47
+   |
+14 | const _: Option<(u8, u16)> = option::zip!((), ());
+   |                                               ^^
+   = note:   expected enum `Option<_>`
+           found unit type `()`
+note: function defined here
+  --> src/option.rs
+   |
+   | pub const fn __opt_pair<T, U>(l: Option<T>, r: Option<U>) -> (Option<T>, Option<U>) {
+   |              ^^^^^^^^^^
+   = note: this error originates in the macro `option::zip` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: try wrapping the expression in `Some`
+   |
+14 | const _: Option<(u8, u16)> = option::zip!(Some(()), ());
+   |                                           +++++  +
+help: try wrapping the expression in `Some`
+   |
+14 | const _: Option<(u8, u16)> = option::zip!((), Some(()));
+   |                                               +++++  +

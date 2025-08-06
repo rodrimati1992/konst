@@ -80,7 +80,7 @@ macro_rules! for_range {
 #[macro_export]
 macro_rules! if_let_Some {
     ($some:pat = $e:expr => $then:block $(else $else:block)?) => {
-        match $e {opt =>
+        match $crate::option::__opt($e) {opt =>
             if $crate::__::Option::is_some(&opt) {
                 let $some = $crate::__::Option::unwrap(opt);
                 $then
@@ -161,7 +161,7 @@ macro_rules! if_let_Some {
 macro_rules! while_let_Some {
     ($some:pat = $e:expr => $($then:tt)*) => {
         loop {
-            match $e {opt =>
+            match $crate::option::__opt($e) {opt =>
                 if $crate::__::Option::is_some(&opt) {
                     let $some = $crate::__::Option::unwrap(opt);
                     $($then)*

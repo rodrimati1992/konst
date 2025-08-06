@@ -34,71 +34,31 @@ error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:22:5
    |
 22 |     konst::iter::eval!(R, filter_map(|_| 10u8,), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |     |
-   |     expected `&Option<_>`, found `&u8`
-   |     arguments to this function are incorrect
-   |
-   = note: expected reference `&Option<_>`
-              found reference `&u8`
-note: method defined here
-  --> $RUST/core/src/option.rs
-   = note: this error originates in the macro `$crate::if_let_Some` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:22:5
-   |
-22 |     konst::iter::eval!(R, filter_map(|_| 10u8,), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |     |
-   |     expected `Option<_>`, found `u8`
-   |     arguments to this function are incorrect
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Option<_>`, found `u8`
    |
    = note: expected enum `Option<_>`
               found type `u8`
-note: method defined here
-  --> $RUST/core/src/option.rs
-   = note: this error originates in the macro `$crate::if_let_Some` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::__eval_closure` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 help: call `Into::into` on this expression to convert `u8` into `Option<_>`
   --> src/iter/iter_eval_macro.rs
    |
-   |                         }.into()
-   |                          +++++++
+   |                                 ($crate::__eval_closure.into()) (item,) (filter_map),
+   |                                                        +++++++
 
 error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:26:5
    |
 26 |     konst::iter::eval!(R, find_map(|_| 10u8,));
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |     |
-   |     expected `&Option<_>`, found `&u8`
-   |     arguments to this function are incorrect
-   |
-   = note: expected reference `&Option<_>`
-              found reference `&u8`
-note: method defined here
-  --> $RUST/core/src/option.rs
-   = note: this error originates in the macro `$crate::if_let_Some` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:26:5
-   |
-26 |     konst::iter::eval!(R, find_map(|_| 10u8,));
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |     |
-   |     expected `Option<_>`, found `u8`
-   |     arguments to this function are incorrect
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Option<_>`, found `u8`
    |
    = note: expected enum `Option<_>`
               found type `u8`
-note: method defined here
-  --> $RUST/core/src/option.rs
-   = note: this error originates in the macro `$crate::if_let_Some` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::__eval_closure` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 help: call `Into::into` on this expression to convert `u8` into `Option<_>`
   --> src/iter/iter_eval_macro.rs
    |
-   |                 }.into()
-   |                  +++++++
+   |                         ($crate::__eval_closure.into()) (item,) (find_map),
+   |                                                +++++++
 
 error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:32:39

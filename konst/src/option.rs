@@ -39,7 +39,7 @@ pub use crate::__opt_unwrap_or as unwrap_or;
 #[macro_export]
 macro_rules! __opt_unwrap_or {
     ($e:expr, $v:expr $(,)?) => {
-        match ($e, $v) {
+        match $crate::option::__opt_and_val($e, $v) {
             ($crate::__::Some(x), _) => x,
             ($crate::__::None, value) => value,
         }
@@ -78,16 +78,17 @@ pub use crate::__opt_unwrap_or_else as unwrap_or_else;
 #[macro_export]
 macro_rules! __opt_unwrap_or_else {
     ($e:expr, || $v:expr $(,)?) => {
-        match $e {
+        match $crate::option::__opt($e) {
             opt => {
                 // using Option::unwrap to work around the inability to
                 // destructure Option<T: Drop> by value in const
-                if let $crate::__::Some(_) = opt {
+                let ret = if let $crate::__::Some(_) = opt {
                     $crate::__::Option::unwrap(opt)
                 } else {
-                    $crate::__::forget(opt);
-                    $v
-                }
+                    $crate::option::__unwrap_or_else_helper(opt, $v)
+                };
+
+                ret
             }
         }
     };
@@ -121,7 +122,7 @@ pub use crate::__opt_ok_or as ok_or;
 #[macro_export]
 macro_rules! __opt_ok_or {
     ($e:expr, $v:expr $(,)?) => {
-        match ($e, $v) {
+        match ($crate::option::__opt($e), $v) {
             ($crate::__::Some(x), _) => $crate::__::Ok(x),
             ($crate::__::None, value) => $crate::__::Err(value),
         }
@@ -159,7 +160,7 @@ pub use crate::__opt_ok_or_else as ok_or_else;
 #[macro_export]
 macro_rules! __opt_ok_or_else {
     ($e:expr, || $v:expr $(,)?) => {
-        match $e {
+        match $crate::option::__opt($e) {
             opt => {
                 // using Option::unwrap to work around the inability to
                 // destructure Option<T: Drop> by value in const
@@ -212,7 +213,7 @@ pub use crate::__opt_map as map;
 #[macro_export]
 macro_rules! __opt_map {
     ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
-        match $opt {
+        match $crate::option::__opt($opt) {
             opt => {
                 // using Option::unwrap to work around the inability to
                 // destructure Option<T: Drop> by value in const
@@ -227,6 +228,9 @@ macro_rules! __opt_map {
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
+        $crate::__::compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($opt:expr, || $($anything:tt)* ) => {
         $crate::__::compile_error!("expected the closure to take a pattern as an argument")
     };
     ($opt:expr, $function:path $(,)?) => {
@@ -272,13 +276,14 @@ pub use crate::__opt_and_then as and_then;
 #[macro_export]
 macro_rules! __opt_and_then {
     ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
-        match $opt {
+        match $crate::option::__opt($opt) {
             opt => {
                 // using Option::unwrap to work around the inability to
                 // destructure Option<T: Drop> by value in const
                 if let $crate::__::Some(_) = opt {
                     let $param = $crate::__::Option::unwrap(opt);
-                    $mapper
+                    let ret: $crate::__::Option<_> = $mapper;
+                    ret
                 } else {
                     $crate::__::forget(opt);
                     $crate::__::None
@@ -287,6 +292,9 @@ macro_rules! __opt_and_then {
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
+        $crate::__::compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($opt:expr, || $($anything:tt)* ) => {
         $crate::__::compile_error!("expected the closure to take a pattern as an argument")
     };
     ($opt:expr, $function:path $(,)?) => {
@@ -326,11 +334,11 @@ pub use crate::__opt_or_else as or_else;
 #[macro_export]
 macro_rules! __opt_or_else {
     ($opt:expr, || $mapper:expr $(,)? ) => {
-        match $opt {
+        match $crate::option::__opt($opt) {
             opt @ $crate::__::Some(_) => opt,
-            opt @ $crate::__::None => {
-                $crate::__::forget(opt);
-                $mapper
+            mut opt @ $crate::__::None => {
+                $crate::__utils::__overwrite(&mut opt, $mapper);
+                opt
             }
         }
     };
@@ -376,14 +384,14 @@ pub use crate::__opt_filter as filter;
 #[macro_export]
 macro_rules! __opt_filter {
     ($e:expr, |$param:pat_param| $v:expr $(,)?) => {
-        match $e {
-            $crate::__::Some(x)
+        match $crate::option::__opt($e) {
+            opt @ $crate::__::Some(x)
                 if {
                     let $param = &x;
                     $v
                 } =>
             {
-                $crate::__::Some(x)
+                opt
             }
             _ => $crate::__::None,
         }
@@ -391,8 +399,11 @@ macro_rules! __opt_filter {
     ($opt:expr, | $($anything:tt)* ) => {
         $crate::__::compile_error!("expected the closure to take a pattern as an argument")
     };
+    ($opt:expr, || $($anything:tt)* ) => {
+        $crate::__::compile_error!("expected the closure to take a pattern as an argument")
+    };
     ($e:expr, $function:path $(,)?) => {
-        match $e {
+        match $crate::option::__opt($e) {
             $crate::__::Some(x) if $function(&x) => $crate::__::Some(x),
             _ => $crate::__::None,
         }
@@ -431,18 +442,13 @@ pub use crate::__get_or_insert as get_or_insert;
 #[macro_export]
 macro_rules! __get_or_insert {
     ($opt:expr, $inserted:expr $(,)?) => {
-        match $opt {
-            opt => {
-                let opt: &mut $crate::__::Option<_> = opt;
+        match $crate::option::__optmut_val($opt, $inserted) {
+            ($crate::__::Some(val), _inserted) => val,
+            (opt @ None, inserted) => {
+                $crate::option::__overwrite_some(opt, inserted);
 
-                match (opt, $inserted) {
-                    ($crate::__::Some(val), _inserted) => val,
-                    (opt @ None, inserted) => {
-                        $crate::__utils::__overwrite(opt, $crate::__::Some(inserted));
-
-                        $crate::option::__unwrap_mut(opt)
-                    }
-                }
+                let ret = $crate::option::__unwrap_mut(opt);
+                ret
             }
         }
     };
@@ -496,18 +502,13 @@ pub use crate::__get_or_insert_with as get_or_insert_with;
 #[macro_export]
 macro_rules! __get_or_insert_with {
     ($opt:expr, || $default:expr $(,)?) => {
-        match $opt {
-            opt => {
-                let opt: &mut $crate::__::Option<_> = opt;
+        match $crate::__optmut!($opt).reff {
+            $crate::__::Some(val) => val,
+            opt @ None => {
+                $crate::option::__overwrite_some(opt, $default);
 
-                match opt {
-                    $crate::__::Some(val) => val,
-                    opt @ None => {
-                        $crate::__utils::__overwrite(opt, $crate::__::Some($default));
-
-                        $crate::option::__unwrap_mut(opt)
-                    }
-                }
+                let ret = $crate::option::__unwrap_mut(opt);
+                ret
             }
         }
     };
@@ -544,19 +545,17 @@ macro_rules! __get_or_insert_with {
 /// ```
 ///
 #[doc(inline)]
-pub use crate::__insert as insert;
+pub use crate::__option_insert as insert;
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __insert {
+macro_rules! __option_insert {
     ($opt:expr, $inserted:expr $(,)?) => {
-        match $opt {
-            opt => {
-                let opt: &mut $crate::__::Option<_> = opt;
-
-                *opt = $crate::__::Some($inserted);
-
-                $crate::option::__unwrap_mut(opt)
+        match $crate::option::__optmut_val($opt, $inserted) {
+            (opt, val) => {
+                *opt = $crate::__::Some(val);
+                let ret = $crate::option::__unwrap_mut(opt);
+                ret
             }
         }
     };
@@ -580,14 +579,14 @@ macro_rules! __insert {
 /// ```
 ///
 #[doc(inline)]
-pub use crate::__zip as zip;
+pub use crate::__option_zip as zip;
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __zip {
+macro_rules! __option_zip {
     ($left:expr, $right:expr) => {
         // ensuring that both arguments are always evaluated
-        match ($left, $right) {
+        match $crate::option::__opt_pair($left, $right) {
             (left, right) => {
                 $crate::if_let_Some! {l = left => {
                     $crate::if_let_Some!{r = right => {
@@ -656,27 +655,24 @@ pub const fn unzip<T, U>(opt: Option<(T, U)>) -> (Option<T>, Option<U>) {
 /// ```
 ///
 #[doc(inline)]
-pub use crate::__is_some_and as is_some_and;
+pub use crate::__option_is_some_and as is_some_and;
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __is_some_and {
+macro_rules! __option_is_some_and {
     ($opt:expr, |$param:pat_param| $pred:expr $(,)?) => {
-        match &$opt {
-            opt => {
-                let opt: &$crate::__::Option<_> = opt;
-
-                match opt {
-                    $crate::__::Some(reff) => {
-                        let $param = reff;
-                        $pred
-                    }
-                    $crate::__::None => false,
-                }
+        match $crate::__optref!(&$opt).reff {
+            $crate::__::Some(reff) => {
+                let $param = reff;
+                $pred
             }
+            $crate::__::None => false,
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
+        $crate::__::compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($opt:expr, || $($anything:tt)* ) => {
         $crate::__::compile_error!("expected the closure to take a pattern as an argument")
     };
     ($opt:expr, $pred:expr $(,)?) => {
@@ -712,27 +708,24 @@ macro_rules! __is_some_and {
 /// ```
 ///
 #[doc(inline)]
-pub use crate::__is_none_or as is_none_or;
+pub use crate::__option_is_none_or as is_none_or;
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! __is_none_or {
+macro_rules! __option_is_none_or {
     ($opt:expr, |$param:pat_param| $pred:expr $(,)?) => {
-        match &$opt {
-            opt => {
-                let opt: &$crate::__::Option<_> = opt;
-
-                match opt {
-                    $crate::__::Some(reff) => {
-                        let $param = reff;
-                        $pred
-                    }
-                    $crate::__::None => true,
-                }
+        match $crate::__optref!(&$opt).reff {
+            $crate::__::Some(reff) => {
+                let $param = reff;
+                $pred
             }
+            $crate::__::None => true,
         }
     };
     ($opt:expr, | $($anything:tt)* ) => {
+        $crate::__::compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($opt:expr, || $($anything:tt)* ) => {
         $crate::__::compile_error!("expected the closure to take a pattern as an argument")
     };
     ($opt:expr, $pred:expr $(,)?) => {
@@ -742,6 +735,63 @@ macro_rules! __is_none_or {
 
 ///////////////////////////////////////////////
 
+#[doc(hidden)]
+pub struct __OptRef<'a, T> {
+    pub reff: &'a Option<T>,
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __optref {
+    ($($reff:tt)*) => {
+        $crate::option::__OptRef { reff: $($reff)* }
+    }
+}
+
+#[doc(hidden)]
+pub struct __OptMut<'a, T> {
+    pub reff: &'a mut Option<T>,
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __optmut {
+    ($($reff:tt)*) => {
+        $crate::option::__OptMut { reff: $($reff)* }
+    }
+}
+
+#[inline(always)]
+#[doc(hidden)]
+pub const fn __opt<T>(opt: Option<T>) -> Option<T> {
+    opt
+}
+
+#[inline(always)]
+#[doc(hidden)]
+pub const fn __opt_pair<T, U>(l: Option<T>, r: Option<U>) -> (Option<T>, Option<U>) {
+    (l, r)
+}
+
+#[inline(always)]
+#[doc(hidden)]
+pub const fn __opt_and_val<T>(opt: Option<T>, val: T) -> (Option<T>, T) {
+    (opt, val)
+}
+
+#[inline(always)]
+#[doc(hidden)]
+pub const fn __optmut_val<T>(opt: &mut Option<T>, val: T) -> (&mut Option<T>, T) {
+    (opt, val)
+}
+
+#[inline(always)]
+#[doc(hidden)]
+pub const fn __unwrap_or_else_helper<T>(opt: Option<T>, val: T) -> T {
+    core::mem::forget(opt);
+    val
+}
+
 #[inline(always)]
 #[doc(hidden)]
 #[track_caller]
@@ -750,6 +800,13 @@ pub const fn __unwrap_mut<T>(opt: &mut Option<T>) -> &mut T {
         Some(x) => x,
         None => __panic_on_none(),
     }
+}
+
+#[inline(always)]
+#[doc(hidden)]
+#[track_caller]
+pub const fn __overwrite_some<T>(opt: &mut Option<T>, val: T) {
+    crate::__utils::__overwrite(opt, Some(val))
 }
 
 #[cold]
