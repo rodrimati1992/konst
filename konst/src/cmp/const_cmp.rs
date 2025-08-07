@@ -324,3 +324,18 @@ impl<T, R, const N: usize> IsAConstCmp<IsStdKind, [T; N], R> {
         CmpWrapper(reference)
     }
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+#[doc(hidden)]
+pub struct __AssertConstCmp<'a, T: ConstCmp> {
+    pub reff: &'a T,
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __assert_const_cmp {
+    ($reff:expr) => {
+        $crate::cmp::__AssertConstCmp { reff: $reff }
+    };
+}

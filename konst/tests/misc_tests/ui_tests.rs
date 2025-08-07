@@ -17,6 +17,8 @@ fn ui() {
     for dir in [
         "array_macros2_ui_tests",
         "destructure_ui_tests",
+        #[cfg(feature = "cmp")]
+        "cmp_macros_ui_tests",
         "collect_const_ui_tests",
         "iter_eval_ui_tests",
         "iter_mod_ui_tests",

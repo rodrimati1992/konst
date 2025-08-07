@@ -1,7 +1,15 @@
 /// Compares two values for equality.
 ///
-/// The arguments must implement the [`ConstCmp`] trait.
-/// Non-standard library types must define a `const_eq` method taking a reference.
+/// The arguments must implement the [`ConstCmp`] trait,
+/// non-std types must have this method:
+/// ```rust
+/// # struct Foo;
+/// # struct T;
+/// # impl Foo {
+/// const fn const_eq(&self, _: &T) -> bool
+/// # { false }
+/// # }
+/// ```
 ///
 /// # Limitations
 ///
@@ -62,10 +70,14 @@ pub use crate::__const_eq as const_eq;
 #[macro_export]
 macro_rules! __const_eq {
     ($left:expr, $right:expr $(,)*) => {
-        match (&$left, &$right) {
+        match (
+            $crate::__assert_const_cmp!(&$left).reff,
+            $crate::__assert_const_cmp!(&$right).reff,
+        ) {
             (left, right) => {
                 let (left, right) = $crate::__coerce_to_cmp2!(left, right);
-                left.const_eq(right)
+                let ret: $crate::__::bool = left.const_eq(right);
+                ret
             }
         }
     };
@@ -116,15 +128,17 @@ macro_rules! __const_eq {
 /// [example](#compare_slices_fieldless_enums)
 ///
 /// - `, |left_item, right_item| <expression>`:
-/// Compares the items  with `<expression>`, which must evaluate to a `bool`.
+/// Compares the items by using `<expression>`, which must evaluate to a `bool`.
 /// [example](#compare_options)
 ///
 /// - `, path::to::function`:
-/// Compares the items using the passed function, which must evaluate to a `bool`.
+/// Compares the items by using the passed function,
+/// which must have this signature: `const fn(&Item, &Item) -> bool`.
 /// [example](#compare_ranges_incluside)
 ///
-/// An *item* is whatever element the passed-in types contain.
-/// e.g.: `T` is the item type for `&[T]`, `Option<T>`, and `Range<T>`.
+/// An *item* is whatever element the passed-in types contain
+/// (`T` is the item type for `&[T]`, `Option<T>`, and `Range<T>`),
+/// it's always passed by reference.
 ///
 /// # Examples
 ///
@@ -426,4 +440,102 @@ macro_rules! __priv_const_eq_for {
     ($left:expr, $right:expr, $func:path $(,)*) => {
         $func(&$left, &$right)
     };
+}
+
+/// Compares two values for inequality.
+///
+/// The arguments must implement the [`ConstCmp`] trait,
+/// non-std types must have this method:
+/// ```rust
+/// # struct Foo;
+/// # struct T;
+/// # impl Foo {
+/// const fn const_eq(&self, _: &T) -> bool
+/// # { false }
+/// # }
+/// ```
+///
+/// # Limitations
+///
+/// The arguments must be concrete types, and have a fully inferred type.
+/// eg: if you pass an integer literal it must have a suffix to indicate its type.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::cmp::const_ne;
+///
+/// const _: () = {
+///     assert!( const_ne!(0u8..10, 20..30));
+///     assert!(!const_ne!(0u8..10, 0..10));
+/// };
+/// ```
+///
+/// [`ConstCmp`]: crate::cmp::ConstCmp
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
+pub use crate::__const_ne as const_ne;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __const_ne {
+    ($($args:tt)*) => {
+        !$crate::cmp::const_eq!($($args)*)
+    }
+}
+
+/// Compares two standard library types for inequality,
+/// that can't be compared with [`const_ne`].
+///
+/// This takes the same arguments as the [`const_eq_for`] macro,
+/// and has the same limitations as it does.
+///
+/// # Example
+///
+/// ```rust
+/// use konst::cmp::const_ne_for;
+///
+/// use std::ops::Range;
+///
+/// #[derive(Copy, Clone)]
+/// pub enum Day {
+///     Monday,
+///     Tuesday,
+///     Wednesday,
+///     Thursday,
+///     Friday,
+///     Saturday,
+///     Sunday,
+/// }
+///
+/// use Day::*;
+///
+/// konst::cmp::impl_cmp! {
+///     impl Day;
+///     
+///     pub const fn const_eq(&self, other: &Self) -> bool {
+///         *self as u8 == *other as u8
+///     }
+/// }
+///
+/// const FOO: Range<Day> = Monday..Wednesday;
+/// const BAR: Range<Day> = Friday..Sunday;
+///
+/// const _: () = {
+///     assert!(!const_ne_for!(range; FOO, FOO));
+///     assert!( const_ne_for!(range; FOO, BAR));
+///     assert!(!const_ne_for!(range; BAR, BAR));
+/// };
+///
+/// ```
+///
+/// [`ConstCmp`]: crate::cmp::ConstCmp
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
+pub use crate::__const_ne_for as const_ne_for;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __const_ne_for {
+    ($($args:tt)*) => {
+        !$crate::cmp::const_eq_for!($($args)*)
+    }
 }

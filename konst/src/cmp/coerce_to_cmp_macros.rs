@@ -55,7 +55,7 @@ pub use crate::__coerce_to_cmp as coerce_to_cmp;
 #[macro_export]
 macro_rules! __coerce_to_cmp {
     ($reference:expr $(,)*) => {{
-        match $reference {
+        match $crate::__assert_const_cmp!(&$reference).reff {
             ref reference => {
                 let marker = $crate::__::IsAConstCmp::NEW;
                 if false {

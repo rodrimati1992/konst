@@ -1,7 +1,15 @@
 /// Compares two values for ordering.
 ///
-/// The arguments must implement the [`ConstCmp`] trait.
-/// Non-standard library types must define a `const_cmp` method taking a reference.
+/// The arguments must implement the [`ConstCmp`] trait,
+/// non-std types must have this method:
+/// ```rust
+/// # struct Foo;
+/// # struct T;
+/// # impl Foo {
+/// const fn const_cmp(&self, _: &T) -> std::cmp::Ordering
+/// # { std::cmp::Ordering::Equal }
+/// # }
+/// ```
 ///
 /// # Limitations
 ///
@@ -62,10 +70,14 @@ pub use crate::__const_cmp as const_cmp;
 #[macro_export]
 macro_rules! __const_cmp {
     ($left:expr, $right:expr $(,)*) => {
-        match (&$left, &$right) {
+        match (
+            $crate::__assert_const_cmp!(&$left).reff,
+            $crate::__assert_const_cmp!(&$right).reff,
+        ) {
             (left, right) => {
                 let (left, right) = $crate::__coerce_to_cmp2!(left, right);
-                left.const_cmp(right)
+                let ret: $crate::__::Ordering = left.const_cmp(right);
+                ret
             }
         }
     };
@@ -74,14 +86,55 @@ macro_rules! __const_cmp {
 /// Compares two standard library types for ordering,
 /// that can't be compared with [`const_cmp`].
 ///
-/// This macro takes the same
-/// [types](crate::cmp::const_eq_for#types-section) (except for range types),
-/// has the same  [limitations](crate::cmp::const_eq_for#limitations-section),
-/// and takes [arguments of the same form](crate::cmp::const_eq_for#arguments-section)
-/// as the [`const_eq_for`] macro
+/// <span id = "types-section"></span>
+/// # Types
+///
+/// This macro supports multiple types with different prefixes:
+///
+/// - `slice`: for comparing `&[T]`. [example](#compare_slices)
+///
+/// - `option`: for comparing `Option<T>`. [example](#compare_options)
+///
+/// <span id = "limitations-section"></span>
+/// # Limitations
+///
+/// The arguments must be concrete types, and have a fully inferred type.
+/// eg: if you pass an integer literal it must have a suffix to indicate its type.
+///
+/// <span id = "arguments-section"></span>
+/// # Arguments
+///
+/// The arguments take this form
+///
+/// ```text
+/// const_cmp_for!(type; left_value, right_value <comparator> )
+/// ```
+///
+/// ### Comparator argument
+///
+/// The `<comparator>` argument can be any of:
+///
+/// - ` `(passing nothing): Compares the item using the [`const_cmp`] macro.
+///
+/// - `, |item| <expression>`:
+/// Converts the item with `<expression>` to a type that can be compared using the
+/// [`const_cmp`] macro.
+///
+/// - `, |left_item, right_item| <expression>`:
+/// Compares the items by using `<expression>`,
+/// which must evaluate to an [`cmp::Ordering`].
+///
+/// - `, path::to::function`:
+/// Compares the items by using the passed function,
+/// which must have this signature: `const fn(&Item, &Item) -> std::cmp::Ordering`.
+///
+/// An *item* is whatever element the passed-in types contain
+/// (`T` is the item type for `&[T]`, `Option<T>`, and `Range<T>`),
+/// it's always passed by reference.
 ///
 /// # Examples
 ///
+/// <span id = "compare_slices"></span>
 /// ### Slices
 ///
 /// ```rust
@@ -108,6 +161,7 @@ macro_rules! __const_cmp {
 /// ```
 ///
 ///
+/// <span id = "compare_options"></span>
 /// ### Options
 ///
 /// ```rust
@@ -148,7 +202,6 @@ macro_rules! __const_cmp {
 ///
 /// [`ConstCmp`]: crate::cmp::ConstCmp
 /// [`const_cmp`]: crate::cmp::const_cmp
-/// [`const_eq_for`]: crate::cmp::const_eq_for
 /// [`cmp::Ordering`]: core::cmp::Ordering
 ///
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
@@ -163,8 +216,10 @@ macro_rules! __const_cmp_for {
         $right_slice:expr
         $(, $($comparison:tt)* )?
     ) => {
-        match ($left_slice, $right_slice) {(mut left_slice, mut right_slice) => {
-            use $crate::__::Ordering as CmpOrdering;
+        match (&$left_slice, &$right_slice) {(left_slice, right_slice) => {
+            let mut left_slice: &[_] = left_slice;
+            let mut right_slice: &[_] = right_slice;
+
             if left_slice.len() == right_slice.len() {
                 loop{
                     if let ([l, l_rem@..], [r, r_rem@..]) = (left_slice, right_slice) {
@@ -176,17 +231,17 @@ macro_rules! __const_cmp_for {
                             *r,
                             $($($comparison)*)?
                         };
-                        if !$crate::__::matches!(ord, $crate::__::Ordering::Equal) {
+                        if !$crate::__::matches!(ord, $crate::__::Equal) {
                             break ord;
                         }
                     } else {
-                        break $crate::__::Ordering::Equal
+                        break $crate::__::Equal
                     }
                 }
             } else if left_slice.len() < right_slice.len() {
-                CmpOrdering::Less
+                $crate::__::Less
             } else {
-                CmpOrdering::Greater
+                $crate::__::Greater
             }
         }}
     };
@@ -196,7 +251,7 @@ macro_rules! __const_cmp_for {
         $right_opt:expr
         $(, $($comparison:tt)* )?
     ) => {
-        match (&$left_opt, &$right_opt) {
+        match ($crate::__optref!(&$left_opt).reff, $crate::__optref!(&$right_opt).reff) {
             (Some(l), Some(r)) =>
                 $crate::__priv_const_cmp_for!(*l, *r, $( $($comparison)* )?),
             (Some(_), None) => $crate::__::Greater,
