@@ -22,6 +22,11 @@ const _: () = cmp::const_eq!(0u8, 0u8);
 const _: () = { cmp::const_eq!(BadCmp, BadCmp); };
 const _: () = cmp::const_eq!(BadCmp, BadCmp);
 
+const _: bool = cmp::const_ne!(0u8, ());
+const _: () = cmp::const_ne!(0u8, 0u8);
+const _: () = { cmp::const_ne!(BadCmp, BadCmp); };
+const _: () = cmp::const_ne!(BadCmp, BadCmp);
+
 const _: Ordering = cmp::const_cmp!(0u8, ());
 const _: () = cmp::const_cmp!(0u8, 0u8);
 const _: () = { cmp::const_cmp!(BadCmp, BadCmp); };

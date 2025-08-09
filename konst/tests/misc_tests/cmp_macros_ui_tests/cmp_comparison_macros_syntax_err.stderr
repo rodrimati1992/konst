@@ -1,0 +1,252 @@
+error: unexpected end of macro invocation
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:6:17
+  |
+6 | const _: bool = cmp::const_eq!();
+  |                 ^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+  |
+note: while trying to match meta-variable `$left:expr`
+ --> src/cmp/const_eq_macros.rs
+  |
+  |     ($left:expr, $right:expr $(,)*) => {
+  |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:7:35
+  |
+7 | const _: bool = cmp::const_eq!(0u8);
+  |                                   ^ missing tokens in macro arguments
+  |
+note: while trying to match `,`
+ --> src/cmp/const_eq_macros.rs
+  |
+  |     ($left:expr, $right:expr $(,)*) => {
+  |                ^
+
+error: unexpected end of macro invocation
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:8:36
+  |
+8 | const _: bool = cmp::const_eq!(0u8,);
+  |                                    ^ missing tokens in macro arguments
+  |
+note: while trying to match meta-variable `$right:expr`
+ --> src/cmp/const_eq_macros.rs
+  |
+  |     ($left:expr, $right:expr $(,)*) => {
+  |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:10:17
+   |
+10 | const _: bool = cmp::const_ne!();
+   |                 ^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |      ^^^^^^^^^^
+   = note: this error originates in the macro `cmp::const_ne` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:11:35
+   |
+11 | const _: bool = cmp::const_ne!(0u8);
+   |                                   ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |                ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:12:36
+   |
+12 | const _: bool = cmp::const_ne!(0u8,);
+   |                                    ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:14:21
+   |
+14 | const _: Ordering = cmp::const_cmp!();
+   |                     ^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:15:40
+   |
+15 | const _: Ordering = cmp::const_cmp!(0u8);
+   |                                        ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |                ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:16:41
+   |
+16 | const _: Ordering = cmp::const_cmp!(0u8, );
+   |                                         ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:18:17
+   |
+18 | const _: bool = cmp::const_lt!();
+   |                 ^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/cmp/const_ltgt_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:19:35
+   |
+19 | const _: bool = cmp::const_lt!(0u8);
+   |                                   ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ltgt_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |                ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:20:36
+   |
+20 | const _: bool = cmp::const_lt!(0u8,);
+   |                                    ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/cmp/const_ltgt_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:22:17
+   |
+22 | const _: bool = cmp::const_le!();
+   |                 ^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/cmp/const_ltgt_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:23:35
+   |
+23 | const _: bool = cmp::const_le!(0u8);
+   |                                   ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ltgt_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |                ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:24:36
+   |
+24 | const _: bool = cmp::const_le!(0u8,);
+   |                                    ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/cmp/const_ltgt_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:26:17
+   |
+26 | const _: bool = cmp::const_gt!();
+   |                 ^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/cmp/const_ltgt_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:27:35
+   |
+27 | const _: bool = cmp::const_gt!(0u8);
+   |                                   ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ltgt_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |                ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:28:36
+   |
+28 | const _: bool = cmp::const_gt!(0u8,);
+   |                                    ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/cmp/const_ltgt_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:30:17
+   |
+30 | const _: bool = cmp::const_ge!();
+   |                 ^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/cmp/const_ltgt_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:31:35
+   |
+31 | const _: bool = cmp::const_ge!(0u8);
+   |                                   ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ltgt_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |                ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_syntax_err.rs:32:36
+   |
+32 | const _: bool = cmp::const_ge!(0u8,);
+   |                                    ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/cmp/const_ltgt_macros.rs
+   |
+   |     ($left:expr, $right:expr $(,)*) => {
+   |                  ^^^^^^^^^^^

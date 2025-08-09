@@ -17,7 +17,7 @@ error[E0277]: the trait bound `(): ConstCmp` is not satisfied
 note: required by a bound in `__AssertConstCmp`
   --> src/cmp/const_cmp.rs
    |
-   | pub struct __AssertConstCmp<'a, T: ConstCmp>{
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
    |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
    = note: this error originates in the macro `cmp::const_eq` (in Nightly builds, run with -Z macro-backtrace for more info)
 
@@ -111,9 +111,121 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `cmp::const_eq` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `(): ConstCmp` is not satisfied
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:25:21
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:25:17
    |
-25 | const _: Ordering = cmp::const_cmp!(0u8, ());
+25 | const _: bool = cmp::const_ne!(0u8, ());
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_eq` which comes from the expansion of the macro `cmp::const_ne` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `(): ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:25:17
+   |
+25 | const _: bool = cmp::const_ne!(0u8, ());
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+   = note: required for `()` to implement `ConstCmpUnref`
+note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmpUnref<This = T>,
+   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::const_ne` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:25:17
+   |
+25 | const _: bool = cmp::const_ne!(0u8, ());
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `&u8`, found `&()`
+   |                 arguments to this method are incorrect
+   |
+   = note: expected reference `&u8`
+              found reference `&()`
+note: method defined here
+  --> src/cmp/cmp_wrapper.rs
+   |
+   | / std_kind_impls! {
+   | |     i8, u8,
+   | |     i16, u16,
+   | |     i32, u32,
+...  |
+   | |     bool, char,
+   | | }
+   | |_^
+   = note: this error originates in the macro `$crate::cmp::const_eq` which comes from the expansion of the macro `std_kind_impls` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:26:15
+   |
+26 | const _: () = cmp::const_ne!(0u8, 0u8);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
+   |
+   = note: this error originates in the macro `$crate::cmp::const_eq` which comes from the expansion of the macro `cmp::const_ne` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:27:17
+   |
+27 | const _: () = { cmp::const_ne!(BadCmp, BadCmp); };
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `bool`, found `u8`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::cmp::const_eq` which comes from the expansion of the macro `cmp::const_ne` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:28:15
+   |
+28 | const _: () = cmp::const_ne!(BadCmp, BadCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |               |
+   |               expected `bool`, found `u8`
+   |               expected due to this
+   |
+   = note: this error originates in the macro `$crate::cmp::const_eq` which comes from the expansion of the macro `cmp::const_ne` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:28:15
+   |
+28 | const _: () = cmp::const_ne!(BadCmp, BadCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
+   |
+   = note: this error originates in the macro `$crate::cmp::const_eq` which comes from the expansion of the macro `cmp::const_ne` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `(): ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:30:21
+   |
+30 | const _: Ordering = cmp::const_cmp!(0u8, ());
    |                     ^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
    |
    = help: the following other types implement trait `ConstCmp`:
@@ -129,14 +241,14 @@ error[E0277]: the trait bound `(): ConstCmp` is not satisfied
 note: required by a bound in `__AssertConstCmp`
   --> src/cmp/const_cmp.rs
    |
-   | pub struct __AssertConstCmp<'a, T: ConstCmp>{
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
    |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
    = note: this error originates in the macro `cmp::const_cmp` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `(): ConstCmp` is not satisfied
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:25:21
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:30:21
    |
-25 | const _: Ordering = cmp::const_cmp!(0u8, ());
+30 | const _: Ordering = cmp::const_cmp!(0u8, ());
    |                     ^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
    |
    = help: the following other types implement trait `ConstCmp`:
@@ -161,9 +273,9 @@ note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::const_cmp` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:25:21
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:30:21
    |
-25 | const _: Ordering = cmp::const_cmp!(0u8, ());
+30 | const _: Ordering = cmp::const_cmp!(0u8, ());
    |                     ^^^^^^^^^^^^^^^^^^^^^^^^
    |                     |
    |                     expected `&u8`, found `&()`
@@ -185,17 +297,17 @@ note: method defined here
    = note: this error originates in the macro `cmp::const_cmp` which comes from the expansion of the macro `__declare_fns_with_docs` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:26:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:31:15
    |
-26 | const _: () = cmp::const_cmp!(0u8, 0u8);
+31 | const _: () = cmp::const_cmp!(0u8, 0u8);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Ordering`
    |
    = note: this error originates in the macro `cmp::const_cmp` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:27:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:32:17
    |
-27 | const _: () = { cmp::const_cmp!(BadCmp, BadCmp); };
+32 | const _: () = { cmp::const_cmp!(BadCmp, BadCmp); };
    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |                 |
    |                 expected `Ordering`, found `u8`
@@ -204,9 +316,9 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `cmp::const_cmp` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:28:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:33:15
    |
-28 | const _: () = cmp::const_cmp!(BadCmp, BadCmp);
+33 | const _: () = cmp::const_cmp!(BadCmp, BadCmp);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |               |
    |               expected `Ordering`, found `u8`
@@ -215,17 +327,17 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `cmp::const_cmp` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:28:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:33:15
    |
-28 | const _: () = cmp::const_cmp!(BadCmp, BadCmp);
+33 | const _: () = cmp::const_cmp!(BadCmp, BadCmp);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Ordering`
    |
    = note: this error originates in the macro `cmp::const_cmp` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `(): ConstCmp` is not satisfied
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:30:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:35:17
    |
-30 | const _: bool = cmp::const_lt!(0u8, ());
+35 | const _: bool = cmp::const_lt!(0u8, ());
    |                 ^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
    |
    = help: the following other types implement trait `ConstCmp`:
@@ -241,14 +353,14 @@ error[E0277]: the trait bound `(): ConstCmp` is not satisfied
 note: required by a bound in `__AssertConstCmp`
   --> src/cmp/const_cmp.rs
    |
-   | pub struct __AssertConstCmp<'a, T: ConstCmp>{
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
    |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::const_lt` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `(): ConstCmp` is not satisfied
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:30:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:35:17
    |
-30 | const _: bool = cmp::const_lt!(0u8, ());
+35 | const _: bool = cmp::const_lt!(0u8, ());
    |                 ^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
    |
    = help: the following other types implement trait `ConstCmp`:
@@ -273,9 +385,9 @@ note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::const_lt` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:30:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:35:17
    |
-30 | const _: bool = cmp::const_lt!(0u8, ());
+35 | const _: bool = cmp::const_lt!(0u8, ());
    |                 ^^^^^^^^^^^^^^^^^^^^^^^
    |                 |
    |                 expected `&u8`, found `&()`
@@ -297,17 +409,17 @@ note: method defined here
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `__declare_fns_with_docs` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:31:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:36:15
    |
-31 | const _: () = cmp::const_lt!(0u8, 0u8);
+36 | const _: () = cmp::const_lt!(0u8, 0u8);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
    |
    = note: this error originates in the macro `$crate::__::matches` which comes from the expansion of the macro `cmp::const_lt` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:32:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:37:17
    |
-32 | const _: () = { cmp::const_lt!(BadCmp, BadCmp); };
+37 | const _: () = { cmp::const_lt!(BadCmp, BadCmp); };
    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |                 |
    |                 expected `Ordering`, found `u8`
@@ -316,9 +428,9 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::const_lt` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:33:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:38:15
    |
-33 | const _: () = cmp::const_lt!(BadCmp, BadCmp);
+38 | const _: () = cmp::const_lt!(BadCmp, BadCmp);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |               |
    |               expected `Ordering`, found `u8`
@@ -327,17 +439,17 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::const_lt` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:33:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:38:15
    |
-33 | const _: () = cmp::const_lt!(BadCmp, BadCmp);
+38 | const _: () = cmp::const_lt!(BadCmp, BadCmp);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
    |
    = note: this error originates in the macro `$crate::__::matches` which comes from the expansion of the macro `cmp::const_lt` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `(): ConstCmp` is not satisfied
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:35:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:40:17
    |
-35 | const _: bool = cmp::const_le!(0u8, ());
+40 | const _: bool = cmp::const_le!(0u8, ());
    |                 ^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
    |
    = help: the following other types implement trait `ConstCmp`:
@@ -353,14 +465,14 @@ error[E0277]: the trait bound `(): ConstCmp` is not satisfied
 note: required by a bound in `__AssertConstCmp`
   --> src/cmp/const_cmp.rs
    |
-   | pub struct __AssertConstCmp<'a, T: ConstCmp>{
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
    |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::const_le` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `(): ConstCmp` is not satisfied
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:35:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:40:17
    |
-35 | const _: bool = cmp::const_le!(0u8, ());
+40 | const _: bool = cmp::const_le!(0u8, ());
    |                 ^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
    |
    = help: the following other types implement trait `ConstCmp`:
@@ -385,9 +497,9 @@ note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::const_le` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:35:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:40:17
    |
-35 | const _: bool = cmp::const_le!(0u8, ());
+40 | const _: bool = cmp::const_le!(0u8, ());
    |                 ^^^^^^^^^^^^^^^^^^^^^^^
    |                 |
    |                 expected `&u8`, found `&()`
@@ -409,17 +521,17 @@ note: method defined here
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `__declare_fns_with_docs` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:36:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:41:15
    |
-36 | const _: () = cmp::const_le!(0u8, 0u8);
+41 | const _: () = cmp::const_le!(0u8, 0u8);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
    |
    = note: this error originates in the macro `$crate::__::matches` which comes from the expansion of the macro `cmp::const_le` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:37:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:42:17
    |
-37 | const _: () = { cmp::const_le!(BadCmp, BadCmp); };
+42 | const _: () = { cmp::const_le!(BadCmp, BadCmp); };
    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |                 |
    |                 expected `Ordering`, found `u8`
@@ -428,9 +540,9 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::const_le` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:38:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:43:15
    |
-38 | const _: () = cmp::const_le!(BadCmp, BadCmp);
+43 | const _: () = cmp::const_le!(BadCmp, BadCmp);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |               |
    |               expected `Ordering`, found `u8`
@@ -439,17 +551,17 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::const_le` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:38:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:43:15
    |
-38 | const _: () = cmp::const_le!(BadCmp, BadCmp);
+43 | const _: () = cmp::const_le!(BadCmp, BadCmp);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
    |
    = note: this error originates in the macro `$crate::__::matches` which comes from the expansion of the macro `cmp::const_le` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `(): ConstCmp` is not satisfied
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:40:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:45:17
    |
-40 | const _: bool = cmp::const_gt!(0u8, ());
+45 | const _: bool = cmp::const_gt!(0u8, ());
    |                 ^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
    |
    = help: the following other types implement trait `ConstCmp`:
@@ -465,14 +577,14 @@ error[E0277]: the trait bound `(): ConstCmp` is not satisfied
 note: required by a bound in `__AssertConstCmp`
   --> src/cmp/const_cmp.rs
    |
-   | pub struct __AssertConstCmp<'a, T: ConstCmp>{
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
    |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::const_gt` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `(): ConstCmp` is not satisfied
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:40:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:45:17
    |
-40 | const _: bool = cmp::const_gt!(0u8, ());
+45 | const _: bool = cmp::const_gt!(0u8, ());
    |                 ^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
    |
    = help: the following other types implement trait `ConstCmp`:
@@ -497,9 +609,9 @@ note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::const_gt` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:40:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:45:17
    |
-40 | const _: bool = cmp::const_gt!(0u8, ());
+45 | const _: bool = cmp::const_gt!(0u8, ());
    |                 ^^^^^^^^^^^^^^^^^^^^^^^
    |                 |
    |                 expected `&u8`, found `&()`
@@ -521,17 +633,17 @@ note: method defined here
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `__declare_fns_with_docs` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:41:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:46:15
    |
-41 | const _: () = cmp::const_gt!(0u8, 0u8);
+46 | const _: () = cmp::const_gt!(0u8, 0u8);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
    |
    = note: this error originates in the macro `$crate::__::matches` which comes from the expansion of the macro `cmp::const_gt` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:42:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:47:17
    |
-42 | const _: () = { cmp::const_gt!(BadCmp, BadCmp); };
+47 | const _: () = { cmp::const_gt!(BadCmp, BadCmp); };
    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |                 |
    |                 expected `Ordering`, found `u8`
@@ -540,9 +652,9 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::const_gt` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:43:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:48:15
    |
-43 | const _: () = cmp::const_gt!(BadCmp, BadCmp);
+48 | const _: () = cmp::const_gt!(BadCmp, BadCmp);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |               |
    |               expected `Ordering`, found `u8`
@@ -551,17 +663,17 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::const_gt` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:43:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:48:15
    |
-43 | const _: () = cmp::const_gt!(BadCmp, BadCmp);
+48 | const _: () = cmp::const_gt!(BadCmp, BadCmp);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
    |
    = note: this error originates in the macro `$crate::__::matches` which comes from the expansion of the macro `cmp::const_gt` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `(): ConstCmp` is not satisfied
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:45:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:50:17
    |
-45 | const _: bool = cmp::const_ge!(0u8, ());
+50 | const _: bool = cmp::const_ge!(0u8, ());
    |                 ^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
    |
    = help: the following other types implement trait `ConstCmp`:
@@ -577,14 +689,14 @@ error[E0277]: the trait bound `(): ConstCmp` is not satisfied
 note: required by a bound in `__AssertConstCmp`
   --> src/cmp/const_cmp.rs
    |
-   | pub struct __AssertConstCmp<'a, T: ConstCmp>{
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
    |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::const_ge` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `(): ConstCmp` is not satisfied
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:45:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:50:17
    |
-45 | const _: bool = cmp::const_ge!(0u8, ());
+50 | const _: bool = cmp::const_ge!(0u8, ());
    |                 ^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
    |
    = help: the following other types implement trait `ConstCmp`:
@@ -609,9 +721,9 @@ note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::const_ge` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:45:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:50:17
    |
-45 | const _: bool = cmp::const_ge!(0u8, ());
+50 | const _: bool = cmp::const_ge!(0u8, ());
    |                 ^^^^^^^^^^^^^^^^^^^^^^^
    |                 |
    |                 expected `&u8`, found `&()`
@@ -633,17 +745,17 @@ note: method defined here
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `__declare_fns_with_docs` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:46:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:51:15
    |
-46 | const _: () = cmp::const_ge!(0u8, 0u8);
+51 | const _: () = cmp::const_ge!(0u8, 0u8);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
    |
    = note: this error originates in the macro `$crate::__::matches` which comes from the expansion of the macro `cmp::const_ge` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:47:17
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:52:17
    |
-47 | const _: () = { cmp::const_ge!(BadCmp, BadCmp); };
+52 | const _: () = { cmp::const_ge!(BadCmp, BadCmp); };
    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |                 |
    |                 expected `Ordering`, found `u8`
@@ -652,9 +764,9 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::const_ge` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:48:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:53:15
    |
-48 | const _: () = cmp::const_ge!(BadCmp, BadCmp);
+53 | const _: () = cmp::const_ge!(BadCmp, BadCmp);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |               |
    |               expected `Ordering`, found `u8`
@@ -663,9 +775,9 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::const_ge` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:48:15
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_macros_type_err.rs:53:15
    |
-48 | const _: () = cmp::const_ge!(BadCmp, BadCmp);
+53 | const _: () = cmp::const_ge!(BadCmp, BadCmp);
    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
    |
    = note: this error originates in the macro `$crate::__::matches` which comes from the expansion of the macro `cmp::const_ge` (in Nightly builds, run with -Z macro-backtrace for more info)

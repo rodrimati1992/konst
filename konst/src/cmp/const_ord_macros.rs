@@ -210,9 +210,28 @@ pub use crate::__const_cmp_for as const_cmp_for;
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __const_cmp_for {
+    (slice $($rem_args:tt)* ) => {
+        $crate::__const_cmp_for_slice!{$($rem_args)*}
+    };
+    (option $($rem_args:tt)* ) => {
+        $crate::__const_cmp_for_option!{$($rem_args)*}
+    };
+    ($($type:tt $($rem_args:tt)*)?) => {
+        $crate::__::compile_error!{$crate::__::concat!(
+            "expected type argument, passed `",
+            $crate::__::stringify!($($type)?),
+            "`; valid type arguments:",
+            "\n- slice",
+            "\n- option",
+        )}
+    }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __const_cmp_for_slice {
     (
-        slice;
-        $left_slice:expr,
+        ;$left_slice:expr,
         $right_slice:expr
         $(, $($comparison:tt)* )?
     ) => {
@@ -245,9 +264,13 @@ macro_rules! __const_cmp_for {
             }
         }}
     };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __const_cmp_for_option {
     (
-        option;
-        $left_opt:expr,
+        ;$left_opt:expr,
         $right_opt:expr
         $(, $($comparison:tt)* )?
     ) => {

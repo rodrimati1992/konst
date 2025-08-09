@@ -331,14 +331,44 @@ pub use crate::__const_eq_for as const_eq_for;
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __const_eq_for {
+    (slice $($rem_args:tt)* ) => {
+        $crate::__const_eq_for_slice!{$($rem_args)*}
+    };
+    (option $($rem_args:tt)* ) => {
+        $crate::__const_eq_for_option!{$($rem_args)*}
+    };
+    (range $($rem_args:tt)* ) => {
+        $crate::__const_eq_for_range!{$($rem_args)*}
+    };
+    (range_inclusive $($rem_args:tt)* ) => {
+        $crate::__const_eq_for_range_inc!{$($rem_args)*}
+    };
+    ($($type:tt $($rem_args:tt)*)?) => {
+        $crate::__::compile_error!{$crate::__::concat!(
+            "expected type argument, passed `",
+            $crate::__::stringify!($($type)?),
+            "`; valid type arguments:",
+            "\n- slice",
+            "\n- option",
+            "\n- range",
+            "\n- range_inclusive",
+        )}
+    }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __const_eq_for_slice {
     (
-        slice;
-        $left_slice:expr,
+        ;$left_slice:expr,
         $right_slice:expr
         $(, $($comparison:tt)* )?
     ) => {
-        match ($left_slice, $right_slice) {
+        match (&$left_slice, &$right_slice) {
             (left_slice, right_slice) => {
+                let left_slice: &[_] = left_slice;
+                let right_slice: &[_] = right_slice;
+
                 let mut returned = left_slice.len() == right_slice.len();
                 if returned {
                     let mut i = 0;
@@ -359,9 +389,13 @@ macro_rules! __const_eq_for {
             }
         }
     };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __const_eq_for_option {
     (
-        option;
-        $left_opt:expr,
+        ;$left_opt:expr,
         $right_opt:expr
         $(, $($comparison:tt)* )?
     ) => {
@@ -372,9 +406,13 @@ macro_rules! __const_eq_for {
             _ => false,
         }
     };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __const_eq_for_range {
     (
-        range;
-        $left_range:expr,
+        ;$left_range:expr,
         $right_range:expr
         $(, $($comparison:tt)* )?
     ) => {
@@ -393,9 +431,13 @@ macro_rules! __const_eq_for {
             }
         }
     };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __const_eq_for_range_inc {
     (
-        range_inclusive;
-        $left_range:expr,
+        ;$left_range:expr,
         $right_range:expr
         $(, $($comparison:tt)* )?
     ) => {
