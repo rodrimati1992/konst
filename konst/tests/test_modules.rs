@@ -1,5 +1,7 @@
 #![deny(unused_mut)]
 
+extern crate self as tests;
+
 mod misc_tests {
     #[macro_use]
     mod test_macros;
@@ -8,6 +10,9 @@ mod misc_tests {
     mod test_utils;
 
     mod array_tests;
+
+    #[cfg(feature = "cmp")]
+    mod cmp_tests;
 
     #[cfg(feature = "iter")]
     mod iter_mod;
