@@ -162,7 +162,8 @@ macro_rules! __min_by_inner {
         match [$left, $right] {
             [left, right] => {
                 let $($closure_params)* = (&left, &right);
-                if let $crate::__::Greater = $ret_val {
+                let ret_val: $crate::__::Ordering = $ret_val;
+                if let $crate::__::Greater = ret_val {
                     right
                 } else {
                     left
@@ -182,7 +183,8 @@ macro_rules! __max_by_inner {
         match [$left, $right] {
             [left, right] => {
                 let $($closure_params)* = (&left, &right);
-                if let $crate::__::Greater = $ret_val {
+                let ret_val: $crate::__::Ordering = $ret_val;
+                if let $crate::__::Greater = ret_val {
                     left
                 } else {
                     right
@@ -288,12 +290,12 @@ macro_rules! __minmax_by_key {
     ) => {
         match [$left, $right] {
             [left, right] => {
-                let left_key = {
+                let left_key $(: $ret_ty)? = {
                     let $($elem)* = &left;
                     $v
                 };
 
-                let right_key = {
+                let right_key $(: $ret_ty)? = {
                     let $($elem)* = &right;
                     $v
                 };
