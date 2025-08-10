@@ -1,0 +1,650 @@
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:22:58
+   |
+22 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 -----------------------------------------^^^^--------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:22:58
+   |
+22 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 -----------------------------------------^^^^--------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:23:58
+   |
+23 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 -----------------------------------------^^^^--------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:23:58
+   |
+23 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 -----------------------------------------^^^^--------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:24:59
+   |
+24 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 ------------------------------------------^^^^--------
+   |                 |                                         |
+   |                 |                                         expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:24:59
+   |
+24 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 ------------------------------------------^^^^--------
+   |                 |                                         |
+   |                 |                                         expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:25:58
+   |
+25 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 -----------------------------------------^^^^--------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:25:58
+   |
+25 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 -----------------------------------------^^^^--------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:26:58
+   |
+26 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 -----------------------------------------^^^^--------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:26:58
+   |
+26 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 -----------------------------------------^^^^--------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:27:58
+   |
+27 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 -----------------------------------------^^^^--------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:27:58
+   |
+27 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 -----------------------------------------^^^^--------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:28:58
+   |
+28 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 -----------------------------------------^^^^--------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:28:58
+   |
+28 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |0u16..| 0u8);
+   |                 -----------------------------------------^^^^--------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:30:17
+   |
+30 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_eq_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:30:17
+   |
+30 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+   = note: required for `&NotCmp` to implement `ConstCmp`
+   = note: required for `&NotCmp` to implement `ConstCmpUnref`
+note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmpUnref<This = T>,
+   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_eq_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0034]: multiple applicable items in scope
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:30:17
+   |
+30 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+   |
+   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
+   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
+   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
+   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
+   = note: and 87 others
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_eq_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:31:17
+   |
+31 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_ne_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:31:17
+   |
+31 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+   = note: required for `&NotCmp` to implement `ConstCmp`
+   = note: required for `&NotCmp` to implement `ConstCmpUnref`
+note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmpUnref<This = T>,
+   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_ne_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0034]: multiple applicable items in scope
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:31:17
+   |
+31 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+   |
+   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
+   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
+   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
+   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
+   = note: and 87 others
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_ne_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:32:17
+   |
+32 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_cmp_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:32:17
+   |
+32 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+   = note: required for `&NotCmp` to implement `ConstCmp`
+   = note: required for `&NotCmp` to implement `ConstCmpUnref`
+note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmpUnref<This = T>,
+   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_cmp_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0034]: multiple applicable items in scope
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:32:17
+   |
+32 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+   |
+   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
+   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
+   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
+   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
+   = note: and 87 others
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_cmp_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:33:17
+   |
+33 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_lt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:33:17
+   |
+33 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+   = note: required for `&NotCmp` to implement `ConstCmp`
+   = note: required for `&NotCmp` to implement `ConstCmpUnref`
+note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmpUnref<This = T>,
+   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_lt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0034]: multiple applicable items in scope
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:33:17
+   |
+33 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+   |
+   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
+   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
+   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
+   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
+   = note: and 87 others
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_lt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:34:17
+   |
+34 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_le_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:34:17
+   |
+34 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+   = note: required for `&NotCmp` to implement `ConstCmp`
+   = note: required for `&NotCmp` to implement `ConstCmpUnref`
+note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmpUnref<This = T>,
+   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_le_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0034]: multiple applicable items in scope
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:34:17
+   |
+34 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+   |
+   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
+   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
+   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
+   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
+   = note: and 87 others
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_le_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:35:17
+   |
+35 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_gt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:35:17
+   |
+35 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+   = note: required for `&NotCmp` to implement `ConstCmp`
+   = note: required for `&NotCmp` to implement `ConstCmpUnref`
+note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmpUnref<This = T>,
+   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_gt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0034]: multiple applicable items in scope
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:35:17
+   |
+35 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+   |
+   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
+   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
+   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
+   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
+   = note: and 87 others
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_gt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:36:17
+   |
+36 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_ge_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:36:17
+   |
+36 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+   = note: required for `&NotCmp` to implement `ConstCmp`
+   = note: required for `&NotCmp` to implement `ConstCmpUnref`
+note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmpUnref<This = T>,
+   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_ge_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0034]: multiple applicable items in scope
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:36:17
+   |
+36 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |x| NotCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+   |
+   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
+   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
+   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
+   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
+   = note: and 87 others
+   = note: this error originates in the macro `$crate::cmp::coerce_to_cmp` which comes from the expansion of the macro `cmp::const_ge_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:38:17
+   |
+38 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |x| BadCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `bool`, found `u8`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_eq_for` which comes from the expansion of the macro `cmp::const_eq_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:39:17
+   |
+39 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |x| BadCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `bool`, found `u8`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_eq_for` which comes from the expansion of the macro `cmp::const_ne_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:40:17
+   |
+40 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |x| BadCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `Ordering`, found `u8`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_cmp_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:41:17
+   |
+41 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |x| BadCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `Ordering`, found `u8`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_lt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:42:17
+   |
+42 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |x| BadCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `Ordering`, found `u8`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_le_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:43:17
+   |
+43 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |x| BadCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `Ordering`, found `u8`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_gt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator1_type_err.rs:44:17
+   |
+44 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |x| BadCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `Ordering`, found `u8`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_ge_for` (in Nightly builds, run with -Z macro-backtrace for more info)

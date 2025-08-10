@@ -77,7 +77,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_eq_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: no rules expected `:`
@@ -89,7 +89,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_eq_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: no rules expected `:`
@@ -101,7 +101,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: no rules expected `:`
@@ -113,7 +113,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: no rules expected `:`
@@ -125,7 +125,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: no rules expected `:`
@@ -137,7 +137,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: no rules expected `:`
@@ -149,7 +149,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: unexpected end of macro invocation
@@ -161,7 +161,7 @@ error: unexpected end of macro invocation
 note: while trying to match meta-variable `$key_expr:expr`
   --> src/cmp/const_eq_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                              ^^^^^^^^^^^^^^
 
 error: unexpected end of macro invocation
@@ -173,7 +173,7 @@ error: unexpected end of macro invocation
 note: while trying to match meta-variable `$key_expr:expr`
   --> src/cmp/const_eq_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                              ^^^^^^^^^^^^^^
 
 error: unexpected end of macro invocation
@@ -185,7 +185,7 @@ error: unexpected end of macro invocation
 note: while trying to match meta-variable `$key_expr:expr`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                              ^^^^^^^^^^^^^^
 
 error: unexpected end of macro invocation
@@ -197,7 +197,7 @@ error: unexpected end of macro invocation
 note: while trying to match meta-variable `$key_expr:expr`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                              ^^^^^^^^^^^^^^
 
 error: unexpected end of macro invocation
@@ -209,7 +209,7 @@ error: unexpected end of macro invocation
 note: while trying to match meta-variable `$key_expr:expr`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                              ^^^^^^^^^^^^^^
 
 error: unexpected end of macro invocation
@@ -221,7 +221,7 @@ error: unexpected end of macro invocation
 note: while trying to match meta-variable `$key_expr:expr`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                              ^^^^^^^^^^^^^^
 
 error: unexpected end of macro invocation
@@ -233,7 +233,7 @@ error: unexpected end of macro invocation
 note: while trying to match meta-variable `$key_expr:expr`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                              ^^^^^^^^^^^^^^
 
 error: no rules expected `:`
@@ -245,7 +245,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_eq_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: no rules expected `:`
@@ -257,7 +257,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_eq_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: no rules expected `:`
@@ -269,7 +269,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: no rules expected `:`
@@ -281,7 +281,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: no rules expected `:`
@@ -293,7 +293,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: no rules expected `:`
@@ -305,7 +305,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: no rules expected `:`
@@ -317,7 +317,7 @@ error: no rules expected `:`
 note: while trying to match `|`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
    |                                            ^
 
 error: unexpected end of macro invocation
@@ -413,7 +413,7 @@ error: no rules expected `-`
 note: while trying to match `,`
   --> src/cmp/const_eq_macros.rs
    |
-   |     ($left:expr, $right:expr, ) => {
+   |     ($left:expr, $right:expr, ) => {{
    |                             ^
 
 error: no rules expected `-`
@@ -425,7 +425,7 @@ error: no rules expected `-`
 note: while trying to match `,`
   --> src/cmp/const_eq_macros.rs
    |
-   |     ($left:expr, $right:expr, ) => {
+   |     ($left:expr, $right:expr, ) => {{
    |                             ^
 
 error: no rules expected `-`
@@ -437,7 +437,7 @@ error: no rules expected `-`
 note: while trying to match `,`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, ) => {
+   |     ($left:expr, $right:expr, ) => {{
    |                             ^
 
 error: no rules expected `-`
@@ -449,7 +449,7 @@ error: no rules expected `-`
 note: while trying to match `,`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, ) => {
+   |     ($left:expr, $right:expr, ) => {{
    |                             ^
 
 error: no rules expected `-`
@@ -461,7 +461,7 @@ error: no rules expected `-`
 note: while trying to match `,`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, ) => {
+   |     ($left:expr, $right:expr, ) => {{
    |                             ^
 
 error: no rules expected `-`
@@ -473,7 +473,7 @@ error: no rules expected `-`
 note: while trying to match `,`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, ) => {
+   |     ($left:expr, $right:expr, ) => {{
    |                             ^
 
 error: no rules expected `-`
@@ -485,5 +485,5 @@ error: no rules expected `-`
 note: while trying to match `,`
   --> src/cmp/const_ord_macros.rs
    |
-   |     ($left:expr, $right:expr, ) => {
+   |     ($left:expr, $right:expr, ) => {{
    |                             ^

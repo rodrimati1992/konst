@@ -287,25 +287,33 @@ macro_rules! __const_cmp_for_option {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_const_cmp_for {
-    ($left:expr, $right:expr, ) => {
-        $crate::cmp::coerce_to_cmp!(&$left).const_cmp(&$right)
-    };
-    ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
-        $crate::cmp::coerce_to_cmp!({
+    ($left:expr, $right:expr, ) => {{
+        let ret: $crate::__::Ordering = $crate::cmp::coerce_to_cmp!(&$left).const_cmp(&$right);
+        ret
+    }};
+    ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+        let ret: $crate::__::Ordering = $crate::cmp::coerce_to_cmp!({
             let $l = &$left;
             $key_expr
         })
         .const_cmp(&{
             let $l = &$right;
             $key_expr
-        })
-    };
+        });
+        ret
+    }};
     ($left:expr, $right:expr, |$l:pat_param, $r:pat_param| $eq_expr:expr $(,)*) => {{
         let $l = &$left;
         let $r = &$right;
-        $eq_expr
+        let ret: $crate::__::Ordering = $eq_expr;
+        ret
     }};
-    ($left:expr, $right:expr, $func:path $(,)*) => {{ $func(&$left, &$right) }};
+    ($left:expr, $right:expr, $func:path $(,)*) => {{
+        let func = $func;
+        let _: fn(&_, &_) -> $crate::__::Ordering = func;
+        let ret: $crate::__::Ordering = func(&$left, &$right);
+        ret
+    }};
 }
 
 /// Evaluates to `$ord` if it is `Ordering::Equal`,

@@ -461,27 +461,33 @@ macro_rules! __const_eq_for_range_inc {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __priv_const_eq_for {
-    ($left:expr, $right:expr, ) => {
-        $crate::cmp::coerce_to_cmp!($left).const_eq(&$right)
-    };
-    ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {
-        $crate::cmp::coerce_to_cmp!({
+    ($left:expr, $right:expr, ) => {{
+        let ret: $crate::__::bool = $crate::cmp::coerce_to_cmp!($left).const_eq(&$right);
+        ret
+    }};
+    ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+        let ret: $crate::__::bool = $crate::cmp::coerce_to_cmp!({
             let $l = &$left;
             $key_expr
         })
         .const_eq(&{
             let $l = &$right;
             $key_expr
-        })
-    };
+        });
+        ret
+    }};
     ($left:expr, $right:expr, |$l:pat_param, $r:pat_param| $eq_expr:expr $(,)*) => {{
         let $l = &$left;
         let $r = &$right;
-        $eq_expr
+        let ret: $crate::__::bool = $eq_expr;
+        ret
     }};
-    ($left:expr, $right:expr, $func:path $(,)*) => {
-        $func(&$left, &$right)
-    };
+    ($left:expr, $right:expr, $func:path $(,)*) => {{
+        let func = $func;
+        let _: fn(&_, &_) -> $crate::__::bool = func;
+        let ret: $crate::__::bool = func(&$left, &$right);
+        ret
+    }};
 }
 
 /// Compares two values for inequality.

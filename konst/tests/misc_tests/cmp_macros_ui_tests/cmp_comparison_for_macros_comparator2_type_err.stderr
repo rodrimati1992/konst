@@ -1,0 +1,594 @@
+error[E0308]: mismatched types
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:9:58
+  |
+9 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+  |                 -----------------------------------------^^^^-----------
+  |                 |                                        |
+  |                 |                                        expected `u8`, found `u16`
+  |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:9:69
+  |
+9 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+  |                 ----------------------------------------------------^^^-
+  |                 |                                                   |
+  |                 |                                                   expected `bool`, found `u8`
+  |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:10:58
+   |
+10 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+   |                 -----------------------------------------^^^^-----------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:10:69
+   |
+10 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+   |                 ----------------------------------------------------^^^-
+   |                 |                                                   |
+   |                 |                                                   expected `bool`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:11:59
+   |
+11 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+   |                 ------------------------------------------^^^^-----------
+   |                 |                                         |
+   |                 |                                         expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:11:70
+   |
+11 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+   |                 -----------------------------------------------------^^^-
+   |                 |                                                    |
+   |                 |                                                    expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:12:58
+   |
+12 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+   |                 -----------------------------------------^^^^-----------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:12:69
+   |
+12 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+   |                 ----------------------------------------------------^^^-
+   |                 |                                                   |
+   |                 |                                                   expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:13:58
+   |
+13 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+   |                 -----------------------------------------^^^^-----------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:13:69
+   |
+13 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+   |                 ----------------------------------------------------^^^-
+   |                 |                                                   |
+   |                 |                                                   expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:14:58
+   |
+14 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+   |                 -----------------------------------------^^^^-----------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:14:69
+   |
+14 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+   |                 ----------------------------------------------------^^^-
+   |                 |                                                   |
+   |                 |                                                   expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:15:58
+   |
+15 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+   |                 -----------------------------------------^^^^-----------
+   |                 |                                        |
+   |                 |                                        expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:15:69
+   |
+15 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |0u16.., y| 0u8);
+   |                 ----------------------------------------------------^^^-
+   |                 |                                                   |
+   |                 |                                                   expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:17:61
+   |
+17 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 --------------------------------------------^^^^--------
+   |                 |                                           |
+   |                 |                                           expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:17:69
+   |
+17 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 ----------------------------------------------------^^^-
+   |                 |                                                   |
+   |                 |                                                   expected `bool`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:18:61
+   |
+18 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 --------------------------------------------^^^^--------
+   |                 |                                           |
+   |                 |                                           expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:18:69
+   |
+18 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 ----------------------------------------------------^^^-
+   |                 |                                                   |
+   |                 |                                                   expected `bool`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:19:62
+   |
+19 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 ---------------------------------------------^^^^--------
+   |                 |                                            |
+   |                 |                                            expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:19:70
+   |
+19 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 -----------------------------------------------------^^^-
+   |                 |                                                    |
+   |                 |                                                    expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:20:61
+   |
+20 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 --------------------------------------------^^^^--------
+   |                 |                                           |
+   |                 |                                           expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:20:69
+   |
+20 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 ----------------------------------------------------^^^-
+   |                 |                                                   |
+   |                 |                                                   expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:21:61
+   |
+21 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 --------------------------------------------^^^^--------
+   |                 |                                           |
+   |                 |                                           expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:21:69
+   |
+21 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 ----------------------------------------------------^^^-
+   |                 |                                                   |
+   |                 |                                                   expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:22:61
+   |
+22 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 --------------------------------------------^^^^--------
+   |                 |                                           |
+   |                 |                                           expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:22:69
+   |
+22 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 ----------------------------------------------------^^^-
+   |                 |                                                   |
+   |                 |                                                   expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:23:61
+   |
+23 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 --------------------------------------------^^^^--------
+   |                 |                                           |
+   |                 |                                           expected `u8`, found `u16`
+   |                 this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:23:69
+   |
+23 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |_, 0u16..| 0u8);
+   |                 ----------------------------------------------------^^^-
+   |                 |                                                   |
+   |                 |                                                   expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:25:64
+   |
+25 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |x, y| 0u8);
+   |                 -----------------------------------------------^^^-
+   |                 |                                              |
+   |                 |                                              expected `bool`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:26:64
+   |
+26 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |x, y| 0u8);
+   |                 -----------------------------------------------^^^-
+   |                 |                                              |
+   |                 |                                              expected `bool`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:27:65
+   |
+27 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |x, y| 0u8);
+   |                 ------------------------------------------------^^^-
+   |                 |                                               |
+   |                 |                                               expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:28:64
+   |
+28 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |x, y| 0u8);
+   |                 -----------------------------------------------^^^-
+   |                 |                                              |
+   |                 |                                              expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:29:64
+   |
+29 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |x, y| 0u8);
+   |                 -----------------------------------------------^^^-
+   |                 |                                              |
+   |                 |                                              expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:30:64
+   |
+30 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |x, y| 0u8);
+   |                 -----------------------------------------------^^^-
+   |                 |                                              |
+   |                 |                                              expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:31:64
+   |
+31 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |x, y| 0u8);
+   |                 -----------------------------------------------^^^-
+   |                 |                                              |
+   |                 |                                              expected `Ordering`, found `u8`
+   |                 expected due to this
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:34:17
+   |
+34 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected fn pointer, found fn item
+   |                 expected due to this
+   |
+   = note: expected fn pointer `for<'a, 'b> fn(&'a _, &'b _) -> bool`
+                 found fn item `fn((), ()) -> () {units}`
+   = note: this error originates in the macro `$crate::__priv_const_eq_for` which comes from the expansion of the macro `cmp::const_eq_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:34:17
+   |
+34 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `()`, found `&u8`
+   |                 expected `()`, found `&u8`
+   |
+note: function defined here
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
+   |
+5  | fn units((): (), (): ()) -> () { () }
+   |    ^^^^^ ------  ------
+   = note: this error originates in the macro `$crate::__priv_const_eq_for` which comes from the expansion of the macro `cmp::const_eq_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:34:17
+   |
+34 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `bool`, found `()`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_eq_for` which comes from the expansion of the macro `cmp::const_eq_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:35:17
+   |
+35 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected fn pointer, found fn item
+   |                 expected due to this
+   |
+   = note: expected fn pointer `for<'a, 'b> fn(&'a _, &'b _) -> bool`
+                 found fn item `fn((), ()) -> () {units}`
+   = note: this error originates in the macro `$crate::__priv_const_eq_for` which comes from the expansion of the macro `cmp::const_ne_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:35:17
+   |
+35 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `()`, found `&u8`
+   |                 expected `()`, found `&u8`
+   |
+note: function defined here
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
+   |
+5  | fn units((): (), (): ()) -> () { () }
+   |    ^^^^^ ------  ------
+   = note: this error originates in the macro `$crate::__priv_const_eq_for` which comes from the expansion of the macro `cmp::const_ne_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:35:17
+   |
+35 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `bool`, found `()`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_eq_for` which comes from the expansion of the macro `cmp::const_ne_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:36:17
+   |
+36 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected fn pointer, found fn item
+   |                 expected due to this
+   |
+   = note: expected fn pointer `for<'a, 'b> fn(&'a _, &'b _) -> std::cmp::Ordering`
+                 found fn item `fn((), ()) -> () {units}`
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_cmp_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:36:17
+   |
+36 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `()`, found `&u8`
+   |                 expected `()`, found `&u8`
+   |
+note: function defined here
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
+   |
+5  | fn units((): (), (): ()) -> () { () }
+   |    ^^^^^ ------  ------
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_cmp_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:36:17
+   |
+36 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `Ordering`, found `()`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_cmp_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:37:17
+   |
+37 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected fn pointer, found fn item
+   |                 expected due to this
+   |
+   = note: expected fn pointer `for<'a, 'b> fn(&'a _, &'b _) -> std::cmp::Ordering`
+                 found fn item `fn((), ()) -> () {units}`
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_lt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:37:17
+   |
+37 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `()`, found `&u8`
+   |                 expected `()`, found `&u8`
+   |
+note: function defined here
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
+   |
+5  | fn units((): (), (): ()) -> () { () }
+   |    ^^^^^ ------  ------
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_lt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:37:17
+   |
+37 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `Ordering`, found `()`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_lt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:38:17
+   |
+38 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected fn pointer, found fn item
+   |                 expected due to this
+   |
+   = note: expected fn pointer `for<'a, 'b> fn(&'a _, &'b _) -> std::cmp::Ordering`
+                 found fn item `fn((), ()) -> () {units}`
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_le_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:38:17
+   |
+38 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `()`, found `&u8`
+   |                 expected `()`, found `&u8`
+   |
+note: function defined here
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
+   |
+5  | fn units((): (), (): ()) -> () { () }
+   |    ^^^^^ ------  ------
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_le_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:38:17
+   |
+38 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `Ordering`, found `()`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_le_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:39:17
+   |
+39 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected fn pointer, found fn item
+   |                 expected due to this
+   |
+   = note: expected fn pointer `for<'a, 'b> fn(&'a _, &'b _) -> std::cmp::Ordering`
+                 found fn item `fn((), ()) -> () {units}`
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_gt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:39:17
+   |
+39 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `()`, found `&u8`
+   |                 expected `()`, found `&u8`
+   |
+note: function defined here
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
+   |
+5  | fn units((): (), (): ()) -> () { () }
+   |    ^^^^^ ------  ------
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_gt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:39:17
+   |
+39 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `Ordering`, found `()`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_gt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:40:17
+   |
+40 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected fn pointer, found fn item
+   |                 expected due to this
+   |
+   = note: expected fn pointer `for<'a, 'b> fn(&'a _, &'b _) -> std::cmp::Ordering`
+                 found fn item `fn((), ()) -> () {units}`
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_ge_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:40:17
+   |
+40 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `()`, found `&u8`
+   |                 expected `()`, found `&u8`
+   |
+note: function defined here
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
+   |
+5  | fn units((): (), (): ()) -> () { () }
+   |    ^^^^^ ------  ------
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_ge_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:40:17
+   |
+40 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], units);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `Ordering`, found `()`
+   |                 expected due to this
+   |
+   = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_ge_for` (in Nightly builds, run with -Z macro-backtrace for more info)
