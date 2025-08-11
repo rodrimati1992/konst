@@ -484,7 +484,7 @@ macro_rules! __priv_const_eq_for {
     }};
     ($left:expr, $right:expr, $func:path $(,)*) => {{
         let func = $func;
-        let _: fn(&_, &_) -> $crate::__::bool = func;
+        let _: for<'a, 'b> fn(&'a _, &'b _) -> $crate::__::bool = func;
         let ret: $crate::__::bool = func(&$left, &$right);
         ret
     }};

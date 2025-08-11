@@ -31,7 +31,7 @@
 ///     }
 /// }
 ///
-/// let wrapper: CmpWrapper<i32> = coerce_to_cmp!(0i32);
+/// let wrapper: &CmpWrapper<i32> = coerce_to_cmp!(0i32);
 /// assert!( wrapper.const_eq(&0));
 /// assert!(!wrapper.const_eq(&1));
 ///
@@ -54,9 +54,9 @@ pub use crate::__coerce_to_cmp as coerce_to_cmp;
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __coerce_to_cmp {
-    ($reference:expr $(,)*) => {{
+    ($reference:expr $(,)*) => {
         match $crate::__assert_const_cmp!(&$reference).reff {
-            ref reference => {
+            reference => {
                 let marker = $crate::__::IsAConstCmp::NEW;
                 if false {
                     _ = marker.infer_type(reference);
@@ -64,13 +64,13 @@ macro_rules! __coerce_to_cmp {
                 marker.coerce(reference)
             }
         }
-    }};
+    };
 }
 
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __coerce_to_cmp2 {
-    ($left:expr, $right:expr $(,)*) => {{
+    ($left:expr, $right:expr $(,)*) => {
         match ($left, $right) {
             (left, right) => {
                 let l_marker = $crate::__::IsAConstCmp::NEW;
@@ -82,5 +82,5 @@ macro_rules! __coerce_to_cmp2 {
                 (l_marker.coerce(left), r_marker.unreference(right))
             }
         }
-    }};
+    };
 }

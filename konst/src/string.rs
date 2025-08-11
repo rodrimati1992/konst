@@ -65,8 +65,8 @@ __declare_fns_with_docs! {
         #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
         for['a,]
         params(l, r)
-        eq_comparison = crate::cmp::CmpWrapper(l).const_eq(r),
-        cmp_comparison = crate::cmp::CmpWrapper(l).const_cmp(r),
+        eq_comparison = crate::cmp::CmpWrapper::from_ref(l).const_eq(r),
+        cmp_comparison = crate::cmp::CmpWrapper::from_ref(l).const_cmp(r),
         parameter_copyability = copy,
     ),
 }

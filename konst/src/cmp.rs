@@ -15,7 +15,7 @@ mod minmax_macros;
 
 pub use self::{
     cmp_wrapper::CmpWrapper,
-    const_cmp::{__AssertConstCmp, ConstCmp, ConstCmpUnref, IsAConstCmp},
+    const_cmp::{__AssertConstCmp, CoerceTo, ConstCmp, ConstCmpKind, IsAConstCmp},
 };
 
 #[doc(inline)]
@@ -32,4 +32,4 @@ pub use self::{
 };
 
 #[doc(no_inline)]
-pub use crate::polymorphism::kinds::{IsNotStdKind, IsRefKind, IsStdKind};
+pub use crate::polymorphism::kinds::{IsNotStdKind, IsStdKind};

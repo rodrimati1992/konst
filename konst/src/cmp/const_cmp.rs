@@ -1,6 +1,8 @@
-use crate::cmp::{CmpWrapper, IsNotStdKind, IsRefKind, IsStdKind};
+use crate::cmp::{CmpWrapper, IsNotStdKind, IsStdKind};
 
 use core::marker::PhantomData;
+
+use typewit::TypeEq;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +55,7 @@ use core::marker::PhantomData;
 ///
 /// impl ConstCmp for MyType {
 ///     type Kind = IsNotStdKind;
+///     type This = Self;
 /// }
 ///
 /// impl MyType {
@@ -146,81 +149,47 @@ pub trait ConstCmp {
     ///
     /// - [`IsStdKind`]: A standard library type.
     ///
-    /// - [`IsRefKind`]: A reference type.
-    ///
     /// - [`IsNotStdKind`]: A type that is not from the standard library.
     ///
-    type Kind;
+    type Kind: ConstCmpKind;
+
+    /// The type after dereferencing all references.
+    ///
+    /// User-defined types should generally set this to `Self`.
+    type This: ?Sized + ConstCmp<Kind = Self::Kind, This = Self::This>;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 impl<T, const N: usize> ConstCmp for [T; N] {
     type Kind = IsStdKind;
+    type This = Self;
 }
 
 impl<T> ConstCmp for [T] {
     type Kind = IsStdKind;
+    type This = Self;
 }
 
 impl ConstCmp for str {
     type Kind = IsStdKind;
+    type This = Self;
 }
 
 impl<T> ConstCmp for &T
 where
     T: ?Sized + ConstCmp,
 {
-    type Kind = IsRefKind;
+    type Kind = T::Kind;
+    type This = T::This;
 }
 
 impl<T> ConstCmp for &mut T
 where
     T: ?Sized + ConstCmp,
 {
-    type Kind = IsRefKind;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-/// A helper trait of [`ConstCmp`], used for dereferencing.
-pub trait ConstCmpUnref: ConstCmp {
-    /// What type `Self` becomes after removing all layers of references.
-    ///
-    /// Examples:
-    /// - `u32::This == u32`
-    /// - `<&u32>::This == u32`
-    /// - `<&&u32>::This == u32`
-    type This: ?Sized + ConstCmp;
-}
-
-impl<T> ConstCmpUnref for T
-where
-    T: ?Sized + ConstCmp,
-    T: ConstCmpUnrefHelper<<T as ConstCmp>::Kind>,
-    T::This_: ConstCmp,
-{
-    type This = T::This_;
-}
-
-/// An implementation detail of [`ConstCmpUnref`].
-pub trait ConstCmpUnrefHelper<Kind> {
-    type This_: ?Sized;
-}
-
-impl<T: ?Sized> ConstCmpUnrefHelper<IsStdKind> for T {
-    type This_ = T;
-}
-
-impl<T: ?Sized> ConstCmpUnrefHelper<IsNotStdKind> for T {
-    type This_ = T;
-}
-
-impl<T: ?Sized + ConstCmpUnref> ConstCmpUnrefHelper<IsRefKind> for &T {
-    type This_ = T::This;
-}
-impl<T: ?Sized + ConstCmpUnref> ConstCmpUnrefHelper<IsRefKind> for &mut T {
-    type This_ = T::This;
+    type Kind = T::Kind;
+    type This = T::This;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -232,97 +201,120 @@ impl<T: ?Sized + ConstCmpUnref> ConstCmpUnrefHelper<IsRefKind> for &mut T {
 /// into a type with a `const_eq` and/or `const_cmp` method is
 /// with the [`coerce_to_cmp`] macro.
 ///
-/// # Type parameters
-///
-/// `K` is `<T as ConstCmp>::Kind`
-/// The kind of type that `T` is: either [`IsStdKind`] or
-/// [`IsNotStdKind`](crate::cmp::IsNotStdKind).
-///
-/// `T` is `<R as ConstCmpUnref>::This`,
-/// the `R` type after removing all layers of references.
-///
 /// `R`: Is a type that implements [`ConstCmp`]
 ///
 /// [`coerce_to_cmp`]: crate::cmp::coerce_to_cmp
 #[allow(clippy::type_complexity)]
-pub struct IsAConstCmp<K, T: ?Sized, R: ?Sized>(
-    PhantomData<(
-        PhantomData<fn() -> PhantomData<K>>,
-        PhantomData<fn() -> PhantomData<T>>,
-        PhantomData<fn() -> PhantomData<R>>,
-    )>,
-);
+pub struct IsAConstCmp<R: ?Sized>(PhantomData<fn() -> PhantomData<R>>);
 
-impl<K, T: ?Sized, R: ?Sized> Copy for IsAConstCmp<K, T, R> {}
+impl<R: ?Sized> Copy for IsAConstCmp<R> {}
 
-impl<K, T: ?Sized, R: ?Sized> Clone for IsAConstCmp<K, T, R> {
+impl<R: ?Sized> Clone for IsAConstCmp<R> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<R, T> IsAConstCmp<T::Kind, T, R>
-where
-    R: ?Sized + ConstCmpUnref<This = T>,
-    T: ?Sized + ConstCmp,
-{
+impl<R: ?Sized + ConstCmp> IsAConstCmp<R> {
     /// Constructs an `IsAConstCmp`
     pub const NEW: Self = Self(PhantomData);
 }
 
-impl<K, T: ?Sized, R: ?Sized> IsAConstCmp<K, T, R> {
-    /// Infers the type parameters by taking a reference to `R` .
-    ///
-    /// The `K` and `T` type parameters are determined by `R` in
-    /// the [`NEW`] associated constant.
-    ///
-    /// [`NEW`]: #associatedconstant.NEW
+impl<R: ?Sized + ConstCmp> IsAConstCmp<R> {
+    /// Infers the type parameter by taking a reference to it.
     #[inline(always)]
     pub const fn infer_type(self, _: &R) -> Self {
         self
     }
 
+    /// coerces `&T::This` into as reference to a type that has a `const_eq` and/or
+    /// `const_cmp` method.
+    ///
+    /// The return type can be either:
+    /// - `&CmpWrapper<R::This>` if `R::Kind == `[`IsStdKind`].
+    /// - `&R::This` if `R::Kind == `[`IsNotStdKind`].
+    #[inline]
+    pub const fn coerce<'a>(self, reff: &'a R::This) -> CoerceTo<'a, R::This> {
+        match const { <R::Kind as ConstCmpKind>::__KIND_WITNESS.to_coercion_witness::<'a, R::This>() }
+        {
+            __CoercionWitness::IsStdKind(te) => te.to_left(CmpWrapper::from_ref(reff)),
+            __CoercionWitness::IsNotStdKind(te) => te.to_left(reff),
+        }
+    }
+
     /// Removes layers of references by coercing the argument.
     #[inline(always)]
-    pub const fn unreference(self, r: &T) -> &T {
+    pub const fn unreference(self, r: &R::This) -> &R::This {
         r
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-impl<T: ?Sized, R: ?Sized> IsAConstCmp<IsNotStdKind, T, R> {
-    /// An identity function, just takes `reference` and returns it.
-    #[inline(always)]
-    pub const fn coerce(self, reference: &T) -> &T {
-        reference
+/// Trait for the types that are assignable to [`ConstCmp::Kind`]
+pub trait ConstCmpKind: Sized {
+    /// What `IsAConstCmp::coerce` coerces `&T` into, it can be either:
+    /// - `&CmpWrapper<T>` if `Self == `[`IsStdKind`].
+    /// - `&T` if `Self == `[`IsNotStdKind`].
+    type CoerceTo<T: ?Sized>: ?Sized;
+
+    #[doc(hidden)]
+    const __KIND_WITNESS: __ConstCmpKindWitness<Self>;
+}
+
+impl ConstCmpKind for IsStdKind {
+    type CoerceTo<T: ?Sized> = CmpWrapper<T>;
+
+    #[doc(hidden)]
+    const __KIND_WITNESS: __ConstCmpKindWitness<Self> =
+        __ConstCmpKindWitness::IsStdKind(TypeEq::NEW);
+}
+
+impl ConstCmpKind for IsNotStdKind {
+    type CoerceTo<T: ?Sized> = T;
+
+    #[doc(hidden)]
+    const __KIND_WITNESS: __ConstCmpKindWitness<Self> =
+        __ConstCmpKindWitness::IsNotStdKind(TypeEq::NEW);
+}
+
+/// What `IsAConstCmp::coerce` coerces `&'a T` into, it can be either:
+/// - `&'a CmpWrapper<T>` if `<T as ConstCmp>::Kind` == [`IsStdKind`].
+/// - `&'a T` if `<T as ConstCmp>::Kind` == [`IsNotStdKind`].
+pub type CoerceTo<'a, T> = &'a <<T as ConstCmp>::Kind as ConstCmpKind>::CoerceTo<T>;
+
+#[doc(hidden)]
+pub enum __ConstCmpKindWitness<Kind> {
+    IsStdKind(TypeEq<Kind, IsStdKind>),
+    IsNotStdKind(TypeEq<Kind, IsNotStdKind>),
+}
+
+impl<Kind> __ConstCmpKindWitness<Kind> {
+    const fn to_coercion_witness<'a, T>(self) -> __CoercionWitness<'a, T>
+    where
+        T: ?Sized + ConstCmp<Kind = Kind>,
+        Kind: ConstCmpKind,
+    {
+        typewit::type_fn! {
+            struct CoerceToFn<T: ?Sized>;
+            impl<K: ConstCmpKind> K => <K as ConstCmpKind>::CoerceTo<T>
+        }
+
+        match self {
+            Self::IsStdKind(te) => {
+                __CoercionWitness::IsStdKind(te.project::<CoerceToFn<T>>().in_ref())
+            }
+            Self::IsNotStdKind(te) => {
+                __CoercionWitness::IsNotStdKind(te.project::<CoerceToFn<T>>().in_ref())
+            }
+        }
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-
-impl<R: ?Sized> IsAConstCmp<IsStdKind, str, R> {
-    /// Wraps `reference` in a `CmpWrapper`.
-    #[inline(always)]
-    pub const fn coerce(self, reference: &str) -> CmpWrapper<&str> {
-        CmpWrapper(reference)
-    }
-}
-
-impl<T, R: ?Sized> IsAConstCmp<IsStdKind, [T], R> {
-    /// Wraps `reference` in a `CmpWrapper`.
-    #[inline(always)]
-    pub const fn coerce(self, reference: &[T]) -> CmpWrapper<&[T]> {
-        CmpWrapper(reference)
-    }
-}
-
-impl<T, R, const N: usize> IsAConstCmp<IsStdKind, [T; N], R> {
-    /// Wraps `reference` in a `CmpWrapper`.
-    #[inline(always)]
-    pub const fn coerce(self, reference: &[T; N]) -> CmpWrapper<&[T]> {
-        CmpWrapper(reference)
-    }
+#[doc(hidden)]
+enum __CoercionWitness<'a, T: ?Sized + ConstCmp> {
+    IsStdKind(TypeEq<CoerceTo<'a, T>, &'a CmpWrapper<T>>),
+    IsNotStdKind(TypeEq<CoerceTo<'a, T>, &'a T>),
 }
 
 /////////////////////////////////////////////////////////////////////////////

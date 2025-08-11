@@ -9,6 +9,7 @@ struct Mod10(u32);
 
 impl ConstCmp for Mod10 {
     type Kind = IsNotStdKind;
+    type This = Self;
 }
 
 impl Mod10 {
@@ -27,6 +28,7 @@ struct NonCopy(u32);
 
 impl ConstCmp for NonCopy {
     type Kind = IsNotStdKind;
+    type This = Self;
 }
 
 impl NonCopy {

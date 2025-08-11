@@ -1,5 +1,4 @@
 #[doc(hidden)]
-#[macro_export]
 macro_rules! __declare_string_cmp_fns {
     (
         import_path = $path:expr,
@@ -9,7 +8,7 @@ macro_rules! __declare_string_cmp_fns {
         /// Equivalent to ordering_fn, but returns a U8Ordering
         ordering_fn_inner = $cmp_str_inner:ident,
     ) => {
-        $crate::__declare_string_cmp_fns! {
+        __declare_string_cmp_fns! {
             @inner
             equality_fn = $eq_str,
             ordering_fn = $cmp_str,
@@ -24,7 +23,7 @@ macro_rules! __declare_string_cmp_fns {
         use_eq_str = $eq_str_import:expr,
         use_cmp_str = $cmp_str_import:expr,
     ) => {
-        $crate::__delegate_const_eq! {
+        __delegate_const_eq! {
             skip_coerce;
             /// A const equivalent of `&str` equality comparison.
             ///
@@ -50,7 +49,7 @@ macro_rules! __declare_string_cmp_fns {
             /// ```
             ///
             #[inline]
-            pub const fn eq_str(ref left: &str, right: &str) -> bool {
+            pub const fn eq_str(ref left: str, right: &str) -> bool {
                 let left = left.as_bytes();
                 let right = right.as_bytes();
 
@@ -98,14 +97,14 @@ macro_rules! __declare_string_cmp_fns {
             /// ```
             ///
             #[inline]
-            pub const fn cmp_str(ref left: &str, right: &str) -> $crate::__::Ordering {
+            pub const fn cmp_str(ref left: str, right: &str) -> core::cmp::Ordering {
                 cmp_str_inner(left.as_bytes(), right.as_bytes()).to_ordering()
             }
         }
 
         #[inline]
-        const fn cmp_str_inner(left: &[u8], right: &[u8]) -> $crate::__::U8Ordering {
-            use $crate::__::U8Ordering;
+        const fn cmp_str_inner(left: &[u8], right: &[u8]) -> crate::__::U8Ordering {
+            use crate::__::U8Ordering;
 
             let left_len = left.len();
             let right_len = right.len();
@@ -117,7 +116,7 @@ macro_rules! __declare_string_cmp_fns {
 
             let mut i = 0;
             while i < min_len {
-                $crate::__priv_ret_if_ne! {left[i], right[i]}
+                crate::__priv_ret_if_ne! {left[i], right[i]}
                 i += 1;
             }
 
@@ -131,7 +130,6 @@ macro_rules! __declare_string_cmp_fns {
 }
 
 #[doc(hidden)]
-#[macro_export]
 macro_rules!  __declare_slice_cmp_fns{
     (
         import_path = $path:expr,
@@ -182,14 +180,14 @@ macro_rules!  __declare_slice_cmp_fns{
         $eq_fn_name:ident,
         $cmp_fn_name:ident,
     ) => {
-        $crate::__delegate_const_eq!{
+        __delegate_const_eq!{
             skip_coerce;
 
             #[doc = $docs_eq]
             $(#[$attr_both])*
             $(#[$attr_eq])*
             #[inline]
-            pub const fn $eq_fn_name(ref left: &[$ty], right: &[$ty]) -> bool {
+            pub const fn $eq_fn_name(ref left: [$ty], right: &[$ty]) -> bool {
                 if left.len() != right.len() {
                     return false;
                 }
@@ -207,6 +205,21 @@ macro_rules!  __declare_slice_cmp_fns{
         }
 
 
+        #[cfg(feature = "cmp")]
+        impl<const N: usize> crate::cmp::CmpWrapper<[$ty; N]> {
+            /// Compares array with slice for equaity
+            pub const fn const_eq(&self, other: &[$ty]) -> bool {
+                let this: &crate::cmp::CmpWrapper<[$ty]> = self;
+                this.const_eq(other)
+            }
+
+            /// Compares array with slice for ordering
+            pub const fn const_cmp(&self, other: &[$ty]) -> core::cmp::Ordering {
+                let this: &crate::cmp::CmpWrapper<[$ty]> = self;
+                this.const_cmp(other)
+            }
+        }
+
 
         __delegate_const_ord!{
             skip_coerce;
@@ -216,17 +229,17 @@ macro_rules!  __declare_slice_cmp_fns{
             $(#[$attr_both])*
             $(#[$attr_ord])*
             #[inline]
-            pub const fn $cmp_fn_name(ref left: &[$ty], right: &[$ty]) -> $crate::__::Ordering {
-                use $crate::__::U8Ordering;
+            pub const fn $cmp_fn_name(ref left: [$ty], right: &[$ty]) -> core::cmp::Ordering {
+                use crate::__::U8Ordering;
 
-                const fn cmp_inner(left: &[$ty], right: &[$ty]) -> $crate::__::U8Ordering {
+                const fn cmp_inner(left: &[$ty], right: &[$ty]) -> crate::__::U8Ordering {
                     let left_len = left.len();
 
-                    $crate::__priv_ret_if_ne! {left_len, right.len()}
+                    crate::__priv_ret_if_ne! {left_len, right.len()}
 
                     let mut i = 0;
                     while i < left_len {
-                        $crate::__priv_ret_if_ne! {left[i], right[i]}
+                        crate::__priv_ret_if_ne! {left[i], right[i]}
                         i += 1;
                     }
 
@@ -241,7 +254,6 @@ macro_rules!  __declare_slice_cmp_fns{
 }
 
 #[doc(hidden)]
-#[macro_export]
 macro_rules!  __declare_fns_with_docs{
     (
         $(($($args:tt)*))*
@@ -251,7 +263,7 @@ macro_rules!  __declare_fns_with_docs{
         macro = $macro:ident ! $macro_prefix:tt,
     )=>{
         $(
-            $crate::__declare_fns_with_docs!{
+            __declare_fns_with_docs!{
                 @inner
                 ($($args)*)
 

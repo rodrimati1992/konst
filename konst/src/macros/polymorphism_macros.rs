@@ -1,6 +1,11 @@
+/// `__delegate_const_eq` allows:
+/// - defining a free function,
+/// - defining an inherent `cosnt_eq` method on CmpWrapper that delegates to that free function.
+/// - ConstCmp impl for the first parameter type
+/// - Add a coerce inhenrent method for IsAConstCmp
+///
 #[doc(hidden)]
-#[macro_export]
-macro_rules!  __priv_delegate_const_inner_fn{
+macro_rules! __delegate_const_eq{
     (
         $(skip_coerce $(@$_skip:tt@)?;)?
 
@@ -13,116 +18,73 @@ macro_rules!  __priv_delegate_const_inner_fn{
     )=>{
         $(#[$attr])*
         pub const fn $func<$($($fnlt,)*)? $($($implg)*)?>(
-            $crate::__priv_get_pati_ident!($($idents)*): $l_ty,
+            __priv_get_pati_ident!($($idents)*): __priv_ref_if_ref!(($($idents)*) $l_ty),
             $rhs: $r_ty,
         ) -> $ret $block
-    }
+
+        #[cfg(feature = "cmp")]
+        const _: () = {
+            #[cfg(all($(false $(@$_skip@)?)?))]
+            impl<$($($implg)*)?> crate::cmp::ConstCmp for $l_ty {
+                type Kind = crate::cmp::IsStdKind;
+                type This = Self;
+            }
+
+            impl<$($($implg)*)?> crate::cmp::CmpWrapper<$l_ty> {
+                /// Compares `self` and `other` for equality.
+                #[inline]
+                pub const fn const_eq<$($($fnlt,)*)?>(
+                    &self,
+                    other: __priv_ref_if_nonref!(($($idents)*) $r_ty),
+                ) -> bool {
+                    $func(
+                        __priv_copy_if_nonref!(($($idents)*) self.0),
+                        __priv_deref_if_nonref!(($($idents)*) other)
+                    )
+                }
+            }
+        };
+    };
 }
 
-#[cfg(feature = "cmp")]
-#[doc(hidden)]
-#[macro_export]
-macro_rules!  __priv_delegate_const_inner_cmpwrapper{
+macro_rules! __delegate_const_ord{
     (
-        ($docs:expr, $cw_method:ident, $returns:ty)
+        $(skip_coerce $(@$_skip:tt@)?;)?
 
-        $(skip_coerce $(@$_skip:tt@)?;)*
-
-        $( for[$($implg:tt)*] )?
+        $(for[$($implg:tt)*])?
         $(#[$attr:meta])*
         pub const fn $func:ident $(<$($fnlt:lifetime),* $(,)?>)?(
             $($idents:ident)* : $l_ty:ty,
             $rhs:ident: $r_ty:ty $(,)*
         ) -> $ret:ty $block:block
-    ) => {
-        $crate::__priv_std_kind_impl!{
-            $(skip_coerce $(@$_skip@)?;)*
-            impl[$($($implg)*)?] $l_ty
-        }
+    )=>{
+        $(#[$attr])*
+        pub const fn $func<$($($fnlt,)*)? $($($implg)*)?>(
+            __priv_get_pati_ident!($($idents)*): __priv_ref_if_ref!(($($idents)*) $l_ty),
+            $rhs: $r_ty,
+        ) -> $ret $block
 
-        impl<$($($implg)*)?> $crate::__::CmpWrapper<$l_ty> {
-            #[doc = $docs]
-            #[inline]
-            pub const fn $cw_method<$($($fnlt,)*)?>(
-                &self,
-                other: $crate::__priv_ref_if_nonref!(($($idents)*) $r_ty),
-            ) -> $returns {
-                $func(
-                    $crate::__priv_copy_if_nonref!(($($idents)*) self.0),
-                    $crate::__priv_deref_if_nonref!(($($idents)*) other)
-                )
+        #[cfg(feature = "cmp")]
+        const _: () = {
+            impl<$($($implg)*)?> crate::cmp::CmpWrapper<$l_ty> {
+                /// Compares `self` and `other` for ordering.
+                #[inline]
+                pub const fn const_cmp<$($($fnlt,)*)?>(
+                    &self,
+                    other: __priv_ref_if_nonref!(($($idents)*) $r_ty),
+                ) -> core::cmp::Ordering {
+                    $func(
+                        __priv_copy_if_nonref!(($($idents)*) self.0),
+                        __priv_deref_if_nonref!(($($idents)*) other)
+                    )
+                }
             }
-        }
-    }
-}
-
-/// `__delegate_const_eq` allows:
-/// - defining a free function,
-/// - defining an inherent `cosnt_eq` method on CmpWrapper that delegates to that free function.
-/// - ConstCmp impl for the first parameter type
-/// - Add a coerce inhenrent method for IsAConstCmp
-///
-#[cfg(not(feature = "cmp"))]
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __delegate_const_eq{
-    ( $($input:tt)* )=>{
-        $crate::__priv_delegate_const_inner_fn!{ $($input)* }
-    }
-}
-
-#[cfg(feature = "cmp")]
-#[doc(hidden)]
-#[macro_export]
-macro_rules!  __delegate_const_eq{
-    ( $($input:tt)* )=>{
-        $crate::__priv_delegate_const_inner_fn!{ $($input)* }
-
-        $crate::__priv_delegate_const_inner_cmpwrapper!{
-            (
-                "Compares `self` and `other` for equality.",
-                const_eq,
-                bool
-            )
-
-            $($input)*
-        }
-    };
-}
-
-#[cfg(not(feature = "cmp"))]
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __delegate_const_ord{
-    ($($input:tt)*)=>{
-        $crate::__priv_delegate_const_inner_fn!{ $($input)* }
-    }
-}
-
-#[cfg(feature = "cmp")]
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __delegate_const_ord{
-    ( $($input:tt)* )=>{
-        $crate::__priv_delegate_const_inner_fn!{ $($input)* }
-
-        $crate::__priv_delegate_const_inner_cmpwrapper!{
-            (
-                "Compares `self` and `other` for ordering.",
-                const_cmp,
-                $crate::__::Ordering
-            )
-
-            skip_coerce;
-
-            $($input)*
-        }
+        };
     };
 }
 
 #[cfg(feature = "cmp")]
 #[doc(hidden)]
-#[macro_export]
 macro_rules! __priv_copy_if_nonref {
     ((ref $ident:ident) $expr:expr) => {
         &$expr
@@ -133,7 +95,6 @@ macro_rules! __priv_copy_if_nonref {
 }
 #[cfg(feature = "cmp")]
 #[doc(hidden)]
-#[macro_export]
 macro_rules! __priv_deref_if_nonref {
     ((ref $ident:ident) $expr:expr) => {
         $expr
@@ -145,7 +106,6 @@ macro_rules! __priv_deref_if_nonref {
 
 #[cfg(feature = "cmp")]
 #[doc(hidden)]
-#[macro_export]
 macro_rules! __priv_ref_if_nonref {
     ((ref $ident:ident) $ty:ty) => {
         $ty
@@ -155,8 +115,18 @@ macro_rules! __priv_ref_if_nonref {
     };
 }
 
+#[cfg(feature = "cmp")]
 #[doc(hidden)]
-#[macro_export]
+macro_rules! __priv_ref_if_ref {
+    ((ref $ident:ident) $ty:ty) => {
+        &$ty
+    };
+    ((copy $ident:ident) $ty:ty) => {
+        $ty
+    };
+}
+
+#[doc(hidden)]
 macro_rules! __priv_get_pati_ident {
     (ref $ident:ident) => {
         $ident
@@ -164,32 +134,4 @@ macro_rules! __priv_get_pati_ident {
     (copy $ident:ident) => {
         $ident
     };
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __priv_std_kind_impl {
-    (
-        impl[$($impl:tt)*] $self:ty
-        $(where[ $($where_:tt)* ])?
-    )=>{
-        impl<$($impl)*> $crate::__::ConstCmp for $self
-        where
-            $($($where_)*)?
-        {
-            type Kind = $crate::__::IsStdKind;
-        }
-
-        impl<$($impl)* __T> $crate::__::IsAConstCmp<$crate::__::IsStdKind, $self, __T>
-        where
-            $($($where_)*)?
-        {
-            ///
-            #[inline(always)]
-            pub const fn coerce(self, reference: &$self) -> $crate::__::CmpWrapper<$self> {
-                $crate::__::CmpWrapper(*reference)
-            }
-        }
-    };
-    (skip_coerce $($anything:tt)*)=>{};
 }

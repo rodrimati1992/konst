@@ -1,4 +1,4 @@
-use crate::cmp::{ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
+use crate::cmp::{ConstCmp, IsNotStdKind, IsStdKind};
 
 /// A wrapper type for std types, which defines `const_eq` and `const_cmp` methods for them.
 ///
@@ -13,8 +13,8 @@ use crate::cmp::{ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
 /// use std::cmp::Ordering;
 ///
 /// {
-///     // The `CmpWrapper<u32>` type annotation is just for the reader
-///     let foo: CmpWrapper<u32> = coerce_to_cmp!(10u32);
+///     // The `&CmpWrapper<u32>` type annotation is just for the reader
+///     let foo: &CmpWrapper<u32> = coerce_to_cmp!(10u32);
 ///     assert!( foo.const_eq(&10));
 ///     assert!(!foo.const_eq(&20));
 ///     
@@ -33,21 +33,25 @@ use crate::cmp::{ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
 /// }
 ///
 /// ```
+#[repr(transparent)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct CmpWrapper<T>(pub T);
+pub struct CmpWrapper<T: ?Sized>(pub T);
 
-impl<'a, T> CmpWrapper<&'a [T]> {
+impl CmpWrapper<()> {
     /// For constructing from a reference to an array.
     ///
     /// With slices you can do `CmpWrapper(slice)` as well.
     #[inline(always)]
-    pub const fn slice(x: &'a [T]) -> Self {
-        Self { 0: x }
+    pub const fn from_ref<'a, T: ?Sized>(x: &'a T) -> &'a CmpWrapper<T> {
+        // SAFETY: CmpWrapper is a #[repr(transparent)] wrapper around T,
+        //         so pointer casting preserves the layout of the pointee
+        unsafe { &*(x as *const T as *const CmpWrapper<T>) }
     }
 }
 
 impl<P> ConstCmp for CmpWrapper<P> {
     type Kind = IsNotStdKind;
+    type This = Self;
 }
 
 macro_rules! std_kind_impls {
@@ -55,20 +59,13 @@ macro_rules! std_kind_impls {
         $(
             impl ConstCmp for $ty {
                 type Kind = IsStdKind;
-            }
-
-            impl<T> IsAConstCmp<IsStdKind, $ty, T> {
-                /// Copies the value from `reference`, and wraps it in a `CmpWrapper`
-                #[inline(always)]
-                pub const fn coerce(self, reference: &$ty) -> CmpWrapper<$ty> {
-                    CmpWrapper(*reference)
-                }
+                type This = Self;
             }
 
             impl CmpWrapper<$ty> {
                 /// Compares `self` and `other` for equality.
                 #[inline(always)]
-                pub const fn const_eq(self, other: &$ty) -> bool {
+                pub const fn const_eq(&self, other: &$ty) -> bool {
                     self.0 == *other
                 }
             }
