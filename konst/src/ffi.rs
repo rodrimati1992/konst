@@ -8,7 +8,7 @@
 //! ### CStr constructors
 //!
 //! The return value of fallible CStr constructors can be unwrapped with
-//! [`konst::result::unwrap`]:
+//! [`konst::result::unwrap`](crate::result):
 //!
 //! ```rust
 //! use std::ffi::CStr;
