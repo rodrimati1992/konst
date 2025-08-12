@@ -60,28 +60,14 @@ error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
              NonZero<i32>
              NonZero<i64>
            and $N others
-   = note: required for `NotCmp` to implement `ConstCmpUnref`
-note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
   --> src/cmp/const_cmp.rs
    |
-   |     R: ?Sized + ConstCmpUnref<This = T>,
-   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
 ...
    |     pub const NEW: Self = Self(PhantomData);
    |               --- required by a bound in this associated constant
-   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0034]: multiple applicable items in scope
-  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:24:19
-   |
-24 | const _: NotCmp = cmp::min!(NotCmp, NotCmp);
-   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
-   |
-   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
-   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
-   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
-   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
-   = note: and 87 others
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
@@ -100,15 +86,23 @@ error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
              NonZero<i32>
              NonZero<i64>
            and $N others
-note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
   --> src/cmp/const_cmp.rs
    |
-   |     T: ?Sized + ConstCmp,
-   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
 ...
    |     pub const NEW: Self = Self(PhantomData);
    |               --- required by a bound in this associated constant
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:24:19
+   |
+24 | const _: NotCmp = cmp::min!(NotCmp, NotCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
   --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:25:19
@@ -172,28 +166,14 @@ error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
              NonZero<i32>
              NonZero<i64>
            and $N others
-   = note: required for `NotCmp` to implement `ConstCmpUnref`
-note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
   --> src/cmp/const_cmp.rs
    |
-   |     R: ?Sized + ConstCmpUnref<This = T>,
-   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
 ...
    |     pub const NEW: Self = Self(PhantomData);
    |               --- required by a bound in this associated constant
-   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0034]: multiple applicable items in scope
-  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:25:19
-   |
-25 | const _: NotCmp = cmp::max!(NotCmp, NotCmp);
-   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
-   |
-   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
-   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
-   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
-   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
-   = note: and 87 others
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
@@ -212,15 +192,23 @@ error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
              NonZero<i32>
              NonZero<i64>
            and $N others
-note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
   --> src/cmp/const_cmp.rs
    |
-   |     T: ?Sized + ConstCmp,
-   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
 ...
    |     pub const NEW: Self = Self(PhantomData);
    |               --- required by a bound in this associated constant
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:25:19
+   |
+25 | const _: NotCmp = cmp::max!(NotCmp, NotCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
   --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:27:19
@@ -548,28 +536,14 @@ error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
              NonZero<i32>
              NonZero<i64>
            and $N others
-   = note: required for `NotCmp` to implement `ConstCmpUnref`
-note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
   --> src/cmp/const_cmp.rs
    |
-   |     R: ?Sized + ConstCmpUnref<This = T>,
-   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
 ...
    |     pub const NEW: Self = Self(PhantomData);
    |               --- required by a bound in this associated constant
-   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0034]: multiple applicable items in scope
-  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:49:15
-   |
-49 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| NotCmp);
-   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
-   |
-   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
-   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
-   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
-   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
-   = note: and 87 others
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
@@ -588,15 +562,23 @@ error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
              NonZero<i32>
              NonZero<i64>
            and $N others
-note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
   --> src/cmp/const_cmp.rs
    |
-   |     T: ?Sized + ConstCmp,
-   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
 ...
    |     pub const NEW: Self = Self(PhantomData);
    |               --- required by a bound in this associated constant
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:49:15
+   |
+49 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| NotCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
   --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:50:15
@@ -637,18 +619,13 @@ help: change the type of the numeric literal from `u8` to `u32`
 52 + const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| -> u32 { 0u32 });
    |
 
-error[E0034]: multiple applicable items in scope
+error[E0282]: type annotations needed
   --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:52:15
    |
 52 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| -> u32 { 0u8 });
-   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
    |
-   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
-   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
-   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
-   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
-   = note: and 87 others
-   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
   --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:53:15
@@ -728,28 +705,14 @@ error[E0277]: the trait bound `(): ConstCmp` is not satisfied
              NonZero<i32>
              NonZero<i64>
            and $N others
-   = note: required for `()` to implement `ConstCmpUnref`
-note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
   --> src/cmp/const_cmp.rs
    |
-   |     R: ?Sized + ConstCmpUnref<This = T>,
-   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
 ...
    |     pub const NEW: Self = Self(PhantomData);
    |               --- required by a bound in this associated constant
-   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0034]: multiple applicable items in scope
-  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:53:15
-   |
-53 | const _: u8 = cmp::min_by_key!(0u8, 3u8, unit);
-   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
-   |
-   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
-   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
-   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
-   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
-   = note: and 87 others
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `(): ConstCmp` is not satisfied
@@ -768,16 +731,24 @@ error[E0277]: the trait bound `(): ConstCmp` is not satisfied
              NonZero<i32>
              NonZero<i64>
            and $N others
-note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
   --> src/cmp/const_cmp.rs
    |
-   |     T: ?Sized + ConstCmp,
-   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
 ...
    |     pub const NEW: Self = Self(PhantomData);
    |               --- required by a bound in this associated constant
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
 
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:53:15
+   |
+53 | const _: u8 = cmp::min_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
 error[E0308]: mismatched types
   --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:55:43
    |
@@ -858,28 +829,14 @@ error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
              NonZero<i32>
              NonZero<i64>
            and $N others
-   = note: required for `NotCmp` to implement `ConstCmpUnref`
-note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
   --> src/cmp/const_cmp.rs
    |
-   |     R: ?Sized + ConstCmpUnref<This = T>,
-   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
 ...
    |     pub const NEW: Self = Self(PhantomData);
    |               --- required by a bound in this associated constant
-   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0034]: multiple applicable items in scope
-  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:56:15
-   |
-56 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| NotCmp);
-   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
-   |
-   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
-   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
-   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
-   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
-   = note: and 87 others
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
@@ -898,15 +855,23 @@ error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
              NonZero<i32>
              NonZero<i64>
            and $N others
-note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
   --> src/cmp/const_cmp.rs
    |
-   |     T: ?Sized + ConstCmp,
-   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
 ...
    |     pub const NEW: Self = Self(PhantomData);
    |               --- required by a bound in this associated constant
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:56:15
+   |
+56 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| NotCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
   --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:57:15
@@ -947,18 +912,13 @@ help: change the type of the numeric literal from `u8` to `u32`
 59 + const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| -> u32 { 0u32 });
    |
 
-error[E0034]: multiple applicable items in scope
+error[E0282]: type annotations needed
   --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:59:15
    |
 59 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| -> u32 { 0u8 });
-   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
    |
-   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
-   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
-   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
-   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
-   = note: and 87 others
-   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
   --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:60:15
@@ -1038,28 +998,14 @@ error[E0277]: the trait bound `(): ConstCmp` is not satisfied
              NonZero<i32>
              NonZero<i64>
            and $N others
-   = note: required for `()` to implement `ConstCmpUnref`
-note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
   --> src/cmp/const_cmp.rs
    |
-   |     R: ?Sized + ConstCmpUnref<This = T>,
-   |                               ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
 ...
    |     pub const NEW: Self = Self(PhantomData);
    |               --- required by a bound in this associated constant
-   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0034]: multiple applicable items in scope
-  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:60:15
-   |
-60 | const _: u8 = cmp::max_by_key!(0u8, 3u8, unit);
-   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
-   |
-   = note: candidate #1 is defined in an impl for the type `IsAConstCmp<IsNotStdKind, T, R>`
-   = note: candidate #2 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T; N], R>`
-   = note: candidate #3 is defined in an impl for the type `IsAConstCmp<IsStdKind, [T], R>`
-   = note: candidate #4 is defined in an impl for the type `IsAConstCmp<IsStdKind, str, R>`
-   = note: and 87 others
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `(): ConstCmp` is not satisfied
@@ -1078,12 +1024,20 @@ error[E0277]: the trait bound `(): ConstCmp` is not satisfied
              NonZero<i32>
              NonZero<i64>
            and $N others
-note: required by a bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
   --> src/cmp/const_cmp.rs
    |
-   |     T: ?Sized + ConstCmp,
-   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<T as ConstCmp>::Kind, T, R>::NEW`
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
 ...
    |     pub const NEW: Self = Self(PhantomData);
    |               --- required by a bound in this associated constant
    = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:60:15
+   |
+60 | const _: u8 = cmp::max_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
