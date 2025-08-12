@@ -1,0 +1,46 @@
+error[E0277]: the trait bound `(): ConstIntoIter` is not satisfied
+ --> tests/misc_tests/iter_eval_ui_tests/non_iter_err.rs:2:5
+  |
+2 |     konst::iter::eval!((), map(|_| 10),fold(0, |l, r| l + r));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |     |
+  |     the trait `ConstIntoIter` is not implemented for `()`
+  |     required by a bound introduced by this call
+  |
+  = help: the following other types implement trait `ConstIntoIter`:
+            &&'a Option<T>
+            &&'a [T; N]
+            &&'a [T]
+            &'a Option<T>
+            &'a [T; N]
+            &'a [T]
+            &'a mut &mut Option<T>
+            &'a mut &mut [T; N]
+          and $N others
+note: required by a bound in `coerce`
+ --> src/iter.rs
+  |
+  | pub const fn coerce<T>(into_iter: T) -> CoerceTo<T>
+  |              ------ required by a bound in this function
+  | where
+  |     T: ConstIntoIter,
+  |        ^^^^^^^^^^^^^ required by this bound in `coerce`
+  = note: this error originates in the macro `$crate::__iter2_interpreter` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `(): ConstIntoIter` is not satisfied
+ --> tests/misc_tests/iter_eval_ui_tests/non_iter_err.rs:2:5
+  |
+2 |     konst::iter::eval!((), map(|_| 10),fold(0, |l, r| l + r));
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstIntoIter` is not implemented for `()`
+  |
+  = help: the following other types implement trait `ConstIntoIter`:
+            &&'a Option<T>
+            &&'a [T; N]
+            &&'a [T]
+            &'a Option<T>
+            &'a [T; N]
+            &'a [T]
+            &'a mut &mut Option<T>
+            &'a mut &mut [T; N]
+          and $N others
+  = note: this error originates in the macro `$crate::iter::into_iter` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

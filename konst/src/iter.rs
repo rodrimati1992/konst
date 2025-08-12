@@ -6,10 +6,13 @@
 //! [`IntoIterator`]: core::iter::IntoIterator
 //! [`Iterator`]: core::iter::Iterator
 
+use core::marker::PhantomData;
+use core::mem::ManuallyDrop;
+
+use typewit::TypeEq;
+
 #[macro_use]
 mod internal_iter_macros;
-
-use core::mem::ManuallyDrop;
 
 #[doc(no_inline)]
 pub use crate::polymorphism::kinds::{IsIntoIterKind, IsIteratorKind, IsStdKind};
@@ -316,7 +319,7 @@ pub trait ConstIntoIter {
     /// - [`IsIntoIterKind`]: user-defined types that are convertible to const iterators
     /// - [`IsIteratorKind`]: const iterators
     /// - [`IsStdKind`]: standard library types that are convertible to const iterators
-    type Kind;
+    type Kind: ConstIntoIterKind;
 
     /// The item that `Self::IntoIter` yields on `.next()`
     type Item;
@@ -340,52 +343,33 @@ pub trait ConstIntoIter {
 /// You're not intended to use this directly, the intended way to convert a type
 /// into a const iterator is with the [`into_iter`] macro.
 #[repr(transparent)]
-pub struct IntoIterWrapper<I, K>
-where
-    I: ConstIntoIter<Kind = K>,
-{
+pub struct IntoIterWrapper<I, K> {
     /// The value to be converted into an iterator
     pub iter: ManuallyDrop<I>,
+    _phantom: PhantomData<K>,
 }
 
-impl<T> IntoIterWrapper<T, IsStdKind>
+/// Coerces `into_iter` to a type that has a `const_into_iter` method
+#[inline(always)]
+pub const fn coerce<T>(into_iter: T) -> CoerceTo<T>
 where
-    T: ConstIntoIter<Kind = IsStdKind>,
+    T: ConstIntoIter,
 {
-    /// Performs the coercion to a type that has a `const_into_iter` method
-    #[inline(always)]
-    pub const fn coerce(self) -> Self {
-        self
+    match const { <T::Kind as ConstIntoIterKind>::__KIND_WITNESS.to_coercion_witness::<T>() } {
+        __CoercionWitness::Unwrapped(te) => te.to_left(into_iter),
+        __CoercionWitness::Wrapped(te) => te.to_left(IntoIterWrapper {
+            iter: ManuallyDrop::new(into_iter),
+            _phantom: PhantomData,
+        }),
     }
 }
 
-impl<T> IntoIterWrapper<T, IsIntoIterKind>
-where
-    T: ConstIntoIter<Kind = IsIntoIterKind>,
-{
-    /// Performs the coercion to a type that has a `const_into_iter` method
-    #[inline(always)]
-    pub const fn coerce(self) -> T {
-        ManuallyDrop::into_inner(self.iter)
-    }
-}
-
-impl<T> IntoIterWrapper<T, IsIteratorKind>
-where
-    T: ConstIntoIter<Kind = IsIteratorKind>,
-{
-    /// Performs the coercion to a type that has a `const_into_iter` method
-    #[inline(always)]
-    pub const fn coerce(self) -> Self {
-        self
-    }
-
+impl<T> IntoIterWrapper<T, IsIteratorKind> {
     /// Converts `T` into a const iterator.
     /// Since `T` is already an iterator, this does nothing.
-    #[inline(always)]
     pub const fn const_into_iter(self) -> T
     where
-        T: ConstIntoIter<IntoIter = T>,
+        T: ConstIntoIter<Kind = IsIteratorKind, IntoIter = T>,
     {
         ManuallyDrop::into_inner(self.iter)
     }
@@ -401,6 +385,92 @@ where
     type Item = <T as ConstIntoIter>::Item;
     type IntoIter = &'a mut T;
     const ITEMS_NEED_DROP: bool = false;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/// Trait for the types that are assignable to [`ConstCmp::Kind`]
+pub trait ConstIntoIterKind: Sized {
+    /// Computes the type returned by [`IntoIterWrapper::coerce`]:
+    /// - `IntoIterWrapper<T>` if `Self == `[`IsStdKind`].
+    /// - `T` if `Self == `[`IsIntoIterKind`].
+    /// - `T` if `Self == `[`IsIteratorKind`].
+    type CoerceTo<T>;
+
+    #[doc(hidden)]
+    const __KIND_WITNESS: __ConstIntoIterKindWitness<Self>;
+}
+
+impl ConstIntoIterKind for IsStdKind {
+    type CoerceTo<T> = IntoIterWrapper<T, Self>;
+
+    #[doc(hidden)]
+    const __KIND_WITNESS: __ConstIntoIterKindWitness<Self> =
+        __ConstIntoIterKindWitness::IsStdKind(TypeEq::NEW);
+}
+
+impl ConstIntoIterKind for IsIntoIterKind {
+    type CoerceTo<T> = T;
+
+    #[doc(hidden)]
+    const __KIND_WITNESS: __ConstIntoIterKindWitness<Self> =
+        __ConstIntoIterKindWitness::IsIntoIterKind(TypeEq::NEW);
+}
+
+impl ConstIntoIterKind for IsIteratorKind {
+    type CoerceTo<T> = IntoIterWrapper<T, Self>;
+
+    #[doc(hidden)]
+    const __KIND_WITNESS: __ConstIntoIterKindWitness<Self> =
+        __ConstIntoIterKindWitness::IsIteratorKind(TypeEq::NEW);
+}
+
+/// Computes the type returned by [`IntoIterWrapper::coerce`]:
+/// - `IntoIterWrapper<T>` if `T::Kind == `[`IsStdKind`].
+/// - `T` if `T::Kind == `[`IsIntoIterKind`].
+/// - `IntoIterWrapper<T>` if `T::Kind == `[`IsIteratorKind`].
+pub type CoerceTo<T> = <<T as ConstIntoIter>::Kind as ConstIntoIterKind>::CoerceTo<T>;
+
+#[doc(hidden)]
+pub enum __ConstIntoIterKindWitness<Kind> {
+    IsStdKind(TypeEq<Kind, IsStdKind>),
+    IsIntoIterKind(TypeEq<Kind, IsIntoIterKind>),
+    IsIteratorKind(TypeEq<Kind, IsIteratorKind>),
+}
+
+impl<Kind> __ConstIntoIterKindWitness<Kind> {
+    const fn to_coercion_witness<T>(self) -> __CoercionWitness<T>
+    where
+        T: ConstIntoIter<Kind = Kind>,
+        Kind: ConstIntoIterKind,
+    {
+        typewit::type_fn! {
+            struct CoerceToFn<T>;
+            impl<K: ConstIntoIterKind> K => <K as ConstIntoIterKind>::CoerceTo<T>
+        }
+        typewit::type_fn! {
+            struct IntoIterWrapperFn<T>;
+            impl<K: ConstIntoIterKind> K => IntoIterWrapper<T, K>
+        }
+
+        match self {
+            Self::IsStdKind(te) => __CoercionWitness::Wrapped(
+                te.project::<CoerceToFn<T>>()
+                    .join(te.project::<IntoIterWrapperFn<T>>().flip()),
+            ),
+            Self::IsIntoIterKind(te) => __CoercionWitness::Unwrapped(te.project::<CoerceToFn<T>>()),
+            Self::IsIteratorKind(te) => __CoercionWitness::Wrapped(
+                te.project::<CoerceToFn<T>>()
+                    .join(te.project::<IntoIterWrapperFn<T>>().flip()),
+            ),
+        }
+    }
+}
+
+#[doc(hidden)]
+enum __CoercionWitness<T: ConstIntoIter> {
+    Wrapped(TypeEq<CoerceTo<T>, IntoIterWrapper<T, T::Kind>>),
+    Unwrapped(TypeEq<CoerceTo<T>, T>),
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -541,10 +611,6 @@ pub use crate::__into_iter as into_iter;
 #[macro_export]
 macro_rules! __into_iter {
     ($iter:expr) => {
-        $crate::iter::IntoIterWrapper {
-            iter: $crate::__::ManuallyDrop::new($iter),
-        }
-        .coerce()
-        .const_into_iter()
+        $crate::iter::coerce($iter).const_into_iter()
     };
 }

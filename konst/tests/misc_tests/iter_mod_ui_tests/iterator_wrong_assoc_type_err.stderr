@@ -24,12 +24,12 @@ note: expected this to be `WrongIntoIter`
    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    = note: expected struct `WrongIntoIter`
               found struct `IterCopied<'static, u8>`
-note: required by a bound in `IntoIterWrapper::<T, IsIteratorKind>::const_into_iter`
+note: required by a bound in `IntoIterWrapper::<T, konst::iter::IsIteratorKind>::const_into_iter`
   --> src/iter.rs
    |
    |     pub const fn const_into_iter(self) -> T
    |                  --------------- required by a bound in this associated function
    |     where
-   |         T: ConstIntoIter<IntoIter = T>,
-   |                          ^^^^^^^^^^^^ required by this bound in `IntoIterWrapper::<T, IsIteratorKind>::const_into_iter`
+   |         T: ConstIntoIter<Kind = IsIteratorKind, IntoIter = T>
+   |                                                 ^^^^^^^^^^^^ required by this bound in `IntoIterWrapper::<T, IsIteratorKind>::const_into_iter`
    = note: this error originates in the macro `$crate::iter::into_iter` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
