@@ -25,7 +25,7 @@ pub mod nonnull {
 
     /// Const equivalent of
     /// [`<NonNull<T> as From<&T>>::from`
-    /// ](https://doc.rust-lang.org/1.88.0/std/ptr/struct.NonNull.html#impl-From%3C%26%27_%20T%3E)
+    /// ](https://doc.rust-lang.org/1.89.0/std/ptr/struct.NonNull.html#impl-From%3C%26%27_%20T%3E)
     ///
     /// # Example
     ///
@@ -49,7 +49,7 @@ pub mod nonnull {
 
     /// Const equivalent of
     /// [`<NonNull<T> as From<&mut T>>::from`
-    /// ](https://doc.rust-lang.org/1.88.0/std/ptr/struct.NonNull.html#impl-From%3C%26%27_%20mut%20T%3E)
+    /// ](https://doc.rust-lang.org/1.89.0/std/ptr/struct.NonNull.html#impl-From%3C%26%27_%20mut%20T%3E)
     ///
     /// # Example
     ///

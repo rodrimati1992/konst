@@ -14,7 +14,7 @@ use alloc::borrow::Cow;
 declare_generic_const! {
     /// An empty `Cow<'_, [T]>`. Usable to construct a `[Cow<'_, [T]>; N]`.
     ///
-    /// As of Rust 1.88.0, `[Cow::Borrowed(&[][..]); LEN]` is not valid,
+    /// As of Rust 1.89.0, `[Cow::Borrowed(&[][..]); LEN]` is not valid,
     /// because `Cow<'_, [T]>` isn't copy,
     /// but `[CONST; LEN]` does work, like in the example below.
     ///
