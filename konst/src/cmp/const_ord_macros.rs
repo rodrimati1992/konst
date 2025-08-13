@@ -369,11 +369,16 @@ pub use crate::__try_equal as try_equal;
 #[macro_export]
 macro_rules! __try_equal {
     ($ord:expr $(,)*) => {
-        match $ord {
+        match ($crate::cmp::__AssertOrdering { x: $ord }.x) {
             $crate::__::Ordering::Equal => $crate::__::Ordering::Equal,
             ord => return ord,
         }
     };
+}
+
+#[doc(hidden)]
+pub struct __AssertOrdering {
+    pub x: core::cmp::Ordering,
 }
 
 #[cfg(feature = "cmp")]

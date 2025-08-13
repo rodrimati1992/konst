@@ -1,0 +1,39 @@
+error: unexpected end of macro invocation
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_other_macros_syntax_err.rs:4:13
+  |
+4 |     let _ = cmp::coerce_to_cmp!();
+  |             ^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+  |
+note: while trying to match meta-variable `$reference:expr`
+ --> src/cmp/coerce_to_cmp_macros.rs
+  |
+  |     ($reference:expr $(,)*) => {
+  |      ^^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_other_macros_syntax_err.rs:5:16
+  |
+5 |     let _ = || cmp::try_equal!();
+  |                ^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+  |
+note: while trying to match meta-variable `$ord:expr`
+ --> src/cmp/const_ord_macros.rs
+  |
+  |     ($ord:expr $(,)*) => {
+  |      ^^^^^^^^^
+
+error: expected implementation, found these tokens: ``
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_other_macros_syntax_err.rs:8:1
+  |
+8 | cmp::impl_cmp!{}
+  | ^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__impl_cmp_recursive` which comes from the expansion of the macro `cmp::impl_cmp` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected implementation, found these tokens: `impl`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_other_macros_syntax_err.rs:10:1
+   |
+10 | cmp::impl_cmp!{impl}
+   | ^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__impl_cmp_recursive` which comes from the expansion of the macro `cmp::impl_cmp` (in Nightly builds, run with -Z macro-backtrace for more info)

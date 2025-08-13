@@ -1,0 +1,84 @@
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_other_macros_type_err.rs:8:13
+  |
+8 |     let _ = cmp::coerce_to_cmp!(NotCmp);
+  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+  |
+  = help: the following other types implement trait `ConstCmp`:
+            &T
+            &mut T
+            CmpWrapper<P>
+            NonZero<i128>
+            NonZero<i16>
+            NonZero<i32>
+            NonZero<i64>
+            NonZero<i8>
+          and $N others
+note: required by a bound in `__AssertConstCmp`
+ --> src/cmp/const_cmp.rs
+  |
+  | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+  |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+  = note: this error originates in the macro `cmp::coerce_to_cmp` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_other_macros_type_err.rs:8:13
+  |
+8 |     let _ = cmp::coerce_to_cmp!(NotCmp);
+  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+  |
+  = help: the following other types implement trait `ConstCmp`:
+            &T
+            &mut T
+            CmpWrapper<P>
+            NonZero<i128>
+            NonZero<i16>
+            NonZero<i32>
+            NonZero<i64>
+            NonZero<i8>
+          and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+ --> src/cmp/const_cmp.rs
+  |
+  |     R: ?Sized + ConstCmp,
+  |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+  |     pub const NEW: Self = Self(PhantomData);
+  |               --- required by a bound in this associated constant
+  = note: this error originates in the macro `cmp::coerce_to_cmp` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_other_macros_type_err.rs:10:32
+   |
+10 |     let _ = || cmp::try_equal!(0u8);
+   |                                ^^^ expected `Ordering`, found `u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_other_macros_type_err.rs:11:24
+   |
+11 |     let _ = || -> () { cmp::try_equal!(Equal) };
+   |                   --   ^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Ordering`
+   |                   |
+   |                   expected `()` because of return type
+   |
+   = note: this error originates in the macro `cmp::try_equal` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_other_macros_type_err.rs:11:24
+   |
+11 |     let _ = || -> () { cmp::try_equal!(Equal) };
+   |                   --   ^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Ordering`
+   |                   |
+   |                   expected `()` because of return type
+   |
+   = note: this error originates in the macro `cmp::try_equal` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_other_macros_type_err.rs:12:24
+   |
+12 |     let _ = || -> () { cmp::try_equal!(Equal); };
+   |                   --   ^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Ordering`
+   |                   |
+   |                   expected `()` because of return type
+   |
+   = note: this error originates in the macro `cmp::try_equal` (in Nightly builds, run with -Z macro-backtrace for more info)

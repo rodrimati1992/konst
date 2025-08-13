@@ -149,9 +149,9 @@ macro_rules! __impl_cmp_recursive{
         tokens[
             $(#[$impl_attr:meta])*
             impl[$($impl_:tt)*] $type:ty
-            $(where[ $($where:tt)* ])?;
+            $(where[ $($where:tt)* ])?
 
-            $($rem:tt)*
+            $(;$($rem:tt)*)?
         ]
     ) => (
         $crate::__impl_cmp_recursive!{
@@ -165,7 +165,7 @@ macro_rules! __impl_cmp_recursive{
                 )
             ]
             tokens[
-                $($rem)*
+                $($($rem)*)?
             ]
         }
     );
@@ -176,9 +176,9 @@ macro_rules! __impl_cmp_recursive{
         tokens[
             $(#[$impl_attr:meta])*
             impl $type:ty
-            $(where[ $($where:tt)* ])?;
+            $(where[ $($where:tt)* ])?
 
-            $($rem:tt)*
+            $(;$($rem:tt)*)?
         ]
     ) => (
         $crate::__impl_cmp_recursive!{
@@ -192,7 +192,7 @@ macro_rules! __impl_cmp_recursive{
                 )
             ]
             tokens[
-                $($rem)*
+                $($($rem)*)?
             ]
         }
     );
@@ -206,6 +206,16 @@ macro_rules! __impl_cmp_recursive{
                 $stuff
             }
         )+
+    );
+    (
+        impls [  ]
+        tokens [ $($stuff:tt)* ]
+    ) => (
+        $crate::__::compile_error!{$crate::__::concat!(
+            "expected implementation, found these tokens: `",
+            $crate::__::stringify!($($stuff)*),
+            "`",
+        )}
     );
 }
 

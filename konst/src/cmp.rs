@@ -16,6 +16,7 @@ mod minmax_macros;
 pub use self::{
     cmp_wrapper::CmpWrapper,
     const_cmp::{__AssertConstCmp, CoerceTo, ConstCmp, ConstCmpKind, IsAConstCmp},
+    const_ord_macros::__AssertOrdering,
 };
 
 #[doc(inline)]
