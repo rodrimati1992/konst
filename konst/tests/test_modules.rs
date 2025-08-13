@@ -31,8 +31,6 @@ mod misc_tests {
 
     mod string_tests;
 
-    mod ptr_tests;
-
     #[cfg(feature = "cmp")]
     mod other_types_tests;
 

@@ -16,6 +16,14 @@
 //! - `last_mut`: [slice::last_mut]
 //! - `split_first_mut`: [slice::split_first_mut]
 //! - `split_last_mut`: [slice::split_last_mut]
+//!
+//! The `array_chunks*` functions were removed in 0.4.0 because the
+//! unstable equivalent function was removed.
+//! You can replace instances of `konst::slice::array_chunks(slice)`
+//! with `konst::slice::iter(slice.as_chunks().0)`.
+//!
+//!
+//!
 
 use core::fmt::{self, Display};
 

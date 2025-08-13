@@ -9,9 +9,6 @@ use konst::{
 #[cfg(feature = "cmp")]
 use konst::slice::cmp::{cmp_option_slice_bytes, eq_option_slice_bytes};
 
-#[cfg(feature = "iter")]
-mod array_chunks_tests;
-
 mod bytes_fns_tests;
 
 mod slice_concatenation_tests;

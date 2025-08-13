@@ -37,7 +37,7 @@ pub(super) const fn string_to_char(s: &str) -> char {
     unsafe { char::from_u32_unchecked(c) }
 }
 
-/// Cosnt equivalent of [`str::chars`].
+/// Const equivalent of [`str::chars`].
 ///
 /// # Example
 ///
@@ -149,7 +149,7 @@ impl<'a> RChars<'a> {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Cosnt equivalent of [`str::char_indices`].
+/// Const equivalent of [`str::char_indices`].
 ///
 /// # Example
 ///
