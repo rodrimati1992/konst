@@ -1,18 +1,13 @@
-use konst::{cmp_str, eq_str, slice::try_into_array};
+use konst::slice::try_into_array;
 
 #[cfg(feature = "cmp")]
 use konst::{
     cmp::{const_cmp, const_eq},
-    slice::cmp::{cmp_slice_bytes, cmp_slice_u8, eq_slice_bytes, eq_slice_u8},
+    slice::cmp::{self as slice_cmp, cmp_slice_bytes, eq_slice_bytes},
 };
 
 #[cfg(feature = "cmp")]
-use konst::{
-    cmp_option_str, eq_option_str,
-    slice::cmp::{
-        cmp_option_slice_bytes, cmp_option_slice_u8, eq_option_slice_bytes, eq_option_slice_u8,
-    },
-};
+use konst::slice::cmp::{cmp_option_slice_bytes, eq_option_slice_bytes};
 
 #[cfg(feature = "iter")]
 mod array_chunks_tests;
@@ -30,19 +25,134 @@ mod non_iter_slice_iterators;
 #[test]
 #[cfg(feature = "cmp")]
 fn eq_slice_test() {
-    assertc_opt_eq_rets! {
-        &[u8], eq_slice_u8, eq_option_slice_u8 =>
+    macro_rules! cases {
+        ($(($ty:ident $eq:ident $eq_opt:ident))*) => ($({
+            assertc_opt_eq_rets! {
+                &[$ty], slice_cmp::$eq, slice_cmp::$eq_opt =>
 
+                (&[], &[], true)
+                (&[], &[0], false)
+                (&[0], &[], false)
+                (&[0], &[0], true)
+                (&[0], &[1], false)
+                (&[1], &[0], false)
+                (&[0], &[0, 1], false)
+                (&[0, 1], &[0], false)
+                (&[0, 1], &[0, 1], true)
+                (&[0, 1], &[0, 2], false)
+            }
+        })*)
+    }
+
+    cases! {
+        (u8 eq_slice_u8 eq_option_slice_u8)
+        (u16 eq_slice_u16 eq_option_slice_u16)
+        (u32 eq_slice_u32 eq_option_slice_u32)
+        (u64 eq_slice_u64 eq_option_slice_u64)
+        (u128 eq_slice_u128 eq_option_slice_u128)
+        (usize eq_slice_usize eq_option_slice_usize)
+        (i8 eq_slice_i8 eq_option_slice_i8)
+        (i16 eq_slice_i16 eq_option_slice_i16)
+        (i32 eq_slice_i32 eq_option_slice_i32)
+        (i64 eq_slice_i64 eq_option_slice_i64)
+        (i128 eq_slice_i128 eq_option_slice_i128)
+        (isize eq_slice_isize eq_option_slice_isize)
+    }
+}
+
+#[test]
+#[cfg(feature = "cmp")]
+fn cmp_slice_test() {
+    use core::cmp::Ordering::{Equal, Greater, Less};
+
+    macro_rules! cases {
+        ($(($ty:ident $eq:ident $eq_opt:ident))*) => ($({
+            assertc_opt_cmp! {
+                &[$ty], slice_cmp::$eq, slice_cmp::$eq_opt =>
+                (&[], &[], Equal)
+                (&[], &[0], Less)
+                (&[0], &[], Greater)
+                (&[0], &[0], Equal)
+                (&[0], &[1], Less)
+                (&[0], &[0, 1], Less)
+                (&[0, 1], &[0, 1], Equal)
+                (&[0, 1], &[0, 2], Less)
+            }
+        })*)
+    }
+
+    cases! {
+        (u8 cmp_slice_u8 cmp_option_slice_u8)
+        (u16 cmp_slice_u16 cmp_option_slice_u16)
+        (u32 cmp_slice_u32 cmp_option_slice_u32)
+        (u64 cmp_slice_u64 cmp_option_slice_u64)
+        (u128 cmp_slice_u128 cmp_option_slice_u128)
+        (usize cmp_slice_usize cmp_option_slice_usize)
+        (i8 cmp_slice_i8 cmp_option_slice_i8)
+        (i16 cmp_slice_i16 cmp_option_slice_i16)
+        (i32 cmp_slice_i32 cmp_option_slice_i32)
+        (i64 cmp_slice_i64 cmp_option_slice_i64)
+        (i128 cmp_slice_i128 cmp_option_slice_i128)
+        (isize cmp_slice_isize cmp_option_slice_isize)
+    }
+}
+
+#[test]
+#[cfg(feature = "cmp")]
+fn cmp_slice_char_test() {
+    use core::cmp::Ordering::{Equal, Greater, Less};
+
+    assertc_opt_eq_rets! {
+        &[char], slice_cmp::eq_slice_char, slice_cmp::eq_option_slice_char =>
         (&[], &[], true)
-        (&[], &[0], false)
-        (&[0], &[], false)
-        (&[0], &[0], true)
-        (&[0], &[1], false)
-        (&[1], &[0], false)
-        (&[0], &[0, 1], false)
-        (&[0, 1], &[0], false)
-        (&[0, 1], &[0, 1], true)
-        (&[0, 1], &[0, 2], false)
+        (&[], &['0'], false)
+        (&['0'], &[], false)
+        (&['0'], &['0'], true)
+        (&['0'], &['1'], false)
+        (&['0'], &['0', '1'], false)
+        (&['0', '1'], &['0', '1'], true)
+        (&['0', '1'], &['0', '2'], false)
+    }
+
+    assertc_opt_cmp! {
+        &[char], slice_cmp::cmp_slice_char, slice_cmp::cmp_option_slice_char =>
+        (&[], &[], Equal)
+        (&[], &['0'], Less)
+        (&['0'], &[], Greater)
+        (&['0'], &['0'], Equal)
+        (&['0'], &['1'], Less)
+        (&['0'], &['0', '1'], Less)
+        (&['0', '1'], &['0', '1'], Equal)
+        (&['0', '1'], &['0', '2'], Less)
+    }
+}
+
+#[test]
+#[cfg(feature = "cmp")]
+fn cmp_slice_bool_test() {
+    use core::cmp::Ordering::{Equal, Greater, Less};
+
+    assertc_opt_eq_rets! {
+        &[bool], slice_cmp::eq_slice_bool, slice_cmp::eq_option_slice_bool =>
+        (&[], &[], true)
+        (&[], &[false], false)
+        (&[false], &[], false)
+        (&[false], &[false], true)
+        (&[false], &[true], false)
+        (&[false], &[false, true], false)
+        (&[false, true], &[false, true], true)
+    }
+
+    assertc_opt_cmp! {
+        &[bool], slice_cmp::cmp_slice_bool, slice_cmp::cmp_option_slice_bool =>
+        (&[], &[], Equal)
+        (&[], &[false], Less)
+        (&[false], &[], Greater)
+        (&[false], &[false], Equal)
+        (&[false], &[true], Less)
+        (&[false], &[false, true], Less)
+        (&[false, true], &[false, true], Equal)
+        (&[false, false], &[false, true], Less)
     }
 }
 
@@ -68,43 +178,6 @@ fn slice_of_bytes_eq_test() {
         (&[&[0], &[1, 2]], &[&[0], &[1]], false)
         (&[&[0], &[1, 2]], &[&[0], &[1, 2]], true)
         (&[&[0], &[1, 2]], &[&[0], &[1, 3]], false)
-    }
-}
-
-#[test]
-#[cfg(feature = "cmp")]
-fn eq_str_test() {
-    assertc_opt_eq_rets! {
-        &str, eq_str, eq_option_str =>
-        ("", "", true)
-        ("", "0", false)
-        ("0", "", false)
-        ("0", "0", true)
-        ("0", "1", false)
-        ("1", "0", false)
-        ("0", "0, 1", false)
-        ("0, 1", "0", false)
-        ("0, 1", "1", false)
-        ("0, 1", "0, 1", true)
-        ("0, 1", "0, 2", false)
-    }
-}
-
-#[test]
-#[cfg(feature = "cmp")]
-fn cmp_slice_test() {
-    use core::cmp::Ordering::{Equal, Greater, Less};
-
-    assertc_opt_cmp! {
-        &[u8], cmp_slice_u8, cmp_option_slice_u8 =>
-        (&[], &[], Equal)
-        (&[], &[0], Less)
-        (&[0], &[], Greater)
-        (&[0], &[0], Equal)
-        (&[0], &[1], Less)
-        (&[0], &[0, 1], Less)
-        (&[0, 1], &[0, 1], Equal)
-        (&[0, 1], &[0, 2], Less)
     }
 }
 
@@ -139,21 +212,55 @@ fn slice_of_bytes_cmp_test() {
 
 #[test]
 #[cfg(feature = "cmp")]
-fn cmp_str_test() {
+fn slice_of_str_eq_test() {
+    assertc_opt_eq_rets! {
+        &[&str], slice_cmp::eq_slice_str, slice_cmp::eq_option_slice_str =>
+        (&[], &[], true)
+        (&[], &["0"], false)
+        (&["0"], &[], false)
+        (&["0"], &["0"], true)
+        (&["0"], &["1"], false)
+        (&["1"], &["0"], false)
+
+        (&["0"], &["01"], false)
+        (&["01"], &["0"], false)
+        (&["01"], &["01"], true)
+        (&["01"], &["02"], false)
+
+        (&["0", "1"], &["0", "1"], true)
+        (&["0", "1"], &["0", "12"], false)
+        (&["0", "12"], &["0", "1"], false)
+        (&["0", "12"], &["0", "12"], true)
+        (&["0", "12"], &["0", "13"], false)
+    }
+}
+
+#[test]
+#[cfg(feature = "cmp")]
+fn slice_of_str_cmp_test() {
     use core::cmp::Ordering::{Equal, Greater, Less};
 
     assertc_opt_cmp! {
-        &str, cmp_str, cmp_option_str =>
-        ("0", "", Greater)
-        ("0", "1", Less)
-        ("0", "01", Less)
-        ("1", "01", Greater)
-        ("099999", "12", Less)
-        ("111111", "12", Less)
-        ("120", "12", Greater)
-        ("199999", "12", Greater)
-        ("299999", "12", Greater)
-        ("01", "02", Less)
+        &[&str], slice_cmp::cmp_slice_str, slice_cmp::cmp_option_slice_str =>
+
+        (&[], &[], Equal)
+        (&[], &["0"], Less)
+        (&["0"], &[], Greater)
+        (&["0"], &["0"], Equal)
+        (&["0"], &["1"], Less)
+        (&["1"], &["0"], Greater)
+
+        (&["0"], &["01"], Less)
+        (&["01"], &["0"], Greater)
+        (&["01"], &["01"], Equal)
+        (&["01"], &["02"], Less)
+
+        (&["0", "1"], &["0", "1"], Equal)
+        (&["1", "1"], &["0", "1"], Greater)
+        (&["0", "1"], &["0", "12"], Less)
+        (&["0", "12"], &["0", "1"], Greater)
+        (&["0", "12"], &["0", "12"], Equal)
+        (&["0", "12"], &["0", "13"], Less)
     }
 }
 

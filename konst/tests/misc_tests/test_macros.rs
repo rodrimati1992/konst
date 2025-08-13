@@ -1,9 +1,15 @@
+macro_rules! __first_ty {
+    ($first:ty $(, $($_ignore:tt)*)?) => {
+        $first
+    };
+}
+
 macro_rules! assertc_eq_rets {
-    ($ty:ty, $function:expr => $left:expr, $right:expr, $expected:expr) => {{
+    ($ty:ty, $function:expr $(, $ty2:ty)? => $left:expr, $right:expr, $expected:expr) => {{
         use konst::cmp::const_eq;
 
         let left: $ty = $left;
-        let right: $ty = $right;
+        let right: __first_ty!($($ty2 ,)? $ty) = $right;
 
         assert_eq!(
             $function(left, right),

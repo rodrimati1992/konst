@@ -1,5 +1,10 @@
 use konst::string;
 
+use konst::{cmp_str, eq_str};
+
+#[cfg(feature = "cmp")]
+use konst::{cmp_option_str, eq_option_str};
+
 use super::test_utils::must_panic;
 
 #[cfg(feature = "iter")]
@@ -203,4 +208,43 @@ fn from_utf8_test() {
 #[should_panic]
 fn from_utf8_panics() {
     let _ = bytes_to_string(&[255, 255, 255]);
+}
+
+#[test]
+#[cfg(feature = "cmp")]
+fn eq_str_test() {
+    assertc_opt_eq_rets! {
+        &str, eq_str, eq_option_str =>
+        ("", "", true)
+        ("", "0", false)
+        ("0", "", false)
+        ("0", "0", true)
+        ("0", "1", false)
+        ("1", "0", false)
+        ("0", "0, 1", false)
+        ("0, 1", "0", false)
+        ("0, 1", "1", false)
+        ("0, 1", "0, 1", true)
+        ("0, 1", "0, 2", false)
+    }
+}
+
+#[test]
+#[cfg(feature = "cmp")]
+fn cmp_str_test() {
+    use core::cmp::Ordering::{Equal, Greater, Less};
+
+    assertc_opt_cmp! {
+        &str, cmp_str, cmp_option_str =>
+        ("0", "", Greater)
+        ("0", "1", Less)
+        ("0", "01", Less)
+        ("1", "01", Greater)
+        ("099999", "12", Less)
+        ("111111", "12", Less)
+        ("120", "12", Greater)
+        ("199999", "12", Greater)
+        ("299999", "12", Greater)
+        ("01", "02", Less)
+    }
 }
