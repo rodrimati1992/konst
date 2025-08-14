@@ -3,7 +3,10 @@ use konst::slice::try_into_array;
 #[cfg(feature = "cmp")]
 use konst::{
     cmp::{const_cmp, const_eq},
-    slice::cmp::{self as slice_cmp, cmp_slice_bytes, eq_slice_bytes},
+    slice::{
+        self,
+        cmp::{self as slice_cmp, cmp_slice_bytes, eq_slice_bytes},
+    },
 };
 
 #[cfg(feature = "cmp")]
@@ -545,4 +548,59 @@ fn slice_iter_mut_rev() {
 
     assert_eq!(*iter.next_back().unwrap(), 13);
     assert!(iter.next_back().is_none());
+}
+
+#[test]
+fn fill_test() {
+    const fn filler<const N: usize>(val: u8) -> [u8; N] {
+        let mut array = [0; N];
+        slice::fill(&mut array, val);
+        array
+    }
+
+    assert_eq!(filler::<0>(5).as_slice(), [5u8; 0].as_slice());
+    assert_eq!(filler::<1>(8).as_slice(), [8u8; 1].as_slice());
+    assert_eq!(filler::<2>(13).as_slice(), [13u8; 2].as_slice());
+    assert_eq!(filler::<3>(21).as_slice(), [21u8; 3].as_slice());
+}
+
+#[test]
+fn fill_with_closure_test() {
+    const fn filler<const N: usize>() -> [u8; N] {
+        let mut array = [0; N];
+        let mut i = 0u8;
+
+        slice::fill_with!(&mut array, || {
+            i += 1;
+            i.pow(2)
+        });
+
+        array
+    }
+
+    assert_eq!(filler::<0>().as_slice(), [0u8; 0].as_slice());
+    assert_eq!(filler::<1>().as_slice(), [1].as_slice());
+    assert_eq!(filler::<2>().as_slice(), [1, 4].as_slice());
+    assert_eq!(filler::<3>().as_slice(), [1, 4, 9].as_slice());
+}
+
+#[test]
+fn fill_with_func_test() {
+    #[derive(Debug, PartialEq)]
+    struct NonCopy(u8);
+
+    const fn filler<const N: usize>() -> [NonCopy; N] {
+        const fn returner<const N: usize>() -> NonCopy {
+            NonCopy(N as u8 + 5)
+        }
+
+        let mut array = [const { NonCopy(0) }; N];
+        slice::fill_with!(&mut array, returner::<N>);
+        array
+    }
+
+    assert_eq!(filler::<0>().as_slice(), [].map(NonCopy).as_slice());
+    assert_eq!(filler::<1>().as_slice(), [6].map(NonCopy).as_slice());
+    assert_eq!(filler::<2>().as_slice(), [7, 7].map(NonCopy).as_slice());
+    assert_eq!(filler::<3>().as_slice(), [8, 8, 8].map(NonCopy).as_slice());
 }

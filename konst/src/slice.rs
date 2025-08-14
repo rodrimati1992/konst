@@ -35,6 +35,7 @@ pub mod cmp;
 mod bytes_pattern;
 mod slice_concatenation;
 mod slice_const_methods;
+mod slice_filler;
 
 #[cfg(feature = "iter")]
 mod slice_iter_methods;
@@ -45,6 +46,7 @@ pub(crate) use bytes_pattern::PatternNorm;
 
 pub use self::slice_concatenation::*;
 pub use self::slice_const_methods::*;
+pub use self::slice_filler::*;
 
 #[cfg(feature = "iter")]
 pub use slice_iter_methods::*;
@@ -290,4 +292,14 @@ pub const fn try_into_array_mut<T, const N: usize>(
             array_len: N,
         })
     }
+}
+
+#[doc(hidden)]
+pub struct __AssertSlice<'a, T> {
+    pub x: &'a [T],
+}
+
+#[doc(hidden)]
+pub struct __AssertSliceMut<'a, T> {
+    pub x: &'a mut [T],
 }

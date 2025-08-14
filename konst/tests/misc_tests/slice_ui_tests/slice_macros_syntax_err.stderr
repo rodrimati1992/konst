@@ -1,0 +1,69 @@
+error: unexpected end of macro invocation
+ --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:6:5
+  |
+6 |     slice::fill_with!();
+  |     ^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+  |
+note: while trying to match meta-variable `$slice:expr`
+ --> src/slice/slice_filler.rs
+  |
+  |     ($slice:expr, || $v:expr $(,)?) => {
+  |      ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+ --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:7:26
+  |
+7 |     slice::fill_with!(arr);
+  |                          ^ missing tokens in macro arguments
+  |
+note: while trying to match `,`
+ --> src/slice/slice_filler.rs
+  |
+  |     ($slice:expr, || $v:expr $(,)?) => {
+  |                 ^
+
+error: unexpected end of macro invocation
+ --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:8:27
+  |
+8 |     slice::fill_with!(arr,);
+  |                           ^ missing tokens in macro arguments
+  |
+note: while trying to match `||`
+ --> src/slice/slice_filler.rs
+  |
+  |     ($slice:expr, || $v:expr $(,)?) => {
+  |                   ^^
+
+error: expected a closure that takes no arguments
+ --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:9:5
+  |
+9 |     slice::fill_with!(arr,| wdwqd);
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `slice::fill_with` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected expression, found end of macro arguments
+  --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:10:29
+   |
+10 |     slice::fill_with!(arr,||);
+   |                           --^ expected expression
+   |                           |
+   |                           while parsing the body of this closure
+   |
+  ::: src/slice/slice_filler.rs
+   |
+   |     ($slice:expr, $v:expr $(,)?) => {
+   |                   ------- while parsing argument for this `expr` macro fragment
+   |
+help: you might have meant to open the body of the closure
+   |
+10 |     slice::fill_with!(arr,|| {);
+   |                              +
+
+error: expected a closure that takes no arguments
+  --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:11:5
+   |
+11 |     slice::fill_with!(arr,|_|);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `slice::fill_with` (in Nightly builds, run with -Z macro-backtrace for more info)
