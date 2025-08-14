@@ -40,6 +40,8 @@ use drop_warning;
 ///
 #[doc = drop_warning!()]
 ///
+#[doc = crate::docs::closure_arg_annotated_params_limitations_docs!("")]
+///
 /// # Example
 ///
 /// ```rust
@@ -66,6 +68,7 @@ pub use crate::__array_map_by_val as map;
 ///
 #[doc = drop_warning!()]
 ///
+#[doc = crate::docs::closure_arg_annotated_params_limitations_docs!("")]
 ///
 /// # Example
 ///

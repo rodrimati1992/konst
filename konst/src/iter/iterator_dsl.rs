@@ -12,6 +12,12 @@ used in examples here purely for simplicity.
 The behavior regarding dropping iterators is
 [documented here](crate::iter::ConstIntoIter#dropping).
 
+# Closure Argument
+
+Many of the methods accept a closure argument, it must be one of:
+*/
+#![doc = crate::docs::closure_arg_annotated_params_options_docs!("")]
+/*!
 # Methods
 
 Every iterator method below behaves the same as in the [`Iterator`] trait,

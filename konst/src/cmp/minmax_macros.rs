@@ -72,6 +72,8 @@ macro_rules! __max {
 ///
 /// Returns the `$left` argument if both compare equal.
 ///
+#[doc = crate::docs::closure_arg_annotated_params_limitations_docs!("")]
+///
 /// # Example
 ///
 /// ```rust
@@ -113,6 +115,8 @@ macro_rules! __min_by {
 /// Const equivalent of [`std::cmp::max_by`](core::cmp::max_by)
 ///
 /// Returns the `$right` argument if both compare equal.
+///
+#[doc = crate::docs::closure_arg_annotated_params_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -203,6 +207,8 @@ macro_rules! __max_by_inner {
 ///
 /// Returns the `$left` argument if both compare equal.
 ///
+#[doc = crate::docs::closure_arg_annotated_params_limitations_docs!("")]
+///
 /// # Example
 ///
 /// ```rust
@@ -244,6 +250,8 @@ macro_rules! __min_by_key {
 /// Non-standard library types must define a `const_eq` method taking a reference.
 ///
 /// Returns the `$right` argument if both compare equal.
+///
+#[doc = crate::docs::closure_arg_annotated_params_limitations_docs!("")]
 ///
 /// # Example
 ///

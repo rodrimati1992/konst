@@ -1,6 +1,17 @@
 /// Const equivalent of
 /// [`<[T]>::is_sorted`](https://doc.rust-lang.org/std/primitive.slice.html#method.is_sorted)
 ///
+/// The slice elements must implement [`ConstCmp`](crate::cmp::ConstCmp) with a
+/// ```rust
+/// # use core::cmp::Ordering;
+/// # struct Foo;
+/// # impl Foo {
+/// const fn const_cmp(&self, rhs: &Self) -> Ordering
+/// # { unimplemented!() }
+/// # }
+/// ```
+/// method to be compared with other elements.
+///
 /// # Example
 ///
 /// ```rust
@@ -36,6 +47,8 @@ macro_rules! __slice_is_sorted {
 
 /// Const equivalent of
 /// [`<[T]>::is_sorted_by`](https://doc.rust-lang.org/std/primitive.slice.html#method.is_sorted_by)
+///
+#[doc = crate::docs::closure_arg_annotated_params_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -73,6 +86,20 @@ macro_rules! __slice_is_sorted_by {
 /// Const equivalent of
 /// [`<[T]>::is_sorted_by_key`](
 /// https://doc.rust-lang.org/std/primitive.slice.html#method.is_sorted_by_key)
+///
+/// The value returned by the closure must implement [`ConstCmp`](crate::cmp::ConstCmp)
+/// with a
+/// ```rust
+/// # use core::cmp::Ordering;
+/// # struct Foo;
+/// # impl Foo {
+/// const fn const_cmp(&self, rhs: &Self) -> Ordering
+/// # { unimplemented!() }
+/// # }
+/// ```
+/// method to be compared with other keys.
+///
+#[doc = crate::docs::closure_arg_annotated_params_limitations_docs!("")]
 ///
 /// # Example
 ///

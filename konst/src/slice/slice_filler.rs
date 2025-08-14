@@ -25,6 +25,8 @@ pub const fn fill<T: Copy>(slice: &mut [T], val: T) {
 /// Const equivalent of
 /// [`<[T]>::fill_with`](https://doc.rust-lang.org/std/primitive.slice.html#method.fill_with)
 ///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!()]
+///
 /// # Example
 ///
 /// ```rust
@@ -69,7 +71,7 @@ macro_rules! __slice_fill_with {
     ($opt:expr, | $($anything:tt)* ) => {
         $crate::__::compile_error!("expected a closure that takes no arguments")
     };
-    ($slice:expr, $v:expr $(,)?) => {
+    ($slice:expr, $v:path $(,)?) => {
         $crate::__slice_fill_with! {$slice, || $v()}
     };
 }

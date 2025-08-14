@@ -165,7 +165,7 @@ fn array_map_pattern_param() {
 #[test]
 fn array_map_pass_function_as_arg() {
     const X: [Option<u32>; 2] = array::map!([10, 20], Some);
-    const Y: [u32; 3] = array::map!([0b1, 0b11, 0b111], <u32>::count_ones);
+    const Y: [u32; 3] = array::map!([0b1, 0b11, 0b111], u32::count_ones);
 
     assert_eq!(X, [Some(10), Some(20)]);
     assert_eq!(Y, [1, 2, 3]);

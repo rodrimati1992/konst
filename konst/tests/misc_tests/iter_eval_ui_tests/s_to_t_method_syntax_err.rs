@@ -1,11 +1,18 @@
 const R: core::ops::Range<usize> = 0..10;
 
+const fn whatever1_return<T>(a0: impl Sized) -> T {
+    std::mem::forget(a0);
+    unimplemented!()
+}
+
+
 const _: () = {
     konst::iter::eval!(R, skip_while(), next());
     konst::iter::eval!(R, skip_while(||false), next());
     konst::iter::eval!(R, skip_while(|_|), next());
     konst::iter::eval!(R, skip_while(|_| false, 100), next());
     konst::iter::eval!(R, skip_while(|a, b|false), next());
+    konst::iter::eval!(R, skip_while({whatever1_return}), next());
 };
 
 const _: () = {
@@ -24,6 +31,7 @@ const _: () = {
     konst::iter::eval!(R, take_while(|_|), next());
     konst::iter::eval!(R, take_while(|_| false, 100), next());
     konst::iter::eval!(R, take_while(|a, b|false), next());
+    konst::iter::eval!(R, take_while({whatever1_return}), next());
 };
 
 const _: () = {

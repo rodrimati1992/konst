@@ -48,6 +48,8 @@ macro_rules! __opt_unwrap_or {
 
 /// A const equivalent of [`Option::unwrap_or_else`]
 ///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!()]
+///
 /// # Example
 ///
 /// ```
@@ -95,7 +97,7 @@ macro_rules! __opt_unwrap_or_else {
     ($opt:expr, | $($anything:tt)* ) => {
         $crate::__::compile_error!("expected the closure to take no arguments")
     };
-    ($e:expr, $v:expr $(,)?) => {
+    ($e:expr, $v:path $(,)?) => {
         $crate::__opt_unwrap_or_else! {$e, || $v()}
     };
 }
@@ -130,6 +132,8 @@ macro_rules! __opt_ok_or {
 }
 
 /// A const equivalent of [`Option::ok_or_else`]
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!()]
 ///
 /// # Example
 ///
@@ -176,12 +180,14 @@ macro_rules! __opt_ok_or_else {
     ($opt:expr, | $($anything:tt)* ) => {
         $crate::__::compile_error!("expected the closure to take no arguments")
     };
-    ($e:expr, $v:expr $(,)?) => {
+    ($e:expr, $v:path $(,)?) => {
         $crate::__opt_ok_or_else! {$e, || $v()}
     };
 }
 
 /// A const equivalent of [`Option::map`]
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -239,6 +245,8 @@ macro_rules! __opt_map {
 }
 
 /// A const equivalent of [`Option::and_then`]
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -304,6 +312,8 @@ macro_rules! __opt_and_then {
 
 /// A const equivalent of [`Option::or_else`]
 ///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!()]
+///
 /// # Example
 ///
 /// ```
@@ -351,6 +361,8 @@ macro_rules! __opt_or_else {
 }
 
 /// A const equivalent of [`Option::filter`]
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -456,6 +468,8 @@ macro_rules! __get_or_insert {
 
 /// A const equivalent of [`Option::get_or_insert_with`]
 ///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!()]
+///
 /// # Example
 ///
 /// ```rust
@@ -515,7 +529,7 @@ macro_rules! __get_or_insert_with {
     ($opt:expr, | $($anything:tt)* ) => {
         $crate::__::compile_error!("expected the closure to take no arguments")
     };
-    ($opt:expr, $default:expr $(,)?) => {
+    ($opt:expr, $default:path $(,)?) => {
         $crate::option::get_or_insert_with!($opt, || $default())
     };
 }
@@ -631,6 +645,8 @@ pub const fn unzip<T, U>(opt: Option<(T, U)>) -> (Option<T>, Option<U>) {
 ///
 /// The `Option` argument is implicitly borrowed.
 ///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
+///
 /// # Example
 ///
 /// ```rust
@@ -675,7 +691,7 @@ macro_rules! __option_is_some_and {
     ($opt:expr, || $($anything:tt)* ) => {
         $crate::__::compile_error!("expected the closure to take a pattern as an argument")
     };
-    ($opt:expr, $pred:expr $(,)?) => {
+    ($opt:expr, $pred:path $(,)?) => {
         $crate::option::is_some_and!($opt, |x| $pred(x))
     };
 }
@@ -683,6 +699,8 @@ macro_rules! __option_is_some_and {
 /// A const equivalent of [`Option::is_none_or`]
 ///
 /// The `Option` argument is implicitly borrowed.
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -728,7 +746,7 @@ macro_rules! __option_is_none_or {
     ($opt:expr, || $($anything:tt)* ) => {
         $crate::__::compile_error!("expected the closure to take a pattern as an argument")
     };
-    ($opt:expr, $pred:expr $(,)?) => {
+    ($opt:expr, $pred:path $(,)?) => {
         $crate::option::is_none_or!($opt, |x| $pred(x))
     };
 }

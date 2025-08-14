@@ -1,87 +1,95 @@
 error: `find` expects to be passed a 1-parameter closure
- --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:5:5
-  |
-5 |     konst::iter::eval!(R, rfind());
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:16:5
+   |
+16 |     konst::iter::eval!(R, rfind());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `find` expects to be passed a 1-parameter closure
- --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:6:5
-  |
-6 |     konst::iter::eval!(R, rfind(||false));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:17:5
+   |
+17 |     konst::iter::eval!(R, rfind(||false));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `find` expects no arguments after closure argument
- --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:7:5
-  |
-7 |     konst::iter::eval!(R, rfind(|_| false, 100));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:18:5
+   |
+18 |     konst::iter::eval!(R, rfind(|_| false, 100));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `find` expects to be passed a 1-parameter closure
- --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:8:5
-  |
-8 |     konst::iter::eval!(R, rfind(|a, b|false));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:19:5
+   |
+19 |     konst::iter::eval!(R, rfind(|a, b|false));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `find` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:20:5
+   |
+20 |     konst::iter::eval!(R, rfind({whatever1_return}));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: invalid argument(s) for `fold` method: ``
-  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:12:5
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:24:5
    |
-12 |     konst::iter::eval!(R, rfold());
+24 |     konst::iter::eval!(R, rfold());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: invalid argument(s) for `fold` method: `0`
-  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:13:5
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:25:5
    |
-13 |     konst::iter::eval!(R, rfold(0));
+25 |     konst::iter::eval!(R, rfold(0));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `fold` expects to be passed a 2-parameter closure
-  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:14:5
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:26:5
    |
-14 |     konst::iter::eval!(R, rfold(0,));
+26 |     konst::iter::eval!(R, rfold(0,));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `fold` expects to be passed a 2-parameter closure
-  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:15:5
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:27:5
    |
-15 |     konst::iter::eval!(R, rfold(0, || 10));
+27 |     konst::iter::eval!(R, rfold(0, || 10));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `fold` expects to be passed a 2-parameter closure
-  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:16:5
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:28:5
    |
-16 |     konst::iter::eval!(R, rfold(0, |_| 10));
+28 |     konst::iter::eval!(R, rfold(0, |_| 10));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `fold` expects valid closure syntax, passed closure without return value
-  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:17:5
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:29:5
    |
-17 |     konst::iter::eval!(R, rfold(0, |_, _| ));
+29 |     konst::iter::eval!(R, rfold(0, |_, _| ));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: `fold` expects no arguments after closure argument
-  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:18:5
+error: `fold` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:30:5
    |
-18 |     konst::iter::eval!(R, rfold(0, |_, _| 10, 100));
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+30 |     konst::iter::eval!(R, rfold(0, {whatever2_return::<u8>}));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

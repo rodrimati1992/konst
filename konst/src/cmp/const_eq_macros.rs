@@ -140,6 +140,9 @@ macro_rules! __const_eq {
 /// (`T` is the item type for `&[T]`, `Option<T>`, and `Range<T>`),
 /// it's always passed by reference.
 ///
+/// The closure argument cannot have type annotations for either the paremeter(s)
+/// or return type.
+///
 /// # Examples
 ///
 /// <span id = "compare_slices_structs"></span>

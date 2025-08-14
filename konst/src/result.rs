@@ -35,6 +35,8 @@ macro_rules! __res_unwrap_or {
 
 /// A const equivalent of [`Result::unwrap_or_else`]
 ///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
+///
 /// # Example
 ///
 /// ```rust
@@ -79,7 +81,7 @@ macro_rules! __res_unwrap_or_else {
     ($res:expr, || $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
-    ($res:expr, $function:expr $(,)?) => {
+    ($res:expr, $function:path $(,)?) => {
         match $crate::__Res!($res).res {
             $crate::__::Ok(x) => x,
             $crate::__::Err(x) => $function(x),
@@ -89,6 +91,8 @@ macro_rules! __res_unwrap_or_else {
 
 /// Returns the error in the `Err` variant,
 /// otherwise runs a closure/function with the value in the `Ok` variant.
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -134,7 +138,7 @@ macro_rules! __res_unwrap_err_or_else {
     ($res:expr, || $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
-    ($res:expr, $function:expr $(,)?) => {
+    ($res:expr, $function:path $(,)?) => {
         match $crate::__Res!($res).res {
             $crate::__::Ok(x) => $function(x),
             $crate::__::Err(x) => x,
@@ -210,6 +214,8 @@ macro_rules! __res_err {
 
 /// A const equivalent of [`Result::map`]
 ///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
+///
 /// # Example
 ///
 /// ```rust
@@ -254,7 +260,7 @@ macro_rules! __res_map {
     ($res:expr, || $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
-    ($res:expr, $function:expr $(,)?) => {
+    ($res:expr, $function:path $(,)?) => {
         match $crate::__Res!($res).res {
             $crate::__::Ok(param) => $crate::__::Ok($function(param)),
             $crate::__::Err(x) => $crate::__::Err(x),
@@ -263,6 +269,8 @@ macro_rules! __res_map {
 }
 
 /// A const equivalent of [`Result::map_err`]
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -308,7 +316,7 @@ macro_rules! __res_map_err {
     ($res:expr, || $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
-    ($res:expr, $function:expr $(,)?) => {
+    ($res:expr, $function:path $(,)?) => {
         match $crate::__Res!($res).res {
             $crate::__::Ok(x) => $crate::__::Ok(x),
             $crate::__::Err(x) => $crate::__::Err($function(x)),
@@ -317,6 +325,8 @@ macro_rules! __res_map_err {
 }
 
 /// A const equivalent of [`Result::and_then`]
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -367,7 +377,7 @@ macro_rules! __res_and_then {
     ($res:expr, || $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
-    ($res:expr, $function:expr $(,)?) => {
+    ($res:expr, $function:path $(,)?) => {
         match $crate::__Res!($res).res {
             $crate::__::Ok(param) => $function(param),
             $crate::__::Err(x) => $crate::__::Err(x),
@@ -376,6 +386,8 @@ macro_rules! __res_and_then {
 }
 
 /// A const equivalent of [`Result::or_else`]
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -426,7 +438,7 @@ macro_rules! __res_or_else {
     ($res:expr, || $($anything:tt)* ) => {
         compile_error!("expected the closure to take a pattern as an argument")
     };
-    ($res:expr, $function:expr $(,)?) => {
+    ($res:expr, $function:path $(,)?) => {
         match $crate::__Res!($res).res {
             $crate::__::Ok(x) => $crate::__::Ok(x),
             $crate::__::Err(x) => $function(x),

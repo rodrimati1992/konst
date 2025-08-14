@@ -315,6 +315,8 @@ extern crate alloc;
 #[doc(hidden)]
 pub mod macros;
 
+mod docs;
+
 #[doc(hidden)]
 pub mod __for_cmp_impls;
 

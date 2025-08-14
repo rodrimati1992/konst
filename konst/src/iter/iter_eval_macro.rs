@@ -72,6 +72,13 @@ For examples that use multiple methods [look here](#full-examples)
 The behavior regarding dropping iterators is
 [documented here](crate::iter::ConstIntoIter#dropping).
 
+# Closure Argument
+
+Many of the methods accept a closure argument, it must be one of:
+*/
+#[doc = crate::docs::closure_arg_annotated_params_options_docs!("")]
+/**
+
 # Methods
 
 ### Consuming methods
@@ -504,6 +511,17 @@ assert_eq!(lt_rev(&[3, 2, 1], &[0]), false);
 
 Const equivalent of [`Iterator::is_sorted`]
 
+The items must implement [`ConstCmp`](crate::cmp::ConstCmp) with a
+```rust
+# use core::cmp::Ordering;
+# struct Foo;
+# impl Foo {
+const fn const_cmp(&self, rhs: &Self) -> Ordering
+# { unimplemented!() }
+# }
+```
+method to be compared with other items.
+
 */
 #[doc = self::iter_cmp_docs!()]
 /**
@@ -549,6 +567,18 @@ assert_eq!(is_monotonically_increasing(&[1, 2]), true);
 ### `is_sorted_by_key`
 
 Const equivalent of [`Iterator::is_sorted_by_key`]
+
+The value returned by the closure must implement [`ConstCmp`](crate::cmp::ConstCmp)
+with a
+```rust
+# use core::cmp::Ordering;
+# struct Foo;
+# impl Foo {
+const fn const_cmp(&self, rhs: &Self) -> Ordering
+# { unimplemented!() }
+# }
+```
+method to be compared with other keys.
 
 */
 #[doc = self::iter_cmp_docs!()]

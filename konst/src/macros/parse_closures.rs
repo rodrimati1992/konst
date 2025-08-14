@@ -58,7 +58,7 @@ macro_rules! __parse_closure_2 {
     };
     (
         ($($macro:tt)*) ($($args:tt)*) $usage_site:tt,
-        $v:expr $(,)?
+        $v:path $(,)?
     ) => {
         match $v {func => {
             $($macro)* ! {
@@ -131,7 +131,7 @@ macro_rules! __parse_closure_1 {
     };
     (
         ($($macro:tt)*) ($($args:tt)*) $usage_site:tt,
-        $v:expr $(,)?
+        $v:path $(,)?
     ) => {
         match $v {func => {
             $($macro)* ! {

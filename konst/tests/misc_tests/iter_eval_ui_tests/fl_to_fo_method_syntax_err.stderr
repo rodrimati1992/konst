@@ -1,143 +1,175 @@
 error: `flat_map` expects to be passed a 1-parameter closure
- --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:5:5
-  |
-5 |     konst::iter::eval!(R, flat_map(), next());
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:16:5
+   |
+16 |     konst::iter::eval!(R, flat_map(), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `flat_map` expects to be passed a 1-parameter closure
- --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:6:5
-  |
-6 |     konst::iter::eval!(R, flat_map(||R), next());
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:17:5
+   |
+17 |     konst::iter::eval!(R, flat_map(||R), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `flat_map` expects valid closure syntax, passed closure without return value
- --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:7:5
-  |
-7 |     konst::iter::eval!(R, flat_map(|_|), next());
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:18:5
+   |
+18 |     konst::iter::eval!(R, flat_map(|_|), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `flat_map` expects no arguments after closure argument
- --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:8:5
-  |
-8 |     konst::iter::eval!(R, flat_map(|_|R, 10), next());
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:19:5
+   |
+19 |     konst::iter::eval!(R, flat_map(|_|R, 10), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `flat_map` expects to be passed a 1-parameter closure
- --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:9:5
-  |
-9 |     konst::iter::eval!(R, flat_map(|a, b|R), next());
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:20:5
+   |
+20 |     konst::iter::eval!(R, flat_map(|a, b|R), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `flat_map` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:21:5
+   |
+21 |     konst::iter::eval!(R, flat_map(|a, b|R), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `flat_map` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:22:5
+   |
+22 |     konst::iter::eval!(R, flat_map({whatever1_return::<[u8; 0]>}), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: invalid argument(s) for `flatten` method: `10`
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:14:5
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:27:5
    |
-14 |     konst::iter::eval!(S, flatten(10), next());
+27 |     konst::iter::eval!(S, flatten(10), next());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: invalid argument(s) for `fold` method: ``
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:18:5
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:31:5
    |
-18 |     konst::iter::eval!(R, fold());
+31 |     konst::iter::eval!(R, fold());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: invalid argument(s) for `fold` method: `0`
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:19:5
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:32:5
    |
-19 |     konst::iter::eval!(R, fold(0));
+32 |     konst::iter::eval!(R, fold(0));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `fold` expects to be passed a 2-parameter closure
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:20:5
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:33:5
    |
-20 |     konst::iter::eval!(R, fold(0,));
+33 |     konst::iter::eval!(R, fold(0,));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `fold` expects to be passed a 2-parameter closure
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:21:5
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:34:5
    |
-21 |     konst::iter::eval!(R, fold(0, || 10));
+34 |     konst::iter::eval!(R, fold(0, || 10));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `fold` expects to be passed a 2-parameter closure
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:22:5
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:35:5
    |
-22 |     konst::iter::eval!(R, fold(0, |_| 10));
+35 |     konst::iter::eval!(R, fold(0, |_| 10));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `fold` expects valid closure syntax, passed closure without return value
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:23:5
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:36:5
    |
-23 |     konst::iter::eval!(R, fold(0, |_, _| ));
+36 |     konst::iter::eval!(R, fold(0, |_, _| ));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `fold` expects no arguments after closure argument
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:24:5
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:37:5
    |
-24 |     konst::iter::eval!(R, fold(0, |_, _| 10, 100));
+37 |     konst::iter::eval!(R, fold(0, |_, _| 10, 100));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: `for_each` expects to be passed a 1-parameter closure
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:28:5
+error: `fold` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:38:5
    |
-28 |     konst::iter::eval!(R, for_each());
+38 |     konst::iter::eval!(R, fold(0u8, {whatever2_return::<u8>}));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `for_each` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:42:5
+   |
+42 |     konst::iter::eval!(R, for_each());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `for_each` expects to be passed a 1-parameter closure
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:29:5
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:43:5
    |
-29 |     konst::iter::eval!(R, for_each(||None));
+43 |     konst::iter::eval!(R, for_each(||None));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `for_each` expects valid closure syntax, passed closure without return value
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:30:5
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:44:5
    |
-30 |     konst::iter::eval!(R, for_each(|_|));
+44 |     konst::iter::eval!(R, for_each(|_|));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `for_each` expects no arguments after closure argument
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:31:5
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:45:5
    |
-31 |     konst::iter::eval!(R, for_each(|_|(), 100));
+45 |     konst::iter::eval!(R, for_each(|_|(), 100));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `for_each` expects to be passed a 1-parameter closure
-  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:32:5
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:46:5
    |
-32 |     konst::iter::eval!(R, for_each(|a, b|None));
+46 |     konst::iter::eval!(R, for_each(|a, b|None));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `for_each` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/fl_to_fo_method_syntax_err.rs:47:5
+   |
+47 |     konst::iter::eval!(R, for_each({whatever1_return}));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
