@@ -27,6 +27,8 @@ fn ui() {
         "string_ui_tests",
         "slice_ui_tests",
         #[cfg(feature = "cmp")]
+        "slice_ui_cmp_tests",
+        #[cfg(feature = "cmp")]
         "iter_eval_cmp_feature_ui_tests",
         #[cfg(not(feature = "cmp"))]
         "iter_eval_no_cmp_feature_ui_tests",

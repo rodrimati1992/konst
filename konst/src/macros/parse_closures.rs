@@ -195,7 +195,7 @@ macro_rules! __parse_closure_expr {
 #[macro_export]
 macro_rules! __parse_closure_no_expr_error {
     ((@default($default:expr) $($usage_site:tt)*)) => ({
-        $crate::__parse_closure_no_expr_error!{$($usage_site)*}
+        $crate::__parse_closure_no_expr_error!{($($usage_site)*)}
         $default
     });
     (($($usage_site:tt)*)) => {

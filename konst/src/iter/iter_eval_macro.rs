@@ -1832,7 +1832,7 @@ macro_rules! __iter2_is_sorted_impl {
                     $crate::iter::__infer_option_of(&$r_item, &prev)
                 }
 
-                if let Some($l_item) = prev {
+                if let $crate::__::Some($l_item) = prev {
                     $crate::__iter2_require_cmp!{
                         "is_sorted methods require the  \"cmp\" feature";
                         if !$comparator {
@@ -1841,7 +1841,7 @@ macro_rules! __iter2_is_sorted_impl {
                         }
                     }
                 }
-                prev = Some($r_item);
+                prev = $crate::__::Some($r_item);
             })
         }
     }
@@ -1867,15 +1867,15 @@ macro_rules! __iter2_minmax_impl {
                     $crate::iter::__infer_option_of(&$r_item, &prev)
                 }
 
-                if let Some($l_item) = prev {
+                if let $crate::__::Some($l_item) = prev {
                     $crate::__iter2_require_cmp!{
                         "min/max methods require the  \"cmp\" feature";
                         if let $update_if = $minmaximizer {
-                            prev = Some($r_item);
+                            prev = $crate::__::Some($r_item);
                         }
                     }
                 } else {
-                    prev = Some($r_item);
+                    prev = $crate::__::Some($r_item);
                 }
 
                 prev

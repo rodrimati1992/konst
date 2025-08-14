@@ -1,0 +1,288 @@
+error[E0277]: the trait bound `NoCmp: ConstCmp` is not satisfied
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:5:17
+  |
+5 | const _: bool = slice::is_sorted!([NoCmp]);
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NoCmp`
+  |
+  = help: the following other types implement trait `ConstCmp`:
+            &T
+            &mut T
+            CmpWrapper<P>
+            NonZero<i128>
+            NonZero<i16>
+            NonZero<i32>
+            NonZero<i64>
+            NonZero<i8>
+          and $N others
+  = note: required for `&NoCmp` to implement `ConstCmp`
+note: required by a bound in `__AssertConstCmp`
+ --> src/cmp/const_cmp.rs
+  |
+  | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+  |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+  = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `slice::is_sorted` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NoCmp: ConstCmp` is not satisfied
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:5:17
+  |
+5 | const _: bool = slice::is_sorted!([NoCmp]);
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NoCmp`
+  |
+  = help: the following other types implement trait `ConstCmp`:
+            &T
+            &mut T
+            CmpWrapper<P>
+            NonZero<i128>
+            NonZero<i16>
+            NonZero<i32>
+            NonZero<i64>
+            NonZero<i8>
+          and $N others
+  = note: required for `&NoCmp` to implement `ConstCmp`
+note: required by a bound in `__AssertConstCmp`
+ --> src/cmp/const_cmp.rs
+  |
+  | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+  |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+  = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `slice::is_sorted` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NoCmp: ConstCmp` is not satisfied
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:5:17
+  |
+5 | const _: bool = slice::is_sorted!([NoCmp]);
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NoCmp`
+  |
+  = help: the following other types implement trait `ConstCmp`:
+            &T
+            &mut T
+            CmpWrapper<P>
+            NonZero<i128>
+            NonZero<i16>
+            NonZero<i32>
+            NonZero<i64>
+            NonZero<i8>
+          and $N others
+  = note: required for `&NoCmp` to implement `ConstCmp`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+ --> src/cmp/const_cmp.rs
+  |
+  |     R: ?Sized + ConstCmp,
+  |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+  |     pub const NEW: Self = Self(PhantomData);
+  |               --- required by a bound in this associated constant
+  = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `slice::is_sorted` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NoCmp: ConstCmp` is not satisfied
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:5:17
+  |
+5 | const _: bool = slice::is_sorted!([NoCmp]);
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NoCmp`
+  |
+  = help: the following other types implement trait `ConstCmp`:
+            &T
+            &mut T
+            CmpWrapper<P>
+            NonZero<i128>
+            NonZero<i16>
+            NonZero<i32>
+            NonZero<i64>
+            NonZero<i8>
+          and $N others
+  = note: required for `&NoCmp` to implement `ConstCmp`
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+ --> src/cmp/const_cmp.rs
+  |
+  |     R: ?Sized + ConstCmp,
+  |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+  |     pub const NEW: Self = Self(PhantomData);
+  |               --- required by a bound in this associated constant
+  = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `slice::is_sorted` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:5:17
+  |
+5 | const _: bool = slice::is_sorted!([NoCmp]);
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+  |
+  = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `slice::is_sorted` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:6:15
+  |
+6 | const _: () = slice::is_sorted!([0u8]);
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
+  |
+  = note: this error originates in the macro `$crate::__slice_is_sorted_impl` which comes from the expansion of the macro `slice::is_sorted` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:8:17
+  |
+8 | const _: bool = slice::is_sorted_by!([0u8; 0], |x, y| -> u8 { 0u8 });
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `bool`, found `u8`
+  |
+  = note: this error originates in the macro `$crate::__eval_closure` which comes from the expansion of the macro `slice::is_sorted_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:9:17
+  |
+9 | const _: bool = slice::is_sorted_by!([0u8; 0], |x, y| 0u8);
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `bool`, found `u8`
+  |
+  = note: this error originates in the macro `$crate::__eval_closure` which comes from the expansion of the macro `slice::is_sorted_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:10:17
+   |
+10 | const _: bool = slice::is_sorted_by!([0u8; 0], |x: &u16, y| false);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `&u16`, found `&u8`
+   |
+   = note: expected reference `&u16`
+              found reference `&u8`
+   = note: this error originates in the macro `slice::is_sorted_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:11:17
+   |
+11 | const _: bool = slice::is_sorted_by!([0u8; 0], |x, y: &u16| false);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `&u16`, found `&u8`
+   |
+   = note: expected reference `&u16`
+              found reference `&u8`
+   = note: this error originates in the macro `slice::is_sorted_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:12:15
+   |
+12 | const _: () = slice::is_sorted_by!([0u8; 0], |x, y| -> bool { false });
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
+   |
+   = note: this error originates in the macro `$crate::__slice_is_sorted_impl` which comes from the expansion of the macro `slice::is_sorted_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NoCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:14:17
+   |
+14 | const _: bool = slice::is_sorted_by_key!([0u8; 0], |x| NoCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NoCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+             NonZero<i8>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `slice::is_sorted_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NoCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:14:17
+   |
+14 | const _: bool = slice::is_sorted_by_key!([0u8; 0], |x| NoCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NoCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+             NonZero<i8>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `slice::is_sorted_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NoCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:14:17
+   |
+14 | const _: bool = slice::is_sorted_by_key!([0u8; 0], |x| NoCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NoCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+             NonZero<i8>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `slice::is_sorted_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NoCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:14:17
+   |
+14 | const _: bool = slice::is_sorted_by_key!([0u8; 0], |x| NoCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NoCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+             NonZero<i8>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `slice::is_sorted_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:14:17
+   |
+14 | const _: bool = slice::is_sorted_by_key!([0u8; 0], |x| NoCmp);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `slice::is_sorted_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:15:17
+   |
+15 | const _: bool = slice::is_sorted_by_key!([0u8; 0], |_: &u16| 0u8);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^----^^^^^^
+   |                 |                                      |
+   |                 |                                      expected due to this
+   |                 expected `&u16`, found `&u8`
+   |
+   = note: expected reference `&u16`
+              found reference `&u8`
+   = note: this error originates in the macro `slice::is_sorted_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_types_err.rs:16:15
+   |
+16 | const _: () = slice::is_sorted_by_key!([0u8; 0], |x| x);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
+   |
+   = note: this error originates in the macro `$crate::__slice_is_sorted_impl` which comes from the expansion of the macro `slice::is_sorted_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -1,3 +1,5 @@
+use crate::misc_tests::test_utils::assert_type;
+
 use konst::slice::try_into_array;
 
 #[cfg(feature = "cmp")]
@@ -603,4 +605,76 @@ fn fill_with_func_test() {
     assert_eq!(filler::<1>().as_slice(), [6].map(NonCopy).as_slice());
     assert_eq!(filler::<2>().as_slice(), [7, 7].map(NonCopy).as_slice());
     assert_eq!(filler::<3>().as_slice(), [8, 8, 8].map(NonCopy).as_slice());
+}
+
+#[test]
+#[cfg(feature = "cmp")]
+fn is_sorted_test() {
+    const fn constness(slice: &[u8]) -> bool {
+        slice::is_sorted!(slice)
+    }
+
+    assert!(constness(&[]));
+    assert!(constness(&[1]));
+
+    assert!(!constness(&[1, 0]));
+    assert!(constness(&[1, 1]));
+    assert!(constness(&[1, 2]));
+
+    assert!(!constness(&[1, 0, 0]));
+    assert!(!constness(&[1, 1, 0]));
+    assert!(!constness(&[1, 2, 0]));
+    assert!(constness(&[1, 2, 3]));
+}
+
+#[test]
+#[cfg(feature = "cmp")]
+fn is_sorted_by_test() {
+    const fn constness(slice: &[u8]) -> bool {
+        slice::is_sorted_by!(slice, |l, r| *l >= *r)
+    }
+
+    assert!(constness(&[]));
+    assert!(constness(&[1]));
+
+    assert!(constness(&[1, 0]));
+    assert!(constness(&[1, 1]));
+    assert!(!constness(&[1, 2]));
+
+    assert!(constness(&[1, 0, 0]));
+    assert!(constness(&[1, 1, 0]));
+    assert!(constness(&[2, 1, 0]));
+    assert!(!constness(&[1, 2, 0]));
+    assert!(!constness(&[1, 2, 3]));
+
+    slice::is_sorted_by!([0u8, 1, 2], |l, r| {
+        assert_type::<_, &u8>(&l);
+        assert_type::<_, &u8>(&r);
+        true
+    });
+}
+
+#[test]
+#[cfg(feature = "cmp")]
+fn is_sorted_by_key_test() {
+    const fn constness(slice: &[(u8,)]) -> bool {
+        slice::is_sorted_by_key!(slice, |x| x.0)
+    }
+
+    assert!(constness(&[].map(|x| (x,))));
+    assert!(constness(&[1].map(|x| (x,))));
+
+    assert!(!constness(&[1, 0].map(|x| (x,))));
+    assert!(constness(&[1, 1].map(|x| (x,))));
+    assert!(constness(&[1, 2].map(|x| (x,))));
+
+    assert!(!constness(&[1, 0, 0].map(|x| (x,))));
+    assert!(!constness(&[1, 1, 0].map(|x| (x,))));
+    assert!(!constness(&[1, 2, 0].map(|x| (x,))));
+    assert!(constness(&[1, 2, 3].map(|x| (x,))));
+
+    slice::is_sorted_by_key!([0u8, 1, 2], |x| {
+        assert_type::<_, &u8>(&x);
+        0u8
+    });
 }
