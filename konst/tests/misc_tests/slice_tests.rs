@@ -18,6 +18,8 @@ mod bytes_fns_tests;
 
 mod slice_concatenation_tests;
 
+mod slice_split_off_tests;
+
 #[cfg(feature = "iter")]
 mod slice_iter_copied;
 

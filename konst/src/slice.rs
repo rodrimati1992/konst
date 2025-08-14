@@ -36,6 +36,7 @@ mod bytes_pattern;
 mod slice_concatenation;
 mod slice_const_methods;
 mod slice_filler;
+mod slice_split_off;
 
 #[cfg(feature = "cmp")]
 mod slice_is_sorted_methods;
@@ -50,6 +51,7 @@ pub(crate) use bytes_pattern::PatternNorm;
 pub use self::slice_concatenation::*;
 pub use self::slice_const_methods::*;
 pub use self::slice_filler::*;
+pub use self::slice_split_off::*;
 
 #[cfg(feature = "cmp")]
 pub use self::slice_is_sorted_methods::*;
