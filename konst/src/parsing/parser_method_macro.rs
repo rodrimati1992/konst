@@ -13,22 +13,22 @@
 /// Where `<method_name>` is the name of one of the [`Parser`] methods usable in this macro:
 ///
 /// - [`find_skip`] and [`rfind_skip`]:
-/// use the match-like syntax, running the branch of the first pattern that matches.
-/// [example](#find-example)
+///   use the match-like syntax, running the branch of the first pattern that matches.
+///   [example](#find-example)
 ///
 /// - [`strip_prefix`] and [`strip_suffix`]:
-/// use the match-like syntax, running the branch of the first pattern that matches.
-/// [example](#parsing-enum-example)
+///   use the match-like syntax, running the branch of the first pattern that matches.
+///   [example](#parsing-enum-example)
 ///
 /// - [`trim_start_matches`] and [`trim_end_matches`]:
-/// use the pattern-only syntax, trimming the string while any pattern matches.
-/// [example](#trimming-example)
+///   use the pattern-only syntax, trimming the string while any pattern matches.
+///   [example](#trimming-example)
 ///
 /// Where `<branches>` can be either of these, depending on the `<method_name>`:
 ///
 /// - A match-like syntax:
-/// A comma separated sequence of `<patterns> => <expression>` branches,
-/// the last branch must be `_ => <expression>`.
+///   A comma separated sequence of `<patterns> => <expression>` branches,
+///   the last branch must be `_ => <expression>`.
 ///
 /// - Just the patterns: `<patterns>`.
 ///

@@ -67,6 +67,10 @@ impl<T> OneSidedRange for RangeToInclusive<T> {
 
 #[doc(hidden)]
 #[non_exhaustive]
+#[expect(
+    clippy::enum_variant_names,
+    reason = "using the type names as variant names"
+)]
 pub enum __OneSidedRangeWitness<This: OneSidedRange> {
     RangeFrom(TypeEq<This, RangeFrom<This::Item>>),
     RangeTo(TypeEq<This, RangeTo<This::Item>>),

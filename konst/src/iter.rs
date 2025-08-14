@@ -389,12 +389,14 @@ where
 
 /////////////////////////////////////////////////////////////////////////////
 
-/// Trait for the types that are assignable to [`ConstCmp::Kind`]
+/// Trait for the types that are assignable to [`ConstIntoIter::Kind`]
+///
 pub trait ConstIntoIterKind: Sized {
-    /// Computes the type returned by [`IntoIterWrapper::coerce`]:
+    /// Computes the type returned by [`coerce`]:
     /// - `IntoIterWrapper<T>` if `Self == `[`IsStdKind`].
     /// - `T` if `Self == `[`IsIntoIterKind`].
     /// - `T` if `Self == `[`IsIteratorKind`].
+    ///
     type CoerceTo<T>;
 
     #[doc(hidden)]
@@ -425,7 +427,7 @@ impl ConstIntoIterKind for IsIteratorKind {
         __ConstIntoIterKindWitness::IsIteratorKind(TypeEq::NEW);
 }
 
-/// Computes the type returned by [`IntoIterWrapper::coerce`]:
+/// Computes the type returned by [`coerce`]:
 /// - `IntoIterWrapper<T>` if `T::Kind == `[`IsStdKind`].
 /// - `T` if `T::Kind == `[`IsIntoIterKind`].
 /// - `IntoIterWrapper<T>` if `T::Kind == `[`IsIteratorKind`].
@@ -438,6 +440,13 @@ pub enum __ConstIntoIterKindWitness<Kind> {
     IsIteratorKind(TypeEq<Kind, IsIteratorKind>),
 }
 
+impl<Kind> Copy for __ConstIntoIterKindWitness<Kind> {}
+
+impl<Kind> Clone for __ConstIntoIterKindWitness<Kind> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
 impl<Kind> __ConstIntoIterKindWitness<Kind> {
     const fn to_coercion_witness<T>(self) -> __CoercionWitness<T>
     where

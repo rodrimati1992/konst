@@ -223,7 +223,6 @@ macro_rules!  __declare_slice_cmp_fns{
 
         __delegate_const_ord!{
             skip_coerce;
-            for['a,]
 
             #[doc = $docs_ord]
             $(#[$attr_both])*

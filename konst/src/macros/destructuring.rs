@@ -1,4 +1,5 @@
 #![expect(non_camel_case_types)]
+#![expect(clippy::empty_loop)]
 
 use core::marker::PhantomData;
 use core::mem::ManuallyDrop;
@@ -158,14 +159,14 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 ///
 /// This macro has these requirements and limitations:
 /// - it does not support `..` patterns in tuples or structs
-/// (because unmentioned fields would be leaked),
-/// but `..` patterns are supported in arrays.
+///   (because unmentioned fields would be leaked),
+///   but `..` patterns are supported in arrays.
 /// - it requires that passed-in structs do not impl `Drop`
-/// (like built-in destructuring does),
-/// but any field can impl `Drop`.
+///   (like built-in destructuring does),
+///   but any field can impl `Drop`.
 /// - it needs to be invoked multiple times
-/// to destructure nested structs/tuples/arrays that have `Drop` elements/fields.
-/// [(example)](#nested-destructuring)
+///   to destructure nested structs/tuples/arrays that have `Drop` elements/fields.
+///   [(example)](#nested-destructuring)
 /// - it only supports tuple structs and tuples up to 16 elements (inclusive)
 ///
 /// # Syntax

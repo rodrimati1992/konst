@@ -314,6 +314,14 @@ pub enum __ConstCmpKindWitness<Kind> {
     IsNotStdKind(TypeEq<Kind, IsNotStdKind>),
 }
 
+impl<Kind> Copy for __ConstCmpKindWitness<Kind> {}
+
+impl<Kind> Clone for __ConstCmpKindWitness<Kind> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
 impl<Kind> __ConstCmpKindWitness<Kind> {
     const fn to_coercion_witness<'a, T>(self) -> __CoercionWitness<'a, T, Kind>
     where

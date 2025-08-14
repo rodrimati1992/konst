@@ -303,6 +303,8 @@
 // clippy's opinionated BS
 #![allow(clippy::needless_doctest_main)]
 #![allow(clippy::init_numbered_fields)]
+#![allow(clippy::redundant_pattern_matching)]
+#![allow(clippy::unused_unit)]
 ////////////
 #![forbid(clippy::missing_const_for_fn)]
 #![cfg_attr(feature = "docsrs", feature(doc_cfg))]

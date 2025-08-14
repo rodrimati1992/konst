@@ -42,7 +42,7 @@ impl CmpWrapper<()> {
     ///
     /// With slices you can do `CmpWrapper(slice)` as well.
     #[inline(always)]
-    pub const fn from_ref<'a, T: ?Sized>(x: &'a T) -> &'a CmpWrapper<T> {
+    pub const fn from_ref<T: ?Sized>(x: &T) -> &CmpWrapper<T> {
         // SAFETY: CmpWrapper is a #[repr(transparent)] wrapper around T,
         //         so pointer casting preserves the layout of the pointee
         unsafe { &*(x as *const T as *const CmpWrapper<T>) }

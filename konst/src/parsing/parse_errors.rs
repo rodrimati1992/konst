@@ -185,7 +185,7 @@ const _: () = {
         }
     }
 
-    ////
+    ////////
 
     macro_rules! fieldless_enum_fmt {
         ($self:expr, [$($variant:ident)*]) => (
@@ -217,7 +217,7 @@ const _: () = {
         }
     }
 
-    ////
+    ////////
 
     impl PanicFmt for ErrorKind {
         type This = Self;

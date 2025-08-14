@@ -67,6 +67,31 @@ impl<T, const N: usize> ArrayBuilder<T, N> {
         self.inited
     }
 
+    /// Whether the array has at least one initialized element.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::array::ArrayBuilder;
+    ///
+    /// let mut builder = ArrayBuilder::<_, 3>::new();
+    ///
+    /// assert!( builder.is_empty());
+    ///
+    /// builder.push(3);
+    /// assert!(!builder.is_empty());
+    ///
+    /// builder.push(5);
+    /// assert!(!builder.is_empty());
+    ///
+    /// builder.push(8);
+    /// assert!(!builder.is_empty());
+    /// ```
+    ///
+    pub const fn is_empty(&self) -> bool {
+        self.inited == 0
+    }
+
     /// Whether the array has been fully initialized
     ///
     /// # Example
@@ -224,6 +249,12 @@ impl<T, const N: usize> ArrayBuilder<T, N> {
 
     /// Helper for inferring the length of the built array from an [`IntoIter`].
     pub const fn infer_length_from_consumer<U>(&self, _consumer: &IntoIter<U, N>) {}
+}
+
+impl<T, const N: usize> Default for ArrayBuilder<T, N> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<T: Debug, const N: usize> Debug for ArrayBuilder<T, N> {

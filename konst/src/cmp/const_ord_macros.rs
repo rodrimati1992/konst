@@ -117,16 +117,16 @@ macro_rules! __const_cmp {
 /// - ` `(passing nothing): Compares the item using the [`const_cmp`] macro.
 ///
 /// - `, |item| <expression>`:
-/// Converts the item with `<expression>` to a type that can be compared using the
-/// [`const_cmp`] macro.
+///   Converts the item with `<expression>` to a type that can be compared using the
+///   [`const_cmp`] macro.
 ///
 /// - `, |left_item, right_item| <expression>`:
-/// Compares the items by using `<expression>`,
-/// which must evaluate to an [`cmp::Ordering`].
+///   Compares the items by using `<expression>`,
+///   which must evaluate to an [`cmp::Ordering`].
 ///
 /// - `, path::to::function`:
-/// Compares the items by using the passed function,
-/// which must have this signature: `const fn(&Item, &Item) -> std::cmp::Ordering`.
+///   Compares the items by using the passed function,
+///   which must have this signature: `const fn(&Item, &Item) -> std::cmp::Ordering`.
 ///
 /// An *item* is whatever element the passed-in types contain
 /// (`T` is the item type for `&[T]`, `Option<T>`, and `Range<T>`),

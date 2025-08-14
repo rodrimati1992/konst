@@ -67,7 +67,11 @@ pub const fn as_inner_mut<T>(md: &mut ManuallyDrop<T>) -> &mut T {
     unsafe { &mut *(md as *mut ManuallyDrop<T> as *mut T) }
 }
 
-/// Const equivalent of [`core::mem::ManuallyDrop::take`] with the same safety requirements.
+/// Const equivalent of [`core::mem::ManuallyDrop::take`]
+///
+/// # Safety
+///
+/// This has the same safety requirements as [`core::mem::ManuallyDrop::take`].
 #[inline(always)]
 pub const unsafe fn take<T>(md: &mut ManuallyDrop<T>) -> T {
     // SAFETY: ManuallyDrop<T> is represented the same as T,

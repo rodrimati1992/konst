@@ -98,7 +98,7 @@ macro_rules! __const_eq {
 /// - `range`: for comparing `Range<T>`. [example](#compare_ranges)
 ///
 /// - `range_inclusive`: for comparing `RangeInclusive<T>`.
-/// [example](#compare_ranges_incluside)
+///   [example](#compare_ranges_incluside)
 ///
 /// <span id = "limitations-section"></span>
 /// # Limitations
@@ -120,21 +120,21 @@ macro_rules! __const_eq {
 /// The `<comparator>` argument can be any of:
 ///
 /// - ` `(passing nothing): Compares the item using the [`const_eq`] macro.
-/// [example](#compare_slices_structs)
+///   [example](#compare_slices_structs)
 ///
 /// - `, |item| <expression>`:
-/// Converts the item with `<expression>` to a type that can be compared using the
-/// [`const_eq`] macro.
-/// [example](#compare_slices_fieldless_enums)
+///   Converts the item with `<expression>` to a type that can be compared using the
+///   [`const_eq`] macro.
+///   [example](#compare_slices_fieldless_enums)
 ///
 /// - `, |left_item, right_item| <expression>`:
-/// Compares the items by using `<expression>`, which must evaluate to a `bool`.
-/// [example](#compare_options)
+///   Compares the items by using `<expression>`, which must evaluate to a `bool`.
+///   [example](#compare_options)
 ///
 /// - `, path::to::function`:
-/// Compares the items by using the passed function,
-/// which must have this signature: `const fn(&Item, &Item) -> bool`.
-/// [example](#compare_ranges_incluside)
+///   Compares the items by using the passed function,
+///   which must have this signature: `const fn(&Item, &Item) -> bool`.
+///   [example](#compare_ranges_incluside)
 ///
 /// An *item* is whatever element the passed-in types contain
 /// (`T` is the item type for `&[T]`, `Option<T>`, and `Range<T>`),

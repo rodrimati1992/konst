@@ -135,7 +135,7 @@ const _: () = {
         const PV_COUNT: usize = 1;
     }
 
-    impl<'a> ParseBoolError {
+    impl ParseBoolError {
         const DISPLAY_ERR: &'static str = "could not parse a bool";
 
         /// Formats a ParseBoolError

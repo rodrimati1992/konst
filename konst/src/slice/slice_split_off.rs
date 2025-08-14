@@ -1,3 +1,8 @@
+#![expect(
+    clippy::mem_replace_with_default,
+    reason = "Default::default() isn't usable in const"
+)]
+
 use crate::range::{self, OneSidedRange, OneSidedRangeBound};
 
 use core::mem;

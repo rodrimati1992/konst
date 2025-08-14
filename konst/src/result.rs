@@ -89,8 +89,8 @@ macro_rules! __res_unwrap_or_else {
     };
 }
 
-/// Returns the error in the `Err` variant,
-/// otherwise runs a closure/function with the value in the `Ok` variant.
+/// Unwraps the `Err` variant of `$res`.
+/// If `$res` is an `Ok` it calls the closure argument to convert it into an error.
 ///
 #[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
@@ -100,12 +100,12 @@ macro_rules! __res_unwrap_or_else {
 /// use konst::result;
 ///
 /// // Necessary for type inference reasons.
-/// type Res = Result<u32, u32>;
+/// type Res = Result<u16, u32>;
 ///
 /// const ARR: &[u32] = &[
 ///     // You can use a closure-like syntax to run code when the Result argument is Ok.
 ///     // `return` inside the "closure" returns from the function where this macro is called.
-///     result::unwrap_err_or_else!(Res::Ok(3), |x| x + 2),
+///     result::unwrap_err_or_else!(Res::Ok(3), |x| (x + 2) as u32),
 ///     result::unwrap_err_or_else!(Res::Err(8), |_| loop{}),
 ///
 ///     // You can also pass functions
@@ -115,8 +115,8 @@ macro_rules! __res_unwrap_or_else {
 ///
 /// assert_eq!(ARR, &[5, 8, 50, 55]);
 ///
-/// const fn add_34(n: u32) -> u32 {
-///     n + 34
+/// const fn add_34(n: u16) -> u32 {
+///     (n + 34) as u32
 /// }
 /// ```
 ///

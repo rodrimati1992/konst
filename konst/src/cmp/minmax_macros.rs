@@ -226,7 +226,6 @@ macro_rules! __max_by_inner {
 /// ```
 ///
 /// [`ConstCmp`]: crate::cmp::ConstCmp
-
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub use crate::__min_by_key as min_by_key;
 
@@ -270,7 +269,6 @@ macro_rules! __min_by_key {
 /// ```
 ///
 /// [`ConstCmp`]: crate::cmp::ConstCmp
-
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub use crate::__max_by_key as max_by_key;
 
