@@ -115,7 +115,3 @@ where
 {
     Iter::ITEMS_NEED_DROP
 }
-
-#[doc(hidden)]
-#[inline(always)]
-pub const fn __infer_option_of<T>(_: &T, _: &Option<T>) {}

@@ -1,14 +1,11 @@
 use crate::misc_tests::test_utils::assert_type;
 
-use konst::slice::try_into_array;
+use konst::slice::{self, try_into_array};
 
 #[cfg(feature = "cmp")]
 use konst::{
     cmp::{const_cmp, const_eq},
-    slice::{
-        self,
-        cmp::{self as slice_cmp, cmp_slice_bytes, eq_slice_bytes},
-    },
+    slice::cmp::{self as slice_cmp, cmp_slice_bytes, eq_slice_bytes},
 };
 
 #[cfg(feature = "cmp")]

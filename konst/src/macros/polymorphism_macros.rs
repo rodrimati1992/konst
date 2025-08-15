@@ -115,7 +115,6 @@ macro_rules! __priv_ref_if_nonref {
     };
 }
 
-#[cfg(feature = "cmp")]
 #[doc(hidden)]
 macro_rules! __priv_ref_if_ref {
     ((ref $ident:ident) $ty:ty) => {

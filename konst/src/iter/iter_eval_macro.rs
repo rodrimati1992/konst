@@ -1859,7 +1859,7 @@ macro_rules! __iter2_is_sorted_impl {
                 // the type of `prev` to be inferred in statements before
                 // `$comparator` to be able to do inherent method dispatch.
                 if false {
-                    $crate::iter::__infer_option_of(&$r_item, &prev)
+                    $crate::__utils::__infer_option_of(&$r_item, &prev)
                 }
 
                 if let $crate::__::Some($l_item) = prev {
@@ -1894,7 +1894,7 @@ macro_rules! __iter2_minmax_impl {
                 // the type of `prev` to be inferred in statements before
                 // `$minmaximizer` to be able to do inherent method dispatch.
                 if false {
-                    $crate::iter::__infer_option_of(&$r_item, &prev)
+                    $crate::__utils::__infer_option_of(&$r_item, &prev)
                 }
 
                 if let $crate::__::Some($l_item) = prev {

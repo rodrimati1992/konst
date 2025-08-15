@@ -36,9 +36,7 @@ pub use collect_const::collect_const;
 pub use self::iter_eval_macro::eval;
 
 #[doc(hidden)]
-pub use self::internal_iter_macros::{
-    __assert_item_ty, __get_item_ty, __infer_option_of, __items_needs_drop,
-};
+pub use self::internal_iter_macros::{__assert_item_ty, __get_item_ty, __items_needs_drop};
 
 pub use iterator_adaptors::*;
 
@@ -359,6 +357,10 @@ pub struct IntoIterWrapper<I, K> {
 /// - [passing non-iterator user-defined types](#user-example): returning the argument back
 /// - [passing iterator types](#iterator-example): which wraps them in
 ///   [`IntoIterWrapper<T, IsIteratorKind>`](crate::iter::IntoIterWrapper)
+///
+/// Note: `konst::iter::coerce(value).const_into_iter()` is equivalent to
+/// `konst::iter::into_iter!(value)`
+///
 ///
 /// # Examples
 ///
