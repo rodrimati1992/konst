@@ -215,10 +215,13 @@ fn const_cmp_for_test() {
         assertc_eq!(ccf!(slice; [3u8], [0u8; 0]), Greater);
         assertc_eq!(ccf!(slice; [3u8], [3]), Equal);
         assertc_eq!(ccf!(slice; [3u8], [5]), Less);
+        assertc_eq!(ccf!(slice; [6u8], [5]), Greater);
         assertc_eq!(ccf!(slice; [3u8], [3, 5]), Less);
+        assertc_eq!(ccf!(slice; [4u8], [3, 5]), Greater);
         assertc_eq!(ccf!(slice; [3u8, 5], [3]), Greater);
         assertc_eq!(ccf!(slice; [3u8, 5], [3, 5]), Equal);
         assertc_eq!(ccf!(slice; [3u8, 5], [3, 8]), Less);
+        assertc_eq!(ccf!(slice; [4u8, 5], [3, 8]), Greater);
 
         assertc_eq!(ccf!(option; None::<u8>, None::<u8>), Equal);
         assertc_eq!(ccf!(option; Some(0u8), None::<u8>), Greater);

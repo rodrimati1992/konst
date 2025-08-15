@@ -132,6 +132,9 @@ Added these comparison macros:
 - `konst::cmp::const_ne`
 - `konst::cmp::const_ne_for`
 
+Fixed how `const_cmp_for` macro and `const_cmp` methods compared slices for ordering, they used to consider all slices less than all longer slices.
+
+
 
 Turned iterators from taking `Self` and returning `Option<(Self::Item, Self)>` into taking `&mut Self` and returning `Option<Self::Item>`.
 

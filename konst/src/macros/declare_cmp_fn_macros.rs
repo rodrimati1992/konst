@@ -233,14 +233,16 @@ macro_rules!  __declare_slice_cmp_fns{
 
                 const fn cmp_inner(left: &[$ty], right: &[$ty]) -> crate::__::U8Ordering {
                     let left_len = left.len();
-
-                    crate::__priv_ret_if_ne! {left_len, right.len()}
+                    let right_len = right.len();
+                    let min_Len = if left_len < right_len { left_len } else { right_len };
 
                     let mut i = 0;
-                    while i < left_len {
+                    while i < min_Len {
                         crate::__priv_ret_if_ne! {left[i], right[i]}
                         i += 1;
                     }
+
+                    crate::__priv_ret_if_ne! {left_len, right.len()}
 
                     U8Ordering::EQUAL
                 }

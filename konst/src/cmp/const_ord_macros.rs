@@ -242,24 +242,26 @@ macro_rules! __const_cmp_for_slice {
             let mut left_slice: &[_] = left_slice;
             let mut right_slice: &[_] = right_slice;
 
-            if left_slice.len() == right_slice.len() {
-                loop{
-                    if let ([l, l_rem@..], [r, r_rem@..]) = (left_slice, right_slice) {
-                        left_slice = l_rem;
-                        right_slice = r_rem;
+            let ret = loop {
+                if let ([l, l_rem@..], [r, r_rem@..]) = (left_slice, right_slice) {
+                    left_slice = l_rem;
+                    right_slice = r_rem;
 
-                        let ord = $crate::__priv_const_cmp_for!{
-                            *l,
-                            *r,
-                            $($($comparison)*)?
-                        };
-                        if !$crate::__::matches!(ord, $crate::__::Equal) {
-                            break ord;
-                        }
-                    } else {
-                        break $crate::__::Equal
+                    let ord = $crate::__priv_const_cmp_for!{
+                        *l,
+                        *r,
+                        $($($comparison)*)?
+                    };
+                    if !$crate::__::matches!(ord, $crate::__::Equal) {
+                        break ord;
                     }
+                } else {
+                    break $crate::__::Equal
                 }
+            };
+
+            if left_slice.len() == right_slice.len() || ret.is_ne() {
+                ret
             } else if left_slice.len() < right_slice.len() {
                 $crate::__::Less
             } else {
