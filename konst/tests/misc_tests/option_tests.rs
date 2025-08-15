@@ -35,6 +35,34 @@ const fn unreach<T>() -> T {
 }
 
 #[test]
+fn filter_test() {
+    const fn is_odd(x: &u32) -> bool {
+        *x % 2 == 1
+    }
+
+    const ARR: &[Option<u32>] = &[
+        option::filter!(Some(0), |&x| x == 0),
+        option::filter!(Some(1), |x| *x == 0),
+        option::filter!(None, |_| loop {}),
+        option::filter!(Some(3), is_odd),
+        option::filter!(Some(4), is_odd),
+        option::filter!(None, is_odd),
+    ];
+
+    assert_eq!(ARR, &[Some(0), None, None, Some(3), None, None]);
+}
+
+#[test]
+fn unwrap_or_test() {
+    const ARR: &[u32] = &[
+        option::unwrap_or!(Some(3), 10000),
+        option::unwrap_or!(None, 5),
+    ];
+
+    assert_eq!(ARR, &[3, 5]);
+}
+
+#[test]
 fn unwrap_or_else_droppable_test() {
     const fn constness() -> [ImplsDrop<u32>; 2] {
         [
@@ -44,6 +72,13 @@ fn unwrap_or_else_droppable_test() {
     }
 
     assert_eq!(constness().map(ImplsDrop::into_inner), [3u32, 5]);
+}
+
+#[test]
+fn ok_or_test() {
+    const ARR: &[Result<u32, &str>] =
+        &[option::ok_or!(Some(3), "ggg"), option::ok_or!(None, "hhh")];
+    assert_eq!(ARR, &[Ok(3), Err("hhh")]);
 }
 
 #[test]
@@ -124,6 +159,34 @@ fn or_else_droppable_test() {
 }
 
 #[test]
+fn insert_test() {
+    const fn constness() -> [Option<u32>; 2] {
+        let mut arr = [None, Some(21)];
+
+        *option::insert!(&mut arr[0], 3) += 100;
+        *option::insert!(&mut arr[1], 3) += 200;
+
+        arr
+    }
+
+    assert_eq!(constness(), [103, 203].map(Some));
+}
+
+#[test]
+fn get_or_insert_test() {
+    const fn constness() -> [Option<u32>; 2] {
+        let mut arr = [None, Some(21)];
+
+        *option::get_or_insert!(&mut arr[0], 3) += 100;
+        *option::get_or_insert!(&mut arr[1], 3) += 200;
+
+        arr
+    }
+
+    assert_eq!(constness(), [103, 221].map(Some));
+}
+
+#[test]
 fn get_or_insert_with_droppable_test() {
     const fn defaulter() -> ImplsDrop<u32> {
         ImplsDrop::new(8)
@@ -140,4 +203,56 @@ fn get_or_insert_with_droppable_test() {
     }
 
     assert_eq!(constness(), [103, 108, 121].map(ImplsDrop::new).map(Some));
+}
+
+#[test]
+fn is_some_and_test() {
+    const AA: bool = option::is_some_and!(None::<u8>, |_| unreachable!());
+    assert_eq!(AA, false);
+
+    const BB: bool = option::is_some_and!(Some(3), |x| *x == 3);
+    assert_eq!(BB, true);
+
+    const CC: bool = option::is_some_and!(&Some(5), is_ten);
+    assert_eq!(CC, false);
+
+    const fn is_ten(n: &u8) -> bool {
+        *n == 10
+    }
+}
+
+#[test]
+fn is_none_or_test() {
+    const AA: bool = option::is_none_or!(None::<u8>, |_| unreachable!());
+    assert_eq!(AA, true);
+
+    const BB: bool = option::is_none_or!(Some(3), |x| *x == 3);
+    assert_eq!(BB, true);
+
+    const CC: bool = option::is_none_or!(&Some(5), is_ten);
+    assert_eq!(CC, false);
+
+    const fn is_ten(n: &u8) -> bool {
+        *n == 10
+    }
+}
+
+#[test]
+fn zip_test() {
+    const VALS: [Option<(u8, char)>; 4] = [
+        option::zip!(None, None),
+        option::zip!(None, Some('a')),
+        option::zip!(Some(3), None),
+        option::zip!(Some(3), Some('a')),
+    ];
+
+    assert_eq!(VALS, [None, None, None, Some((3, 'a'))]);
+}
+
+#[test]
+fn unzip_test() {
+    const VALS: [(Option<u8>, Option<char>); 2] =
+        [option::unzip(None), option::unzip(Some((3, 'a')))];
+
+    assert_eq!(VALS, [(None, None), (Some(3), Some('a'))]);
 }

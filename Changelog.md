@@ -160,7 +160,7 @@ Changed drop behavior for iterators in `iter::eval`, now all iterators are forgo
 
 Changed `IntoIterWrapper` to only be constructible by `konst::iter::coerce`, and made its fields private.
 
-Changed `rev` method of iterator macros so that it can't be used if `take`/`take_while`/`skip`/`skip_while` were used before it.
+Changed `rev` method of iterator macros so that it can't be used if `enumerate`/`take`/`take_while`/`skip`/`skip_while`/`zip` were used before it, because the iterator without this restriction would produce different results than `std`.
 
 Added these methods to `iter::eval` macro (conditional on "cmp" feature):
 - `cmp`

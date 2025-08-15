@@ -71,6 +71,16 @@ fn bool_cmp_test() {
 }
 
 #[test]
+#[cfg(feature = "parsing")]
+fn parse_bool_test() {
+    let t = konst::primitive::parse_bool("true");
+    let f = konst::primitive::parse_bool("false");
+
+    assert_eq!(konst::result::unwrap!(t), true);
+    assert_eq!(konst::result::unwrap!(f), false);
+}
+
+#[test]
 fn charl_cmp_test() {
     let eq_char = |l: char, r: char| l == r;
     assertc_opt_eq_rets! {
