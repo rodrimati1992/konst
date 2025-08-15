@@ -75,22 +75,24 @@ macro_rules! cmp_assertc_docs {
 ///     )
 /// };
 ///
+/// # fn main () {
 /// assert_eq!(C, [(3, 0), (5, 1), (8, 2), (13, 3)]);
-///
+/// # }
 /// ```
 ///
 /// If either slice was a different length, this would be the compile-time error:
 ///
 /// ```text
-/// error[E0080]: evaluation of constant value failed
-///   --> src/macros/assert_macros.rs:79:5
+/// error[E0080]: evaluation panicked:
+///               assertion failed: LEFT == RIGHT
+///                left: `3`
+///               right: `4`
+///   --> konst/src/macros/assert_cmp_macros.rs:84:5
 ///    |
 /// 10 |     konst::assertc_eq!(A.len(), B.len());
-///    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the evaluated program panicked at '
-/// assertion failed: LEFT == RIGHT
-///  left: `3`
-/// right: `4`
-/// ', src/macros/assert_macros.rs:10:5
+///    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `C` failed here
+///    |
+///    = note: this error originates in the macro `$crate::__::concat_panic` which comes from the expansion of the macro `konst::assertc_eq` (in Nightly builds, run with -Z macro-backtrace for more info)
 ///
 /// ```
 ///
@@ -150,16 +152,15 @@ macro_rules! cmp_assertc_docs {
 ///
 /// If the types were changed, the example would fail compilation with this error:
 /// ```text
-/// error[E0080]: evaluation of constant value failed
-///  --> src/macros/assert_macros.rs:120:15
+/// error[E0080]: evaluation panicked:
+///               assertion failed: LEFT == RIGHT
+///                left: `Layout { type_name: "u32", size: 4, alignment: 4 }`
+///               right: `Layout { type_name: "[u8; 4]", size: 4, alignment: 1 }`
+///               : layout mismatch
+///  --> konst/src/macros/assert_cmp_macros.rs:124:15
 ///   |
-/// 6 | const _: () = assert_same_layout(layout_for!(u32), layout_for!([u8; 4]));
-///   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the evaluated program panicked at '
-/// assertion failed: LEFT == RIGHT
-///  left: `Layout { type_name: "u32", size: 4, alignment: 4 }`
-/// right: `Layout { type_name: "[u8; 4]", size: 4, alignment: 1 }`
-/// : layout mismatch', src/macros/assert_macros.rs:6:15
-///
+/// 7 | const _: () = assert_same_layout(layout_for!(u32), layout_for!([u8; 4]));
+///   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `_` failed here
 /// ```
 ///
 #[macro_export]
@@ -179,9 +180,11 @@ macro_rules! assertc_eq {
 /// ### Unique strings
 ///
 /// ```rust
+/// # fn main() {
 /// assert_eq!(NAMES, ["bob", "matt", "rob"]);
 ///
 /// const NAMES: &[&str] = assert_unique(&["bob", "matt", "rob"]);
+/// # }
 ///
 /// #[track_caller]
 /// const fn assert_unique<'a, 'b>(names: &'a [&'b str]) -> &'a [&'b str] {
@@ -203,16 +206,15 @@ macro_rules! assertc_eq {
 /// If the argument had repeated strings, this would be the error:
 ///
 /// ```text
-/// error[E0080]: evaluation of constant value failed
-///  --> src/macros/assert_macros.rs:126:24
+/// error[E0080]: evaluation panicked:
+///               assertion failed: LEFT != RIGHT
+///                left: `"rob"`
+///               right: `"rob"`
+///               : equal names at index `1` and `2`
+///  --> konst/src/macros/assert_cmp_macros.rs:201:24
 ///   |
-/// 6 | const NAMES: &[&str] = assert_unique(&["bob", "matt", "rob", "rob"]);
-///   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the evaluated program panicked at '
-/// assertion failed: LEFT != RIGHT
-///  left: `"rob"`
-/// right: `"rob"`
-/// : equal names at index `2` and `3`', src/macros/assert_macros.rs:6:24
-///
+/// 7 | const NAMES: &[&str] = assert_unique(&["bob", "rob", "rob"]);
+///   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `main::NAMES` failed here
 /// ```
 ///
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]

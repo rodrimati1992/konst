@@ -49,12 +49,12 @@ macro_rules! for_range {
 /// causes this error as of Rust 1.89:
 /// ```text
 /// error[E0493]: destructor of `Option<T>` cannot be evaluated at compile-time
-///  --> src/lib.rs:1:17
+///  --> konst/src/macros/control_flow.rs:42:17
 ///   |
-/// 1 | const fn foo<T>(opt: Option<T>) -> T {
+/// 3 | const fn foo<T>(opt: Option<T>) -> Result<T, ()> {
 ///   |                 ^^^ the destructor for this type cannot be evaluated in constant functions
 /// ...
-/// 6 | }
+/// 8 | }
 ///   | - value is dropped here
 /// ```
 ///
@@ -118,7 +118,7 @@ macro_rules! if_let_Some {
 /// causes this error as of Rust 1.89:
 /// ```text
 /// error[E0493]: destructor of `Option<T>` cannot be evaluated at compile-time
-///   --> konst/src/macros/control_flow.rs:92:25
+///   --> konst/src/macros/control_flow.rs:108:25
 ///    |
 /// 9  |     while let Some(x) = produce_option(&builder) {
 ///    |                         ^^^^^^^^^^^^^^^^^^^^^^^^ the destructor for this type cannot be evaluated in constant functions
