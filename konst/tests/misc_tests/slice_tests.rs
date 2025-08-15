@@ -102,6 +102,53 @@ fn cmp_slice_test() {
 
 #[test]
 #[cfg(feature = "cmp")]
+fn std_comparison_equals_konst_test() {
+    use core::cmp::Ordering::{Equal, Greater, Less};
+
+    for (l, r, expected_eq, expected_cmp) in [
+        ([0u8; 0].as_slice(), [].as_slice(), true, Equal),
+        (&[0u8; 0], &[0], false, Less),
+        (&[0], &[], false, Greater),
+        (&[0], &[0], true, Equal),
+        (&[0], &[1], false, Less),
+        (&[2], &[1], false, Greater),
+        (&[0], &[0, 1], false, Less),
+        (&[1], &[0, 1], false, Greater),
+        (&[0, 1], &[0, 1], true, Equal),
+        (&[0, 1], &[0, 2], false, Less),
+    ] {
+        assert_eq!(
+            konst::cmp::const_eq!(l, r),
+            expected_eq,
+            "l: {l:?}\nr: {r:?}"
+        );
+        assert_eq!(
+            konst::cmp::const_eq_for!(slice; l, r),
+            expected_eq,
+            "l: {l:?}\nr: {r:?}"
+        );
+        assert_eq!(l == r, expected_eq, "l: {l:?}\nr: {r:?}");
+
+        assert_eq!(
+            konst::cmp::const_cmp!(l, r),
+            expected_cmp,
+            "l: {l:?}\nr: {r:?}"
+        );
+        assert_eq!(
+            konst::cmp::const_cmp_for!(slice; l, r),
+            expected_cmp,
+            "l: {l:?}\nr: {r:?}"
+        );
+        assert_eq!(
+            std::cmp::Ord::cmp(&l, &r),
+            expected_cmp,
+            "l: {l:?}\nr: {r:?}"
+        );
+    }
+}
+
+#[test]
+#[cfg(feature = "cmp")]
 fn cmp_slice_char_test() {
     use core::cmp::Ordering::{Equal, Greater, Less};
 

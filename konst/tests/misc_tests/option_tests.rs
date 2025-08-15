@@ -2,6 +2,9 @@ use core::mem::{ManuallyDrop, forget};
 
 use konst::{manually_drop as md, option};
 
+#[cfg(feature = "cmp")]
+mod option_cmp_tests;
+
 #[cfg(feature = "iter")]
 mod option_iter_tests;
 

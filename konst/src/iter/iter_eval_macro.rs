@@ -1993,6 +1993,14 @@ macro_rules! __iter2_rev_assert_no_truncation {
 
         $crate::__iter2_rev_assert_no_truncation!{ $($rem)* }
     };
+    ((map $args:tt enumerate $($_01:tt)*) $($rem:tt)*) => {
+        $crate::__::compile_error!{"Cannot call `rev()` after calling `enumerate`"}
+        $crate::__iter2_rev_assert_no_truncation!{ $($rem)* }
+    };
+    ((zip $($_01:tt)*) $($rem:tt)*) => {
+        $crate::__::compile_error!{"Cannot call `rev()` after calling `zip`"}
+        $crate::__iter2_rev_assert_no_truncation!{ $($rem)* }
+    };
     (
         ($method_name:ident $($__0:tt)*)
         $($rem:tt)*

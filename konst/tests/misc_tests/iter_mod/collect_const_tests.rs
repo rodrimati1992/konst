@@ -78,18 +78,12 @@ fn collect_const_enumerate() {
 #[test]
 fn collect_const_enumerate_and_rev() {
     {
-        const ARR0: [(usize, &u8); 4] = collect_const!((usize, &u8) =>
-            &[3u8, 5, 8, 13],
-                enumerate(),
-                rev(),
-        );
         const ARR1: [(usize, &u8); 4] = collect_const!((usize, &u8) =>
             &[3u8, 5, 8, 13],
                 rev(),
                 enumerate(),
         );
 
-        assert_eq!(ARR0, [(0, &13), (1, &8), (2, &5), (3, &3)]);
         assert_eq!(ARR1, [(0, &13), (1, &8), (2, &5), (3, &3)]);
     }
 }
