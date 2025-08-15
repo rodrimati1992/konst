@@ -343,7 +343,7 @@ pub trait ConstIntoIter {
 #[repr(transparent)]
 pub struct IntoIterWrapper<I, K> {
     /// The value to be converted into an iterator
-    pub iter: ManuallyDrop<I>,
+    pub(crate) iter: ManuallyDrop<I>,
     _phantom: PhantomData<K>,
 }
 
