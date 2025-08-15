@@ -349,7 +349,106 @@ pub struct IntoIterWrapper<I, K> {
     _phantom: PhantomData<K>,
 }
 
-/// Coerces `into_iter` to a type that has a `const_into_iter` method
+////////////////////////////////////////////////////////////////////////////////
+
+/// Coerces the argument to a type that has a `.const_into_iter()` method
+///
+/// There's 3 different ways to use this function
+/// - [passing std types](#std-example): which wraps them in
+///   [`IntoIterWrapper<T, IsStdKind>`](crate::iter::IntoIterWrapper)
+/// - [passing non-iterator user-defined types](#user-example): returning the argument back
+/// - [passing iterator types](#iterator-example): which wraps them in
+///   [`IntoIterWrapper<T, IsIteratorKind>`](crate::iter::IntoIterWrapper)
+///
+/// # Examples
+///
+/// <span id="std-example"></span>
+/// ### Std argument
+///
+/// ```rust
+/// use konst::{
+///     iter::{self, IsStdKind, IntoIterWrapper},
+///     range::RangeIter
+/// };
+/// use std::ops::Range;
+///
+/// // Coerce wraps `ConstIntoIter<Kind = IsStdKind>` types in an `IntoIterWrapper`
+/// let wrapper: IntoIterWrapper<Range<u32>, IsStdKind> = iter::coerce(0..3);
+///
+/// // ... which then converts the std type into an iterator with `.const_into_iter()`
+/// let mut iter: RangeIter<u32> = wrapper.const_into_iter();
+///
+/// assert_eq!(iter.next(), Some(0));
+/// assert_eq!(iter.next(), Some(1));
+/// assert_eq!(iter.next(), Some(2));
+/// assert_eq!(iter.next(), None);
+///
+/// ```
+///
+/// <span id="user-example"></span>
+/// ### User-defined argument
+///
+/// ```rust
+/// use konst::{
+///     iter::{self, ConstIntoIter, IsIntoIterKind},
+///     range::RangeInclusiveIter as RangeIncIter,
+/// };
+///
+/// struct Double(u32);
+///
+/// impl ConstIntoIter for Double {
+///     type Kind = IsIntoIterKind;
+///     type Item = u32;
+///     type IntoIter = RangeIncIter<u32>;
+///     
+///     // items are Copy, so they don't need to be dropped
+///     const ITEMS_NEED_DROP: bool = false;
+/// }
+///
+/// impl Double {
+///     pub const fn const_into_iter(self) -> RangeIncIter<u32> {
+///         iter::into_iter!(0 ..= self.0 * 2)
+///     }
+/// }
+///
+/// // `coerce` is an identity function for `ConstIntoIter<Kind = IsStdKind>` arguments
+/// let double: Double = iter::coerce(Double(2));
+///
+/// // ... then it's converted into an iterator with `.const_into_iter()`
+/// let mut iter: RangeIncIter<u32> = double.const_into_iter();
+///
+/// assert_eq!(iter.next(), Some(0));
+/// assert_eq!(iter.next(), Some(1));
+/// assert_eq!(iter.next(), Some(2));
+/// assert_eq!(iter.next(), Some(3));
+/// assert_eq!(iter.next(), Some(4));
+/// assert_eq!(iter.next(), None);
+///
+/// ```
+///
+/// <span id="iterator-example"></span>
+/// ### Iterator argument
+///
+/// ```rust
+/// use konst::{
+///     iter::{self, ConstIntoIter, IsIteratorKind, IntoIterWrapper},
+///     range::RangeFromIter,
+/// };
+///
+/// let mut iter: RangeFromIter<u32> = iter::into_iter!(3..);
+///
+/// // Coerce wraps `ConstIntoIter<Kind = IsIteratorKind>` types in a `IntoIterWrapper`
+/// let wrapper: IntoIterWrapper<RangeFromIter<u32>, IsIteratorKind> = iter::coerce(iter);
+///
+/// // ... which then unwraps back into the iterator with `.const_into_iter()`
+/// let mut iter: RangeFromIter<u32> = wrapper.const_into_iter();
+///
+/// assert_eq!(iter.next(), Some(3));
+/// assert_eq!(iter.next(), Some(4));
+/// assert_eq!(iter.next(), Some(5));
+/// assert_eq!(iter.next(), Some(6));
+/// ```
+///
 #[inline(always)]
 pub const fn coerce<T>(into_iter: T) -> CoerceTo<T>
 where
@@ -363,6 +462,8 @@ where
         }),
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 impl<T> IntoIterWrapper<T, IsIteratorKind> {
     /// Converts `T` into a const iterator.
@@ -393,10 +494,12 @@ where
 ///
 pub trait ConstIntoIterKind: Sized {
     /// Computes the type returned by [`coerce`]:
-    /// - `IntoIterWrapper<T>` if `Self == `[`IsStdKind`].
-    /// - `T` if `Self == `[`IsIntoIterKind`].
-    /// - `T` if `Self == `[`IsIteratorKind`].
-    ///
+    /// - if `Self == `[`IsStdKind`]:
+    ///   this evaluates to `IntoIterWrapper<T, IsStdKind>`.
+    /// - if `Self == `[`IsIntoIterKind`]:
+    ///   this evaluates to `T`.
+    /// - if `Self == `[`IsIteratorKind`]:
+    ///   this evaluates to `IntoIterWrapper<T, IsIteratorKind>`.
     type CoerceTo<T>;
 
     #[doc(hidden)]
@@ -428,9 +531,12 @@ impl ConstIntoIterKind for IsIteratorKind {
 }
 
 /// Computes the type returned by [`coerce`]:
-/// - `IntoIterWrapper<T>` if `T::Kind == `[`IsStdKind`].
-/// - `T` if `T::Kind == `[`IsIntoIterKind`].
-/// - `IntoIterWrapper<T>` if `T::Kind == `[`IsIteratorKind`].
+/// - if [`T::Kind`](ConstIntoIter::Kind)` == `[`IsStdKind`]:
+///   this evaluates to `IntoIterWrapper<T, IsStdKind>`.
+/// - if [`T::Kind`](ConstIntoIter::Kind)` == `[`IsIntoIterKind`]:
+///   this evaluates to `T`.
+/// - if [`T::Kind`](ConstIntoIter::Kind)` == `[`IsIteratorKind`]:
+///   this evaluates to `IntoIterWrapper<T, IsIteratorKind>`.
 pub type CoerceTo<T> = <<T as ConstIntoIter>::Kind as ConstIntoIterKind>::CoerceTo<T>;
 
 #[doc(hidden)]
