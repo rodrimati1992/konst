@@ -1,6 +1,6 @@
 use crate::{
     iter::{ConstIntoIter, IsIteratorKind},
-    string::{self, Pattern, PatternNorm, str_from, str_up_to},
+    string::{self, Pattern, PatternNorm, RSplit, Split},
 };
 
 /// Const equivalent of [`str::split_terminator`], which only takes a `&str` delimiter.
@@ -27,15 +27,12 @@ pub const fn split_terminator<'a, 'p, P>(this: &'a str, delim: P) -> SplitTermin
 where
     P: Pattern<'p>,
 {
-    let delim = PatternNorm::new(delim);
+    let delim_norm = PatternNorm::new(delim);
 
     SplitTerminator {
-        this,
-        state: if delim.as_str().is_empty() {
-            State::Empty(EmptyState::Start)
-        } else {
-            State::Normal { delim }
-        },
+        inner: string::split(this, delim),
+        terminator_visited: !string::ends_with(this, delim),
+        skip_iterating: this.is_empty() && !delim_norm.as_str().is_empty(),
     }
 }
 
@@ -53,7 +50,7 @@ where
 /// use konst::iter::collect_const;
 ///
 /// const STRS: [&str; 3] = collect_const!(&str =>
-///     string::rsplit_terminator(":foo:bar:baz", ":")
+///     string::rsplit_terminator("foo:bar:baz:", ":")
 /// );
 ///
 /// assert_eq!(STRS, ["baz", "bar", "foo"]);
@@ -63,20 +60,13 @@ pub const fn rsplit_terminator<'a, 'p, P>(this: &'a str, delim: P) -> RSplitTerm
 where
     P: Pattern<'p>,
 {
-    let SplitTerminator { this, state } = split_terminator(this, delim);
-    RSplitTerminator { this, state }
-}
+    let delim_norm = PatternNorm::new(delim);
 
-#[derive(Copy, Clone)]
-enum State<'p, P: Pattern<'p>> {
-    Normal { delim: PatternNorm<'p, P> },
-    Empty(EmptyState),
-}
-
-#[derive(Copy, Clone)]
-enum EmptyState {
-    Start,
-    Continue,
+    RSplitTerminator {
+        inner: string::rsplit(this, delim),
+        terminator_visited: !string::ends_with(this, delim),
+        skip_iterating: this.is_empty() && !delim_norm.as_str().is_empty(),
+    }
 }
 
 /// Const equivalent of `core::str::SplitTerminator<'a, P>`
@@ -92,8 +82,9 @@ enum EmptyState {
 ///
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct SplitTerminator<'a, 'p, P: Pattern<'p>> {
-    this: &'a str,
-    state: State<'p, P>,
+    inner: Split<'a, 'p, P>,
+    terminator_visited: bool,
+    skip_iterating: bool,
 }
 impl<'a, 'p, P: Pattern<'p>> ConstIntoIter for SplitTerminator<'a, 'p, P> {
     type Kind = IsIteratorKind;
@@ -107,40 +98,26 @@ impl<'a, 'p, P: Pattern<'p>> SplitTerminator<'a, 'p, P> {
         is_forward = true,
         item = &'a str,
         iter_forward = SplitTerminator<'a, 'p, P>,
+
         next(self){
-            let Self {
-                this,
-                state,
-            } = *self;
-
-            match state {
-                State::Empty(EmptyState::Start) => {
-                    self.state = State::Empty(EmptyState::Continue);
-                    Some("")
-                }
-                _ if this.is_empty() => {
-                    None
-                }
-                State::Normal{delim} => {
-                    let delim = delim.as_str();
-                    let (next, ret) = match string::find(this, delim) {
-                        Some(pos) => (pos + delim.len(), pos),
-                        None => (this.len(), this.len()),
-                    };
-                    self.this = str_from(this, next);
-                    Some(str_up_to(this, ret))
-                }
-                State::Empty(EmptyState::Continue) => {
-                    use crate::string::__find_next_char_boundary;
-
-                    let next_char = __find_next_char_boundary(self.this.as_bytes(), 0);
-                    let (next_char, rem) = string::split_at(self.this, next_char);
-                    self.this = rem;
-                    Some(next_char)
-                }
+            if self.skip_iterating {
+                return None
             }
+
+            let mut ret = self.inner.next();
+
+            if self.inner.is_finished() {
+                if let Some(x) = ret && x.is_empty() && !self.terminator_visited {
+                    ret = None;
+                }
+
+                self.terminator_visited = true;
+            }
+
+            ret
         },
-        fields = {this, state},
+
+        fields = {inner.copy(), terminator_visited, skip_iterating},
     }
 
     /// Gets the remainder of the string.
@@ -162,7 +139,7 @@ impl<'a, 'p, P: Pattern<'p>> SplitTerminator<'a, 'p, P> {
     ///
     /// ```
     pub const fn remainder(&self) -> &'a str {
-        self.this
+        self.inner.remainder()
     }
 }
 
@@ -179,8 +156,9 @@ impl<'a, 'p, P: Pattern<'p>> SplitTerminator<'a, 'p, P> {
 ///
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub struct RSplitTerminator<'a, 'p, P: Pattern<'p>> {
-    this: &'a str,
-    state: State<'p, P>,
+    inner: RSplit<'a, 'p, P>,
+    terminator_visited: bool,
+    skip_iterating: bool,
 }
 impl<'a, 'p, P: Pattern<'p>> ConstIntoIter for RSplitTerminator<'a, 'p, P> {
     type Kind = IsIteratorKind;
@@ -193,42 +171,20 @@ impl<'a, 'p, P: Pattern<'p>> RSplitTerminator<'a, 'p, P> {
     iterator_shared! {
         is_forward = true,
         item = &'a str,
-        iter_forward = RSplitTerminator<'a, 'p>,
-        next(self){
-            let Self {
-                this,
-                state,
-            } = *self;
+        iter_forward = RSplitTerminator<'a, 'p, P>,
 
-            match state {
-                State::Empty(EmptyState::Start) => {
-                    self.state = State::Empty(EmptyState::Continue);
-                    Some("")
-                }
-                _ if this.is_empty() => {
-                    None
-                }
-                State::Normal{delim} => {
-                    let delim = delim.as_str();
-                    let (next, ret) = match string::rfind(this, delim) {
-                        Some(pos) => (pos, pos + delim.len()),
-                        None => (0, 0),
-                    };
-                    self.this = str_up_to(this, next);
-                    Some(str_from(this, ret))
-                }
-                State::Empty(EmptyState::Continue) => {
-                    use crate::string::__find_prev_char_boundary;
-
-                    let bytes = self.this.as_bytes();
-                    let next_char = __find_prev_char_boundary(bytes, bytes.len());
-                    let (rem, next_char) = string::split_at(self.this, next_char);
-                    self.this = rem;
-                    Some(next_char)
-                }
+        next(self) {
+            if self.skip_iterating {
+                return None
             }
+
+            if !self.terminator_visited {
+                _ = self.inner.next();
+                self.terminator_visited = true;
+            }
+            self.inner.next()
         },
-        fields = {this, state},
+        fields = {inner.copy(), terminator_visited, skip_iterating},
     }
 
     /// Gets the remainder of the string.
@@ -250,6 +206,6 @@ impl<'a, 'p, P: Pattern<'p>> RSplitTerminator<'a, 'p, P> {
     ///
     /// ```
     pub const fn remainder(&self) -> &'a str {
-        self.this
+        self.inner.remainder()
     }
 }

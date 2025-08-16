@@ -56,7 +56,9 @@ pub const fn rsplit<'a, 'p, P>(this: &'a str, delim: P) -> RSplit<'a, 'p, P>
 where
     P: Pattern<'p>,
 {
-    split(this, delim).rev()
+    let Split { this, state } = split(this, delim);
+
+    RSplit { this, state }
 }
 
 #[derive(Copy, Clone)]
@@ -70,112 +72,6 @@ enum State<'p, P: Pattern<'p>> {
 enum EmptyState {
     Start,
     Continue,
-}
-
-macro_rules! split_shared {
-    (is_forward = $is_forward:ident) => {
-        const fn next_from_empty(&mut self, es: EmptyState) -> Option<&'a str> {
-            match es {
-                EmptyState::Start => {
-                    self.state = State::Empty(EmptyState::Continue);
-                    Some("")
-                }
-                EmptyState::Continue => {
-                    use crate::string::__find_next_char_boundary;
-
-                    let this = self.this;
-
-                    if this.is_empty() {
-                        self.state = State::Finished;
-                    }
-
-                    let next_char = __find_next_char_boundary(this.as_bytes(), 0);
-                    let (next_char, rem) = string::split_at(this, next_char);
-                    self.this = rem;
-                    Some(next_char)
-                }
-            }
-        }
-
-        const fn next_back_from_empty(&mut self, es: EmptyState) -> Option<&'a str> {
-            match es {
-                EmptyState::Start => {
-                    self.state = State::Empty(EmptyState::Continue);
-                    Some("")
-                }
-                EmptyState::Continue => {
-                    use crate::string::__find_prev_char_boundary;
-
-                    let this = self.this;
-
-                    if self.this.is_empty() {
-                        self.state = State::Finished;
-                    }
-                    let next_char = __find_prev_char_boundary(this.as_bytes(), this.len());
-                    let (rem, next_char) = string::split_at(this, next_char);
-                    self.this = rem;
-                    Some(next_char)
-                }
-            }
-        }
-
-        iterator_shared! {
-            is_forward = $is_forward,
-            item = &'a str,
-            iter_forward = Split<'a, 'p, P>,
-            iter_reversed = RSplit<'a, 'p, P>,
-            next(self){
-                let Self {
-                    this,
-                    state,
-                } = *self;
-
-                match state {
-                    State::Normal{delim} => {
-                        let delim = delim.as_str();
-                        match string::find(this, delim) {
-                            Some(pos) => {
-                                self.this = str_from(this, pos + delim.len());
-                                Some(str_up_to(this, pos))
-                            }
-                            None => {
-                                self.this = "";
-                                self.state = State::Finished;
-                                Some(this)
-                            }
-                        }
-                    }
-                    State::Empty(es) => self.next_from_empty(es),
-                    State::Finished => None,
-                }
-            },
-            next_back{
-                let Self {
-                    this,
-                    state,
-                } = *self;
-                match state {
-                    State::Normal{delim} => {
-                        let delim = delim.as_str();
-                        match string::rfind(this, delim) {
-                            Some(pos) => {
-                                self.this = str_up_to(this, pos);
-                                Some(str_from(this, pos + delim.len()))
-                            }
-                            None => {
-                                self.this = "";
-                                self.state = State::Finished;
-                                Some(this)
-                            }
-                        }
-                    }
-                    State::Empty(es) => self.next_back_from_empty(es),
-                    State::Finished => None,
-                }
-            },
-            fields = {this, state},
-        }
-    };
 }
 
 /// Const equivalent of `core::str::Split<'a, P>`
@@ -202,7 +98,64 @@ impl<'a, 'p, P: Pattern<'p>> ConstIntoIter for Split<'a, 'p, P> {
 }
 
 impl<'a, 'p, P: Pattern<'p>> Split<'a, 'p, P> {
-    split_shared! {is_forward = true}
+    iterator_shared! {
+        is_forward = true,
+        item = &'a str,
+        iter_forward = Split<'a, 'p, P>,
+        next(self) {
+            let Self {
+                this,
+                state,
+            } = *self;
+
+            match state {
+                State::Normal{delim} => {
+                    let delim = delim.as_str();
+                    match string::find(this, delim) {
+                        Some(pos) => {
+                            self.this = str_from(this, pos + delim.len());
+                            Some(str_up_to(this, pos))
+                        }
+                        None => {
+                            self.this = "";
+                            self.state = State::Finished;
+                            Some(this)
+                        }
+                    }
+                }
+                State::Empty(es) => self.next_from_empty(es),
+                State::Finished => None,
+            }
+        },
+        fields = {this, state},
+    }
+
+    pub(crate) const fn is_finished(&self) -> bool {
+        matches!(self.state, State::Finished)
+    }
+
+    const fn next_from_empty(&mut self, es: EmptyState) -> Option<&'a str> {
+        match es {
+            EmptyState::Start => {
+                self.state = State::Empty(EmptyState::Continue);
+                Some("")
+            }
+            EmptyState::Continue => {
+                use crate::string::__find_next_char_boundary;
+
+                let this = self.this;
+
+                if this.is_empty() {
+                    self.state = State::Finished;
+                }
+
+                let next_char = __find_next_char_boundary(this.as_bytes(), 0);
+                let (next_char, rem) = string::split_at(this, next_char);
+                self.this = rem;
+                Some(next_char)
+            }
+        }
+    }
 
     /// Gets the remainder of the string.
     ///
@@ -251,7 +204,58 @@ impl<'a, 'p, P: Pattern<'p>> ConstIntoIter for RSplit<'a, 'p, P> {
 }
 
 impl<'a, 'p, P: Pattern<'p>> RSplit<'a, 'p, P> {
-    split_shared! {is_forward = false}
+    iterator_shared! {
+        is_forward = true,
+        item = &'a str,
+        iter_forward = RSplit<'a, 'p, P>,
+        next(self) {
+            let Self {
+                this,
+                state,
+            } = *self;
+            match state {
+                State::Normal{delim} => {
+                    let delim = delim.as_str();
+                    match string::rfind(this, delim) {
+                        Some(pos) => {
+                            self.this = str_up_to(this, pos);
+                            Some(str_from(this, pos + delim.len()))
+                        }
+                        None => {
+                            self.this = "";
+                            self.state = State::Finished;
+                            Some(this)
+                        }
+                    }
+                }
+                State::Empty(es) => self.next_back_from_empty(es),
+                State::Finished => None,
+            }
+        },
+        fields = {this, state},
+    }
+
+    const fn next_back_from_empty(&mut self, es: EmptyState) -> Option<&'a str> {
+        match es {
+            EmptyState::Start => {
+                self.state = State::Empty(EmptyState::Continue);
+                Some("")
+            }
+            EmptyState::Continue => {
+                use crate::string::__find_prev_char_boundary;
+
+                let this = self.this;
+
+                if self.this.is_empty() {
+                    self.state = State::Finished;
+                }
+                let next_char = __find_prev_char_boundary(this.as_bytes(), this.len());
+                let (rem, next_char) = string::split_at(this, next_char);
+                self.this = rem;
+                Some(next_char)
+            }
+        }
+    }
 
     /// Gets the remainder of the string.
     ///

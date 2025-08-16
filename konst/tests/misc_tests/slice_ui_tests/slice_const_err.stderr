@@ -1,0 +1,17 @@
+error[E0080]: evaluation panicked:
+              invoked `unwrap_ok` macro with an `Err` value: TryIntoArrayError { slice_len: 0, array_len: 4 }
+ --> tests/misc_tests/slice_ui_tests/slice_const_err.rs:3:21
+  |
+3 | const _: &[u8; 4] = result::unwrap!(slice::try_into_array(&[])) ;
+  |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `_` failed here
+  |
+  = note: this error originates in the macro `result::unwrap` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0080]: evaluation panicked:
+              invoked `unwrap_ok` macro with an `Err` value: TryIntoArrayError { slice_len: 0, array_len: 2 }
+ --> tests/misc_tests/slice_ui_tests/slice_const_err.rs:6:27
+  |
+6 |     let _: &mut [u8; 2] = result::unwrap!(slice::try_into_array_mut(&mut []));
+  |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `_` failed here
+  |
+  = note: this error originates in the macro `result::unwrap` (in Nightly builds, run with -Z macro-backtrace for more info)

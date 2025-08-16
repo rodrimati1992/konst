@@ -47,22 +47,15 @@ macro_rules! __iterator_shared {
         $crate::__choose_alt! {($is_copy) {
             /// Creates a clone of this iterator
             pub const fn copy(&self) -> Self {
-                let Self $fields = *self;
-                Self $fields
+                $crate::__iterator_shared_copy!{self $fields}
             }
         }}
 
         $(
-            /// Reverses the iterator
-            pub const fn rev(self) -> $crate::__choose!($is_forward $Rev $Self) {
-                $crate::__choose_alt! {($is_drop) {
-                    $crate::destructure!{Self $fields = self}
-                } else {
-                    let Self $fields = self;
-                }}
-
-                type Type<T> = T;
-                Type::<$crate::__choose!($is_forward $Rev $Self)> $fields
+            $crate::__iterator_shared_rev!{
+                rev = $crate::__choose!($is_forward $Rev $Self),
+                is_drop = $is_drop,
+                $fields
             }
         )?
 
@@ -88,6 +81,38 @@ macro_rules! __iterator_shared {
             }
         )?
     };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __iterator_shared_copy {
+    ( $self:ident { $( $field:ident $(.$copy_method:ident())? ),* $(,)?} ) => ({
+        Self {
+            $($field: $self.$field $(.$copy_method())?,)*
+        }
+    })
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __iterator_shared_rev {
+    (
+        rev = $Rev:ty,
+        is_drop = $is_drop:ident,
+        { $( $field:ident $(.$copy_method:ident())? ),* $(,)?}
+    ) => (
+        /// Reverses the iterator
+        pub const fn rev(self) -> $Rev {
+            $crate::__choose_alt! {($is_drop) {
+                $crate::destructure!{Self {$($field),*} = self}
+            } else {
+                let Self {$($field),*} = self;
+            }}
+
+            type Type<T> = T;
+            Type::<$Rev> {$($field),*}
+        }
+    )
 }
 
 #[doc(hidden)]

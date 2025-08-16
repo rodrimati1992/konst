@@ -9,7 +9,11 @@ fn split_case(string: &str, delim: &str, expected: &[&str]) {
     // split_once
     {
         let first = expected[0];
-        if let Some((before, after)) = string::split_once(string, delim) {
+
+        let ret = string::split_once(string, delim);
+        assert_eq!(string.split_once(delim), ret, "str::split_once");
+
+        if let Some((before, after)) = ret {
             assert_eq!(before, first, "split before");
             assert_eq!(&string[before.len() + delim.len()..], after, "split rem");
         } else {
@@ -25,7 +29,11 @@ fn split_case(string: &str, delim: &str, expected: &[&str]) {
     // rsplit_once
     {
         let last = *expected.last().unwrap();
-        if let Some((before, after)) = string::rsplit_once(string, delim) {
+
+        let ret = string::rsplit_once(string, delim);
+        assert_eq!(string.rsplit_once(delim), ret, "str::rsplit_once");
+
+        if let Some((before, after)) = ret {
             assert_eq!(after, last, "rsplit before");
             assert_eq!(
                 &string[..string.len() - after.len() - delim.len()],
@@ -60,34 +68,57 @@ fn split_case(string: &str, delim: &str, expected: &[&str]) {
 
         assert_eq!(
             collect_const_iter!(string::split_terminator(string, delim)),
-            fwd_expected
+            fwd_expected,
+            "split_terminator: {string:?} delim: {delim:?}",
+        );
+        assert_eq!(
+            string.split_terminator(delim).collect::<Vec<_>>(),
+            fwd_expected,
+            "split_terminator"
         );
 
         // rsplit_terminator
         //
         // RSplitTerminator, unlike RSplit,
         // doesn't yield the empty string before the delimiter at the start of the string
-        let bck_expected = if string.starts_with(delim) {
-            let (&last, rev_expected) = rev_expected.split_last().unwrap();
-            assert_eq!(last, "", "last-rsplit-terminator");
+        let bck_expected = if string.ends_with(delim) {
+            let (&first, rev_expected) = rev_expected.split_first().unwrap();
+            assert_eq!(first, "", "last-rsplit-terminator");
             rev_expected
         } else {
             rev_expected
         };
 
         assert_eq!(
+            string.rsplit_terminator(delim).collect::<Vec<_>>(),
+            bck_expected,
+            "rsplit_terminator: {string:?} delim: {delim:?}"
+        );
+        assert_eq!(
             collect_const_iter!(string::rsplit_terminator(string, delim)),
             bck_expected,
+            "konst rsplit_terminator: {string:?} delim: {delim:?}"
         );
     }
 
     // split
     assert_eq!(collect_const_iter!(string::split(string, delim)), expected);
+    assert_eq!(
+        string.split(delim).collect::<Vec<_>>(),
+        expected,
+        "str::split"
+    );
 
     // rsplit
     assert_eq!(
         collect_const_iter!(string::rsplit(string, delim)),
-        rev_expected
+        rev_expected,
+        "rsplit: {string:?} delim: {delim:?}"
+    );
+    assert_eq!(
+        string.rsplit(delim).collect::<Vec<_>>(),
+        rev_expected,
+        "str::rsplit"
     );
 }
 
@@ -182,7 +213,6 @@ fn next_basic() {
     for mut iter in [
         string::split(string, "-"),
         string::split(string, "-").copy(),
-        string::rsplit(string, "-").rev(),
     ] {
         let _: string::Split<'_, '_, &str> = iter;
         assert_eq!(iter.remainder(), "foo-bar-baz");
@@ -200,7 +230,6 @@ fn next_basic() {
     }
 
     for mut iter in [
-        string::split(string, "-").rev(),
         string::rsplit(string, "-"),
         string::rsplit(string, "-").copy(),
     ] {
@@ -223,7 +252,6 @@ fn next_basic() {
 #[test]
 fn next_basic_terminated() {
     let fwd_string = "foo-bar-baz-";
-    let rev_string = "-foo-bar-baz";
 
     for mut iter in [
         string::split_terminator(fwd_string, "-"),
@@ -245,17 +273,17 @@ fn next_basic_terminated() {
     }
 
     for mut iter in [
-        string::rsplit_terminator(rev_string, "-"),
-        string::rsplit_terminator(rev_string, "-").copy(),
+        string::rsplit_terminator(fwd_string, "-"),
+        string::rsplit_terminator(fwd_string, "-").copy(),
     ] {
         let _: string::RSplitTerminator<'_, '_, &str> = iter;
-        assert_eq!(iter.remainder(), "-foo-bar-baz");
+        assert_eq!(iter.remainder(), "foo-bar-baz-");
 
         assert_eq!(iter.next().unwrap(), "baz");
-        assert_eq!(iter.remainder(), "-foo-bar");
+        assert_eq!(iter.remainder(), "foo-bar");
 
         assert_eq!(iter.next().unwrap(), "bar");
-        assert_eq!(iter.remainder(), "-foo");
+        assert_eq!(iter.remainder(), "foo");
 
         assert_eq!(iter.next().unwrap(), "foo");
         assert_eq!(iter.remainder(), "");
@@ -265,44 +293,48 @@ fn next_basic_terminated() {
 }
 
 #[test]
-fn next_back_basic() {
-    let string = "foo-bar-baz";
-
-    for mut iter in [
-        string::split(string, "-"),
-        string::split(string, "-").copy(),
-        string::rsplit(string, "-").rev(),
-    ] {
-        let _: string::Split<'_, '_, &str> = iter;
-
-        assert_eq!(iter.next_back().unwrap(), "baz");
-        assert_eq!(iter.remainder(), "foo-bar");
-
-        assert_eq!(iter.next_back().unwrap(), "bar");
-        assert_eq!(iter.remainder(), "foo");
-
-        assert_eq!(iter.next_back().unwrap(), "foo");
-        assert_eq!(iter.remainder(), "");
-
-        assert!(iter.next_back().is_none());
+fn all_perms_test() {
+    macro_rules! test_iter {
+        ($method:ident, $string:ident, $delim:ident) => {{
+            assert_eq!(
+                collect_const_iter!(konst::string::$method($string, $delim)),
+                $string.$method($delim).collect::<Vec<_>>(),
+                "failed at method: {} string: {:?} delim: {:?}",
+                stringify!($method),
+                $string,
+                $delim
+            );
+        }};
     }
 
-    for mut iter in [
-        string::split(string, "-").rev(),
-        string::rsplit(string, "-"),
+    for string in [
+        "-foo-bar-baz-",
+        "foo-bar-baz-",
+        "-foo-bar-baz",
+        "foo-bar-baz",
+        "foo--bar--baz",
+        "fooooooo-oooooooobar--baz",
+        "foo-bar--baz",
+        "foo--bar-baz",
+        "foo-bar-",
+        "foo-bar",
+        "foo-",
+        "oooooo",
+        "ooooo",
+        "oooo",
+        "ooo",
+        "oo",
+        "o",
+        "foo",
+        "-",
+        "",
     ] {
-        let _: string::RSplit<'_, '_, &str> = iter;
-
-        assert_eq!(iter.next_back().unwrap(), "foo");
-        assert_eq!(iter.remainder(), "bar-baz");
-
-        assert_eq!(iter.next_back().unwrap(), "bar");
-        assert_eq!(iter.remainder(), "baz");
-
-        assert_eq!(iter.next_back().unwrap(), "baz");
-        assert_eq!(iter.remainder(), "");
-
-        assert!(iter.next_back().is_none());
+        for delim in ["-", "", "oo", "o", "a", "ooo"] {
+            test_iter!(split, string, delim);
+            test_iter!(rsplit, string, delim);
+            test_iter!(split_terminator, string, delim);
+            test_iter!(rsplit_terminator, string, delim);
+        }
     }
 }
 
@@ -312,14 +344,10 @@ fn methods_are_const() {
         {
             let iter: string::Split<'_, '_, &str> = string::split(string, delim);
             let _ = iter.copy().next();
-            let _ = iter.copy().next_back();
-            let _: string::RSplit<'_, '_, &str> = iter.copy().rev();
         }
         {
             let iter: string::RSplit<'_, '_, &str> = string::rsplit(string, delim);
             let _ = iter.copy().next();
-            let _ = iter.copy().next_back();
-            let _: string::Split<'_, '_, &str> = iter.copy().rev();
         }
         {
             let iter: string::SplitTerminator<'_, '_, &str> =
