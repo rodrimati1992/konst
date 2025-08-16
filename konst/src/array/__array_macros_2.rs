@@ -20,7 +20,7 @@ macro_rules! __array_map2__with_parsed_closure {
     ) => (match $crate::array::IntoIter::new($array) {
         mut consumer => {
 
-            let mut builder = $crate::array::ArrayBuilder::new();
+            let mut builder = $crate::array::ArrayBuilder::of_drop();
 
             builder.infer_length_from_consumer(&consumer);
 

@@ -133,11 +133,13 @@ const _: () = {
 
         const PV_COUNT: usize = ComputePvCount {
             field_amount: 5,
-            summed_pv_count: <u32>::PV_COUNT
-                + <u32>::PV_COUNT
-                + <ParseDirection>::PV_COUNT
-                + <ErrorKind>::PV_COUNT
-                + <&'static &'static str>::PV_COUNT,
+            summed_pv_count: {
+                <u32>::PV_COUNT
+                    + <u32>::PV_COUNT
+                    + <ParseDirection>::PV_COUNT
+                    + <ErrorKind>::PV_COUNT
+                    + <&'static &'static str>::PV_COUNT
+            },
             delimiter: cfmt::TypeDelim::Braced,
         }
         .call();

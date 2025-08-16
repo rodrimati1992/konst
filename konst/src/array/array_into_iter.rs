@@ -16,7 +16,7 @@ use crate::iter::{ConstIntoIter, IntoIterWrapper, IsIteratorKind, IsStdKind};
 ///
 /// const fn reverse<T, const LEN: usize>(arr: [T; LEN]) -> [T; LEN] {
 ///     let mut iter = IntoIter::new(arr);
-///     let mut builder = ArrayBuilder::new();
+///     let mut builder = ArrayBuilder::of_drop();
 ///
 ///     konst::while_let_Some!{item = iter.next_back() =>
 ///         builder.push(item);

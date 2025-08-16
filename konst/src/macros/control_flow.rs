@@ -103,7 +103,7 @@ macro_rules! if_let_Some {
 /// use konst::array::ArrayBuilder;
 ///
 /// const fn foo<T: SomeTrait>() -> [T; 3] {
-///     let mut builder = ArrayBuilder::new();
+///     let mut builder = ArrayBuilder::of_drop();
 ///     while let Some(x) = produce_option(&builder) {
 ///         builder.push(x);
 ///     }
@@ -135,20 +135,23 @@ macro_rules! if_let_Some {
 #[cfg_attr(feature = "iter", doc = "```rust")]
 #[cfg_attr(not(feature = "iter"), doc = "```ignore")]
 /// use konst::array::ArrayBuilder;
+/// use konst::drop_flavor::MayDrop;
 ///
 /// assert_eq!(make_strings::<1>(), [String::new()]);
 /// assert_eq!(make_strings::<2>(), [String::new(), String::new()]);
 /// assert_eq!(make_strings::<3>(), [String::new(), String::new(), String::new()]);
 ///
 /// const fn make_strings<const N: usize>() -> [String; N] {
-///     let mut builder = ArrayBuilder::new();
+///     let mut builder = ArrayBuilder::of_drop();
 ///     konst::while_let_Some!{x = produce_option(&builder) =>
 ///         builder.push(x);
 ///     }
 ///     builder.build()
 /// }
 ///
-/// const fn produce_option<const N: usize>(ab: &ArrayBuilder<String, N>) -> Option<String> {
+/// const fn produce_option<const N: usize>(
+///     ab: &ArrayBuilder<String, N, MayDrop>
+/// ) -> Option<String> {
 ///     if ab.is_full() {
 ///         None
 ///     } else {

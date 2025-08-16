@@ -71,7 +71,22 @@ Added these macros at the root module:
 - `while_let_Some`
 
 
+Added `konst::drop_flavor` module with these items:
+- `DropFlavor` trait
+- `DropFlavorWrapper` trait
+- `MayDrop` marker type
+- `NonDrop` marker type
+- `unwrap` function
+- `as_inner` function
+- `as_inner_mut` function
+- `wrap` function
+
+
 Replaced old `konst::array::{map, from_fn}` macros with `konst::array::{map_, from_fn_}` (renaming them in the process).
+
+Added `D: DropFlavor` type parameter to `konst::array::ArrayBuilder` to  make it sometimes not need dropping.
+
+Replaced `konst::array::ArrayBuilder::new` constructor with `of_copy` and `of_drop` constructors.
 
 Change: Made array items conditional on `"iter"` feature:
 - `konst::array::ArrayBuilder`
@@ -273,6 +288,12 @@ Added these items to `konst::slice`:
 - `konst::slice::split_off_last` (function)
 - `konst::slice::split_off_mut` (function)
 - `konst::slice::split_off` (function)
+
+
+Fixed `RSplitTerminator`: before it skip the empty string before the first instance of the delimiter, instead of the empty space after the last one.
+The latter is what the iterator does now, to be consistent with std.
+
+Removed `.rev()` method of `konst::string::{Split, RSplit}`, because it allowed reversing an iterator with a `&str` needle, when `std` does not allow it (because the reverse iterator can produce different strings than forward).
 
 
 Reexported `const_panic::unwrap_ok` as `konst::result::unwrap`

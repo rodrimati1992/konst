@@ -23,6 +23,21 @@
 //!
 //! use std::fmt::{self, Display};
 //!
+//!
+//! const CHOICE: &str = option::unwrap_or!(option_env!("chosen-direction"), "forward");
+//!
+//! const DIRECTION: Direction = result::unwrap!(Direction::try_parse(CHOICE));
+//!
+//! fn main() {
+//!     match DIRECTION {
+//!         Direction::Forward => assert_eq!(CHOICE, "forward"),
+//!         Direction::Backward => assert_eq!(CHOICE, "backward"),
+//!         Direction::Left => assert_eq!(CHOICE, "left"),
+//!         Direction::Right => assert_eq!(CHOICE, "right"),
+//!     }
+//! }
+//!
+//!
 //! #[derive(Debug, PartialEq)]
 //! enum Direction {
 //!     Forward,
@@ -44,43 +59,16 @@
 //!     }
 //! }
 //!
-//! const CHOICE: &str = option::unwrap_or!(option_env!("chosen-direction"), "forward");
-//!
-//! const DIRECTION: Direction = result::unwrap!(Direction::try_parse(CHOICE));
-//!
-//! fn main() {
-//!     match DIRECTION {
-//!         Direction::Forward => assert_eq!(CHOICE, "forward"),
-//!         Direction::Backward => assert_eq!(CHOICE, "backward"),
-//!         Direction::Left => assert_eq!(CHOICE, "left"),
-//!         Direction::Right => assert_eq!(CHOICE, "right"),
-//!     }
-//! }
-//!
+//! // `PanicFmt` derives the `PanicFmt` trait for debug-printing in `result::unwrap`.
 //! // To use the `PanicFmt` derive you need to enable the "const_panic_derive" feature
 //! #[derive(Debug, PartialEq, PanicFmt)]
-//! #[pfmt(display_fmt = Self::display_fmt)]
 //! pub struct ParseDirectionError;
-//!
 //!
 //! impl Display for ParseDirectionError {
 //!     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 //!         f.write_str("Failed to parse a Direction")
 //!     }
 //! }
-//!
-//! impl ParseDirectionError {
-//!     const fn display_fmt(
-//!         &self,
-//!         fmtarg: FmtArg,
-//!     ) -> [PanicVal<'_>; ParseDirectionError::PV_COUNT] {
-//!         const_panic::flatten_panicvals!{fmtarg, ParseDirectionError::PV_COUNT;
-//!             "Failed to parse a Direction"
-//!         }
-//!     }
-//! }
-//!
-//!
 //! ```
 //!
 //! ### Parsing CSV
@@ -93,6 +81,10 @@
 #![cfg_attr(not(feature = "iter"), doc = "```ignore")]
 //! use konst::{iter, result, string};
 //!
+//!
+//! assert_eq!(PARSED, [3, 8, 13, 21, 34]);
+//!
+//!
 //! const CSV: &str = "3, 8, 13, 21, 34";
 //!
 //! static PARSED: [u64; 5] = iter::collect_const!(u64 =>
@@ -100,35 +92,22 @@
 //!         map(str::trim_ascii),
 //!         map(|s| result::unwrap!(u64::from_str_radix(s, 10))),
 //! );
-//!
-//! assert_eq!(PARSED, [3, 8, 13, 21, 34]);
 //! ```
 //!
 //! ### Parsing a struct
 //!
 //! This example demonstrates how a key-value pair format can be parsed into a struct.
 //!
-//! This requires the `"parsing_proc"` feature (enabled by default).
+//! This requires the `"iter"` and `"parsing_proc"` features (enabled by default).
 //!
-#![cfg_attr(feature = "parsing_proc", doc = "```rust")]
-#![cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
-//! use konst::{
-//!     parsing::{Parser, ParseValueResult, parser_method},
-//!     result,
-//!     eq_str, for_range, try_,
-//! };
+#![cfg_attr(all(feature = "iter", feature = "parsing_proc"), doc = "```rust")]
+#![cfg_attr(
+    not(all(feature = "iter", feature = "parsing_proc")),
+    doc = "```ignore"
+)]
+//! use konst::{result, try_};
+//! use konst::parsing::{Parser, ParseError, parser_method};
 //!
-//! const PARSED: Struct = {
-//!     // You can also parse strings from environment variables, or from an `include_str!(....)`
-//!     let input = "\
-//!         colors = red, blue, green, blue
-//!         amount = 1000
-//!         repeating = circle
-//!         name = bob smith
-//!     ";
-//!     
-//!     result::unwrap!(parse_struct(&mut Parser::new(input)))
-//! };
 //!
 //! fn main(){
 //!     assert_eq!(
@@ -141,6 +120,19 @@
 //!         }
 //!     );
 //! }
+//!
+//!
+//! const PARSED: Struct = {
+//!     // You can also parse strings from environment variables, or from an `include_str!(....)`
+//!     let input = "\
+//!         colors = red, blue, green, blue
+//!         amount = 1000
+//!         repeating = circle
+//!         name = bob smith
+//!     ";
+//!     
+//!     result::unwrap!(parse_struct(&mut Parser::new(input)))
+//! };
 //!
 //! #[derive(Debug, Clone, PartialEq, Eq)]
 //! pub struct Struct<'a> {
@@ -164,7 +156,7 @@
 //!     Green,
 //! }
 //!
-//! pub const fn parse_struct<'a>(parser: &mut Parser<'a>) -> ParseValueResult<'a, Struct<'a>> {
+//! pub const fn parse_struct<'p>(parser: &mut Parser<'p>) -> Result<Struct<'p>, ParseError<'p>> {
 //!     let mut name = "<none>";
 //!     let mut amount = 0;
 //!     let mut repeating = Shape::Circle;
@@ -173,6 +165,8 @@
 //!     parser.trim_end();
 //!     if !parser.is_empty() {
 //!         loop {
+//!             // keeps a copy of the parser at this position so that the
+//!             // error below points to the right location
 //!             let mut prev_parser = parser.trim_start().copy();
 //!
 //!             try_!(parser.find_skip('='));
@@ -198,7 +192,7 @@
 //!     Ok(Struct{name, amount, repeating, colors})
 //! }
 //!
-//! pub const fn parse_shape<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Shape> {
+//! pub const fn parse_shape<'p>(parser: &mut Parser<'p>) -> Result<Shape, ParseError<'p>> {
 //!     let shape = parser_method!{parser, strip_prefix;
 //!         "circle" => Shape::Circle,
 //!         "square" => Shape::Square,
@@ -210,23 +204,22 @@
 //!
 //! pub const fn parse_colors<'p, const LEN: usize>(
 //!     parser: &mut Parser<'p>,
-//! ) -> ParseValueResult<'p, [Color; LEN]> {
-//!     let mut colors = [Color::Red; LEN];
+//! ) -> Result<[Color; LEN], ParseError<'p>> {
+//!     let mut colors = konst::array::ArrayBuilder::of_copy();
 //!
-//!     for_range!{i in 0..LEN =>
-//!         colors[i] = try_!(parse_color(parser.trim_start()));
+//!     while !colors.is_full() {
+//!         colors.push(try_!(parse_color(parser.trim_start())));
 //!         
-//!         match parser.strip_prefix(",") {
-//!             Ok(_) => (),
-//!             Err(_) if i == LEN - 1 => {}
-//!             Err(e) => return Err(e),
+//!         // returns an error if there aren't enough comma-separated colors
+//!         if let Err(e) = parser.strip_prefix(",") && !colors.is_full() {
+//!             return Err(e);
 //!         }
 //!     }
 //!
-//!     Ok(colors)
+//!     Ok(colors.build())
 //! }
 //!
-//! pub const fn parse_color<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Color> {
+//! pub const fn parse_color<'p>(parser: &mut Parser<'p>) -> Result<Color, ParseError<'p>> {
 //!     let color = parser_method!{parser, strip_prefix;
 //!         "red" => Color::Red,
 //!         "blue" => Color::Blue,
@@ -341,6 +334,8 @@ pub mod cmp;
 #[macro_use]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub mod iter;
+
+pub mod drop_flavor;
 
 pub mod ffi;
 

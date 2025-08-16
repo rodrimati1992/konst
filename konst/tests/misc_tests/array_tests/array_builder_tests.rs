@@ -2,21 +2,28 @@ use std::cell::RefCell;
 use std::collections::BTreeSet;
 
 use konst::array::{ArrayBuilder, IntoIter};
+use konst::drop_flavor::{DropFlavor, MayDrop, NonDrop};
 
 #[test]
-fn new_test() {
-    const fn _callable<T, const N: usize>() -> ArrayBuilder<T, N> {
-        ArrayBuilder::new()
+fn constructors_constness_test() {
+    const fn _callable0<T, const N: usize>() -> ArrayBuilder<T, N, MayDrop> {
+        ArrayBuilder::of_drop()
+    }
+    const fn _callable1<T: Copy, const N: usize>() -> ArrayBuilder<T, N, NonDrop> {
+        ArrayBuilder::of_copy()
     }
 }
 
 #[test]
 fn len_and_is_full_test() {
-    const fn _callable<T, const N: usize>(this: &ArrayBuilder<T, N>) -> (usize, bool) {
+    const fn _callable<T, D, const N: usize>(this: &ArrayBuilder<T, N, D>) -> (usize, bool)
+    where
+        D: DropFlavor,
+    {
         (this.len(), this.is_full())
     }
 
-    let mut this: ArrayBuilder<_, 3> = ArrayBuilder::new();
+    let mut this = ArrayBuilder::of_drop::<3>();
 
     assert_eq!(this.len(), 0);
     assert!(!this.is_full());
@@ -36,14 +43,20 @@ fn len_and_is_full_test() {
 
 #[test]
 fn as_slice_test() {
-    const fn _callable<'a, T, const N: usize>(this: &'a ArrayBuilder<T, N>) {
+    const fn _callable<'a, T, D, const N: usize>(this: &'a ArrayBuilder<T, N, D>)
+    where
+        D: DropFlavor,
+    {
         let _: &'a [T] = this.as_slice();
     }
-    const fn _callable_mut<'a, T, const N: usize>(this: &'a mut ArrayBuilder<T, N>) {
+    const fn _callable_mut<'a, T, D, const N: usize>(this: &'a mut ArrayBuilder<T, N, D>)
+    where
+        D: DropFlavor,
+    {
         let _: &'a mut [T] = this.as_mut_slice();
     }
 
-    let mut this: ArrayBuilder<_, 3> = ArrayBuilder::new();
+    let mut this = ArrayBuilder::of_drop::<3>();
 
     assert_eq!((&this).as_slice(), &[0; 0][..]);
     assert_eq!(this.as_mut_slice(), &mut [0; 0][..]);
@@ -63,7 +76,7 @@ fn as_slice_test() {
 
 #[test]
 fn push_build_test() {
-    let mut this: ArrayBuilder<_, 3> = ArrayBuilder::new();
+    let mut this = ArrayBuilder::of_drop::<3>();
 
     this.push(3);
     this.push(5);
@@ -75,7 +88,7 @@ fn push_build_test() {
 #[test]
 #[should_panic]
 fn push_panics_test() {
-    let mut this: ArrayBuilder<_, 3> = ArrayBuilder::new();
+    let mut this = ArrayBuilder::of_drop::<3>();
 
     this.push(3);
     this.push(5);
@@ -86,18 +99,21 @@ fn push_panics_test() {
 #[test]
 #[should_panic]
 fn build_panics_test() {
-    let this: ArrayBuilder<u32, 5> = ArrayBuilder::new();
+    let this: ArrayBuilder<u32, 5, MayDrop> = ArrayBuilder::of_drop();
 
     let _ = this.build();
 }
 
 #[test]
 fn infer_length_from_consumer_test() {
-    const fn _callable<T, const LEN: usize>(ab: &ArrayBuilder<T, LEN>, ac: &IntoIter<T, LEN>) {
+    const fn _callable<T, D: DropFlavor, const LEN: usize>(
+        ab: &ArrayBuilder<T, LEN, D>,
+        ac: &IntoIter<T, LEN>,
+    ) {
         ab.infer_length_from_consumer(ac);
     }
 
-    let mut this = ArrayBuilder::new();
+    let mut this = ArrayBuilder::of_drop();
     this.infer_length_from_consumer(&IntoIter::new([0, 0, 0]));
 
     this.push(3);
@@ -109,13 +125,13 @@ fn infer_length_from_consumer_test() {
 
 #[test]
 fn copy_test() {
-    const fn _callable<T: Copy, const LEN: usize>(
-        ac: &ArrayBuilder<T, LEN>,
-    ) -> ArrayBuilder<T, LEN> {
+    const fn _callable<T: Copy, D: DropFlavor, const LEN: usize>(
+        ac: &ArrayBuilder<T, LEN, D>,
+    ) -> ArrayBuilder<T, LEN, D> {
         ac.copy()
     }
 
-    let mut builder = ArrayBuilder::<i32, 6>::new();
+    let mut builder = ArrayBuilder::<i32, 6, _>::of_drop();
     builder.push(5);
     builder.push(8);
     builder.push(13);
@@ -126,11 +142,15 @@ fn copy_test() {
 
 #[test]
 fn clone_test() {
-    fn _callable<T: Clone, const LEN: usize>(ac: &ArrayBuilder<T, LEN>) -> ArrayBuilder<T, LEN> {
+    fn _callable<T, D, const LEN: usize>(ac: &ArrayBuilder<T, LEN, D>) -> ArrayBuilder<T, LEN, D>
+    where
+        T: Clone,
+        D: DropFlavor,
+    {
         ac.clone()
     }
 
-    let mut builder = ArrayBuilder::<String, 6>::new();
+    let mut builder = ArrayBuilder::<String, 6, _>::of_drop();
     builder.push(5.to_string());
     builder.push(8.to_string());
     builder.push(13.to_string());
@@ -153,7 +173,7 @@ impl Drop for ToSet<'_> {
 fn drop_test() {
     let set = RefCell::new(BTreeSet::from([]));
 
-    let mut builder: ArrayBuilder<_, 5> = ArrayBuilder::new();
+    let mut builder = ArrayBuilder::of_drop::<5>();
 
     builder.push(ToSet(3, &set));
     builder.push(ToSet(5, &set));
