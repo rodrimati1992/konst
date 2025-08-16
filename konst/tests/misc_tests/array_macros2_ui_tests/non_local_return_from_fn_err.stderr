@@ -1,4 +1,4 @@
-error[E0493]: destructor of `ArrayBuilder<usize, 1>` cannot be evaluated at compile-time
+error[E0493]: destructor of `ArrayBuilder<usize, 1, MayDrop>` cannot be evaluated at compile-time
  --> tests/misc_tests/array_macros2_ui_tests/non_local_return_from_fn_err.rs:3:5
   |
 3 |     konst::array::from_fn!(|i| break 'out [i * 2])

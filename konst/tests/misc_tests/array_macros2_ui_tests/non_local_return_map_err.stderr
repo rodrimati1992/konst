@@ -1,4 +1,4 @@
-error[E0493]: destructor of `ArrayBuilder<usize, 1>` cannot be evaluated at compile-time
+error[E0493]: destructor of `ArrayBuilder<usize, 1, MayDrop>` cannot be evaluated at compile-time
  --> tests/misc_tests/array_macros2_ui_tests/non_local_return_map_err.rs:3:5
   |
 3 |     konst::array::map!([10], |x| break 'out [x * 2])

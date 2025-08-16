@@ -86,14 +86,16 @@ Replaced old `konst::array::{map, from_fn}` macros with `konst::array::{map_, fr
 
 Added `D: DropFlavor` type parameter to `konst::array::ArrayBuilder` to  make it sometimes not need dropping.
 
-Replaced `konst::array::ArrayBuilder::new` constructor with `of_copy` and `of_drop` constructors.
-
 Change: Made array items conditional on `"iter"` feature:
 - `konst::array::ArrayBuilder`
 - `konst::array::from_fn`
 - `konst::array::IntoIter`
 - `konst::array::IntoIterRev`
 - `konst::array::map`
+
+Replaced `konst::array::ArrayBuilder::new` constructor with `of_copy` and `of_drop` constructors.
+
+Added `konst::array::ArrayBuilder::into_may_drop` method.
 
 Renamed `ArrayConsumer` into `IntoIter`, impld `ConstIterator` for it, and changed its `next*` methods to return `Option<T>` instead of `Option<ManuallyDrop<T>>` (to be consistent with `ConstIntoIter` API).
 

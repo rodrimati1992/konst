@@ -1,0 +1,47 @@
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_nonmacro_ui_tests/drop_flavor_btype_err.rs:4:48
+  |
+4 |     let _ = drop_flavor::unwrap::<NonDrop, u8>(0);
+  |             ---------------------------------- ^ expected `ManuallyDrop<u8>`, found integer
+  |             |
+  |             arguments to this function are incorrect
+  |
+  = note: expected struct `ManuallyDrop<u8>`
+               found type `{integer}`
+note: function defined here
+ --> src/drop_flavor.rs
+  |
+  | pub const fn unwrap<D, T>(wrapper: D::Wrap<T>) -> T
+  |              ^^^^^^
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_nonmacro_ui_tests/drop_flavor_btype_err.rs:8:49
+  |
+8 |     let _ = drop_flavor::as_inner::<NonDrop, _>(&());
+  |             ----------------------------------- ^^^ expected `&ManuallyDrop<_>`, found `&()`
+  |             |
+  |             arguments to this function are incorrect
+  |
+  = note: expected reference `&ManuallyDrop<_>`
+             found reference `&()`
+note: function defined here
+ --> src/drop_flavor.rs
+  |
+  | pub const fn as_inner<D, T>(wrapper: &D::Wrap<T>) -> &T
+  |              ^^^^^^^^
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_nonmacro_ui_tests/drop_flavor_btype_err.rs:12:53
+   |
+12 |     let _ = drop_flavor::as_inner_mut::<NonDrop, _>(&mut ());
+   |             --------------------------------------- ^^^^^^^ expected `&mut ManuallyDrop<_>`, found `&mut ()`
+   |             |
+   |             arguments to this function are incorrect
+   |
+   = note: expected mutable reference `&mut ManuallyDrop<_>`
+              found mutable reference `&mut ()`
+note: function defined here
+  --> src/drop_flavor.rs
+   |
+   | pub const fn as_inner_mut<D, T>(wrapper: &mut D::Wrap<T>) -> &mut T
+   |              ^^^^^^^^^^^^

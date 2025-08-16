@@ -24,7 +24,7 @@ fn unwrap() {
 
 #[test]
 fn as_inner() {
-    fn foo_as_inner<D: DropFlavor, T>(foo: &Foo<D, T>) -> &T {
+    const fn foo_as_inner<D: DropFlavor, T>(foo: &Foo<D, T>) -> &T {
         drop_flavor::as_inner::<D, _>(&foo.0)
     }
 
@@ -34,7 +34,7 @@ fn as_inner() {
 
 #[test]
 fn as_inner_mut() {
-    fn foo_as_inner_mut<D: DropFlavor, T>(foo: &mut Foo<D, T>) -> &mut T {
+    const fn foo_as_inner_mut<D: DropFlavor, T>(foo: &mut Foo<D, T>) -> &mut T {
         drop_flavor::as_inner_mut::<D, _>(&mut foo.0)
     }
 

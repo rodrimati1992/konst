@@ -1,3 +1,5 @@
+use crate::misc_tests::test_utils::assert_type;
+
 use std::cell::RefCell;
 use std::collections::BTreeSet;
 
@@ -5,13 +7,17 @@ use konst::array::{ArrayBuilder, IntoIter};
 use konst::drop_flavor::{DropFlavor, MayDrop, NonDrop};
 
 #[test]
-fn constructors_constness_test() {
+fn constructors_const_and_type_test() {
     const fn _callable0<T, const N: usize>() -> ArrayBuilder<T, N, MayDrop> {
         ArrayBuilder::of_drop()
     }
     const fn _callable1<T: Copy, const N: usize>() -> ArrayBuilder<T, N, NonDrop> {
         ArrayBuilder::of_copy()
     }
+
+    assert_type::<_, ArrayBuilder<u8, 0, MayDrop>>(&ArrayBuilder::<u8, 0, _>::of_drop());
+
+    assert_type::<_, ArrayBuilder<u8, 0, NonDrop>>(&ArrayBuilder::<u8, 0, _>::of_copy());
 }
 
 #[test]
@@ -232,4 +238,20 @@ fn drop_test() {
     drop(builder);
 
     assert!(set.borrow().iter().copied().eq([3u128, 5, 8]), "{set:?}");
+}
+
+#[test]
+fn into_may_drop_test() {
+    let mut builder = ArrayBuilder::of_copy::<3>();
+    assert_type::<_, ArrayBuilder<&u8, 3, NonDrop>>(&builder);
+
+    builder.push(&3u8);
+    builder.push(&5u8);
+
+    let mut builder = builder.into_may_drop();
+    assert_type::<_, ArrayBuilder<&u8, 3, MayDrop>>(&builder);
+
+    builder.push(&8u8);
+
+    assert_eq!(builder.build(), [&3u8, &5, &8]);
 }
