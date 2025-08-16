@@ -241,17 +241,24 @@ fn drop_test() {
 }
 
 #[test]
-fn into_may_drop_test() {
-    let mut builder = ArrayBuilder::of_copy::<3>();
-    assert_type::<_, ArrayBuilder<&u8, 3, NonDrop>>(&builder);
+fn into_drop_and_copy_test() {
+    macro_rules! case {
+        ($ctor:ident $from_flavor:ident $conv_method:ident $into_flavor:ident) => {
+            let mut builder = ArrayBuilder::$ctor::<3>();
+            assert_type::<_, ArrayBuilder<&u8, 3, $from_flavor>>(&builder);
 
-    builder.push(&3u8);
-    builder.push(&5u8);
+            builder.push(&3u8);
+            builder.push(&5u8);
 
-    let mut builder = builder.into_may_drop();
-    assert_type::<_, ArrayBuilder<&u8, 3, MayDrop>>(&builder);
+            let mut builder = builder.$conv_method();
+            assert_type::<_, ArrayBuilder<&u8, 3, $into_flavor>>(&builder);
 
-    builder.push(&8u8);
+            builder.push(&8u8);
 
-    assert_eq!(builder.build(), [&3u8, &5, &8]);
+            assert_eq!(builder.build(), [&3u8, &5, &8]);
+        };
+    }
+
+    case! {of_copy NonDrop into_drop MayDrop}
+    case! {of_drop MayDrop into_copy NonDrop}
 }

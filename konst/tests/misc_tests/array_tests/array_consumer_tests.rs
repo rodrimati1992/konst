@@ -46,38 +46,45 @@ fn assert_is_empty_test() {
         ac.assert_is_empty();
     }
 
-    {
-        let iter: IntoIter<u8, 0, NonDrop> = IntoIter::of_copy([]);
-        iter.assert_is_empty();
+    macro_rules! case {
+        ($ctor:ident) => {{
+            {
+                let iter: IntoIter<u8, 0, _> = IntoIter::$ctor([]);
+                iter.assert_is_empty();
+            }
+
+            {
+                let mut iter = IntoIter::$ctor([3, 5, 8]);
+                assert_eq!(iter.next(), Some(3));
+                assert_eq!(iter.next(), Some(5));
+                assert_eq!(iter.next(), Some(8));
+                assert_eq!(iter.next(), None);
+                iter.assert_is_empty();
+            }
+
+            {
+                let mut iter = IntoIter::$ctor([3, 5, 8]);
+                assert_eq!(iter.next_back(), Some(8));
+                assert_eq!(iter.next_back(), Some(5));
+                assert_eq!(iter.next_back(), Some(3));
+                assert_eq!(iter.next_back(), None);
+                iter.assert_is_empty();
+            }
+
+            {
+                let mut iter = IntoIter::$ctor([3, 5, 8, 13]);
+                assert_eq!(iter.next(), Some(3));
+                assert_eq!(iter.next_back(), Some(13));
+                assert_eq!(iter.next_back(), Some(8));
+                assert_eq!(iter.next(), Some(5));
+                assert_eq!(iter.next_back(), None);
+                iter.assert_is_empty();
+            }
+        }};
     }
 
-    {
-        let mut iter = IntoIter::of_copy([3, 5, 8]);
-        assert_eq!(iter.next(), Some(3));
-        assert_eq!(iter.next(), Some(5));
-        assert_eq!(iter.next(), Some(8));
-        assert_eq!(iter.next(), None);
-        iter.assert_is_empty();
-    }
-
-    {
-        let mut iter = IntoIter::of_copy([3, 5, 8]);
-        assert_eq!(iter.next_back(), Some(8));
-        assert_eq!(iter.next_back(), Some(5));
-        assert_eq!(iter.next_back(), Some(3));
-        assert_eq!(iter.next_back(), None);
-        iter.assert_is_empty();
-    }
-
-    {
-        let mut iter = IntoIter::of_copy([3, 5, 8, 13]);
-        assert_eq!(iter.next(), Some(3));
-        assert_eq!(iter.next_back(), Some(13));
-        assert_eq!(iter.next_back(), Some(8));
-        assert_eq!(iter.next(), Some(5));
-        assert_eq!(iter.next_back(), None);
-        iter.assert_is_empty();
-    }
+    case! {of_copy}
+    case! {of_drop}
 }
 
 #[test]
@@ -86,14 +93,21 @@ fn assert_is_empty_rev_test() {
         ac.assert_is_empty();
     }
 
-    {
-        let mut iter: IntoIterRev<_, 3, NonDrop> = IntoIter::of_copy([3, 5, 8]).rev();
-        assert_eq!(iter.next(), Some(8));
-        assert_eq!(iter.next(), Some(5));
-        assert_eq!(iter.next(), Some(3));
-        assert_eq!(iter.next(), None);
-        iter.assert_is_empty();
+    macro_rules! case {
+        ($ctor:ident) => {{
+            {
+                let mut iter: IntoIterRev<_, 3, _> = IntoIter::$ctor([3, 5, 8]).rev();
+                assert_eq!(iter.next(), Some(8));
+                assert_eq!(iter.next(), Some(5));
+                assert_eq!(iter.next(), Some(3));
+                assert_eq!(iter.next(), None);
+                iter.assert_is_empty();
+            }
+        }};
     }
+
+    case! {of_copy}
+    case! {of_drop}
 }
 
 #[test]
@@ -107,39 +121,46 @@ fn as_slice_test() {
         ac.as_mut_slice()
     }
 
-    {
-        let mut iter: IntoIter<u8, 0, NonDrop> = IntoIter::of_copy([]);
-        assert_eq!(iter.as_slice(), &[0; 0][..]);
-        assert_eq!(iter.as_mut_slice(), &[0; 0][..]);
+    macro_rules! case {
+        ($ctor:ident) => {{
+            {
+                let mut iter: IntoIter<u8, 0, _> = IntoIter::$ctor([]);
+                assert_eq!(iter.as_slice(), &[0; 0][..]);
+                assert_eq!(iter.as_mut_slice(), &[0; 0][..]);
+            }
+
+            {
+                let mut iter = IntoIter::$ctor([3, 5, 8, 13]);
+                assert_eq!(iter.as_slice(), &[3, 5, 8, 13][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8, 13][..]);
+
+                assert_eq!(iter.next(), Some(3));
+                assert_eq!(iter.as_slice(), &[5, 8, 13][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [5, 8, 13][..]);
+
+                assert_eq!(iter.next_back(), Some(13));
+                assert_eq!(iter.as_slice(), &[5, 8][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
+
+                assert_eq!(iter.next_back(), Some(8));
+                assert_eq!(iter.as_slice(), &[5][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [5][..]);
+
+                assert_eq!(iter.next(), Some(5));
+                assert_eq!(iter.as_slice(), &[0; 0][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
+
+                assert_eq!(iter.next_back(), None);
+                assert_eq!(iter.as_slice(), &[0; 0][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
+
+                iter.assert_is_empty();
+            }
+        }};
     }
 
-    {
-        let mut iter = IntoIter::of_copy([3, 5, 8, 13]);
-        assert_eq!(iter.as_slice(), &[3, 5, 8, 13][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8, 13][..]);
-
-        assert_eq!(iter.next(), Some(3));
-        assert_eq!(iter.as_slice(), &[5, 8, 13][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [5, 8, 13][..]);
-
-        assert_eq!(iter.next_back(), Some(13));
-        assert_eq!(iter.as_slice(), &[5, 8][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
-
-        assert_eq!(iter.next_back(), Some(8));
-        assert_eq!(iter.as_slice(), &[5][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [5][..]);
-
-        assert_eq!(iter.next(), Some(5));
-        assert_eq!(iter.as_slice(), &[0; 0][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
-
-        assert_eq!(iter.next_back(), None);
-        assert_eq!(iter.as_slice(), &[0; 0][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
-
-        iter.assert_is_empty();
-    }
+    case! {of_copy}
+    case! {of_drop}
 }
 
 #[test]
@@ -153,39 +174,46 @@ fn as_slice_rev_test() {
         ac.as_mut_slice()
     }
 
-    {
-        let mut iter: IntoIterRev<u8, 0, NonDrop> = IntoIter::of_copy([]).rev();
-        assert_eq!(iter.as_slice(), &[0; 0][..]);
-        assert_eq!(iter.as_mut_slice(), &[0; 0][..]);
+    macro_rules! case {
+        ($flavor:ident, $ctor:ident) => {{
+            {
+                let mut iter: IntoIterRev<u8, 0, $flavor> = IntoIter::$ctor([]).rev();
+                assert_eq!(iter.as_slice(), &[0; 0][..]);
+                assert_eq!(iter.as_mut_slice(), &[0; 0][..]);
+            }
+
+            {
+                let mut iter = IntoIter::$ctor([3, 5, 8, 13]).rev();
+                assert_eq!(iter.as_slice(), &[3, 5, 8, 13][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8, 13][..]);
+
+                assert_eq!(iter.next_back(), Some(3));
+                assert_eq!(iter.as_slice(), &[5, 8, 13][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [5, 8, 13][..]);
+
+                assert_eq!(iter.next(), Some(13));
+                assert_eq!(iter.as_slice(), &[5, 8][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
+
+                assert_eq!(iter.next(), Some(8));
+                assert_eq!(iter.as_slice(), &[5][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [5][..]);
+
+                assert_eq!(iter.next_back(), Some(5));
+                assert_eq!(iter.as_slice(), &[0; 0][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
+
+                assert_eq!(iter.next(), None);
+                assert_eq!(iter.as_slice(), &[0; 0][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
+
+                iter.assert_is_empty();
+            }
+        }};
     }
 
-    {
-        let mut iter = IntoIter::of_copy([3, 5, 8, 13]).rev();
-        assert_eq!(iter.as_slice(), &[3, 5, 8, 13][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8, 13][..]);
-
-        assert_eq!(iter.next_back(), Some(3));
-        assert_eq!(iter.as_slice(), &[5, 8, 13][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [5, 8, 13][..]);
-
-        assert_eq!(iter.next(), Some(13));
-        assert_eq!(iter.as_slice(), &[5, 8][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
-
-        assert_eq!(iter.next(), Some(8));
-        assert_eq!(iter.as_slice(), &[5][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [5][..]);
-
-        assert_eq!(iter.next_back(), Some(5));
-        assert_eq!(iter.as_slice(), &[0; 0][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
-
-        assert_eq!(iter.next(), None);
-        assert_eq!(iter.as_slice(), &[0; 0][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
-
-        iter.assert_is_empty();
-    }
+    case! {NonDrop, of_copy}
+    case! {MayDrop, of_drop}
 }
 
 #[test]
@@ -196,27 +224,34 @@ fn next_test() {
         ac.next()
     }
 
-    let mut iter = IntoIter::of_copy([3, 5, 8]);
-    assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
+    macro_rules! case {
+        ($ctor:ident) => {{
+            let mut iter = IntoIter::$ctor([3, 5, 8]);
+            assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
+            assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
 
-    assert_eq!(iter.next(), Some(3));
-    assert_eq!(iter.as_slice(), &[5, 8][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
+            assert_eq!(iter.next(), Some(3));
+            assert_eq!(iter.as_slice(), &[5, 8][..]);
+            assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
 
-    assert_eq!(iter.next(), Some(5));
-    assert_eq!(iter.as_slice(), &[8][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [8][..]);
+            assert_eq!(iter.next(), Some(5));
+            assert_eq!(iter.as_slice(), &[8][..]);
+            assert_eq!(iter.as_mut_slice(), &mut [8][..]);
 
-    assert_eq!(iter.next(), Some(8));
-    assert_eq!(iter.as_slice(), &[0; 0][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
+            assert_eq!(iter.next(), Some(8));
+            assert_eq!(iter.as_slice(), &[0; 0][..]);
+            assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
-    assert_eq!(iter.next(), None);
-    assert_eq!(iter.as_slice(), &[0; 0][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
+            assert_eq!(iter.next(), None);
+            assert_eq!(iter.as_slice(), &[0; 0][..]);
+            assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
-    iter.assert_is_empty();
+            iter.assert_is_empty();
+        }};
+    }
+
+    case! {of_copy}
+    case! {of_drop}
 }
 
 #[test]
@@ -258,13 +293,20 @@ fn copy_test() {
         ac.copy()
     }
 
-    let mut consumer: IntoIter<_, 6, MayDrop> = into_iter!([3, 5, 8, 13, 21, 34]);
-    _ = consumer.next();
-    _ = consumer.next_back();
-    _ = consumer.next_back();
+    macro_rules! case {
+        ($flavor:ident, $iter:expr) => {
+            let mut consumer: IntoIter<_, 6, $flavor> = $iter;
+            _ = consumer.next();
+            _ = consumer.next_back();
+            _ = consumer.next_back();
 
-    assert_eq!(consumer.as_slice(), &[5, 8, 13][..]);
-    assert_eq!(consumer.copy().as_slice(), &[5, 8, 13][..]);
+            assert_eq!(consumer.as_slice(), &[5, 8, 13][..]);
+            assert_eq!(consumer.copy().as_slice(), &[5, 8, 13][..]);
+        };
+    }
+
+    case! {MayDrop, into_iter!([3, 5, 8, 13, 21, 34])}
+    case! {NonDrop, IntoIter::of_copy([3, 5, 8, 13, 21, 34])}
 }
 
 #[test]
@@ -275,13 +317,21 @@ fn copy_rev_test() {
         ac.copy()
     }
 
-    let mut consumer: IntoIterRev<_, 6, NonDrop> = IntoIter::of_copy([3, 5, 8, 13, 21, 34]).rev();
-    _ = consumer.next_back();
-    _ = consumer.next();
-    _ = consumer.next();
+    macro_rules! case {
+        ($flavor:ident, $iter:expr) => {
+            let mut consumer: IntoIterRev<_, 6, $flavor> = $iter.rev();
 
-    assert_eq!(consumer.as_slice(), &[5, 8, 13][..]);
-    assert_eq!(consumer.copy().as_slice(), &[5, 8, 13][..]);
+            _ = consumer.next_back();
+            _ = consumer.next();
+            _ = consumer.next();
+
+            assert_eq!(consumer.as_slice(), &[5, 8, 13][..]);
+            assert_eq!(consumer.copy().as_slice(), &[5, 8, 13][..]);
+        };
+    }
+
+    case! {MayDrop, into_iter!([3, 5, 8, 13, 21, 34])}
+    case! {NonDrop, IntoIter::of_copy([3, 5, 8, 13, 21, 34])}
 }
 
 #[test]
@@ -363,4 +413,29 @@ fn drop_test() {
             .eq([3u128, 5, 8, 13, 21, 34, 55]),
         "{set:?}"
     );
+}
+
+#[test]
+fn into_drop_and_copy_test() {
+    macro_rules! case {
+        ($ctor:ident $from_flavor:ident $conv_method:ident $into_flavor:ident) => {
+            let mut iter = IntoIter::$ctor::<3>([&3u8, &5, &8]);
+            assert_type::<_, IntoIter<&u8, 3, $from_flavor>>(&iter);
+
+            assert_eq!(iter.next(), Some(&3u8));
+            assert_eq!(iter.next(), Some(&5u8));
+
+            let mut iter = iter.$conv_method();
+            assert_type::<_, IntoIter<&u8, 3, $into_flavor>>(&iter);
+
+            assert_eq!(iter.next(), Some(&8u8));
+
+            assert_eq!(iter.next(), None);
+
+            iter.assert_is_empty();
+        };
+    }
+
+    case! {of_copy NonDrop into_drop MayDrop}
+    case! {of_drop MayDrop into_copy NonDrop}
 }

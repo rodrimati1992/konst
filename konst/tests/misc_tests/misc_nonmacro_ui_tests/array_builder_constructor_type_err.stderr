@@ -53,3 +53,25 @@ error[E0308]: mismatched types
   |
   = note: expected struct `ArrayBuilder<u8, 3, _>`
              found struct `ArrayBuilder<_, 5, MayDrop>`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_nonmacro_ui_tests/array_builder_constructor_type_err.rs:11:63
+   |
+11 |     let _: ArrayBuilder<u8, 3, konst::drop_flavor::NonDrop> = ArrayBuilder::of_copy().into_drop();
+   |            ------------------------------------------------   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `ArrayBuilder<u8, 3, NonDrop>`, found `ArrayBuilder<_, _, MayDrop>`
+   |            |
+   |            expected due to this
+   |
+   = note: expected struct `ArrayBuilder<u8, 3, NonDrop>`
+              found struct `ArrayBuilder<_, _, MayDrop>`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_nonmacro_ui_tests/array_builder_constructor_type_err.rs:13:63
+   |
+13 |     let _: ArrayBuilder<u8, 3, konst::drop_flavor::MayDrop> = ArrayBuilder::of_drop().into_copy();
+   |            ------------------------------------------------   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `ArrayBuilder<u8, 3, MayDrop>`, found `ArrayBuilder<_, _, NonDrop>`
+   |            |
+   |            expected due to this
+   |
+   = note: expected struct `ArrayBuilder<u8, 3, MayDrop>`
+              found struct `ArrayBuilder<_, _, NonDrop>`

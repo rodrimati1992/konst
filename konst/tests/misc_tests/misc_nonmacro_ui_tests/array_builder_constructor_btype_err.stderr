@@ -1,0 +1,14 @@
+error[E0277]: the trait bound `String: Copy` is not satisfied
+ --> tests/misc_tests/misc_nonmacro_ui_tests/array_builder_constructor_btype_err.rs:5:53
+  |
+5 |     let _ = ArrayBuilder::<String, 3, _>::of_drop().into_copy();
+  |                                                     ^^^^^^^^^ the trait `Copy` is not implemented for `String`
+  |
+note: required by a bound in `ArrayBuilder::<T, N, D>::into_copy`
+ --> src/array/array_builder.rs
+  |
+  |     pub const fn into_copy(self) -> ArrayBuilder<T, N, NonDrop>
+  |                  --------- required by a bound in this associated function
+  |     where
+  |         T: Copy
+  |            ^^^^ required by this bound in `ArrayBuilder::<T, N, D>::into_copy`

@@ -347,7 +347,16 @@ impl<T, const N: usize, D: DropFlavor> IntoIter<T, N, D> {
     }
 
     /// Converts this `IntoIter` to have a `MayDrop` drop flavor.
-    pub const fn into_may_drop(self) -> IntoIter<T, N, MayDrop> {
+    pub const fn into_drop(self) -> IntoIter<T, N, MayDrop> {
+        self.into_any_flavor()
+    }
+
+    /// Converts this `IntoIter` to have a `NonDrop` drop flavor
+    /// by requiring that `T` is `Copy`.
+    pub const fn into_copy(self) -> IntoIter<T, N, NonDrop>
+    where
+        T: Copy,
+    {
         self.into_any_flavor()
     }
 

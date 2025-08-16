@@ -92,27 +92,27 @@ Change: Made array items conditional on `"iter"` feature:
 - `konst::array::IntoIterRev`
 - `konst::array::map`
 
-Added `D: DropFlavor` type parameter to `konst::array::ArrayBuilder` to make it sometimes not need dropping.
 
-Renamed `ArrayConsumer` into `IntoIter`
-
-Other changes to `konst::array::IntoIter`:
+Changes to `konst::array::ArrayConsumer`:
+- renamed into `IntoIter`
 - impld `ConstIntoIter` for it
 - changed its `next*` methods to return `Option<T>` instead of `Option<ManuallyDrop<T>>` (to be consistent with `ConstIntoIter` API).
 - added `D: DropFlavor` parameter to `konst::array::IntoIter` to make it sometimes not need dropping
+- replaced `new` constructor with new `of_copy` and `of_drop` constructors.
+- added `into_copy` method
+- added `into_drop` method
+- added `rev` method 
+
+Changes to `konst::array::ArrayBuilder`
+- added `D: DropFlavor` type parameter to make it sometimes not need dropping.
+- replaced `new` constructor with new `of_copy` and `of_drop` constructors.
+- added `is_empty` method
+- added `into_copy` method
+- added `into_drop` method
 
 Added `ConstIntoIter` impl for arrays that uses `konst::array::IntoIter<T, L, MayDrop>` as the iterator.
 
-Replaced `konst::array::ArrayBuilder::new` constructor with `of_copy` and `of_drop` constructors.
-
-Replaced `konst::array::IntoIter::new` constructor with `of_copy` and `of_drop` constructors.
-
-Added `konst::array::ArrayBuilder::into_may_drop` method.
-
-Added `konst::array::IntoIter::into_may_drop` method.
-
 Added `konst::array::IntoIterRev` iterator.
-
 
 Added these items for `ConstCmp` overhaul;
 - `konst::cmp::ConstCmp::This` associated type
