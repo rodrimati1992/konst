@@ -23,22 +23,29 @@ fn len_and_is_full_test() {
         (this.len(), this.is_full())
     }
 
-    let mut this = ArrayBuilder::of_drop::<3>();
+    macro_rules! case {
+        ($ctor:ident) => {{
+            let mut this = ArrayBuilder::$ctor::<3>();
 
-    assert_eq!(this.len(), 0);
-    assert!(!this.is_full());
+            assert_eq!(this.len(), 0);
+            assert!(!this.is_full());
 
-    this.push(3);
-    assert_eq!(this.len(), 1);
-    assert!(!this.is_full());
+            this.push(3);
+            assert_eq!(this.len(), 1);
+            assert!(!this.is_full());
 
-    this.push(5);
-    assert_eq!(this.len(), 2);
-    assert!(!this.is_full());
+            this.push(5);
+            assert_eq!(this.len(), 2);
+            assert!(!this.is_full());
 
-    this.push(8);
-    assert_eq!(this.len(), 3);
-    assert!(this.is_full());
+            this.push(8);
+            assert_eq!(this.len(), 3);
+            assert!(this.is_full());
+        }};
+    }
+
+    case! {of_drop}
+    case! {of_copy}
 }
 
 #[test]
@@ -56,39 +63,64 @@ fn as_slice_test() {
         let _: &'a mut [T] = this.as_mut_slice();
     }
 
-    let mut this = ArrayBuilder::of_drop::<3>();
+    macro_rules! case {
+        ($ctor:ident) => {{
+            let mut this = ArrayBuilder::$ctor::<3>();
 
-    assert_eq!((&this).as_slice(), &[0; 0][..]);
-    assert_eq!(this.as_mut_slice(), &mut [0; 0][..]);
+            assert_eq!((&this).as_slice(), &[0; 0][..]);
+            assert_eq!(this.as_mut_slice(), &mut [0; 0][..]);
 
-    this.push(3);
-    assert_eq!((&this).as_slice(), &[3][..]);
-    assert_eq!(this.as_mut_slice(), &mut [3][..]);
+            this.push(3);
+            assert_eq!((&this).as_slice(), &[3][..]);
+            assert_eq!(this.as_mut_slice(), &mut [3][..]);
 
-    this.push(5);
-    assert_eq!((&this).as_slice(), &[3, 5][..]);
-    assert_eq!(this.as_mut_slice(), &mut [3, 5][..]);
+            this.push(5);
+            assert_eq!((&this).as_slice(), &[3, 5][..]);
+            assert_eq!(this.as_mut_slice(), &mut [3, 5][..]);
 
-    this.push(8);
-    assert_eq!((&this).as_slice(), &[3, 5, 8][..]);
-    assert_eq!(this.as_mut_slice(), &mut [3, 5, 8][..]);
+            this.push(8);
+            assert_eq!((&this).as_slice(), &[3, 5, 8][..]);
+            assert_eq!(this.as_mut_slice(), &mut [3, 5, 8][..]);
+        }};
+    }
+
+    case! {of_drop}
+    case! {of_copy}
 }
 
 #[test]
 fn push_build_test() {
+    macro_rules! case {
+        ($ctor:ident) => {{
+            let mut this = ArrayBuilder::$ctor::<3>();
+
+            this.push(3);
+            this.push(5);
+            this.push(8);
+
+            assert_eq!(this.build(), [3, 5, 8]);
+        }};
+    }
+
+    case! {of_drop}
+    case! {of_copy}
+}
+
+#[test]
+#[should_panic]
+fn push_panics_of_drop_test() {
     let mut this = ArrayBuilder::of_drop::<3>();
 
     this.push(3);
     this.push(5);
     this.push(8);
-
-    assert_eq!(this.build(), [3, 5, 8]);
+    this.push(13);
 }
 
 #[test]
 #[should_panic]
-fn push_panics_test() {
-    let mut this = ArrayBuilder::of_drop::<3>();
+fn push_panics_copy_test() {
+    let mut this = ArrayBuilder::of_copy::<3>();
 
     this.push(3);
     this.push(5);
@@ -131,13 +163,20 @@ fn copy_test() {
         ac.copy()
     }
 
-    let mut builder = ArrayBuilder::<i32, 6, _>::of_drop();
-    builder.push(5);
-    builder.push(8);
-    builder.push(13);
+    macro_rules! case {
+        ($ctor:ident) => {{
+            let mut builder = ArrayBuilder::<i32, 6, _>::$ctor();
+            builder.push(5);
+            builder.push(8);
+            builder.push(13);
 
-    assert_eq!(builder.as_slice(), &[5, 8, 13][..]);
-    assert_eq!(builder.copy().as_slice(), &[5, 8, 13][..]);
+            assert_eq!(builder.as_slice(), &[5, 8, 13][..]);
+            assert_eq!(builder.copy().as_slice(), &[5, 8, 13][..]);
+        }};
+    }
+
+    case! {of_drop}
+    case! {of_copy}
 }
 
 #[test]
@@ -158,6 +197,15 @@ fn clone_test() {
     let ts = |x: i32| x.to_string();
     assert_eq!(builder.as_slice(), &[5, 8, 13].map(ts)[..]);
     assert_eq!(builder.clone().as_slice(), &[5, 8, 13].map(ts)[..]);
+}
+
+#[test]
+fn default_test() {
+    let builder_copy: ArrayBuilder<u8, 4, NonDrop> = Default::default();
+    let builder_drop: ArrayBuilder<String, 4, MayDrop> = Default::default();
+
+    assert!(builder_copy.is_empty());
+    assert!(builder_drop.is_empty());
 }
 
 #[derive(Debug, PartialEq)]
