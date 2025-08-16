@@ -1,19 +1,29 @@
+use crate::misc_tests::test_utils::assert_type;
+
 use std::cell::RefCell;
 use std::collections::BTreeSet;
 
 use konst::array::{IntoIter, IntoIterRev};
+use konst::drop_flavor::{DropFlavor, MayDrop, NonDrop};
 use konst::iter::into_iter;
 
 #[test]
-fn new_test() {
-    const fn _callable<T, const LEN: usize>(arr: [T; LEN]) -> IntoIter<T, LEN> {
-        IntoIter::new(arr)
+fn constructors_test() {
+    const fn _callable1<T, const LEN: usize>(arr: [T; LEN]) -> IntoIter<T, LEN, MayDrop> {
+        IntoIter::of_drop(arr)
     }
+    const fn _callable2<T: Copy, const LEN: usize>(arr: [T; LEN]) -> IntoIter<T, LEN, NonDrop> {
+        IntoIter::of_copy(arr)
+    }
+
+    assert_type::<_, IntoIter<u8, 1, MayDrop>>(&IntoIter::of_drop([0u8]));
+
+    assert_type::<_, IntoIter<u8, 2, NonDrop>>(&IntoIter::of_copy([0u8; 2]));
 }
 
 #[test]
 fn empty_test() {
-    const fn _callable<T, const LEN: usize>() -> IntoIter<T, LEN> {
+    const fn _callable<T, const LEN: usize>() -> IntoIter<T, LEN, NonDrop> {
         IntoIter::empty()
     }
 }
@@ -21,28 +31,28 @@ fn empty_test() {
 #[should_panic]
 #[test]
 fn assert_is_empty_panics_test() {
-    IntoIter::new([3]).assert_is_empty();
+    IntoIter::of_copy([3]).assert_is_empty();
 }
 
 #[should_panic]
 #[test]
 fn assert_is_empty_rev_panics_test() {
-    IntoIter::new([3]).rev().assert_is_empty();
+    IntoIter::of_copy([3]).rev().assert_is_empty();
 }
 
 #[test]
 fn assert_is_empty_test() {
-    const fn _callable<T, const LEN: usize>(ac: IntoIter<T, LEN>) {
+    const fn _callable<T, const LEN: usize, D: DropFlavor>(ac: IntoIter<T, LEN, D>) {
         ac.assert_is_empty();
     }
 
     {
-        let iter: IntoIter<u8, 0> = IntoIter::new([]);
+        let iter: IntoIter<u8, 0, NonDrop> = IntoIter::of_copy([]);
         iter.assert_is_empty();
     }
 
     {
-        let mut iter = IntoIter::new([3, 5, 8]);
+        let mut iter = IntoIter::of_copy([3, 5, 8]);
         assert_eq!(iter.next(), Some(3));
         assert_eq!(iter.next(), Some(5));
         assert_eq!(iter.next(), Some(8));
@@ -51,7 +61,7 @@ fn assert_is_empty_test() {
     }
 
     {
-        let mut iter = IntoIter::new([3, 5, 8]);
+        let mut iter = IntoIter::of_copy([3, 5, 8]);
         assert_eq!(iter.next_back(), Some(8));
         assert_eq!(iter.next_back(), Some(5));
         assert_eq!(iter.next_back(), Some(3));
@@ -60,7 +70,7 @@ fn assert_is_empty_test() {
     }
 
     {
-        let mut iter = IntoIter::new([3, 5, 8, 13]);
+        let mut iter = IntoIter::of_copy([3, 5, 8, 13]);
         assert_eq!(iter.next(), Some(3));
         assert_eq!(iter.next_back(), Some(13));
         assert_eq!(iter.next_back(), Some(8));
@@ -72,12 +82,12 @@ fn assert_is_empty_test() {
 
 #[test]
 fn assert_is_empty_rev_test() {
-    const fn _callable<T, const LEN: usize>(ac: IntoIterRev<T, LEN>) {
+    const fn _callable<T, const LEN: usize, D: DropFlavor>(ac: IntoIterRev<T, LEN, D>) {
         ac.assert_is_empty();
     }
 
     {
-        let mut iter: IntoIterRev<_, 3> = IntoIter::new([3, 5, 8]).rev();
+        let mut iter: IntoIterRev<_, 3, NonDrop> = IntoIter::of_copy([3, 5, 8]).rev();
         assert_eq!(iter.next(), Some(8));
         assert_eq!(iter.next(), Some(5));
         assert_eq!(iter.next(), Some(3));
@@ -88,21 +98,23 @@ fn assert_is_empty_rev_test() {
 
 #[test]
 fn as_slice_test() {
-    const fn _callable<T, const LEN: usize>(ac: &IntoIter<T, LEN>) -> &[T] {
+    const fn _callable<T, const LEN: usize, D: DropFlavor>(ac: &IntoIter<T, LEN, D>) -> &[T] {
         ac.as_slice()
     }
-    const fn _callable_mut<T, const LEN: usize>(ac: &mut IntoIter<T, LEN>) -> &mut [T] {
+    const fn _callable_mut<T, const LEN: usize, D: DropFlavor>(
+        ac: &mut IntoIter<T, LEN, D>,
+    ) -> &mut [T] {
         ac.as_mut_slice()
     }
 
     {
-        let mut iter: IntoIter<u8, 0> = IntoIter::new([]);
+        let mut iter: IntoIter<u8, 0, NonDrop> = IntoIter::of_copy([]);
         assert_eq!(iter.as_slice(), &[0; 0][..]);
         assert_eq!(iter.as_mut_slice(), &[0; 0][..]);
     }
 
     {
-        let mut iter = IntoIter::new([3, 5, 8, 13]);
+        let mut iter = IntoIter::of_copy([3, 5, 8, 13]);
         assert_eq!(iter.as_slice(), &[3, 5, 8, 13][..]);
         assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8, 13][..]);
 
@@ -132,21 +144,23 @@ fn as_slice_test() {
 
 #[test]
 fn as_slice_rev_test() {
-    const fn _callable<T, const LEN: usize>(ac: &IntoIterRev<T, LEN>) -> &[T] {
+    const fn _callable<T, const LEN: usize, D: DropFlavor>(ac: &IntoIterRev<T, LEN, D>) -> &[T] {
         ac.as_slice()
     }
-    const fn _callable_mut<T, const LEN: usize>(ac: &mut IntoIterRev<T, LEN>) -> &mut [T] {
+    const fn _callable_mut<T, const LEN: usize, D: DropFlavor>(
+        ac: &mut IntoIterRev<T, LEN, D>,
+    ) -> &mut [T] {
         ac.as_mut_slice()
     }
 
     {
-        let mut iter: IntoIterRev<u8, 0> = IntoIter::new([]).rev();
+        let mut iter: IntoIterRev<u8, 0, NonDrop> = IntoIter::of_copy([]).rev();
         assert_eq!(iter.as_slice(), &[0; 0][..]);
         assert_eq!(iter.as_mut_slice(), &[0; 0][..]);
     }
 
     {
-        let mut iter = IntoIter::new([3, 5, 8, 13]).rev();
+        let mut iter = IntoIter::of_copy([3, 5, 8, 13]).rev();
         assert_eq!(iter.as_slice(), &[3, 5, 8, 13][..]);
         assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8, 13][..]);
 
@@ -176,11 +190,13 @@ fn as_slice_rev_test() {
 
 #[test]
 fn next_test() {
-    const fn _callable<T, const LEN: usize>(ac: &mut IntoIter<T, LEN>) -> Option<T> {
+    const fn _callable<T, const LEN: usize, D: DropFlavor>(
+        ac: &mut IntoIter<T, LEN, D>,
+    ) -> Option<T> {
         ac.next()
     }
 
-    let mut iter = IntoIter::new([3, 5, 8]);
+    let mut iter = IntoIter::of_copy([3, 5, 8]);
     assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
     assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
 
@@ -205,11 +221,13 @@ fn next_test() {
 
 #[test]
 fn next_back_test() {
-    const fn _callable<T, const LEN: usize>(ac: &mut IntoIter<T, LEN>) -> Option<T> {
+    const fn _callable<T, const LEN: usize, D: DropFlavor>(
+        ac: &mut IntoIter<T, LEN, D>,
+    ) -> Option<T> {
         ac.next_back()
     }
 
-    let mut iter: IntoIter<_, 3> = into_iter!([3, 5, 8]);
+    let mut iter: IntoIter<_, 3, MayDrop> = into_iter!([3, 5, 8]);
     assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
     assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
 
@@ -234,11 +252,13 @@ fn next_back_test() {
 
 #[test]
 fn copy_test() {
-    const fn _callable<T: Copy, const LEN: usize>(ac: &IntoIter<T, LEN>) -> IntoIter<T, LEN> {
+    const fn _callable<T: Copy, const LEN: usize, D: DropFlavor>(
+        ac: &IntoIter<T, LEN, D>,
+    ) -> IntoIter<T, LEN, D> {
         ac.copy()
     }
 
-    let mut consumer: IntoIter<_, 6> = into_iter!([3, 5, 8, 13, 21, 34]);
+    let mut consumer: IntoIter<_, 6, MayDrop> = into_iter!([3, 5, 8, 13, 21, 34]);
     _ = consumer.next();
     _ = consumer.next_back();
     _ = consumer.next_back();
@@ -249,11 +269,13 @@ fn copy_test() {
 
 #[test]
 fn copy_rev_test() {
-    const fn _callable<T: Copy, const LEN: usize>(ac: &IntoIterRev<T, LEN>) -> IntoIterRev<T, LEN> {
+    const fn _callable<T: Copy, const LEN: usize, D: DropFlavor>(
+        ac: &IntoIterRev<T, LEN, D>,
+    ) -> IntoIterRev<T, LEN, D> {
         ac.copy()
     }
 
-    let mut consumer: IntoIterRev<_, 6> = IntoIter::new([3, 5, 8, 13, 21, 34]).rev();
+    let mut consumer: IntoIterRev<_, 6, NonDrop> = IntoIter::of_copy([3, 5, 8, 13, 21, 34]).rev();
     _ = consumer.next_back();
     _ = consumer.next();
     _ = consumer.next();
@@ -264,13 +286,15 @@ fn copy_rev_test() {
 
 #[test]
 fn clone_test() {
-    fn _callable<T: Clone, const LEN: usize>(ac: &IntoIter<T, LEN>) -> IntoIter<T, LEN> {
+    fn _callable<T: Clone, const LEN: usize, D: DropFlavor>(
+        ac: &IntoIter<T, LEN, D>,
+    ) -> IntoIter<T, LEN, D> {
         ac.clone()
     }
 
     let ts = |x: i32| x.to_string();
 
-    let mut consumer = IntoIter::new([3, 5, 8, 13, 21, 34].map(ts));
+    let mut consumer = IntoIter::of_drop([3, 5, 8, 13, 21, 34].map(ts));
     _ = consumer.next();
     _ = consumer.next_back();
     _ = consumer.next_back();
@@ -281,13 +305,15 @@ fn clone_test() {
 
 #[test]
 fn clone_rev_test() {
-    fn _callable<T: Clone, const LEN: usize>(ac: &IntoIterRev<T, LEN>) -> IntoIterRev<T, LEN> {
+    fn _callable<T: Clone, const LEN: usize, D: DropFlavor>(
+        ac: &IntoIterRev<T, LEN, D>,
+    ) -> IntoIterRev<T, LEN, D> {
         ac.clone()
     }
 
     let ts = |x: i32| x.to_string();
 
-    let mut consumer = IntoIter::new([3, 5, 8, 13, 21, 34].map(ts)).rev();
+    let mut consumer = IntoIter::of_drop([3, 5, 8, 13, 21, 34].map(ts)).rev();
     _ = consumer.next_back();
     _ = consumer.next();
     _ = consumer.next();
@@ -309,7 +335,7 @@ impl Drop for ToSet<'_> {
 fn drop_test() {
     let set = RefCell::new(BTreeSet::from([]));
 
-    let mut iter = IntoIter::new([3, 5, 8, 13, 21, 34, 55].map(|x| ToSet(x, &set)));
+    let mut iter = IntoIter::of_drop([3, 5, 8, 13, 21, 34, 55].map(|x| ToSet(x, &set)));
 
     assert!(set.borrow().is_empty());
 

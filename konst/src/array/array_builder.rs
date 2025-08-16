@@ -60,8 +60,9 @@ impl<T, const N: usize> ArrayBuilder<T, N, MayDrop> {
     /// Constructs an empty ArrayBuilder of an element type that may need dropping,
     /// useful in functions without early returns.
     ///
-    /// The `N2` const parameter and `Identity` bound are hacks to allow
-    /// specifying `N` through this constructor.
+    /// The `Identity` bound emulates a type equality constraint,
+    /// this allows specifying `N` through this constructor,
+    /// while infering the other arguments.
     #[inline(always)]
     pub const fn of_drop<const N2: usize>() -> Self
     where
@@ -75,8 +76,9 @@ impl<T, const N: usize> ArrayBuilder<T, N, NonDrop> {
     /// Constructs an empty ArrayBuilder of Copy element types,
     /// needed for using `ArrayBuilder` in functions with early returns.
     ///
-    /// The `N2` const parameter and `Identity` bound are hacks to allow
-    /// specifying `N` through this constructor.
+    /// The `Identity` bound emulates a type equality constraint,
+    /// this allows specifying `N` through this constructor,
+    /// while infering the other arguments.
     #[inline(always)]
     pub const fn of_copy<const N2: usize>() -> Self
     where
@@ -325,7 +327,11 @@ impl<T, const N: usize, D: DropFlavor> ArrayBuilder<T, N, D> {
     }
 
     /// Helper for inferring the length of the built array from an [`IntoIter`].
-    pub const fn infer_length_from_consumer<U>(&self, _consumer: &IntoIter<U, N>) {}
+    pub const fn infer_length_from_consumer<U, D2>(&self, _consumer: &IntoIter<U, N, D2>)
+    where
+        D2: DropFlavor,
+    {
+    }
 }
 
 impl<T, const N: usize> Default for ArrayBuilder<T, N, MayDrop> {

@@ -144,15 +144,15 @@ fn build_panics_test() {
 
 #[test]
 fn infer_length_from_consumer_test() {
-    const fn _callable<T, D: DropFlavor, const LEN: usize>(
+    const fn _callable<T, D: DropFlavor, D2: DropFlavor, const LEN: usize>(
         ab: &ArrayBuilder<T, LEN, D>,
-        ac: &IntoIter<T, LEN>,
+        ac: &IntoIter<T, LEN, D2>,
     ) {
         ab.infer_length_from_consumer(ac);
     }
 
     let mut this = ArrayBuilder::of_drop();
-    this.infer_length_from_consumer(&IntoIter::new([0, 0, 0]));
+    this.infer_length_from_consumer(&IntoIter::of_copy([0, 0, 0]));
 
     this.push(3);
     this.push(5);

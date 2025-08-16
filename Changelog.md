@@ -84,7 +84,6 @@ Added `konst::drop_flavor` module with these items:
 
 Replaced old `konst::array::{map, from_fn}` macros with `konst::array::{map_, from_fn_}` (renaming them in the process).
 
-Added `D: DropFlavor` type parameter to `konst::array::ArrayBuilder` to  make it sometimes not need dropping.
 
 Change: Made array items conditional on `"iter"` feature:
 - `konst::array::ArrayBuilder`
@@ -93,11 +92,24 @@ Change: Made array items conditional on `"iter"` feature:
 - `konst::array::IntoIterRev`
 - `konst::array::map`
 
+Added `D: DropFlavor` type parameter to `konst::array::ArrayBuilder` to make it sometimes not need dropping.
+
+Renamed `ArrayConsumer` into `IntoIter`
+
+Other changes to `konst::array::IntoIter`:
+- impld `ConstIntoIter` for it
+- changed its `next*` methods to return `Option<T>` instead of `Option<ManuallyDrop<T>>` (to be consistent with `ConstIntoIter` API).
+- added `D: DropFlavor` parameter to `konst::array::IntoIter` to make it sometimes not need dropping
+
+Added `ConstIntoIter` impl for arrays that uses `konst::array::IntoIter<T, L, MayDrop>` as the iterator.
+
 Replaced `konst::array::ArrayBuilder::new` constructor with `of_copy` and `of_drop` constructors.
+
+Replaced `konst::array::IntoIter::new` constructor with `of_copy` and `of_drop` constructors.
 
 Added `konst::array::ArrayBuilder::into_may_drop` method.
 
-Renamed `ArrayConsumer` into `IntoIter`, impld `ConstIterator` for it, and changed its `next*` methods to return `Option<T>` instead of `Option<ManuallyDrop<T>>` (to be consistent with `ConstIntoIter` API).
+Added `konst::array::IntoIter::into_may_drop` method.
 
 Added `konst::array::IntoIterRev` iterator.
 
@@ -257,6 +269,7 @@ Added support for `Drop` types in some `Option` macros:
 - `konst::option::or_else`
 - `konst::option::unwrap_or_else`
 
+Added `ConstIntoIter` impls for `Option<T>`/`&Option<T>`/`&mut Option<T>`
 
 Added missing impls of `ConstCmp` for `Range` and `RangeInclusive` types over signed integers.
 
