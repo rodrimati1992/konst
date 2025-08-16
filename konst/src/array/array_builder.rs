@@ -57,7 +57,8 @@ impl<T, const N: usize> ArrayBuilderInner<T, N> {
 }
 
 impl<T, const N: usize> ArrayBuilder<T, N, MayDrop> {
-    /// Constructs an empty ArrayBuilder of an element type that may need dropping
+    /// Constructs an empty ArrayBuilder of an element type that may need dropping,
+    /// useful in functions without early returns.
     ///
     /// The `N2` const parameter and `Identity` bound are hacks to allow
     /// specifying `N` through this constructor.
@@ -71,7 +72,8 @@ impl<T, const N: usize> ArrayBuilder<T, N, MayDrop> {
 }
 
 impl<T, const N: usize> ArrayBuilder<T, N, NonDrop> {
-    /// Constructs an empty ArrayBuilder of Copy element types.
+    /// Constructs an empty ArrayBuilder of Copy element types,
+    /// needed for using `ArrayBuilder` in functions with early returns.
     ///
     /// The `N2` const parameter and `Identity` bound are hacks to allow
     /// specifying `N` through this constructor.

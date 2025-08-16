@@ -77,6 +77,7 @@ pub trait DropFlavor: sealed::Sealed + 'static + Sized {
 }
 
 /// Type argument for types that may need dropping.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum MayDrop {}
 
 impl DropFlavor for MayDrop {
@@ -84,6 +85,7 @@ impl DropFlavor for MayDrop {
 }
 
 /// Type argument for types that don't need dropping-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum NonDrop {}
 
 impl DropFlavor for NonDrop {
@@ -105,6 +107,27 @@ impl<T> DropFlavorWrapper<T> for ManuallyDrop<T> {
 }
 
 /// Unwraps [`D::Wrap<T>`](DropFlavor::Wrap) into `T`
+///
+/// # Example
+///
+/// ```rust
+/// use konst::drop_flavor::{self, DropFlavor, MayDrop, NonDrop};
+///
+/// use std::mem::ManuallyDrop;
+///
+///
+/// assert_eq!(unwrap_foo::<_, MayDrop>(Foo(10)), 10);
+///
+/// assert_eq!(unwrap_foo::<_, NonDrop>(Foo(ManuallyDrop::new(10))), 10);
+///
+///
+/// fn unwrap_foo<T, D: DropFlavor>(foo: Foo<T, D>) -> T {
+///     drop_flavor::unwrap::<D, _>(foo.0)
+/// }
+///
+/// struct Foo<T, D: DropFlavor>(D::Wrap<T>);
+/// ```
+///
 pub const fn unwrap<D, T>(wrapper: D::Wrap<T>) -> T
 where
     D: DropFlavor,
@@ -115,6 +138,27 @@ where
 }
 
 /// Coerces [`&D::Wrap<T>`](DropFlavor::Wrap) into its contained `&T`
+///
+/// # Example
+///
+/// ```rust
+/// use konst::drop_flavor::{self, DropFlavor, MayDrop, NonDrop};
+///
+/// use std::mem::ManuallyDrop;
+///
+///
+/// assert_eq!(foo_as_inner::<_, MayDrop>(&Foo(10)), &10);
+///
+/// assert_eq!(foo_as_inner::<_, NonDrop>(&Foo(ManuallyDrop::new(10))), &10);
+///
+///
+/// fn foo_as_inner<T, D: DropFlavor>(foo: &Foo<T, D>) -> &T {
+///     drop_flavor::as_inner::<D, _>(&foo.0)
+/// }
+///
+/// struct Foo<T, D: DropFlavor>(D::Wrap<T>);
+/// ```
+///
 pub const fn as_inner<D, T>(wrapper: &D::Wrap<T>) -> &T
 where
     D: DropFlavor,
@@ -125,6 +169,27 @@ where
 }
 
 /// Coerces [`&mut D::Wrap<T>`](DropFlavor::Wrap) into its contained `&mut T`
+///
+/// # Example
+///
+/// ```rust
+/// use konst::drop_flavor::{self, DropFlavor, MayDrop, NonDrop};
+///
+/// use std::mem::ManuallyDrop;
+///
+///
+/// assert_eq!(foo_as_inner_mut::<_, MayDrop>(&mut Foo(10)), &mut 10);
+///
+/// assert_eq!(foo_as_inner_mut::<_, NonDrop>(&mut Foo(ManuallyDrop::new(10))), &mut 10);
+///
+///
+/// fn foo_as_inner_mut<T, D: DropFlavor>(foo: &mut Foo<T, D>) -> &mut T {
+///     drop_flavor::as_inner_mut::<D, _>(&mut foo.0)
+/// }
+///
+/// struct Foo<T, D: DropFlavor>(D::Wrap<T>);
+/// ```
+///
 pub const fn as_inner_mut<D, T>(wrapper: &mut D::Wrap<T>) -> &mut T
 where
     D: DropFlavor,
@@ -135,11 +200,33 @@ where
 }
 
 /// Converts `T` into either `T` or `ManuallyDrop<T>` as determined by the return type.
-pub const fn wrap<U, T>(wrapper: T) -> U
+///
+/// # Example
+///
+/// ```rust
+/// use konst::drop_flavor::{self, DropFlavor, MayDrop, NonDrop};
+///
+/// use std::mem::ManuallyDrop;
+///
+///
+/// assert_eq!(make_foo::<MayDrop, _>(3), Foo(3));
+///
+/// assert_eq!(make_foo::<NonDrop, _>(5), Foo(ManuallyDrop::new(5)));
+///
+///
+/// const fn make_foo<D: DropFlavor, T>(val: T) -> Foo<D, T> {
+///     Foo(drop_flavor::wrap(val))
+/// }
+///
+/// #[derive(Debug, PartialEq, Eq)]
+/// struct Foo<D: DropFlavor, T>(D::Wrap<T>);
+/// ```
+///
+pub const fn wrap<W, T>(wrapper: T) -> W
 where
-    U: DropFlavorWrapper<T>,
+    W: DropFlavorWrapper<T>,
 {
-    // SAFETY: `T` is transmutable to `U`
+    // SAFETY: `T` is transmutable to `W`
     // because it's either `T` or a `ManuallyDrop<T>`
-    unsafe { crate::__priv_transmute!(T, U, wrapper) }
+    unsafe { crate::__priv_transmute!(T, W, wrapper) }
 }

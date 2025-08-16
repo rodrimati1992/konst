@@ -14,6 +14,8 @@ mod misc_tests {
     #[cfg(feature = "cmp")]
     mod cmp_tests;
 
+    mod drop_flavor_tests;
+
     #[cfg(feature = "iter")]
     mod iter_mod;
 
