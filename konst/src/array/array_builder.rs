@@ -10,11 +10,11 @@ use typewit::Identity;
 
 /// For constructing an array element by element.
 ///
-/// This type can be constructed with these constructors:
-/// - [`of_copy`](Self::of_copy): for building an array of Copy elements,
+/// This type can be constructed with these functions:
+/// - [`of_copy`](Self::of_copy): for building an array of `Copy` elements,
 ///   needed for using `ArrayBuilder` in functions that have early returns.
 /// - [`of_drop`](Self::of_drop):
-///   for building any type, useful in functions without early returns.
+///   for building an array of any type, useful in functions without early returns.
 ///
 ///
 /// # Example

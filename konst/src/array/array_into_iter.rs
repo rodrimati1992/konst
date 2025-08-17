@@ -10,6 +10,13 @@ use typewit::Identity;
 
 /// Const equivalent of [`core::array::IntoIter`]
 ///
+/// This type can be constructed with these functions:
+/// - `into_iter!(array_value)`: equivalent to calling [`of_drop`](Self::of_drop)
+/// - [`of_copy`](Self::of_copy): for consuming an array of `Copy` elements,
+///   needed for using this in functions that have early returns.
+/// - [`of_drop`](Self::of_drop):
+///   for consuming an array of any type, useful in functions without early returns.
+///
 /// # Example
 ///
 /// ```rust
@@ -80,7 +87,8 @@ impl<T, const N: usize, D: DropFlavor> ConstIntoIter for IntoIter<T, N, D> {
 }
 
 impl<T, const N: usize> IntoIter<T, N, MayDrop> {
-    /// Constructs an IntoIter from an array that may need dropping.
+    /// Constructs an `IntoIter` from an array that may need dropping,
+    /// useful in functions without early returns.
     ///
     /// The `Identity` bound emulates a type equality constraint,
     /// this allows specifying `N` through this constructor,
@@ -100,7 +108,8 @@ impl<T, const N: usize> IntoIter<T, N, MayDrop> {
 }
 
 impl<T, const N: usize> IntoIter<T, N, NonDrop> {
-    /// Constructs an IntoIter from a `Copy` array.
+    /// Constructs an `IntoIter` from a `Copy` array,
+    /// needed for using this in functions that have early returns.
     ///
     /// The `Identity` bound emulates a type equality constraint,
     /// this allows specifying `N` through this constructor,
@@ -238,8 +247,7 @@ impl<T, const N: usize, D: DropFlavor> IntoIter<T, N, D> {
         (N - this.taken_front - this.taken_back) == 0
     }
 
-    /// Asserts that the IntoIter is empty,
-    /// allows using IntoIter in const.
+    /// Asserts that the `IntoIter` is empty, allows using `IntoIter` in const.
     ///
     /// # Example
     ///

@@ -16,14 +16,27 @@ mod sealed {
 /// This trait is sealed, it's implemented by [`NonDrop`] and [`MayDrop`],
 /// it cannot be implemented by any other type.
 ///
+/// # Motivation
+///
+/// The reason this whole module exists is to allow containers to
+/// need dropping only when the type they wrap doesn't need dropping.
+///
 /// # Example
+///
+/// As you can see here, to make the container drop conditionally, you need to have
+/// a `Foo` that wraps a `FooInner` in this particular way,
+/// and then define constructors for types that need dropping (what `of_drop` does here)
+/// and types that don't (what `of_copy` does here).
 ///
 /// ```rust
 /// use konst::drop_flavor::{self, DropFlavor, MayDrop, NonDrop};
 ///
 ///
 /// const fn using_nondrop<T: Copy>(val: T) {
-///     let container = Container::of_copy(val);
+///     let mut container = Container::of_copy(val);
+///     
+///     let by_ref: &T = container.get();
+///     let by_mut: &mut T = container.get_mut();
 ///     
 ///     // some code that does something useful with Container
 /// }
@@ -46,6 +59,15 @@ mod sealed {
 ///     }
 /// }
 ///
+/// impl<T, D: DropFlavor> Container<T, D> {
+///     const fn get(&self) -> &T {
+///         &drop_flavor::as_inner::<D, _>(&self.0).0
+///     }
+///     const fn get_mut(&mut self) -> &mut T {
+///         &mut drop_flavor::as_inner_mut::<D, _>(&mut self.0).0
+///     }
+/// }
+///
 /// impl<T> Drop for ContainerInner<T> {
 ///     // only ran if `Container<T, D>` is `Container<T, MayDrop>`
 ///     fn drop(&mut self) {
@@ -59,10 +81,10 @@ mod sealed {
 /// produces this compile-time error:
 /// ```text
 /// error[E0493]: destructor of `Container<T, MayDrop>` cannot be evaluated at compile-time
-///   --> konst/src/drop_flavor.rs:25:9
+///   --> konst/src/drop_flavor.rs:25:13
 ///    |
-/// 10 |     let container = Container::of_drop(val);
-///    |         ^^^^^^^^^ the destructor for this type cannot be evaluated in constant functions
+/// 10 |     let mut container = Container::of_drop(val);
+///    |             ^^^^^^^^^ the destructor for this type cannot be evaluated in constant functions
 /// ...
 /// 13 | }
 ///    | - value is dropped here
