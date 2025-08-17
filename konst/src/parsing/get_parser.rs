@@ -1,10 +1,10 @@
-use crate::parsing::{ParseValueResult, Parser};
+use crate::parsing::{ParseError, Parser};
 
 use core::marker::PhantomData;
 
 /// Gets a type that parses `Self` with a `parse_with` method.
 ///
-/// Implementing this trait allows parsing a type with the [`parse_with`] macro.
+/// Implementing this trait allows parsing a type with the [`parse_type`] macro.
 ///
 /// # Implementing this trait
 ///
@@ -20,25 +20,27 @@ use core::marker::PhantomData;
 /// ```
 /// Then `SomeParser` is expected to have a `parse_with` associated function with this signature:
 /// ```rust
-/// # /*
+/// # struct SomeParser;
+/// # struct This;
+/// # struct SomeErrorType;
 /// impl SomeParser {
-///     const fn parse_with<'a>(
-///         _: konst::Parser<'a>
-///     ) -> Result<(This, konst::Parser<'a>), SomeErrorType>
+///     const fn parse_with<'p>(
+///         _: &mut konst::Parser<'p>
+///     ) -> Result<This, SomeErrorType>
+/// # { unimplemented!() }
 /// }
-/// # */
 /// ```
 ///
 /// # Example
 ///
 /// ```rust
-/// use konst::{parse_with, try_rebind, unwrap_ctx};
+/// use konst::{result, try_};
 ///
-/// use konst::parsing::{HasParser, Parser, ParseValueResult};
+/// use konst::parsing::{HasParser, Parser, ParseError, parse_type};
 ///
 /// const PAIR: Pair = {
-///     let parser = Parser::new("100,200");
-///     unwrap_ctx!(parse_with!(parser, Pair)).0
+///     let mut parser = Parser::new("100,200");
+///     result::unwrap!(parse_type!(parser, Pair))
 /// };
 ///
 /// assert_eq!(PAIR, Pair(100, 200));
@@ -52,17 +54,17 @@ use core::marker::PhantomData;
 /// }
 ///
 /// impl Pair {
-///     const fn parse_with(mut parser: Parser<'_>) -> ParseValueResult<'_, Self> {
-///         try_rebind!{(let left, parser) = parse_with!(parser, u32)}
-///         try_rebind!{parser = parser.strip_prefix(',')}
-///         try_rebind!{(let right, parser) = parse_with!(parser, u64)}
+///     const fn parse_with<'p>(parser: &mut Parser<'p>) -> Result<Self, ParseError<'p>> {
+///         let left = try_!(parse_type!(parser, u32));
+///         try_!(parser.strip_prefix(','));
+///         let right = try_!(parse_type!(parser, u64));
 ///
-///         Ok((Pair(left, right), parser))
+///         Ok(Pair(left, right))
 ///     }
 /// }
 /// ```
 ///
-/// [`parse_with`]: ../macro.parse_with.html
+/// [`parse_type`]: crate::parsing::parse_type
 /// [`HasParser::Parser`]: #associatedtype.Parser
 ///
 pub trait HasParser: Sized {
@@ -74,9 +76,11 @@ pub trait HasParser: Sized {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Parses a standard library type, determined by the `StdType` type parameter.
+/// Parses a standard library type out of a [`Parser`],
+/// determined by the `StdType` type parameter.
 ///
-///
+/// Note: since this uses [`Parser`], it doesn't parse the entire string,
+/// it parses the starting bytes that successfully parse as the target type.
 ///
 pub struct StdParser<StdType>(PhantomData<StdType>);
 
@@ -88,7 +92,7 @@ macro_rules! impl_std_parser_one {
 
         impl StdParser<$type> {
             #[doc = $parse_with_docs]
-            pub const fn parse_with(parser: Parser<'_>) -> ParseValueResult<'_, $type> {
+            pub const fn parse_with<'a>(parser: &mut Parser<'a>) -> Result<$type, ParseError<'a>> {
                 parser.$method()
             }
         }

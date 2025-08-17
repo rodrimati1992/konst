@@ -20,7 +20,6 @@ fn as_inner_test() {
 }
 
 #[test]
-#[cfg(feature = "rust_1_83")]
 fn as_inner_mut_test() {
     const fn _callable<T>(md: &mut ManuallyDrop<T>) -> &mut T {
         manually_drop::as_inner_mut(md)
@@ -46,10 +45,9 @@ fn as_inner_mut_test() {
 }
 
 #[test]
-#[cfg(feature = "rust_1_83")]
 fn take_test() {
     const unsafe fn _callable<T>(md: &mut ManuallyDrop<T>) -> T {
-        manually_drop::take(md)
+        unsafe { manually_drop::take(md) }
     }
 
     let mut reff = ManuallyDrop::new(&0u32);

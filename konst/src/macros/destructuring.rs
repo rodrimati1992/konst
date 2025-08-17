@@ -1,4 +1,5 @@
 #![expect(non_camel_case_types)]
+#![expect(clippy::empty_loop)]
 
 use core::marker::PhantomData;
 use core::mem::ManuallyDrop;
@@ -131,7 +132,7 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 ///
 /// # Motivation
 ///
-/// This macro works around a limitation of Rust as of 1.83,
+/// This macro works around a limitation of Rust as of 1.89,
 /// where in a const context, a non-`Drop` type can't be destructured into its elements/fields
 /// if any of them is `Drop`.
 ///
@@ -145,12 +146,12 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 ///
 /// ```text
 /// error[E0493]: destructor of `(T, T)` cannot be evaluated at compile-time
-///  --> src/lib.rs:1:17
+///  --> konst/src/macros/destructuring.rs:142:17
 ///   |
-/// 1 | const fn foo<T>((a, b): (T, T)) -> [T; 2] {
+/// 3 | const fn foo<T>((a, b): (T, T)) -> [T; 2] {
 ///   |                 ^^^^^^ the destructor for this type cannot be evaluated in constant functions
-/// 2 |     [a, b]
-/// 3 | }
+/// 4 |     [a, b]
+/// 5 | }
 ///   | - value is dropped here
 /// ```
 ///
@@ -158,14 +159,14 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 ///
 /// This macro has these requirements and limitations:
 /// - it does not support `..` patterns in tuples or structs
-/// (because unmentioned fields would be leaked),
-/// but `..` patterns are supported in arrays.
+///   (because unmentioned fields would be leaked),
+///   but `..` patterns are supported in arrays.
 /// - it requires that passed-in structs do not impl `Drop`
-/// (like built-in destructuring does),
-/// but any field can impl `Drop`.
+///   (like built-in destructuring does),
+///   but any field can impl `Drop`.
 /// - it needs to be invoked multiple times
-/// to destructure nested structs/tuples/arrays that have `Drop` elements/fields.
-/// [(example)](#nested-destructuring)
+///   to destructure nested structs/tuples/arrays that have `Drop` elements/fields.
+///   [(example)](#nested-destructuring)
 /// - it only supports tuple structs and tuples up to 16 elements (inclusive)
 ///
 /// # Syntax
@@ -223,7 +224,7 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 /// # Examples
 ///
 /// These examples demonstrate destructuring non-Copy types in const,
-/// which can't be done with built-in destructuring as of Rust 1.83.
+/// which can't be done with built-in destructuring as of Rust 1.89.
 ///
 /// ### Braced Struct
 ///
@@ -311,7 +312,6 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 ///
 ///
 #[macro_export]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 macro_rules! destructure {
     // braced struct struct
     ($($(@$is_path:tt)? ::)? $($path:ident)::+ $(,)?{$($braced:tt)*} $($rem:tt)*) => (
@@ -483,7 +483,7 @@ macro_rules! __destructure_struct {
 
                 // assert that the struct doesn't impl Drop
                 // (its fields can, just not the struct itself)
-                let assertion_expected: $crate::macros::destructuring::__DoesNotImplDrop<_> =
+                let _assertion_expected: $crate::macros::destructuring::__DoesNotImplDrop<_> =
                     if false {
                         $crate::macros::destructuring::__DoesNotImplDrop::new(ptr)
                     } else {

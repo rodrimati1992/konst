@@ -3,10 +3,7 @@ use crate::{
     string,
 };
 
-use konst_kernel::{
-    iterator_shared,
-    string::{__find_next_char_boundary, __find_prev_char_boundary},
-};
+use crate::string::{__find_next_char_boundary, __find_prev_char_boundary};
 
 /// Converts a string spanning one character to its char value
 /// (as a u32)
@@ -37,10 +34,10 @@ pub(super) const fn string_to_usv(s: &str) -> u32 {
 pub(super) const fn string_to_char(s: &str) -> char {
     let c: u32 = string_to_usv(s);
 
-    unsafe { crate::chr::from_u32_unchecked(c) }
+    unsafe { char::from_u32_unchecked(c) }
 }
 
-/// Cosnt equivalent of [`str::chars`].
+/// Const equivalent of [`str::chars`].
 ///
 /// # Example
 ///
@@ -76,11 +73,13 @@ impl ConstIntoIter for Chars<'_> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = char;
+    const ITEMS_NEED_DROP: bool = false;
 }
 impl ConstIntoIter for RChars<'_> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = char;
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 macro_rules! chars_shared {
@@ -97,8 +96,9 @@ macro_rules! chars_shared {
 
                 let split_at = __find_next_char_boundary(self.this.as_bytes(), 0);
                 let (prev, next) = string::split_at(self.this, split_at);
+                self.this = next;
 
-                Some((string_to_char(prev), Self{this: next}))
+                Some(string_to_char(prev))
             },
             next_back{
                 if self.this.is_empty() {
@@ -107,8 +107,9 @@ macro_rules! chars_shared {
 
                 let split_at = __find_prev_char_boundary(self.this.as_bytes(), self.this.len());
                 let (prev, next) = string::split_at(self.this, split_at);
+                self.this = prev;
 
-                Some((string_to_char(next), Self{this: prev}))
+                Some(string_to_char(next))
             },
             fields = {this},
         }
@@ -128,7 +129,7 @@ impl<'a> Chars<'a> {
     /// const S: &str = {
     ///     let mut iter = string::chars("hello world");
     ///     for_range!{_ in 0..6 =>
-    ///         (_, iter) = option::unwrap!(iter.next());
+    ///         _ = iter.next().unwrap();
     ///     }
     ///     iter.as_str()
     /// };
@@ -148,7 +149,7 @@ impl<'a> RChars<'a> {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Cosnt equivalent of [`str::char_indices`].
+/// Const equivalent of [`str::char_indices`].
 ///
 /// # Example
 ///
@@ -192,11 +193,13 @@ impl ConstIntoIter for CharIndices<'_> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = (usize, char);
+    const ITEMS_NEED_DROP: bool = false;
 }
 impl ConstIntoIter for RCharIndices<'_> {
     type Kind = IsIteratorKind;
     type IntoIter = Self;
     type Item = (usize, char);
+    const ITEMS_NEED_DROP: bool = false;
 }
 
 macro_rules! chars_shared {
@@ -213,12 +216,14 @@ macro_rules! chars_shared {
 
                 let split_at = __find_next_char_boundary(self.this.as_bytes(), 0);
                 let (prev, next) = string::split_at(self.this, split_at);
-                let ret = Self {
+                let ret_i = self.start_offset;
+
+                *self = Self {
                     this: next,
                     start_offset: self.start_offset + split_at,
                 };
 
-                Some(((self.start_offset, string_to_char(prev)), ret))
+                Some((ret_i, string_to_char(prev)))
             },
             next_back{
                 if self.this.is_empty() {
@@ -227,12 +232,14 @@ macro_rules! chars_shared {
 
                 let split_at = __find_prev_char_boundary(self.this.as_bytes(), self.this.len());
                 let (prev, next) = string::split_at(self.this, split_at);
-                let ret = Self {
+                let ret_i = self.start_offset + split_at;
+
+                *self = Self {
                     this: prev,
                     start_offset: self.start_offset,
                 };
 
-                Some(((self.start_offset + split_at, string_to_char(next)), ret))
+                Some((ret_i, string_to_char(next)))
             },
             fields = {this, start_offset},
         }
@@ -252,7 +259,7 @@ impl<'a> CharIndices<'a> {
     /// const S: &str = {
     ///     let mut iter = string::char_indices("this is fine");
     ///     for_range!{_ in 0..8 =>
-    ///         (_, iter) = option::unwrap!(iter.next());
+    ///         _ = iter.next().unwrap();
     ///     }
     ///     iter.as_str()
     /// };

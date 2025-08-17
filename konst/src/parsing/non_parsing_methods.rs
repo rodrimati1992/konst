@@ -34,10 +34,10 @@ impl<'a> Parser<'a> {
     /// // "foo bar baz"
     /// let substr = konst::string::str_from("foo bar baz", 4);
     ///
-    /// let parser = Parser::with_start_offset(substr, 4);
+    /// let mut parser = Parser::with_start_offset(substr, 4);
     /// assert_eq!(parser.remainder(), "bar baz");
     ///
-    /// let (bar, parser) = parser.split(' ').unwrap();
+    /// let bar = parser.split(' ').unwrap();
     /// assert_eq!(bar, "bar");
     ///
     /// let err = parser.split_terminator(' ').unwrap_err();
@@ -59,12 +59,15 @@ impl<'a> Parser<'a> {
 
     /// Skips `byte_count` bytes from the parsed string,
     /// as well as however many bytes are required to be on a char boundary.
-    pub const fn skip(mut self, mut byte_count: usize) -> Self {
+    ///
+    /// This method mutates the parser in place.
+    ///
+    pub const fn skip(&mut self, mut byte_count: usize) -> &mut Self {
         let bytes = self.str.as_bytes();
         if byte_count > bytes.len() {
             byte_count = bytes.len()
         } else {
-            use konst_kernel::string::__is_char_boundary_bytes;
+            use crate::string::__is_char_boundary_bytes;
             while !__is_char_boundary_bytes(bytes, byte_count) {
                 byte_count += 1;
             }
@@ -77,8 +80,11 @@ impl<'a> Parser<'a> {
 
     /// Skips `byte_count` bytes from the back of the parsed string,
     /// as well as however many bytes are required to be on a char boundary.
-    pub const fn skip_back(mut self, byte_count: usize) -> Self {
-        use konst_kernel::string::__is_char_boundary_bytes;
+    ///
+    /// This method mutates the parser in place.
+    ///
+    pub const fn skip_back(&mut self, byte_count: usize) -> &mut Self {
+        use crate::string::__is_char_boundary_bytes;
 
         let bytes = self.str.as_bytes();
         let mut pos = self.str.len().saturating_sub(byte_count);
@@ -90,56 +96,67 @@ impl<'a> Parser<'a> {
         self
     }
 
+    /// Returns a bytewise copy of `Self`
+    #[inline(always)]
+    pub const fn copy(&self) -> Self {
+        Self { ..*self }
+    }
+
     /// Returns the remaining, unparsed string.
     #[inline(always)]
-    pub const fn remainder(self) -> &'a str {
+    pub const fn remainder(&self) -> &'a str {
         self.str
     }
 
     /// Gets the byte offset of this parser in the str slice that this
     /// was constructed from.
     #[inline(always)]
-    pub const fn start_offset(self) -> usize {
+    pub const fn start_offset(&self) -> usize {
         self.start_offset as _
     }
 
     /// Gets the end byte offset of this parser in the str slice that this
     /// was constructed from.
     #[inline(always)]
-    pub const fn end_offset(self) -> usize {
+    pub const fn end_offset(&self) -> usize {
         self.start_offset as usize + self.str.len()
     }
 
     /// The direction that the parser was last mutated from.
-    pub const fn parse_direction(self) -> ParseDirection {
+    pub const fn parse_direction(&self) -> ParseDirection {
         self.parse_direction
     }
 
     /// Constructs a [`ParseError`] for this point in parsing.
     ///
-    /// [`ParseError`]: struct.ParseError.html
-    pub const fn into_error(self, kind: ErrorKind) -> ParseError<'a> {
+    /// [`ParseError`]: crate::parsing::ParseError
+    pub const fn to_error(&self, kind: ErrorKind) -> ParseError<'a> {
         ParseError::new(self, kind)
     }
 
     /// Constructs a [`ParseError`] for this point in parsing,
     /// for an [`ErrorKind::Other`] with a custom error message.
     ///
-    /// [`ParseError`]: struct.ParseError.html
-    /// [`ErrorKind::Other`]: ./enum.ErrorKind.html#variant.Other
-    pub const fn into_other_error(self, string: &'static &'static str) -> ParseError<'a> {
+    /// [`ParseError`]: crate::parsing::ParseError
+    /// [`ErrorKind::Other`]: crate::parsing::ErrorKind#variant.Other
+    pub const fn to_other_error(&self, string: &'static &'static str) -> ParseError<'a> {
         ParseError::other_error(self, string)
     }
 
     /// The amount of unparsed bytes.
     #[inline(always)]
-    pub const fn len(self) -> usize {
+    pub const fn len(&self) -> usize {
         self.str.len()
     }
 
     /// Whether there are any bytes left to parse.
     #[inline(always)]
-    pub const fn is_empty(self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.str.is_empty()
+    }
+
+    #[doc(hidden)]
+    pub const fn __borrow_mut(&mut self) -> &mut Self {
+        self
     }
 }

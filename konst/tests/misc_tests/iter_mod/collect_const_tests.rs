@@ -78,18 +78,12 @@ fn collect_const_enumerate() {
 #[test]
 fn collect_const_enumerate_and_rev() {
     {
-        const ARR0: [(usize, &u8); 4] = collect_const!((usize, &u8) =>
-            &[3u8, 5, 8, 13],
-                enumerate(),
-                rev(),
-        );
         const ARR1: [(usize, &u8); 4] = collect_const!((usize, &u8) =>
             &[3u8, 5, 8, 13],
                 rev(),
                 enumerate(),
         );
 
-        assert_eq!(ARR0, [(0, &13), (1, &8), (2, &5), (3, &3)]);
         assert_eq!(ARR1, [(0, &13), (1, &8), (2, &5), (3, &3)]);
     }
 }
@@ -110,19 +104,6 @@ fn collect_const_map() {
         const ARR: [usize; 4] = collect_const!(usize => (1..=4),map(|e| e * 3));
 
         assert_eq!(ARR, [3, 6, 9, 12]);
-    }
-
-    {
-        const ARR: [usize; 4] = collect_const!(usize =>
-            (1..=4),
-                map(|x| {
-                    // testing that lifetime extension works
-                    &(x * 10)
-                }),
-                copied(),
-        );
-
-        assert_eq!(ARR, [10, 20, 30, 40]);
     }
 }
 
@@ -174,10 +155,8 @@ fn collect_const_flat_map() {
             &[3, 5, 8],
                 flat_map(|x| {
                     let x10 = *x * 10;
-                    // testing that lifetime extension works
-                    &[x10, x10 + 1, x10 + 2]
+                    [x10, x10 + 1, x10 + 2]
                 }),
-                copied(),
         );
 
         assert_eq!(ARR, [30, 31, 32, 50, 51, 52, 80, 81, 82]);

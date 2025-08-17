@@ -1,196 +1,372 @@
+use crate::misc_tests::test_utils::assert_type;
+
 use std::cell::RefCell;
 use std::collections::BTreeSet;
-use std::mem::ManuallyDrop;
 
-use konst::array::ArrayConsumer;
-
-const fn md<T>(md: T) -> core::mem::ManuallyDrop<T> {
-    core::mem::ManuallyDrop::new(md)
-}
+use konst::array::{IntoIter, IntoIterRev};
+use konst::drop_flavor::{DropFlavor, MayDrop, NonDrop};
+use konst::iter::into_iter;
 
 #[test]
-fn new_test() {
-    const fn _callable<T, const LEN: usize>(arr: [T; LEN]) -> ArrayConsumer<T, LEN> {
-        ArrayConsumer::new(arr)
+fn constructors_test() {
+    const fn _callable1<T, const LEN: usize>(arr: [T; LEN]) -> IntoIter<T, LEN, MayDrop> {
+        IntoIter::of_drop(arr)
     }
+    const fn _callable2<T: Copy, const LEN: usize>(arr: [T; LEN]) -> IntoIter<T, LEN, NonDrop> {
+        IntoIter::of_copy(arr)
+    }
+
+    assert_type::<_, IntoIter<u8, 1, MayDrop>>(&IntoIter::of_drop([0u8]));
+
+    assert_type::<_, IntoIter<u8, 2, NonDrop>>(&IntoIter::of_copy([0u8; 2]));
 }
 
 #[test]
 fn empty_test() {
-    const fn _callable<T, const LEN: usize>() -> ArrayConsumer<T, LEN> {
-        ArrayConsumer::empty()
+    const fn _callable<T, const LEN: usize>() -> IntoIter<T, LEN, NonDrop> {
+        IntoIter::empty()
     }
+}
+
+#[should_panic]
+#[test]
+fn assert_is_empty_panics_test() {
+    IntoIter::of_copy([3]).assert_is_empty();
+}
+
+#[should_panic]
+#[test]
+fn assert_is_empty_rev_panics_test() {
+    IntoIter::of_copy([3]).rev().assert_is_empty();
 }
 
 #[test]
 fn assert_is_empty_test() {
-    const fn _callable<T, const LEN: usize>(ac: ArrayConsumer<T, LEN>) {
+    const fn _callable<T, const LEN: usize, D: DropFlavor>(ac: IntoIter<T, LEN, D>) {
         ac.assert_is_empty();
     }
 
-    {
-        let iter: ArrayConsumer<u8, 0> = ArrayConsumer::new([]);
-        iter.assert_is_empty();
+    macro_rules! case {
+        ($ctor:ident) => {{
+            {
+                let iter: IntoIter<u8, 0, _> = IntoIter::$ctor([]);
+                iter.assert_is_empty();
+            }
+
+            {
+                let mut iter = IntoIter::$ctor([3, 5, 8]);
+                assert_eq!(iter.next(), Some(3));
+                assert_eq!(iter.next(), Some(5));
+                assert_eq!(iter.next(), Some(8));
+                assert_eq!(iter.next(), None);
+                iter.assert_is_empty();
+            }
+
+            {
+                let mut iter = IntoIter::$ctor([3, 5, 8]);
+                assert_eq!(iter.next_back(), Some(8));
+                assert_eq!(iter.next_back(), Some(5));
+                assert_eq!(iter.next_back(), Some(3));
+                assert_eq!(iter.next_back(), None);
+                iter.assert_is_empty();
+            }
+
+            {
+                let mut iter = IntoIter::$ctor([3, 5, 8, 13]);
+                assert_eq!(iter.next(), Some(3));
+                assert_eq!(iter.next_back(), Some(13));
+                assert_eq!(iter.next_back(), Some(8));
+                assert_eq!(iter.next(), Some(5));
+                assert_eq!(iter.next_back(), None);
+                iter.assert_is_empty();
+            }
+        }};
     }
 
-    {
-        let mut iter = ArrayConsumer::new([3, 5, 8]);
-        assert_eq!(iter.next(), Some(md(3)));
-        assert_eq!(iter.next(), Some(md(5)));
-        assert_eq!(iter.next(), Some(md(8)));
-        assert_eq!(iter.next(), None);
-        iter.assert_is_empty();
+    case! {of_copy}
+    case! {of_drop}
+}
+
+#[test]
+fn assert_is_empty_rev_test() {
+    const fn _callable<T, const LEN: usize, D: DropFlavor>(ac: IntoIterRev<T, LEN, D>) {
+        ac.assert_is_empty();
     }
 
-    {
-        let mut iter = ArrayConsumer::new([3, 5, 8]);
-        assert_eq!(iter.next_back(), Some(md(8)));
-        assert_eq!(iter.next_back(), Some(md(5)));
-        assert_eq!(iter.next_back(), Some(md(3)));
-        assert_eq!(iter.next_back(), None);
-        iter.assert_is_empty();
+    macro_rules! case {
+        ($ctor:ident) => {{
+            {
+                let mut iter: IntoIterRev<_, 3, _> = IntoIter::$ctor([3, 5, 8]).rev();
+                assert_eq!(iter.next(), Some(8));
+                assert_eq!(iter.next(), Some(5));
+                assert_eq!(iter.next(), Some(3));
+                assert_eq!(iter.next(), None);
+                iter.assert_is_empty();
+            }
+        }};
     }
 
-    {
-        let mut iter = ArrayConsumer::new([3, 5, 8, 13]);
-        assert_eq!(iter.next(), Some(md(3)));
-        assert_eq!(iter.next_back(), Some(md(13)));
-        assert_eq!(iter.next_back(), Some(md(8)));
-        assert_eq!(iter.next(), Some(md(5)));
-        assert_eq!(iter.next_back(), None);
-        iter.assert_is_empty();
-    }
+    case! {of_copy}
+    case! {of_drop}
 }
 
 #[test]
 fn as_slice_test() {
-    const fn _callable<T, const LEN: usize>(ac: &ArrayConsumer<T, LEN>) -> &[T] {
+    const fn _callable<T, const LEN: usize, D: DropFlavor>(ac: &IntoIter<T, LEN, D>) -> &[T] {
         ac.as_slice()
     }
-    const fn _callable_mut<T, const LEN: usize>(ac: &mut ArrayConsumer<T, LEN>) -> &mut [T] {
+    const fn _callable_mut<T, const LEN: usize, D: DropFlavor>(
+        ac: &mut IntoIter<T, LEN, D>,
+    ) -> &mut [T] {
         ac.as_mut_slice()
     }
 
-    {
-        let mut iter: ArrayConsumer<u8, 0> = ArrayConsumer::new([]);
-        assert_eq!(iter.as_slice(), &[][..]);
-        assert_eq!(iter.as_mut_slice(), &[][..]);
+    macro_rules! case {
+        ($ctor:ident) => {{
+            {
+                let mut iter: IntoIter<u8, 0, _> = IntoIter::$ctor([]);
+                assert_eq!(iter.as_slice(), &[0; 0][..]);
+                assert_eq!(iter.as_mut_slice(), &[0; 0][..]);
+            }
+
+            {
+                let mut iter = IntoIter::$ctor([3, 5, 8, 13]);
+                assert_eq!(iter.as_slice(), &[3, 5, 8, 13][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8, 13][..]);
+
+                assert_eq!(iter.next(), Some(3));
+                assert_eq!(iter.as_slice(), &[5, 8, 13][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [5, 8, 13][..]);
+
+                assert_eq!(iter.next_back(), Some(13));
+                assert_eq!(iter.as_slice(), &[5, 8][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
+
+                assert_eq!(iter.next_back(), Some(8));
+                assert_eq!(iter.as_slice(), &[5][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [5][..]);
+
+                assert_eq!(iter.next(), Some(5));
+                assert_eq!(iter.as_slice(), &[0; 0][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
+
+                assert_eq!(iter.next_back(), None);
+                assert_eq!(iter.as_slice(), &[0; 0][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
+
+                iter.assert_is_empty();
+            }
+        }};
     }
 
-    {
-        let mut iter = ArrayConsumer::new([3, 5, 8, 13]);
-        assert_eq!(iter.as_slice(), &[3, 5, 8, 13][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8, 13][..]);
+    case! {of_copy}
+    case! {of_drop}
+}
 
-        assert_eq!(iter.next(), Some(md(3)));
-        assert_eq!(iter.as_slice(), &[5, 8, 13][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [5, 8, 13][..]);
-
-        assert_eq!(iter.next_back(), Some(md(13)));
-        assert_eq!(iter.as_slice(), &[5, 8][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
-
-        assert_eq!(iter.next_back(), Some(md(8)));
-        assert_eq!(iter.as_slice(), &[5][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [5][..]);
-
-        assert_eq!(iter.next(), Some(md(5)));
-        assert_eq!(iter.as_slice(), &[][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [][..]);
-
-        assert_eq!(iter.next_back(), None);
-        assert_eq!(iter.as_slice(), &[][..]);
-        assert_eq!(iter.as_mut_slice(), &mut [][..]);
-
-        iter.assert_is_empty();
+#[test]
+fn as_slice_rev_test() {
+    const fn _callable<T, const LEN: usize, D: DropFlavor>(ac: &IntoIterRev<T, LEN, D>) -> &[T] {
+        ac.as_slice()
     }
+    const fn _callable_mut<T, const LEN: usize, D: DropFlavor>(
+        ac: &mut IntoIterRev<T, LEN, D>,
+    ) -> &mut [T] {
+        ac.as_mut_slice()
+    }
+
+    macro_rules! case {
+        ($flavor:ident, $ctor:ident) => {{
+            {
+                let mut iter: IntoIterRev<u8, 0, $flavor> = IntoIter::$ctor([]).rev();
+                assert_eq!(iter.as_slice(), &[0; 0][..]);
+                assert_eq!(iter.as_mut_slice(), &[0; 0][..]);
+            }
+
+            {
+                let mut iter = IntoIter::$ctor([3, 5, 8, 13]).rev();
+                assert_eq!(iter.as_slice(), &[3, 5, 8, 13][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8, 13][..]);
+
+                assert_eq!(iter.next_back(), Some(3));
+                assert_eq!(iter.as_slice(), &[5, 8, 13][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [5, 8, 13][..]);
+
+                assert_eq!(iter.next(), Some(13));
+                assert_eq!(iter.as_slice(), &[5, 8][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
+
+                assert_eq!(iter.next(), Some(8));
+                assert_eq!(iter.as_slice(), &[5][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [5][..]);
+
+                assert_eq!(iter.next_back(), Some(5));
+                assert_eq!(iter.as_slice(), &[0; 0][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
+
+                assert_eq!(iter.next(), None);
+                assert_eq!(iter.as_slice(), &[0; 0][..]);
+                assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
+
+                iter.assert_is_empty();
+            }
+        }};
+    }
+
+    case! {NonDrop, of_copy}
+    case! {MayDrop, of_drop}
 }
 
 #[test]
 fn next_test() {
-    const fn _callable<T, const LEN: usize>(ac: &mut ArrayConsumer<T, LEN>) -> Option<ManuallyDrop<T>> {
+    const fn _callable<T, const LEN: usize, D: DropFlavor>(
+        ac: &mut IntoIter<T, LEN, D>,
+    ) -> Option<T> {
         ac.next()
     }
 
-    let mut iter = ArrayConsumer::new([3, 5, 8]);
-    assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
+    macro_rules! case {
+        ($ctor:ident) => {{
+            let mut iter = IntoIter::$ctor([3, 5, 8]);
+            assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
+            assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
 
-    assert_eq!(iter.next(), Some(md(3)));
-    assert_eq!(iter.as_slice(), &[5, 8][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
+            assert_eq!(iter.next(), Some(3));
+            assert_eq!(iter.as_slice(), &[5, 8][..]);
+            assert_eq!(iter.as_mut_slice(), &mut [5, 8][..]);
 
-    assert_eq!(iter.next(), Some(md(5)));
-    assert_eq!(iter.as_slice(), &[8][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [8][..]);
+            assert_eq!(iter.next(), Some(5));
+            assert_eq!(iter.as_slice(), &[8][..]);
+            assert_eq!(iter.as_mut_slice(), &mut [8][..]);
 
-    assert_eq!(iter.next(), Some(md(8)));
-    assert_eq!(iter.as_slice(), &[][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [][..]);
+            assert_eq!(iter.next(), Some(8));
+            assert_eq!(iter.as_slice(), &[0; 0][..]);
+            assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
-    assert_eq!(iter.next(), None);
-    assert_eq!(iter.as_slice(), &[][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [][..]);
-    
-    iter.assert_is_empty();
+            assert_eq!(iter.next(), None);
+            assert_eq!(iter.as_slice(), &[0; 0][..]);
+            assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
+
+            iter.assert_is_empty();
+        }};
+    }
+
+    case! {of_copy}
+    case! {of_drop}
 }
 
 #[test]
 fn next_back_test() {
-    const fn _callable<T, const LEN: usize>(ac: &mut ArrayConsumer<T, LEN>) -> Option<ManuallyDrop<T>> {
+    const fn _callable<T, const LEN: usize, D: DropFlavor>(
+        ac: &mut IntoIter<T, LEN, D>,
+    ) -> Option<T> {
         ac.next_back()
     }
 
-    let mut iter = ArrayConsumer::new([3, 5, 8]);
+    let mut iter: IntoIter<_, 3, MayDrop> = into_iter!([3, 5, 8]);
     assert_eq!(iter.as_slice(), &[3, 5, 8][..]);
     assert_eq!(iter.as_mut_slice(), &mut [3, 5, 8][..]);
 
-    assert_eq!(iter.next_back(), Some(md(8)));
+    assert_eq!(iter.next_back(), Some(8));
     assert_eq!(iter.as_slice(), &[3, 5][..]);
     assert_eq!(iter.as_mut_slice(), &mut [3, 5][..]);
 
-    assert_eq!(iter.next_back(), Some(md(5)));
+    assert_eq!(iter.next_back(), Some(5));
     assert_eq!(iter.as_slice(), &[3][..]);
     assert_eq!(iter.as_mut_slice(), &mut [3][..]);
 
-    assert_eq!(iter.next_back(), Some(md(3)));
-    assert_eq!(iter.as_slice(), &[][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [][..]);
+    assert_eq!(iter.next_back(), Some(3));
+    assert_eq!(iter.as_slice(), &[0; 0][..]);
+    assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
     assert_eq!(iter.next_back(), None);
-    assert_eq!(iter.as_slice(), &[][..]);
-    assert_eq!(iter.as_mut_slice(), &mut [][..]);
+    assert_eq!(iter.as_slice(), &[0; 0][..]);
+    assert_eq!(iter.as_mut_slice(), &mut [0; 0][..]);
 
     iter.assert_is_empty();
 }
 
 #[test]
 fn copy_test() {
-    const fn _callable<T: Copy, const LEN: usize>(ac: &ArrayConsumer<T, LEN>) -> ArrayConsumer<T, LEN> {
+    const fn _callable<T: Copy, const LEN: usize, D: DropFlavor>(
+        ac: &IntoIter<T, LEN, D>,
+    ) -> IntoIter<T, LEN, D> {
         ac.copy()
     }
 
-    let mut consumer = ArrayConsumer::new([3, 5, 8, 13, 21, 34]);
-    _ = consumer.next().map(ManuallyDrop::into_inner);
-    _ = consumer.next_back().map(ManuallyDrop::into_inner);
-    _ = consumer.next_back().map(ManuallyDrop::into_inner);
+    macro_rules! case {
+        ($flavor:ident, $iter:expr) => {
+            let mut consumer: IntoIter<_, 6, $flavor> = $iter;
+            _ = consumer.next();
+            _ = consumer.next_back();
+            _ = consumer.next_back();
 
-    assert_eq!(consumer.as_slice(), &[5, 8, 13][..]);
-    assert_eq!(consumer.copy().as_slice(), &[5, 8, 13][..]);
+            assert_eq!(consumer.as_slice(), &[5, 8, 13][..]);
+            assert_eq!(consumer.copy().as_slice(), &[5, 8, 13][..]);
+        };
+    }
+
+    case! {MayDrop, into_iter!([3, 5, 8, 13, 21, 34])}
+    case! {NonDrop, IntoIter::of_copy([3, 5, 8, 13, 21, 34])}
+}
+
+#[test]
+fn copy_rev_test() {
+    const fn _callable<T: Copy, const LEN: usize, D: DropFlavor>(
+        ac: &IntoIterRev<T, LEN, D>,
+    ) -> IntoIterRev<T, LEN, D> {
+        ac.copy()
+    }
+
+    macro_rules! case {
+        ($flavor:ident, $iter:expr) => {
+            let mut consumer: IntoIterRev<_, 6, $flavor> = $iter.rev();
+
+            _ = consumer.next_back();
+            _ = consumer.next();
+            _ = consumer.next();
+
+            assert_eq!(consumer.as_slice(), &[5, 8, 13][..]);
+            assert_eq!(consumer.copy().as_slice(), &[5, 8, 13][..]);
+        };
+    }
+
+    case! {MayDrop, into_iter!([3, 5, 8, 13, 21, 34])}
+    case! {NonDrop, IntoIter::of_copy([3, 5, 8, 13, 21, 34])}
 }
 
 #[test]
 fn clone_test() {
-    fn _callable<T: Clone, const LEN: usize>(ac: &ArrayConsumer<T, LEN>) -> ArrayConsumer<T, LEN> {
+    fn _callable<T: Clone, const LEN: usize, D: DropFlavor>(
+        ac: &IntoIter<T, LEN, D>,
+    ) -> IntoIter<T, LEN, D> {
         ac.clone()
     }
 
     let ts = |x: i32| x.to_string();
 
-    let mut consumer = ArrayConsumer::new([3, 5, 8, 13, 21, 34].map(ts));
-    _ = consumer.next().map(ManuallyDrop::into_inner);
-    _ = consumer.next_back().map(ManuallyDrop::into_inner);
-    _ = consumer.next_back().map(ManuallyDrop::into_inner);
+    let mut consumer = IntoIter::of_drop([3, 5, 8, 13, 21, 34].map(ts));
+    _ = consumer.next();
+    _ = consumer.next_back();
+    _ = consumer.next_back();
+
+    assert_eq!(consumer.as_slice(), &[5, 8, 13].map(ts)[..]);
+    assert_eq!(consumer.clone().as_slice(), &[5, 8, 13].map(ts)[..]);
+}
+
+#[test]
+fn clone_rev_test() {
+    fn _callable<T: Clone, const LEN: usize, D: DropFlavor>(
+        ac: &IntoIterRev<T, LEN, D>,
+    ) -> IntoIterRev<T, LEN, D> {
+        ac.clone()
+    }
+
+    let ts = |x: i32| x.to_string();
+
+    let mut consumer = IntoIter::of_drop([3, 5, 8, 13, 21, 34].map(ts)).rev();
+    _ = consumer.next_back();
+    _ = consumer.next();
+    _ = consumer.next();
 
     assert_eq!(consumer.as_slice(), &[5, 8, 13].map(ts)[..]);
     assert_eq!(consumer.clone().as_slice(), &[5, 8, 13].map(ts)[..]);
@@ -209,30 +385,57 @@ impl Drop for ToSet<'_> {
 fn drop_test() {
     let set = RefCell::new(BTreeSet::from([]));
 
-    let mut iter = ArrayConsumer::new([3, 5, 8, 13, 21, 34, 55].map(|x| ToSet(x, &set)));
+    let mut iter = IntoIter::of_drop([3, 5, 8, 13, 21, 34, 55].map(|x| ToSet(x, &set)));
 
     assert!(set.borrow().is_empty());
 
-    let _ = iter.next().map(ManuallyDrop::into_inner);
+    let _ = iter.next();
     assert!(set.borrow().iter().copied().eq([3u128]), "{set:?}");
 
-    let _ = iter.next_back().map(ManuallyDrop::into_inner);
+    let _ = iter.next_back();
     assert!(set.borrow().iter().copied().eq([3u128, 55]), "{set:?}");
 
-    let _ = iter.next_back().map(ManuallyDrop::into_inner);
+    let _ = iter.next_back();
     assert!(set.borrow().iter().copied().eq([3u128, 34, 55]), "{set:?}");
 
-    let _ = iter.next().map(ManuallyDrop::into_inner);
-    assert!(set.borrow().iter().copied().eq([3u128, 5, 34, 55]), "{set:?}");
+    let _ = iter.next();
+    assert!(
+        set.borrow().iter().copied().eq([3u128, 5, 34, 55]),
+        "{set:?}"
+    );
 
     drop(iter);
 
-    assert!(set.borrow().iter().copied().eq([3u128, 5, 8, 13, 21, 34, 55]), "{set:?}");
+    assert!(
+        set.borrow()
+            .iter()
+            .copied()
+            .eq([3u128, 5, 8, 13, 21, 34, 55]),
+        "{set:?}"
+    );
 }
 
+#[test]
+fn into_drop_and_copy_test() {
+    macro_rules! case {
+        ($ctor:ident $from_flavor:ident $conv_method:ident $into_flavor:ident) => {
+            let mut iter = IntoIter::$ctor::<3>([&3u8, &5, &8]);
+            assert_type::<_, IntoIter<&u8, 3, $from_flavor>>(&iter);
 
+            assert_eq!(iter.next(), Some(&3u8));
+            assert_eq!(iter.next(), Some(&5u8));
 
+            let mut iter = iter.$conv_method();
+            assert_type::<_, IntoIter<&u8, 3, $into_flavor>>(&iter);
 
+            assert_eq!(iter.next(), Some(&8u8));
 
+            assert_eq!(iter.next(), None);
 
+            iter.assert_is_empty();
+        };
+    }
 
+    case! {of_copy NonDrop into_drop MayDrop}
+    case! {of_drop MayDrop into_copy NonDrop}
+}

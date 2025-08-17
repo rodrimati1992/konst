@@ -1,0 +1,489 @@
+error: no rules expected `asdasodijasd`
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:5:56
+  |
+5 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8] asdasodijasd);
+  |                                                       -^^^^^^^^^^^^ no rules expected this token in macro call
+  |                                                       |
+  |                                                       help: missing comma here
+  |
+  = note: while trying to match sequence start
+
+error: no rules expected `asdasodijasd`
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:6:56
+  |
+6 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8] asdasodijasd);
+  |                                                       -^^^^^^^^^^^^ no rules expected this token in macro call
+  |                                                       |
+  |                                                       help: missing comma here
+  |
+  = note: while trying to match sequence start
+
+error: no rules expected `asdasodijasd`
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:7:57
+  |
+7 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8] asdasodijasd);
+  |                                                        -^^^^^^^^^^^^ no rules expected this token in macro call
+  |                                                        |
+  |                                                        help: missing comma here
+  |
+  = note: while trying to match sequence start
+
+error: no rules expected `asdasodijasd`
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:8:56
+  |
+8 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8] asdasodijasd);
+  |                                                       -^^^^^^^^^^^^ no rules expected this token in macro call
+  |                                                       |
+  |                                                       help: missing comma here
+  |
+  = note: while trying to match sequence start
+
+error: no rules expected `asdasodijasd`
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:9:56
+  |
+9 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8] asdasodijasd);
+  |                                                       -^^^^^^^^^^^^ no rules expected this token in macro call
+  |                                                       |
+  |                                                       help: missing comma here
+  |
+  = note: while trying to match sequence start
+
+error: no rules expected `asdasodijasd`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:10:56
+   |
+10 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8] asdasodijasd);
+   |                                                       -^^^^^^^^^^^^ no rules expected this token in macro call
+   |                                                       |
+   |                                                       help: missing comma here
+   |
+   = note: while trying to match sequence start
+
+error: no rules expected `asdasodijasd`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:11:56
+   |
+11 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8] asdasodijasd);
+   |                                                       -^^^^^^^^^^^^ no rules expected this token in macro call
+   |                                                       |
+   |                                                       help: missing comma here
+   |
+   = note: while trying to match sequence start
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:14:59
+   |
+14 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |x: &u32| 0u8);
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:15:59
+   |
+15 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |x: &u32| 0u8);
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:16:60
+   |
+16 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |x: &u32| 0u8);
+   |                                                            ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:17:59
+   |
+17 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |x: &u32| 0u8);
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:18:59
+   |
+18 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |x: &u32| 0u8);
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:19:59
+   |
+19 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |x: &u32| 0u8);
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:20:59
+   |
+20 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |x: &u32| 0u8);
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:23:60
+   |
+23 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |x| );
+   |                                                            ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$key_expr:expr`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                              ^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:24:60
+   |
+24 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |x| );
+   |                                                            ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$key_expr:expr`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                              ^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:25:61
+   |
+25 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |x| );
+   |                                                             ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$key_expr:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                              ^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:26:60
+   |
+26 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |x| );
+   |                                                            ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$key_expr:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                              ^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:27:60
+   |
+27 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |x| );
+   |                                                            ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$key_expr:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                              ^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:28:60
+   |
+28 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |x| );
+   |                                                            ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$key_expr:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                              ^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:29:60
+   |
+29 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |x| );
+   |                                                            ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$key_expr:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                              ^^^^^^^^^^^^^^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:32:59
+   |
+32 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |x: &u32, y: &u32| 0u8);
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:33:59
+   |
+33 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |x: &u32, y: &u32| 0u8);
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:34:60
+   |
+34 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |x: &u32, y: &u32| 0u8);
+   |                                                            ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:35:59
+   |
+35 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |x: &u32, y: &u32| 0u8);
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:36:59
+   |
+36 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |x: &u32, y: &u32| 0u8);
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:37:59
+   |
+37 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |x: &u32, y: &u32| 0u8);
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: no rules expected `:`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:38:59
+   |
+38 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |x: &u32, y: &u32| 0u8);
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param| $key_expr:expr $(,)*) => {{
+   |                                            ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:41:63
+   |
+41 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], |x, y| );
+   |                                                               ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$eq_expr:expr`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param, $r:pat_param| $eq_expr:expr $(,)*) => {{
+   |                                                            ^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:42:63
+   |
+42 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], |x, y| );
+   |                                                               ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$eq_expr:expr`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param, $r:pat_param| $eq_expr:expr $(,)*) => {{
+   |                                                            ^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:43:64
+   |
+43 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], |x, y| );
+   |                                                                ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$eq_expr:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param, $r:pat_param| $eq_expr:expr $(,)*) => {{
+   |                                                            ^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:44:63
+   |
+44 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], |x, y| );
+   |                                                               ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$eq_expr:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param, $r:pat_param| $eq_expr:expr $(,)*) => {{
+   |                                                            ^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:45:63
+   |
+45 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], |x, y| );
+   |                                                               ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$eq_expr:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param, $r:pat_param| $eq_expr:expr $(,)*) => {{
+   |                                                            ^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:46:63
+   |
+46 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], |x, y| );
+   |                                                               ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$eq_expr:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param, $r:pat_param| $eq_expr:expr $(,)*) => {{
+   |                                                            ^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:47:63
+   |
+47 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], |x, y| );
+   |                                                               ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$eq_expr:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, |$l:pat_param, $r:pat_param| $eq_expr:expr $(,)*) => {{
+   |                                                            ^^^^^^^^^^^^^
+
+error: no rules expected `-`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:49:57
+   |
+49 | const _: bool = cmp::const_eq_for!(slice; [0u8], [3u8], -);
+   |                                                         ^ no rules expected this token in macro call
+   |
+note: while trying to match `,`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr, ) => {{
+   |                             ^
+
+error: no rules expected `-`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:50:57
+   |
+50 | const _: bool = cmp::const_ne_for!(slice; [0u8], [3u8], -);
+   |                                                         ^ no rules expected this token in macro call
+   |
+note: while trying to match `,`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |     ($left:expr, $right:expr, ) => {{
+   |                             ^
+
+error: no rules expected `-`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:51:58
+   |
+51 | const _: Orde = cmp::const_cmp_for!(slice; [0u8], [3u8], -);
+   |                                                          ^ no rules expected this token in macro call
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, ) => {{
+   |                             ^
+
+error: no rules expected `-`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:52:57
+   |
+52 | const _: bool = cmp::const_lt_for!(slice; [0u8], [3u8], -);
+   |                                                         ^ no rules expected this token in macro call
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, ) => {{
+   |                             ^
+
+error: no rules expected `-`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:53:57
+   |
+53 | const _: bool = cmp::const_le_for!(slice; [0u8], [3u8], -);
+   |                                                         ^ no rules expected this token in macro call
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, ) => {{
+   |                             ^
+
+error: no rules expected `-`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:54:57
+   |
+54 | const _: bool = cmp::const_gt_for!(slice; [0u8], [3u8], -);
+   |                                                         ^ no rules expected this token in macro call
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, ) => {{
+   |                             ^
+
+error: no rules expected `-`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator_syntax_err.rs:55:57
+   |
+55 | const _: bool = cmp::const_ge_for!(slice; [0u8], [3u8], -);
+   |                                                         ^ no rules expected this token in macro call
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |     ($left:expr, $right:expr, ) => {{
+   |                             ^

@@ -1,0 +1,81 @@
+error[E0271]: type mismatch resolving `<IntoIter<u8, 3, NonDrop> as Identity>::Type == IntoIter<u8, 5, NonDrop>`
+ --> tests/misc_tests/misc_nonmacro_ui_tests/array_intoiter_constructor_type_err.rs:5:48
+  |
+5 |     let _ = IntoIter::<u8, 3, _>::of_copy::<5>([0u8; _]);
+  |             ---------------------------------- ^^^^^^^^ expected `5`, found `3`
+  |             |
+  |             required by a bound introduced by this call
+  |
+  = note: expected struct `konst::array::IntoIter<u8, 5, NonDrop>`
+             found struct `konst::array::IntoIter<u8, 3, NonDrop>`
+note: required by a bound in `konst::array::IntoIter::<T, N, NonDrop>::of_copy`
+ --> src/array/array_into_iter.rs
+  |
+  |     pub const fn of_copy<const N2: usize>(array: [T; N]) -> Self
+  |                  ------- required by a bound in this associated function
+...
+  |         Self: Identity<Type = IntoIter<T, N2, NonDrop>>,
+  |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `IntoIter::<T, N, NonDrop>::of_copy`
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_nonmacro_ui_tests/array_intoiter_constructor_type_err.rs:6:33
+  |
+6 |     let _: IntoIter<u8, 3, _> = IntoIter::of_copy::<5>([0u8; _]);
+  |            ------------------   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `3`, found `5`
+  |            |
+  |            expected due to this
+  |
+  = note: expected struct `konst::array::IntoIter<u8, 3, _>`
+             found struct `konst::array::IntoIter<u8, 5, NonDrop>`
+
+error[E0271]: type mismatch resolving `<IntoIter<u8, 3, MayDrop> as Identity>::Type == IntoIter<u8, 5, MayDrop>`
+ --> tests/misc_tests/misc_nonmacro_ui_tests/array_intoiter_constructor_type_err.rs:8:48
+  |
+8 |     let _ = IntoIter::<u8, 3, _>::of_drop::<5>([0u8; _]);
+  |             ---------------------------------- ^^^^^^^^ expected `5`, found `3`
+  |             |
+  |             required by a bound introduced by this call
+  |
+  = note: expected struct `konst::array::IntoIter<u8, 5, MayDrop>`
+             found struct `konst::array::IntoIter<u8, 3, MayDrop>`
+note: required by a bound in `konst::array::IntoIter::<T, N, MayDrop>::of_drop`
+ --> src/array/array_into_iter.rs
+  |
+  |     pub const fn of_drop<const N2: usize>(array: [T; N]) -> Self
+  |                  ------- required by a bound in this associated function
+  |     where
+  |         Self: Identity<Type = IntoIter<T, N2, MayDrop>>,
+  |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `IntoIter::<T, N, MayDrop>::of_drop`
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_nonmacro_ui_tests/array_intoiter_constructor_type_err.rs:9:33
+  |
+9 |     let _: IntoIter<u8, 3, _> = IntoIter::of_drop::<5>([0u8; _]);
+  |            ------------------   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `3`, found `5`
+  |            |
+  |            expected due to this
+  |
+  = note: expected struct `konst::array::IntoIter<u8, 3, _>`
+             found struct `konst::array::IntoIter<u8, 5, MayDrop>`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_nonmacro_ui_tests/array_intoiter_constructor_type_err.rs:11:59
+   |
+11 |     let _: IntoIter<u8, 3, konst::drop_flavor::NonDrop> = IntoIter::of_copy([0u8; 3]).into_drop();
+   |            --------------------------------------------   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `IntoIter<u8, 3, NonDrop>`, found `IntoIter<u8, 3, MayDrop>`
+   |            |
+   |            expected due to this
+   |
+   = note: expected struct `konst::array::IntoIter<u8, 3, NonDrop>`
+              found struct `konst::array::IntoIter<u8, 3, MayDrop>`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_nonmacro_ui_tests/array_intoiter_constructor_type_err.rs:13:59
+   |
+13 |     let _: IntoIter<u8, 3, konst::drop_flavor::MayDrop> = IntoIter::of_drop([0u8; 3]).into_copy();
+   |            --------------------------------------------   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `IntoIter<u8, 3, MayDrop>`, found `IntoIter<u8, 3, NonDrop>`
+   |            |
+   |            expected due to this
+   |
+   = note: expected struct `konst::array::IntoIter<u8, 3, MayDrop>`
+              found struct `konst::array::IntoIter<u8, 3, NonDrop>`

@@ -1,0 +1,527 @@
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:13:15
+   |
+13 | const _: u8 = option::unwrap_or!();
+   |               ^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$e:expr`
+  --> src/option.rs
+   |
+   |     ($e:expr, $v:expr $(,)?) => {
+   |      ^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:14:39
+   |
+14 | const _: u8 = option::unwrap_or!(None,);
+   |                                       ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$v:expr`
+  --> src/option.rs
+   |
+   |     ($e:expr, $v:expr $(,)?) => {
+   |               ^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:16:15
+   |
+16 | const _: u8 = option::unwrap_or_else!();
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$e:expr`
+  --> src/option.rs
+   |
+   |     ($e:expr, || $v:expr $(,)?) => {
+   |      ^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:17:44
+   |
+17 | const _: u8 = option::unwrap_or_else!(None,);
+   |                                            ^ missing tokens in macro arguments
+   |
+note: while trying to match `||`
+  --> src/option.rs
+   |
+   |     ($e:expr, || $v:expr $(,)?) => {
+   |               ^^
+
+error: expected the closure to take no arguments
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:18:15
+   |
+18 | const _: u8 = option::unwrap_or_else!(None, |_| 0u8);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `option::unwrap_or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:19:51
+   |
+19 | const _: u8 = option::unwrap_or_else!(None::<u8>, {whatever0_return});
+   |                                                   ^ no rules expected this token in macro call
+   |
+note: while trying to match `||`
+  --> src/option.rs
+   |
+   |     ($e:expr, || $v:expr $(,)?) => {
+   |               ^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:21:27
+   |
+21 | const _: Result<(), u8> = option::ok_or!();
+   |                           ^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$e:expr`
+  --> src/option.rs
+   |
+   |     ($e:expr, $v:expr $(,)?) => {
+   |      ^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:22:47
+   |
+22 | const _: Result<(), u8> = option::ok_or!(None,);
+   |                                               ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$v:expr`
+  --> src/option.rs
+   |
+   |     ($e:expr, $v:expr $(,)?) => {
+   |               ^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:24:27
+   |
+24 | const _: Result<(), u8> = option::ok_or_else!();
+   |                           ^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$e:expr`
+  --> src/option.rs
+   |
+   |     ($e:expr, || $v:expr $(,)?) => {
+   |      ^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:25:58
+   |
+25 | const _: Result<(), u8> = option::ok_or_else!(None::<()>,);
+   |                                                          ^ missing tokens in macro arguments
+   |
+note: while trying to match `||`
+  --> src/option.rs
+   |
+   |     ($e:expr, || $v:expr $(,)?) => {
+   |               ^^
+
+error: expected the closure to take no arguments
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:26:27
+   |
+26 | const _: Result<(), u8> = option::ok_or_else!(None::<()>, |_| 0u8);
+   |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `option::ok_or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:27:59
+   |
+27 | const _: Result<(), u8> = option::ok_or_else!(None::<()>, {whatever0_return::<u8>});
+   |                                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `||`
+  --> src/option.rs
+   |
+   |     ($e:expr, || $v:expr $(,)?) => {
+   |               ^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:29:23
+   |
+29 | const _: Option<u8> = option::map!();
+   |                       ^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$opt:expr`
+  --> src/option.rs
+   |
+   |     ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:30:47
+   |
+30 | const _: Option<u8> = option::map!(None::<()>,);
+   |                                               ^ missing tokens in macro arguments
+   |
+note: while trying to match `|`
+  --> src/option.rs
+   |
+   |     ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
+   |                 ^
+
+error: expected the closure to take a pattern as an argument
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:31:23
+   |
+31 | const _: Option<u8> = option::map!(None::<()>, || 0u8);
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `option::map` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:32:48
+   |
+32 | const _: Option<u8> = option::map!(None::<()>, {whatever1_return});
+   |                                                ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/option.rs
+   |
+   |     ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
+   |                 ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:34:23
+   |
+34 | const _: Option<u8> = option::and_then!();
+   |                       ^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$opt:expr`
+  --> src/option.rs
+   |
+   |     ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:35:52
+   |
+35 | const _: Option<u8> = option::and_then!(None::<()>,);
+   |                                                    ^ missing tokens in macro arguments
+   |
+note: while trying to match `|`
+  --> src/option.rs
+   |
+   |     ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
+   |                 ^
+
+error: expected the closure to take a pattern as an argument
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:36:23
+   |
+36 | const _: Option<u8> = option::and_then!(None::<()>, || None);
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `option::and_then` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:37:53
+   |
+37 | const _: Option<u8> = option::and_then!(None::<()>, {whatever0_return});
+   |                                                     ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/option.rs
+   |
+   |     ($opt:expr, |$param:pat_param| $mapper:expr $(,)? ) => {
+   |                 ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:39:23
+   |
+39 | const _: Option<u8> = option::or_else!();
+   |                       ^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$opt:expr`
+  --> src/option.rs
+   |
+   |     ($opt:expr, || $mapper:expr $(,)? ) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:40:51
+   |
+40 | const _: Option<u8> = option::or_else!(None::<u8>,);
+   |                                                   ^ missing tokens in macro arguments
+   |
+note: while trying to match `||`
+  --> src/option.rs
+   |
+   |     ($opt:expr, || $mapper:expr $(,)? ) => {
+   |                 ^^
+
+error: expected the closure to take no arguments
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:41:23
+   |
+41 | const _: Option<u8> = option::or_else!(None::<u8>, |_| None);
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `option::or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:42:52
+   |
+42 | const _: Option<u8> = option::or_else!(None::<u8>, {whatever0_return});
+   |                                                    ^ no rules expected this token in macro call
+   |
+note: while trying to match `||`
+  --> src/option.rs
+   |
+   |     ($opt:expr, || $mapper:expr $(,)? ) => {
+   |                 ^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:44:23
+   |
+44 | const _: Option<u8> = option::filter!();
+   |                       ^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$e:expr`
+  --> src/option.rs
+   |
+   |     ($e:expr, |$param:pat_param| $v:expr $(,)?) => {
+   |      ^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:45:50
+   |
+45 | const _: Option<u8> = option::filter!(None::<u8>,);
+   |                                                  ^ missing tokens in macro arguments
+   |
+note: while trying to match `|`
+  --> src/option.rs
+   |
+   |     ($e:expr, |$param:pat_param| $v:expr $(,)?) => {
+   |               ^
+
+error: expected the closure to take a pattern as an argument
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:46:23
+   |
+46 | const _: Option<u8> = option::filter!(None::<u8>, || false);
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `option::filter` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:47:51
+   |
+47 | const _: Option<u8> = option::filter!(None::<u8>, {whatever1_return});
+   |                                                   ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/option.rs
+   |
+   |     ($e:expr, |$param:pat_param| $v:expr $(,)?) => {
+   |               ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:50:22
+   |
+50 |     let _: &mut u8 = option::get_or_insert!();
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$opt:expr`
+  --> src/option.rs
+   |
+   |     ($opt:expr, $inserted:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:51:55
+   |
+51 |     let _: &mut u8 = option::get_or_insert!(&mut None,);
+   |                                                       ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$inserted:expr`
+  --> src/option.rs
+   |
+   |     ($opt:expr, $inserted:expr $(,)?) => {
+   |                 ^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:55:22
+   |
+55 |     let _: &mut u8 = option::get_or_insert_with!();
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$opt:expr`
+  --> src/option.rs
+   |
+   |     ($opt:expr, || $default:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:56:60
+   |
+56 |     let _: &mut u8 = option::get_or_insert_with!(&mut None,);
+   |                                                            ^ missing tokens in macro arguments
+   |
+note: while trying to match `||`
+  --> src/option.rs
+   |
+   |     ($opt:expr, || $default:expr $(,)?) => {
+   |                 ^^
+
+error: expected the closure to take no arguments
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:57:22
+   |
+57 |     let _: &mut u8 = option::get_or_insert_with!(&mut None, |_| 0u8);
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `option::get_or_insert_with` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:58:63
+   |
+58 |     let _: &mut u8 = option::get_or_insert_with!(&mut None, ||);
+   |                                                               ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$default:expr`
+  --> src/option.rs
+   |
+   |     ($opt:expr, || $default:expr $(,)?) => {
+   |                    ^^^^^^^^^^^^^
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:59:61
+   |
+59 |     let _: &mut u8 = option::get_or_insert_with!(&mut None, {whatever0_return});
+   |                                                             ^ no rules expected this token in macro call
+   |
+note: while trying to match `||`
+  --> src/option.rs
+   |
+   |     ($opt:expr, || $default:expr $(,)?) => {
+   |                 ^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:63:22
+   |
+63 |     let _: &mut u8 = option::insert!();
+   |                      ^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$opt:expr`
+  --> src/option.rs
+   |
+   |     ($opt:expr, $inserted:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:64:48
+   |
+64 |     let _: &mut u8 = option::insert!(&mut None,);
+   |                                                ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$inserted:expr`
+  --> src/option.rs
+   |
+   |     ($opt:expr, $inserted:expr $(,)?) => {
+   |                 ^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:67:30
+   |
+67 | const _: Option<(u8, u16)> = option::zip!();
+   |                              ^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/option.rs
+   |
+   |     ($left:expr, $right:expr) => {
+   |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:68:48
+   |
+68 | const _: Option<(u8, u16)> = option::zip!(None,);
+   |                                                ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/option.rs
+   |
+   |     ($left:expr, $right:expr) => {
+   |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:70:17
+   |
+70 | const _: bool = option::is_some_and!();
+   |                 ^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$opt:expr`
+  --> src/option.rs
+   |
+   |     ($opt:expr, |$param:pat_param| $pred:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:71:43
+   |
+71 | const _: bool = option::is_some_and!(None,);
+   |                                           ^ missing tokens in macro arguments
+   |
+note: while trying to match `|`
+  --> src/option.rs
+   |
+   |     ($opt:expr, |$param:pat_param| $pred:expr $(,)?) => {
+   |                 ^
+
+error: expected the closure to take a pattern as an argument
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:72:17
+   |
+72 | const _: bool = option::is_some_and!(None, || false);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `option::is_some_and` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:73:44
+   |
+73 | const _: bool = option::is_some_and!(None, {whatever1_return});
+   |                                            ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/option.rs
+   |
+   |     ($opt:expr, |$param:pat_param| $pred:expr $(,)?) => {
+   |                 ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:75:17
+   |
+75 | const _: bool = option::is_none_or!();
+   |                 ^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$opt:expr`
+  --> src/option.rs
+   |
+   |     ($opt:expr, |$param:pat_param| $pred:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:76:42
+   |
+76 | const _: bool = option::is_none_or!(None,);
+   |                                          ^ missing tokens in macro arguments
+   |
+note: while trying to match `|`
+  --> src/option.rs
+   |
+   |     ($opt:expr, |$param:pat_param| $pred:expr $(,)?) => {
+   |                 ^
+
+error: expected the closure to take a pattern as an argument
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:77:17
+   |
+77 | const _: bool = option::is_none_or!(None, || false);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `option::is_none_or` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_syntax_err.rs:78:43
+   |
+78 | const _: bool = option::is_none_or!(None, {whatever1_return});
+   |                                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/option.rs
+   |
+   |     ($opt:expr, |$param:pat_param| $pred:expr $(,)?) => {
+   |                 ^

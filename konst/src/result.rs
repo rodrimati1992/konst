@@ -1,95 +1,5 @@
 //! `const` equivalents of `Result` methods.
 
-/// For unwrapping `Result`s in const contexts with some error message.
-///
-/// The error type must have a method with this signature:
-///
-/// ```rust
-/// # struct Foo;
-/// # impl Foo {
-/// pub const fn panic(&self) -> ! {
-/// #   loop{}
-/// # }
-/// # }
-/// ```
-///
-/// All the errors from this crate can be used with this macro.
-///
-/// # Example
-///
-/// ### Basic
-///
-#[cfg_attr(feature = "parsing", doc = "```rust")]
-#[cfg_attr(not(feature = "parsing"), doc = "```ignore")]
-/// use konst::{Parser, unwrap_ctx};
-///
-/// let mut parser = Parser::new("hello world");
-///
-/// parser = unwrap_ctx!(parser.strip_prefix("hello "));
-///
-/// assert_eq!(parser.remainder(), "world");
-///
-/// ```
-///
-/// ### Defining error type
-///
-/// ```rust
-/// use konst::unwrap_ctx;
-///
-/// const UNWRAPPED: u32 = {
-///     let res: Result<u32, FooError> = Ok(100);
-///     unwrap_ctx!(res)
-/// };
-///
-/// assert_eq!(UNWRAPPED, 100);
-///
-///
-/// use std::fmt::{self, Display};
-///
-/// #[derive(Debug, Clone, PartialEq)]
-/// pub struct FooError(usize);
-///
-/// impl FooError {
-///     pub const fn panic(&self) -> ! {
-///         panic!("Foo error")
-///         
-///         // Alternatively, using the `const_panic` crate:
-///         //
-///         // const_panic::concat_panic!("Foo errored at offset: ", self.0)
-///     }
-/// }
-///
-/// impl Display for FooError {
-///     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-///         fmt::Debug::fmt(self, f)
-///     }
-/// }
-///
-/// impl std::error::Error for FooError {}
-///
-/// ```
-///
-/// If `res` was an error instead, this is the error message you would see:
-///
-/// ```text
-/// error[E0080]: evaluation of constant value failed
-///   --> src/result.rs:55:9
-///    |
-/// 9  |     unwrap_ctx!(res)
-///    |     ---------------- inside `UNWRAPPED` at result_macros_.rs:6:35
-/// ...
-/// 23 |         panic!("Foo error")
-///    |         ^^^^^^^^^^^^^^^^^^^
-///    |         |
-///    |         the evaluated program panicked at 'Foo error', src/result.rs:23:9
-///    |         inside `FooError::panic`
-///
-/// ```
-///
-/// [`Parser`]: ../parsing/struct.Parser.html
-#[doc(inline)]
-pub use konst_kernel::unwrap_ctx;
-
 /// A const equivalent of [`Result::unwrap_or`]
 ///
 /// # Example
@@ -110,9 +20,22 @@ pub use konst_kernel::unwrap_ctx;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_unwrap_or as unwrap_or;
+pub use crate::__res_unwrap_or as unwrap_or;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_unwrap_or {
+    ($res:expr, $v:expr $(,)?) => {
+        match $crate::__ResT!($res, $v) {
+            $crate::__PResT!($crate::__::Ok(x), _) => x,
+            $crate::__PResT!($crate::__::Err(_), value) => value,
+        }
+    };
+}
 
 /// A const equivalent of [`Result::unwrap_or_else`]
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -141,10 +64,35 @@ pub use konst_kernel::res_unwrap_or as unwrap_or;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_unwrap_or_else as unwrap_or_else;
+pub use crate::__res_unwrap_or_else as unwrap_or_else;
 
-/// Returns the error in the `Err` variant,
-/// otherwise runs a closure/function with the value in the `Ok` variant.
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_unwrap_or_else {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok(x) => x,
+            $crate::__::Err($param) => $expr,
+        }
+    };
+    ($res:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, || $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, $function:path $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok(x) => x,
+            $crate::__::Err(x) => $function(x),
+        }
+    };
+}
+
+/// Unwraps the `Err` variant of `$res`.
+/// If `$res` is an `Ok` it calls the closure argument to convert it into an error.
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -152,12 +100,12 @@ pub use konst_kernel::res_unwrap_or_else as unwrap_or_else;
 /// use konst::result;
 ///
 /// // Necessary for type inference reasons.
-/// type Res = Result<u32, u32>;
+/// type Res = Result<u16, u32>;
 ///
 /// const ARR: &[u32] = &[
 ///     // You can use a closure-like syntax to run code when the Result argument is Ok.
 ///     // `return` inside the "closure" returns from the function where this macro is called.
-///     result::unwrap_err_or_else!(Res::Ok(3), |x| x + 2),
+///     result::unwrap_err_or_else!(Res::Ok(3), |x| (x + 2) as u32),
 ///     result::unwrap_err_or_else!(Res::Err(8), |_| loop{}),
 ///
 ///     // You can also pass functions
@@ -167,13 +115,36 @@ pub use konst_kernel::res_unwrap_or_else as unwrap_or_else;
 ///
 /// assert_eq!(ARR, &[5, 8, 50, 55]);
 ///
-/// const fn add_34(n: u32) -> u32 {
-///     n + 34
+/// const fn add_34(n: u16) -> u32 {
+///     (n + 34) as u32
 /// }
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_unwrap_err_or_else as unwrap_err_or_else;
+pub use crate::__res_unwrap_err_or_else as unwrap_err_or_else;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_unwrap_err_or_else {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok($param) => $expr,
+            $crate::__::Err(x) => x,
+        }
+    };
+    ($res:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, || $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, $function:path $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok(x) => $function(x),
+            $crate::__::Err(x) => x,
+        }
+    };
+}
 
 /// A const equivalent of [`Result::ok`]
 ///
@@ -195,7 +166,18 @@ pub use konst_kernel::res_unwrap_err_or_else as unwrap_err_or_else;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_ok as ok;
+pub use crate::__res_ok as ok;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_ok {
+    ($res:expr $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok(x) => $crate::__::Some(x),
+            $crate::__::Err(_) => $crate::__::None,
+        }
+    };
+}
 
 /// A const equivalent of [`Result::err`]
 ///
@@ -217,9 +199,22 @@ pub use konst_kernel::res_ok as ok;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_err as err;
+pub use crate::__res_err as err;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_err {
+    ($res:expr $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok(_) => $crate::__::None,
+            $crate::__::Err(x) => $crate::__::Some(x),
+        }
+    };
+}
 
 /// A const equivalent of [`Result::map`]
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -248,9 +243,34 @@ pub use konst_kernel::res_err as err;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_map as map;
+pub use crate::__res_map as map;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_map {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok($param) => $crate::__::Ok($expr),
+            $crate::__::Err(x) => $crate::__::Err(x),
+        }
+    };
+    ($res:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, || $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, $function:path $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok(param) => $crate::__::Ok($function(param)),
+            $crate::__::Err(x) => $crate::__::Err(x),
+        }
+    };
+}
 
 /// A const equivalent of [`Result::map_err`]
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -279,9 +299,34 @@ pub use konst_kernel::res_map as map;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_map_err as map_err;
+pub use crate::__res_map_err as map_err;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_map_err {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok(x) => $crate::__::Ok(x),
+            $crate::__::Err($param) => $crate::__::Err($expr),
+        }
+    };
+    ($res:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, || $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, $function:path $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok(x) => $crate::__::Ok(x),
+            $crate::__::Err(x) => $crate::__::Err($function(x)),
+        }
+    };
+}
 
 /// A const equivalent of [`Result::and_then`]
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -315,9 +360,34 @@ pub use konst_kernel::res_map_err as map_err;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_and_then as and_then;
+pub use crate::__res_and_then as and_then;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_and_then {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok($param) => $expr,
+            $crate::__::Err(x) => $crate::__::Err(x),
+        }
+    };
+    ($res:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, || $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, $function:path $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok(param) => $function(param),
+            $crate::__::Err(x) => $crate::__::Err(x),
+        }
+    };
+}
 
 /// A const equivalent of [`Result::or_else`]
+///
+#[doc = crate::docs::closure_arg_pattern_limitations_docs!("")]
 ///
 /// # Example
 ///
@@ -351,4 +421,73 @@ pub use konst_kernel::res_and_then as and_then;
 /// ```
 ///
 #[doc(inline)]
-pub use konst_kernel::res_or_else as or_else;
+pub use crate::__res_or_else as or_else;
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __res_or_else {
+    ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok(x) => $crate::__::Ok(x),
+            $crate::__::Err($param) => $expr,
+        }
+    };
+    ($res:expr, | $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, || $($anything:tt)* ) => {
+        compile_error!("expected the closure to take a pattern as an argument")
+    };
+    ($res:expr, $function:path $(,)?) => {
+        match $crate::__Res!($res).res {
+            $crate::__::Ok(x) => $crate::__::Ok(x),
+            $crate::__::Err(x) => $function(x),
+        }
+    };
+}
+
+#[doc(no_inline)]
+pub use const_panic::unwrap_ok as unwrap;
+
+////////////////////////////////////////////////////////////
+
+// for asserting that a macro argument is a Result
+#[doc(hidden)]
+pub struct __Res<T, E> {
+    pub res: Result<T, E>,
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __Res {
+    ($($res:tt)*) => { $crate::result::__Res { res: $($res)* } };
+}
+
+// for asserting that a macro argument is a pair of Result<T, E> and T
+#[doc(hidden)]
+pub struct __ResT<T, E> {
+    pub res: Result<T, E>,
+    pub val: T,
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __ResT {
+    ($res:tt, $val:tt) => {
+        $crate::result::__ResT {
+            res: $res,
+            val: $val,
+        }
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __PResT {
+    ($res:pat, $val:pat) => {
+        $crate::result::__ResT {
+            res: $res,
+            val: $val,
+        }
+    };
+}

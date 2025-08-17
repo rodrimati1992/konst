@@ -192,7 +192,7 @@ fn str_from_iter_flat_mapped_test() {
     {
         let str = string::from_iter!(
             0..5,
-            flat_map(|i| &[konst::string::str_up_to("abcd", i), "."])
+            flat_map(|i| [konst::string::str_up_to("abcd", i), "."])
         );
         assert_eq!(str, ".a.ab.abc.abcd.");
     }

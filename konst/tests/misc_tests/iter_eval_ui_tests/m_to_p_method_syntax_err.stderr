@@ -1,66 +1,66 @@
 error: `map` expects to be passed a 1-parameter closure
  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:4:5
   |
-4 |     konst::iter::eval!(R, map());
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4 |     konst::iter::eval!(R, map(), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `map` expects to be passed a 1-parameter closure
  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:5:5
   |
-5 |     konst::iter::eval!(R, map(||false));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5 |     konst::iter::eval!(R, map(||false), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `map` expects valid closure syntax, passed closure without return value
  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:6:5
   |
-6 |     konst::iter::eval!(R, map(|_|));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+6 |     konst::iter::eval!(R, map(|_|), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `map` expects no arguments after closure argument
  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:7:5
   |
-7 |     konst::iter::eval!(R, map(|_| false, 100));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 |     konst::iter::eval!(R, map(|_| false, 100), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `map` expects to be passed a 1-parameter closure
  --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:8:5
   |
-8 |     konst::iter::eval!(R, map(|a, b|false));
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+8 |     konst::iter::eval!(R, map(|a, b|false), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: `next` does not take arguments, passed: 10
+error: invalid argument(s) for `next` method: `10`
   --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:12:5
    |
 12 |     konst::iter::eval!(R, next(10));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::__cim_error_on_args` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: `nth` expected an expression to be passed, passed: ``
+error: invalid argument(s) for `nth` method: ``
   --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:16:5
    |
 16 |     konst::iter::eval!(R, nth());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::__cim_no_expr_arg_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: `nth` only takes one argument
+error: invalid argument(s) for `nth` method: `10, 20`
   --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:17:5
    |
 17 |     konst::iter::eval!(R, nth(10, 20));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::__cim_assert_expr` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `position` expects to be passed a 1-parameter closure
   --> tests/misc_tests/iter_eval_ui_tests/m_to_p_method_syntax_err.rs:21:5

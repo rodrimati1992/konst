@@ -1,21 +1,21 @@
-error[E0493]: destructor of `ArrayBuilder<usize, 1>` cannot be evaluated at compile-time
+error[E0493]: destructor of `ArrayBuilder<usize, 1, MayDrop>` cannot be evaluated at compile-time
  --> tests/misc_tests/array_macros2_ui_tests/non_local_return_map_err.rs:3:5
   |
-3 |     konst::array::map_!([10], |x| break 'out [x * 2])
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3 |     konst::array::map!([10], |x| break 'out [x * 2])
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |     |
   |     the destructor for this type cannot be evaluated in constants
   |     value is dropped here
   |
-  = note: this error originates in the macro `$crate::__array_map2__with_parsed_closure` which comes from the expansion of the macro `konst::array::map_` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the macro `$crate::__array_map2__with_parsed_closure` which comes from the expansion of the macro `konst::array::map` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error[E0493]: destructor of `ArrayConsumer<usize, 1>` cannot be evaluated at compile-time
+error[E0493]: destructor of `konst::array::IntoIter<usize, 1, MayDrop>` cannot be evaluated at compile-time
  --> tests/misc_tests/array_macros2_ui_tests/non_local_return_map_err.rs:3:5
   |
-3 |     konst::array::map_!([10], |x| break 'out [x * 2])
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3 |     konst::array::map!([10], |x| break 'out [x * 2])
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |     |
   |     the destructor for this type cannot be evaluated in constants
   |     value is dropped here
   |
-  = note: this error originates in the macro `$crate::__array_map2__with_parsed_closure` which comes from the expansion of the macro `konst::array::map_` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the macro `$crate::__array_map2__with_parsed_closure` which comes from the expansion of the macro `konst::array::map` (in Nightly builds, run with -Z macro-backtrace for more info)

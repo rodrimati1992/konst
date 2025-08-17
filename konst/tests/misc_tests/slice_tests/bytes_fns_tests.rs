@@ -1,8 +1,8 @@
 use konst::slice::{
     bytes_contain, bytes_end_with, bytes_find, bytes_find_keep, bytes_find_skip, bytes_rcontain,
     bytes_rfind, bytes_rfind_keep, bytes_rfind_skip, bytes_start_with, bytes_strip_prefix,
-    bytes_strip_suffix, bytes_trim, bytes_trim_end, bytes_trim_end_matches, bytes_trim_matches,
-    bytes_trim_start, bytes_trim_start_matches, slice_from, slice_up_to,
+    bytes_strip_suffix, bytes_trim_end_matches, bytes_trim_matches, bytes_trim_start_matches,
+    slice_from, slice_up_to,
 };
 
 // This doesn't use unsafe
@@ -408,27 +408,6 @@ fn bytes_strip_suffix_test() {
         Some(&b"foo bar ba"[..])
     );
     assert_eq!(bytes_strip_suffix(b"foo bar baz", &'q'), None);
-}
-
-#[test]
-fn bytes_trim_test() {
-    assert_eq!(bytes_trim(b" \n\t\r \n\t\rfoo \n\t\r \n\t\r"), b"foo");
-}
-
-#[test]
-fn bytes_trim_start_test() {
-    assert_eq!(
-        bytes_trim_start(b" \n\t\r \n\t\rfoo \n\t\r \n\t\r"),
-        b"foo \n\t\r \n\t\r"
-    );
-}
-
-#[test]
-fn bytes_trim_end_test() {
-    assert_eq!(
-        bytes_trim_end(b" \n\t\r \n\t\rfoo \n\t\r \n\t\r"),
-        b" \n\t\r \n\t\rfoo"
-    );
 }
 
 #[test]

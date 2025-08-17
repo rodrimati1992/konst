@@ -1,5 +1,17 @@
 //! `const fn` equivalents of `str` methods.
 //!
+//! # Removed in 0.4.0
+//!
+//! These functions were removed in 0.4.0 because there is an equivalent
+//! const fn in the standard library:
+//!
+//! - `from_utf8`: [`core::str::from_utf8`]
+//! - `is_char_boundary`: [`str::is_char_boundary`]
+//! - `trim`: [`str::trim_ascii`]
+//! - `trim_start`: [`str::trim_ascii_start`]
+//! - `trim_end`: [`str::trim_ascii_end`]
+//!
+//!
 
 #[cfg(feature = "iter")]
 mod chars_methods;
@@ -15,8 +27,6 @@ pub use concatenation::*;
 mod priv_string_tests;
 
 mod pattern;
-
-use core::fmt::{self, Debug, Display};
 
 pub use self::pattern::Pattern;
 
@@ -38,8 +48,6 @@ mod split_terminator_items;
 #[cfg(feature = "iter")]
 pub use split_terminator_items::*;
 
-use konst_kernel::string::__is_char_boundary_bytes;
-
 __declare_string_cmp_fns! {
     import_path = "konst",
     equality_fn = eq_str,
@@ -57,91 +65,14 @@ __declare_fns_with_docs! {
         #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
         for['a,]
         params(l, r)
-        eq_comparison = crate::cmp::CmpWrapper(l).const_eq(r),
-        cmp_comparison = crate::cmp::CmpWrapper(l).const_cmp(r),
+        eq_comparison = crate::cmp::CmpWrapper::from_ref(l).const_eq(r),
+        cmp_comparison = crate::cmp::CmpWrapper::from_ref(l).const_cmp(r),
         parameter_copyability = copy,
     ),
 }
 
-/// Delegates to [`core::str::from_utf8`],
-/// wrapping the error to provide a `panic` method for use in [`unwrap_ctx`]
-///
-/// # Example
-///
-/// ### Basic
-///
-/// ```rust
-/// use konst::{
-///     result::unwrap_ctx,
-///     string,
-/// };
-///
-/// const STR: &str = unwrap_ctx!(string::from_utf8(b"foo bar"));
-///
-/// assert_eq!(STR, "foo bar")
-/// ```
-///
-/// ### Compile-time error
-///
-/// ```compile_fail
-/// use konst::{
-///     result::unwrap_ctx,
-///     string,
-/// };
-///
-/// const _: &str = unwrap_ctx!(string::from_utf8(&[255, 255, 255]));
-/// ```
-///
-/// ```text
-/// error[E0080]: evaluation of constant value failed
-///  --> src/string.rs:88:17
-///   |
-/// 9 | const _: &str = unwrap_ctx!(string::from_utf8(&[255, 255, 255]));
-///   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the evaluated program panicked at 'invalid utf-8 sequence of 1 bytes from index 0', src/string.rs:9:17
-///   |
-///   = note: this error originates in the macro `unwrap_ctx` (in Nightly builds, run with -Z macro-backtrace for more info)
-///
-/// ```
-///
-/// [`unwrap_ctx`]: crate::result::unwrap_ctx
-pub const fn from_utf8(slice: &[u8]) -> Result<&str, Utf8Error> {
-    match core::str::from_utf8(slice) {
-        Ok(x) => Ok(x),
-        Err(e) => Err(Utf8Error(e)),
-    }
-}
-
-/// Wrapper around [`core::str::Utf8Error`]
-/// to provide a `panic` method for use in [`unwrap_ctx`],
-/// returned by [`from_utf8`](crate::string::from_utf8).
-///
-/// [`unwrap_ctx`]: crate::result::unwrap_ctx
-#[derive(Copy, Clone)]
-pub struct Utf8Error(pub core::str::Utf8Error);
-
-impl Utf8Error {
-    /// Panics with a `Display` formatted error message
-    #[track_caller]
-    pub const fn panic(self) -> ! {
-        let pvs = const_panic::StdWrapper(&self.0).to_panicvals(const_panic::FmtArg::DISPLAY);
-        const_panic::concat_panic(&[&pvs])
-    }
-}
-
-impl Debug for Utf8Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        Debug::fmt(&self.0, f)
-    }
-}
-
-impl Display for Utf8Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        Display::fmt(&self.0, f)
-    }
-}
-
 /// A const equivalent of
-/// [`str::starts_with`](https://doc.rust-lang.org/std/primitive.str.html#method.starts_with)
+/// [`str::starts_with`](core::primitive::str#method.starts_with)
 /// , taking a [`Pattern`] parameter.
 ///
 /// # Example
@@ -166,7 +97,7 @@ where
 }
 
 /// A const equivalent of
-/// [`str::ends_with`](https://doc.rust-lang.org/std/primitive.str.html#method.ends_with)
+/// [`str::ends_with`](core::primitive::str#method.ends_with)
 /// , taking a [`Pattern`] parameter.
 ///
 /// # Example
@@ -193,7 +124,7 @@ where
 }
 
 /// A const equivalent of
-/// [`str::find`](https://doc.rust-lang.org/std/primitive.str.html#method.find)
+/// [`str::find`](core::primitive::str#method.find)
 /// , taking a [`Pattern`] parameter.
 ///
 /// # Example
@@ -221,7 +152,7 @@ where
 }
 
 /// A const equivalent of
-/// [`str::contains`](https://doc.rust-lang.org/std/primitive.str.html#method.contains)
+/// [`str::contains`](core::primitive::str#method.contains)
 /// , taking a [`Pattern`] parameter.
 ///
 /// # Example
@@ -252,7 +183,7 @@ where
 }
 
 /// A const equivalent of
-/// [`str::rfind`](https://doc.rust-lang.org/std/primitive.str.html#method.rfind)
+/// [`str::rfind`](core::primitive::str#method.rfind)
 /// , taking a [`Pattern`] parameter.
 ///
 /// # Example
@@ -279,7 +210,7 @@ where
 }
 
 /// A const equivalent of
-/// [`str::contains`](https://doc.rust-lang.org/std/primitive.str.html#method.contains)
+/// [`str::contains`](core::primitive::str#method.contains)
 /// , taking a [`Pattern`] parameter.
 ///
 /// # Example
@@ -336,8 +267,16 @@ where
 ///
 ///
 /// ```
-#[doc(inline)]
-pub use konst_kernel::string::str_up_to;
+#[inline]
+pub const fn str_up_to(string: &str, len: usize) -> &str {
+    let bytes = string.as_bytes();
+    if __is_char_boundary_forgiving(bytes, len) {
+        // Safety: __is_char_boundary_forgiving checks that `len` falls on a char boundary.
+        unsafe { __from_u8_subslice_of_str(crate::slice::slice_up_to(bytes, len)) }
+    } else {
+        non_char_boundary_panic("index", len)
+    }
+}
 
 /// A const equivalent of `&string[start..]`.
 ///
@@ -371,8 +310,16 @@ pub use konst_kernel::string::str_up_to;
 ///
 ///
 /// ```
-#[doc(inline)]
-pub use konst_kernel::string::str_from;
+#[inline]
+pub const fn str_from(string: &str, start: usize) -> &str {
+    let bytes = string.as_bytes();
+    if __is_char_boundary_forgiving(bytes, start) {
+        // Safety: __is_char_boundary_forgiving checks that `start` falls on a char boundary.
+        unsafe { __from_u8_subslice_of_str(crate::slice::slice_from(bytes, start)) }
+    } else {
+        non_char_boundary_panic("start", start)
+    }
+}
 
 /// A const equivalent of `&string[start..end]`.
 ///
@@ -386,8 +333,8 @@ pub use konst_kernel::string::str_from;
 ///
 /// For a const equivalent of `&string[..end]` there's [`str_up_to`].
 ///
-/// [`str_from`]: ./fn.str_from.html
-/// [`str_up_to`]: ./fn.str_up_to.html
+/// [`str_from`]: crate::string::str_from
+/// [`str_up_to`]: crate::string::str_up_to
 ///
 /// # Panics
 ///
@@ -415,40 +362,20 @@ pub use konst_kernel::string::str_from;
 ///
 ///
 /// ```
-#[doc(inline)]
-pub use konst_kernel::string::str_range;
-
-/// Const equivalent of [`str::is_char_boundary`].
-///
-/// # Example
-///
-/// ```
-/// use konst::string::is_char_boundary;
-///
-/// let string =  "锈 is 🧠";
-///
-/// // Start of "锈"
-/// assert!(is_char_boundary(string, 0));
-/// assert!(!is_char_boundary(string, 1));
-/// assert!(!is_char_boundary(string, 2));
-///
-/// // start of " "
-/// assert!(is_char_boundary(string, 3));
-///
-/// // start of "🧠"
-/// assert!(is_char_boundary(string, 7));
-/// assert!(!is_char_boundary(string, 8));
-///
-/// // end of string
-/// assert!(is_char_boundary(string, string.len()));
-///
-/// // after end of string
-/// assert!(!is_char_boundary(string, string.len() + 1));
-///
-///
-/// ```
-#[doc(inline)]
-pub use konst_kernel::string::is_char_boundary;
+#[inline]
+pub const fn str_range(string: &str, start: usize, end: usize) -> &str {
+    let bytes = string.as_bytes();
+    let start_inbounds = __is_char_boundary_forgiving(bytes, start);
+    if start_inbounds && __is_char_boundary_forgiving(bytes, end) {
+        // Safety: __is_char_boundary_forgiving checks that
+        // `start` and `end` fall on a char boundaries.
+        unsafe { __from_u8_subslice_of_str(crate::slice::slice_range(bytes, start, end)) }
+    } else if start_inbounds {
+        non_char_boundary_panic("end", end)
+    } else {
+        non_char_boundary_panic("start", start)
+    }
+}
 
 /// Checks that the start and end are valid utf8 char boundaries
 /// when the `"debug"` feature is enabled.
@@ -460,8 +387,23 @@ pub use konst_kernel::string::is_char_boundary;
 ///
 /// The input byte slice must be a subslice of a `&str`,
 /// so that only the start and end need to be checked.
-#[doc(inline)]
-pub use konst_kernel::string::__from_u8_subslice_of_str;
+#[track_caller]
+#[doc(hidden)]
+pub const unsafe fn __from_u8_subslice_of_str(s: &[u8]) -> &str {
+    #[cfg(any(feature = "debug", test))]
+    if !s.is_empty() {
+        if !byte_is_char_boundary!(s[0]) {
+            panic!("string doesn't start at a byte boundary")
+        }
+
+        let cb = __find_prev_char_boundary(s, s.len() - 1);
+        if let Err(_) = core::str::from_utf8(crate::slice::slice_from(s, cb)) {
+            panic!("string doesn't end at a byte boundary")
+        }
+    }
+
+    unsafe { core::str::from_utf8_unchecked(s) }
+}
 
 /// A const equivalent of `string.get(..len)`.
 ///
@@ -575,7 +517,7 @@ pub const fn get_from(string: &str, from: usize) -> Option<&str> {
 ///
 /// ```
 ///
-/// [`str::split_at`]: https://doc.rust-lang.org/std/primitive.str.html#method.split_at
+/// [`str::split_at`]: core::primitive::str#method.split_at
 pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
     (str_up_to(string, at), str_from(string, at))
 }
@@ -588,8 +530,8 @@ pub const fn split_at(string: &str, at: usize) -> (&str, &str) {
 ///
 /// For a const equivalent of `string.get(..end)` there's [`get_up_to`].
 ///
-/// [`get_from`]: ./fn.get_from.html
-/// [`get_up_to`]: ./fn.get_up_to.html
+/// [`get_from`]: crate::string::get_from
+/// [`get_up_to`]: crate::string::get_up_to
 ///
 /// # Example
 ///
@@ -655,7 +597,7 @@ pub const fn get_range(string: &str, start: usize, end: usize) -> Option<&str> {
 ///
 /// ```
 ///
-/// [`str::strip_prefix`]: https://doc.rust-lang.org/std/primitive.str.html#method.strip_prefix
+/// [`str::strip_prefix`]: core::primitive::str#method.strip_prefix
 pub const fn strip_prefix<'a, 'p, P>(string: &'a str, pattern: P) -> Option<&'a str>
 where
     P: Pattern<'p>,
@@ -714,73 +656,6 @@ where
             __from_u8_subslice_of_str,
         )
     }
-}
-
-/// A const subset of [`str::trim`] which only removes ascii whitespace.
-///
-/// # Const stabilization
-///
-/// The [equivalent std function](str::trim_ascii) was const-stabilized in Rust 1.80.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::string;
-///
-/// const TRIMMED: &str = string::trim("\nhello world  ");
-///
-/// assert_eq!(TRIMMED, "hello world");
-///
-/// ```
-pub const fn trim(this: &str) -> &str {
-    let trimmed = crate::slice::bytes_trim(this.as_bytes());
-    // safety: bytes_trim only removes ascii bytes
-    unsafe { __from_u8_subslice_of_str(trimmed) }
-}
-
-/// A const subset of [`str::trim_start`] which only removes ascii whitespace.
-///
-/// # Const stabilization
-///
-/// The [equivalent std function](str::trim_ascii_start) was const-stabilized in Rust 1.80.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::string;
-///
-/// const TRIMMED: &str = string::trim_start("\rfoo bar  ");
-///
-/// assert_eq!(TRIMMED, "foo bar  ");
-///
-/// ```
-pub const fn trim_start(this: &str) -> &str {
-    let trimmed = crate::slice::bytes_trim_start(this.as_bytes());
-    // safety: bytes_trim_start only removes ascii bytes
-    unsafe { __from_u8_subslice_of_str(trimmed) }
-}
-
-/// A const subset of [`str::trim_end`] which only removes ascii whitespace.
-///
-/// # Const stabilization
-///
-/// The [equivalent std function](str::trim_ascii_end) was const-stabilized in Rust 1.80.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::string;
-///
-/// const TRIMMED: &str = string::trim_end("\rfoo bar  ");
-///
-/// assert_eq!(TRIMMED, "\rfoo bar");
-///
-/// ```
-///
-pub const fn trim_end(this: &str) -> &str {
-    let trimmed = crate::slice::bytes_trim_end(this.as_bytes());
-    // safety: bytes_trim_end only removes ascii bytes
-    unsafe { __from_u8_subslice_of_str(trimmed) }
 }
 
 /// A const subset of [`str::trim_matches`].
@@ -1037,4 +912,58 @@ where
             __from_u8_subslice_of_str,
         )
     }
+}
+
+macro_rules! byte_is_char_boundary {
+    ($b:expr) => {
+        ($b as i8) >= -0x40
+    };
+}
+use byte_is_char_boundary;
+
+#[doc(hidden)]
+#[inline]
+pub const fn __is_char_boundary_bytes(bytes: &[u8], position: usize) -> bool {
+    position == bytes.len() || position < bytes.len() && byte_is_char_boundary!(bytes[position])
+}
+
+#[inline]
+const fn __is_char_boundary_forgiving(bytes: &[u8], position: usize) -> bool {
+    position >= bytes.len() || byte_is_char_boundary!(bytes[position])
+}
+
+#[doc(hidden)]
+pub const fn __find_next_char_boundary(bytes: &[u8], mut position: usize) -> usize {
+    loop {
+        position += 1;
+
+        if __is_char_boundary_forgiving(bytes, position) {
+            break position;
+        }
+    }
+}
+
+#[doc(hidden)]
+pub const fn __find_prev_char_boundary(bytes: &[u8], mut position: usize) -> usize {
+    position = position.saturating_sub(1);
+
+    while !__is_char_boundary_forgiving(bytes, position) {
+        position -= 1;
+    }
+
+    position
+}
+
+#[cold]
+#[track_caller]
+#[doc(hidden)]
+const fn non_char_boundary_panic(extreme: &str, index: usize) -> ! {
+    use const_panic::{FmtArg, PanicVal};
+
+    const_panic::concat_panic(&[&[
+        PanicVal::write_str(extreme),
+        PanicVal::write_str(" `"),
+        PanicVal::from_usize(index, FmtArg::DEBUG),
+        PanicVal::write_str("` is not on a char boundary"),
+    ]])
 }

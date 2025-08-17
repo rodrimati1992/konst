@@ -1,0 +1,256 @@
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:3:43
+  |
+3 | const _: Result<(), u16> = option::ok_or!((), 0u16);
+  |                            ---------------^^-------
+  |                            |              |
+  |                            |              expected `Option<_>`, found `()`
+  |                            arguments to this function are incorrect
+  |
+  = note:   expected enum `Option<_>`
+          found unit type `()`
+note: function defined here
+ --> src/option.rs
+  |
+  | pub const fn __opt<T>(opt: Option<T>) -> Option<T> {
+  |              ^^^^^
+help: try wrapping the expression in `Some`
+  |
+3 | const _: Result<(), u16> = option::ok_or!(Some(()), 0u16);
+  |                                           +++++  +
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:4:15
+  |
+4 | const _: () = option::ok_or!(None::<u8>, 0u16);
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Result<u8, u16>`
+  |
+  = note: expected unit type `()`
+                  found enum `Result<u8, u16>`
+  = note: this error originates in the macro `option::ok_or` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:6:48
+  |
+6 | const _: Result<(), u16> = option::ok_or_else!((), || 0u16);
+  |                            --------------------^^----------
+  |                            |                   |
+  |                            |                   expected `Option<_>`, found `()`
+  |                            arguments to this function are incorrect
+  |
+  = note:   expected enum `Option<_>`
+          found unit type `()`
+note: function defined here
+ --> src/option.rs
+  |
+  | pub const fn __opt<T>(opt: Option<T>) -> Option<T> {
+  |              ^^^^^
+help: try wrapping the expression in `Some`
+  |
+6 | const _: Result<(), u16> = option::ok_or_else!(Some(()), || 0u16);
+  |                                                +++++  +
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:7:15
+  |
+7 | const _: () = option::ok_or_else!(None::<u8>, || 0u16);
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Result<u8, _>`
+  |
+  = note: expected unit type `()`
+                  found enum `Result<u8, _>`
+  = note: this error originates in the macro `option::ok_or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:7:15
+  |
+7 | const _: () = option::ok_or_else!(None::<u8>, || 0u16);
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Result<_, u16>`
+  |
+  = note: expected unit type `()`
+                  found enum `Result<_, u16>`
+  = note: this error originates in the macro `option::ok_or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:9:36
+  |
+9 | const _: Option<u8> = option::map!((), |_| 0u8);
+  |                       -------------^^----------
+  |                       |            |
+  |                       |            expected `Option<_>`, found `()`
+  |                       arguments to this function are incorrect
+  |
+  = note:   expected enum `Option<_>`
+          found unit type `()`
+note: function defined here
+ --> src/option.rs
+  |
+  | pub const fn __opt<T>(opt: Option<T>) -> Option<T> {
+  |              ^^^^^
+help: try wrapping the expression in `Some`
+  |
+9 | const _: Option<u8> = option::map!(Some(()), |_| 0u8);
+  |                                    +++++  +
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:10:54
+   |
+10 | const _: Option<u8> = option::map!(None::<()>, |__ @ 0u8..| 0u8);
+   |                       -------------------------------^^^--------
+   |                       |                              |
+   |                       |                              expected `()`, found `u8`
+   |                       this expression has type `()`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:11:15
+   |
+11 | const _: () = option::map!(None::<u8>, |_| ());
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Option<()>`
+   |
+   = note: expected unit type `()`
+                   found enum `Option<()>`
+   = note: this error originates in the macro `option::map` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:11:15
+   |
+11 | const _: () = option::map!(None::<u8>, |_| ());
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Option<_>`
+   |
+   = note: expected unit type `()`
+                   found enum `Option<_>`
+   = note: this error originates in the macro `option::map` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:13:42
+   |
+13 | const _: Option<u16> = option::and_then!((), |_| None::<u16>);
+   |                        ------------------^^------------------
+   |                        |                 |
+   |                        |                 expected `Option<_>`, found `()`
+   |                        arguments to this function are incorrect
+   |
+   = note:   expected enum `Option<_>`
+           found unit type `()`
+note: function defined here
+  --> src/option.rs
+   |
+   | pub const fn __opt<T>(opt: Option<T>) -> Option<T> {
+   |              ^^^^^
+help: try wrapping the expression in `Some`
+   |
+13 | const _: Option<u16> = option::and_then!(Some(()), |_| None::<u16>);
+   |                                          +++++  +
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:14:60
+   |
+14 | const _: Option<u16> = option::and_then!(None::<()>, |__ @ 0u8..| None::<u16>);
+   |                        ------------------------------------^^^----------------
+   |                        |                                   |
+   |                        |                                   expected `()`, found `u8`
+   |                        this expression has type `()`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:15:15
+   |
+15 | const _: () = option::and_then!(None::<u8>, |__ @ 0u8..| None::<u16>);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Option<u16>`
+   |
+   = note: expected unit type `()`
+                   found enum `Option<u16>`
+   = note: this error originates in the macro `option::and_then` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:15:15
+   |
+15 | const _: () = option::and_then!(None::<u8>, |__ @ 0u8..| None::<u16>);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Option<_>`
+   |
+   = note: expected unit type `()`
+                   found enum `Option<_>`
+   = note: this error originates in the macro `option::and_then` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:17:41
+   |
+17 | const _: Option<u16> = option::or_else!((), || None::<u16>);
+   |                        -----------------^^-----------------
+   |                        |                |
+   |                        |                expected `Option<_>`, found `()`
+   |                        arguments to this function are incorrect
+   |
+   = note:   expected enum `Option<_>`
+           found unit type `()`
+note: function defined here
+  --> src/option.rs
+   |
+   | pub const fn __opt<T>(opt: Option<T>) -> Option<T> {
+   |              ^^^^^
+help: try wrapping the expression in `Some`
+   |
+17 | const _: Option<u16> = option::or_else!(Some(()), || None::<u16>);
+   |                                         +++++  +
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:18:24
+   |
+18 | const _: Option<u16> = option::or_else!(None::<()>, || None::<u16>);
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Option<u16>`, found `Option<()>`
+   |
+   = note: expected enum `Option<u16>`
+              found enum `Option<()>`
+   = note: this error originates in the macro `option::or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:18:56
+   |
+18 | const _: Option<u16> = option::or_else!(None::<()>, || None::<u16>);
+   |                        --------------------------------^^^^^^^^^^^-
+   |                        |                               |
+   |                        |                               expected `Option<()>`, found `Option<u16>`
+   |                        arguments to this function are incorrect
+   |
+   = note: expected enum `Option<()>`
+              found enum `Option<u16>`
+note: function defined here
+  --> src/__utils.rs
+   |
+   | pub const fn __overwrite<T>(mr: &mut T, val: T) {
+   |              ^^^^^^^^^^^
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:18:24
+   |
+18 | const _: Option<u16> = option::or_else!(None::<()>, || None::<u16>);
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Option<u16>`, found `Option<()>`
+   |
+   = note: expected enum `Option<u16>`
+              found enum `Option<()>`
+   = note: this error originates in the macro `option::or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:19:47
+   |
+19 | const _: () = option::or_else!(None::<u8>, || None::<u16>);
+   |               --------------------------------^^^^^^^^^^^-
+   |               |                               |
+   |               |                               expected `Option<u8>`, found `Option<u16>`
+   |               arguments to this function are incorrect
+   |
+   = note: expected enum `Option<u8>`
+              found enum `Option<u16>`
+note: function defined here
+  --> src/__utils.rs
+   |
+   | pub const fn __overwrite<T>(mr: &mut T, val: T) {
+   |              ^^^^^^^^^^^
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/option_macro_map_convert_type_err.rs:19:15
+   |
+19 | const _: () = option::or_else!(None::<u8>, || None::<u16>);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Option<u8>`
+   |
+   = note: expected unit type `()`
+                   found enum `Option<u8>`
+   = note: this error originates in the macro `option::or_else` (in Nightly builds, run with -Z macro-backtrace for more info)

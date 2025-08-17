@@ -1,5 +1,4 @@
-#[cfg(feature = "parsing")]
-use konst::rebind_if_ok;
+use konst::{option, slice};
 
 #[test]
 fn for_range_break_continue() {
@@ -25,29 +24,41 @@ fn for_range_break_continue() {
     }
 }
 
-#[cfg(feature = "parsing")]
 #[test]
-fn rebind_if_ok_test() {
-    {
-        let mut a = 10;
-        let mut b = "hello".into();
-        let res = Ok::<_, ()>((Default::default(), Default::default()));
-        rebind_if_ok! {(a, b): (u32, &str) = res}
-        assert_eq!(a, 0);
-        assert_eq!(b, "");
+fn if_let_some_test() {
+    const fn uses_macro<T>(opt: Option<T>) -> u32 {
+        konst::if_let_Some! {x = opt => {
+            core::mem::forget(x);
+            3
+        } else {
+            5
+        }}
     }
-    {
-        let mut b = 10;
-        let res = Ok::<_, ()>((Default::default(), Default::default()));
-        rebind_if_ok! {(_, b): (u32, u64) = res}
-        assert_eq!(b, 0);
+
+    assert_eq!(uses_macro(Some(8)), 3);
+    assert_eq!(uses_macro(None::<String>), 5);
+}
+
+#[test]
+fn while_let_some_test() {
+    const fn uses_macro<T, const N: usize>(mut array: [Option<T>; N]) -> u32 {
+        let mut i = 0;
+        let mut ret = 0;
+        konst::while_let_Some! {x =
+            option::and_then!(slice::get_mut(&mut array, i), |x| x.take())
+        => {
+            core::mem::forget(x);
+            ret += 2;
+
+            i += 1;
+        }}
+        core::mem::forget(array);
+        ret
     }
-    {
-        let mut a = "hello".into();
-        rebind_if_ok! {a: &str = Ok::<_, ()>(Default::default())}
-        assert_eq!(a, "");
-    }
-    {
-        rebind_if_ok! {_: &str = Ok::<_, ()>(Default::default())}
-    }
+
+    assert_eq!(uses_macro([String::new(); 0].map(Some)), 0);
+    assert_eq!(uses_macro([3].map(Some)), 2);
+    assert_eq!(uses_macro([3, 5].map(Some)), 4);
+    assert_eq!(uses_macro([3, 5, 8].map(Some)), 6);
+    assert_eq!(uses_macro([3, 5, 8, 13].map(Some)), 8);
 }

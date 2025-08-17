@@ -1,31 +1,42 @@
 //! Parsing using `const fn` methods.
 //!
-//! You can use the [`Parser`] type to parse from string,
+//! You can use the [`Parser`] type to parse from strings,
 //! more information in its documentation.
 //!
 //! If you're looking for functions to parse some type from an entire string
 //! (instead of only part of it),
 //! then you want to look in the module for that type, eg: [`primitive::parse_bool`].
 //!
-//! If you do want to parse a type fron only part of a string, then you can use
-//! [`Parser`]'s `parse_*` methods, or the [`parse_with`] macro.
+//! If you do want to parse a type from only part of a string, then you can use
+//! [`Parser`]'s `parse_*` methods, or the [`parse_type`] macro.
 //!
-//! [`Parser`]: ./struct.Parser.html
-//! [`primitive::parse_bool`]: ../primitive/fn.parse_bool.html
-//! [`parse_with`]: ../macro.parse_with.html
+//! [`Parser`]: crate::parsing::Parser
+//! [`primitive::parse_bool`]: crate::primitive::parse_bool
+//! [`parse_type`]: self::parse_type
 //!
 
 mod get_parser;
 mod non_parsing_methods;
 mod parse_errors;
+mod parsing_polymorphism_macros;
 mod primitive_parsing;
+
+#[cfg(feature = "parsing_proc")]
+mod parser_method_macro;
 
 /////////////////////////////////////////////////////////////////////////////////
 
 pub use self::{
     get_parser::{HasParser, StdParser},
-    parse_errors::{ErrorKind, ParseDirection, ParseError, ParseValueResult, ParserResult},
+    parse_errors::{ErrorKind, ParseDirection, ParseError},
 };
+
+#[cfg(feature = "parsing_proc")]
+#[doc(inline)]
+pub use self::parser_method_macro::parser_method;
+
+#[doc(inline)]
+pub use self::parsing_polymorphism_macros::parse_type;
 
 use crate::string::{self, Pattern};
 
@@ -33,32 +44,7 @@ use crate::string::{self, Pattern};
 ///
 /// If you're looking for functions to parse some type from an entire string
 /// (instead of only part of it),
-/// then you want to look in the module for that type, eg: [`primitive::parse_u64`].
-///
-/// [`primitive::parse_u64`]: ../primitive/fn.parse_u64.html
-///
-/// # Mutation
-///
-/// Because `konst` only requires Rust 1.65.0,
-/// in order to mutate a parser you must reassign the parser returned by its methods.
-/// <br>eg: `parser = parser.trim_start();`
-///
-/// To help make this more ergonomic for `Result`-returning methods, you can use these macros:
-///
-/// - [`try_rebind`]:
-/// Like the `?` operator,
-/// but also reassigns variables and declares new ones with the value in the `Ok` variant.
-///
-/// - [`rebind_if_ok`]:
-/// Like an `if let Ok`,
-/// but also reassigns variables and declares new ones with the value in the `Ok` variant.
-///
-/// - [`parser_method`]:
-/// Parses any of the string literal patterns using a supported `Parser` method.
-///
-/// [`try_rebind`]: ../macro.try_rebind.html
-/// [`rebind_if_ok`]: ../macro.rebind_if_ok.html
-/// [`parser_method`]: crate::parser_method
+/// then you want to look in the module for that type, eg: [`primitive`](crate::primitive).
 ///
 /// # Examples
 ///
@@ -72,8 +58,9 @@ use crate::string::{self, Pattern};
 #[cfg_attr(feature = "parsing_proc", doc = "```rust")]
 #[cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
 /// use konst::{
-///     parsing::{Parser, ParseValueResult},
-///     for_range, parser_method, try_, unwrap_ctx,
+///     parsing::{Parser, ParseError, parser_method},
+///     result,
+///     for_range, try_,
 /// };
 ///
 /// // We need to parse the length into a separate const to use it as the length of the array.
@@ -83,13 +70,14 @@ use crate::string::{self, Pattern};
 ///         up, 0, 90, down, left, right,
 ///     ";
 ///     
-///     let parser = Parser::new(input);
-///     let (len, parser) = unwrap_ctx!(parser.parse_usize());
-///     (len, unwrap_ctx!(parser.strip_prefix(';')))
+///     let mut parser = Parser::new(input);
+///     let len = result::unwrap!(parser.parse_usize());
+///     result::unwrap!(parser.strip_prefix(';'));
+///     (len, parser)
 /// };
 ///
 /// const ANGLES: [Angle; LEN_AND_PARSER.0] =
-///     unwrap_ctx!(Angle::parse_array(LEN_AND_PARSER.1)).0;
+///     result::unwrap!(Angle::parse_array(&mut LEN_AND_PARSER.1));
 ///
 /// fn main() {
 ///     assert_eq!(
@@ -113,26 +101,25 @@ use crate::string::{self, Pattern};
 ///         Angle((n % 360) as u16)
 ///     }
 ///
-///     const fn parse_array<const LEN: usize>(
-///         mut parser: Parser<'_>
-///     ) -> ParseValueResult<'_, [Angle; LEN]> {
+///     const fn parse_array<'p, const LEN: usize>(
+///         parser: &mut Parser<'p>
+///     ) -> Result<[Angle; LEN], ParseError<'p>> {
 ///         let mut ret = [Angle::UP; LEN];
 ///         
 ///         for_range!{i in 0..LEN =>
-///             (ret[i], parser) = try_!(Angle::parse(parser.trim_start()));
+///             ret[i] = try_!(Angle::parse(parser.trim_start()));
 ///             
-///             parser = parser.trim_start();
+///             parser.trim_start();
 ///             if !parser.is_empty() {
-///                 parser = try_!(parser.strip_prefix(','));
+///                 try_!(parser.strip_prefix(','));
 ///             }
 ///         }
-///         Ok((ret, parser))
+///         Ok(ret)
 ///     }
 ///
-///     pub const fn parse(mut parser: Parser<'_>) -> ParseValueResult<'_, Angle> {
-///         // this doesn't use the `rebind_if_ok` macro because it returns early.
-///         if let Ok((angle, parser)) = parser.parse_u64() {
-///             return Ok((Self::new(angle), parser))
+///     pub const fn parse<'p>(parser: &mut Parser<'p>) -> Result<Angle, ParseError<'p>> {
+///         if let Ok(angle) = parser.parse_u64() {
+///             return Ok(Self::new(angle))
 ///         }
 ///         
 ///         let angle = parser_method!{parser, strip_prefix;
@@ -140,16 +127,16 @@ use crate::string::{self, Pattern};
 ///             "right" => Self::RIGHT,
 ///             "down" => Self::DOWN,
 ///             "left" => Self::LEFT,
-///             _ => return Err(parser.into_other_error(&"could not parse Direction"))
+///             _ => return Err(parser.to_other_error(&"could not parse Direction"))
 ///         };
-///         Ok((angle, parser))
+///         Ok(angle)
 ///     }
 /// }
 ///
 ///
 /// ```
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Parser<'a> {
     parse_direction: ParseDirection,
     // this allows split methods to return the empty string after
@@ -162,6 +149,8 @@ pub struct Parser<'a> {
 
 impl<'a> Parser<'a> {
     /// Gets the string up to (but not including) `delimiter`.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// This is like [`Parser::split`],
     /// except that it always requires that the delimiter can be found.
@@ -178,18 +167,15 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{
-    ///     result::unwrap_ctx,
-    ///     Parser,
-    /// };
+    /// use konst::{Parser, result};
     ///
     /// assert_eq!(VARS, ["foo", "bar", "baz"]);
     ///
     /// const VARS: [&str; 3] = {
-    ///     let parser = Parser::new("foo,bar,baz");
+    ///     let mut parser = Parser::new("foo,bar,baz");
     ///     
-    ///     let (foo, parser) = unwrap_ctx!(parser.split_terminator(','));
-    ///     let (bar, parser) = unwrap_ctx!(parser.split_terminator(','));
+    ///     let foo = result::unwrap!(parser.split_terminator(','));
+    ///     let bar = result::unwrap!(parser.split_terminator(','));
     ///     
     ///     // `.split_terminator(',')` errors here
     ///     // because there's no `,` in the remainder of the string,
@@ -199,10 +185,7 @@ impl<'a> Parser<'a> {
     /// };
     ///
     /// ```
-    pub const fn split_terminator<'p, P>(
-        mut self,
-        delimiter: P,
-    ) -> Result<(&'a str, Self), ParseError<'a>>
+    pub const fn split_terminator<'p, P>(&mut self, delimiter: P) -> Result<&'a str, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
@@ -228,6 +211,8 @@ impl<'a> Parser<'a> {
 
     /// Gets the string after `delimiter`.
     ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
+    ///
     /// This is like [`Parser::rsplit`],
     /// except that it always requires that the delimiter can be found.
     ///
@@ -243,18 +228,15 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{
-    ///     result::unwrap_ctx,
-    ///     Parser,
-    /// };
+    /// use konst::{Parser, result};
     ///
     /// assert_eq!(VARS, ["baz", "bar", "foo"]);
     ///
     /// const VARS: [&str; 3] = {
-    ///     let parser = Parser::new("foo,bar,baz");
+    ///     let mut parser = Parser::new("foo,bar,baz");
     ///     
-    ///     let (baz, parser) = unwrap_ctx!(parser.rsplit_terminator(','));
-    ///     let (bar, parser) = unwrap_ctx!(parser.rsplit_terminator(','));
+    ///     let baz = result::unwrap!(parser.rsplit_terminator(','));
+    ///     let bar = result::unwrap!(parser.rsplit_terminator(','));
     ///     
     ///     // `.rsplit_terminator(',')` errors here
     ///     // because there's no `,` in the remainder of the string,
@@ -265,9 +247,9 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     pub const fn rsplit_terminator<'p, P>(
-        mut self,
+        &mut self,
         delimiter: P,
-    ) -> Result<(&'a str, Self), ParseError<'a>>
+    ) -> Result<&'a str, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
@@ -308,19 +290,16 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{
-    ///     result::unwrap_ctx,
-    ///     Parser,
-    /// };
+    /// use konst::{Parser, result};
     ///
     /// assert_eq!(VARS, ["foo", "bar", ""]);
     ///
     /// const VARS: [&str; 3] = {
-    ///     let parser = Parser::new("foo,bar,");
+    ///     let mut parser = Parser::new("foo,bar,");
     ///     
-    ///     let (foo, parser) = unwrap_ctx!(parser.split(','));
-    ///     let (bar, parser) = unwrap_ctx!(parser.split(','));
-    ///     let (empty, parser) = unwrap_ctx!(parser.split(','));
+    ///     let foo = result::unwrap!(parser.split(','));
+    ///     let bar = result::unwrap!(parser.split(','));
+    ///     let empty = result::unwrap!(parser.split(','));
     ///     
     ///     assert!(parser.split(',').is_err());
     ///     assert!(parser.remainder().is_empty());
@@ -329,7 +308,7 @@ impl<'a> Parser<'a> {
     /// };
     ///
     /// ```
-    pub const fn split<'p, P>(mut self, delimiter: P) -> Result<(&'a str, Self), ParseError<'a>>
+    pub const fn split<'p, P>(&mut self, delimiter: P) -> Result<&'a str, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
@@ -354,6 +333,8 @@ impl<'a> Parser<'a> {
 
     /// Gets the string after `delimiter`.
     ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
+    ///
     /// # Return value
     ///
     /// If the last delimiter-separated string has already been returned,
@@ -369,19 +350,16 @@ impl<'a> Parser<'a> {
     /// # Example
     ///
     /// ```rust
-    /// use konst::{
-    ///     result::unwrap_ctx,
-    ///     Parser,
-    /// };
+    /// use konst::{Parser, result};
     ///
     /// assert_eq!(VARS, ["baz", "bar", ""]);
     ///
     /// const VARS: [&str; 3] = {
-    ///     let parser = Parser::new(",bar,baz");
+    ///     let mut parser = Parser::new(",bar,baz");
     ///     
-    ///     let (baz, parser) = unwrap_ctx!(parser.rsplit(','));
-    ///     let (bar, parser) = unwrap_ctx!(parser.rsplit(','));
-    ///     let (empty, parser) = unwrap_ctx!(parser.rsplit(','));
+    ///     let baz = result::unwrap!(parser.rsplit(','));
+    ///     let bar = result::unwrap!(parser.rsplit(','));
+    ///     let empty = result::unwrap!(parser.rsplit(','));
     ///     
     ///     assert!(parser.rsplit(',').is_err());
     ///     assert!(parser.remainder().is_empty());
@@ -390,7 +368,7 @@ impl<'a> Parser<'a> {
     /// };
     ///
     /// ```
-    pub const fn rsplit<'p, P>(mut self, delimiter: P) -> Result<(&'a str, Self), ParseError<'a>>
+    pub const fn rsplit<'p, P>(&mut self, delimiter: P) -> Result<&'a str, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
@@ -415,6 +393,8 @@ impl<'a> Parser<'a> {
 
     /// Gets the string up to (but not including) `delimiter`.
     ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
+    ///
     /// # Return value
     ///
     /// This behaves the same as [`Parser::split`],
@@ -429,9 +409,9 @@ impl<'a> Parser<'a> {
     #[cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
     ///
     /// use konst::{
-    ///     parsing::{Parser, ParseValueResult},
-    ///     eq_str,
-    ///     for_range, parser_method, try_rebind, unwrap_ctx,
+    ///     parsing::{Parser, ParseError, parser_method},
+    ///     result,
+    ///     eq_str, for_range, try_,
     /// };
     ///
     /// assert_eq!(VALS, [
@@ -443,12 +423,12 @@ impl<'a> Parser<'a> {
     ///
     /// const VALS: [Value<'_>; 4] = {
     ///     let mut arr = [Value::Str(""); 4];
-    ///     let mut parser = Parser::new("shello,i3,i5,sworld");
+    ///     let parser = &mut Parser::new("shello,i3,i5,sworld");
     ///     
     ///     for_range!{i in 0..arr.len() =>
-    ///         (arr[i], parser) = unwrap_ctx!(parse_value(parser));
+    ///         arr[i] = result::unwrap!(parse_value(parser));
     ///         if !parser.is_empty() {
-    ///             parser = unwrap_ctx!(parser.strip_prefix(','))
+    ///             result::unwrap!(parser.strip_prefix(','));
     ///         }
     ///     }
     ///     
@@ -462,26 +442,23 @@ impl<'a> Parser<'a> {
     ///     U64(u64),
     /// }
     ///
-    /// pub const fn parse_value(mut parser: Parser<'_>) -> ParseValueResult<'_, Value<'_>> {
+    /// pub const fn parse_value<'p>(parser: &mut Parser<'p>) -> Result<Value<'p>, ParseError<'p>> {
     ///     let val = parser_method!{parser, strip_prefix;
     ///         "s" => {
-    ///             try_rebind!{(let string, parser) = parser.split_keep(',')}
+    ///             let string = try_!(parser.split_keep(','));
     ///             Value::Str(string)
     ///         }
     ///         "i" => {
-    ///             try_rebind!{(let integer, parser) = parser.parse_u64()}
+    ///             let integer = try_!(parser.parse_u64());
     ///             Value::U64(integer)
     ///         }
-    ///         _ => return Err(parser.into_other_error(&"expected either `s` or `ì`"))
+    ///         _ => return Err(parser.to_other_error(&"expected either `s` or `ì`"))
     ///     };
-    ///     Ok((val, parser))
+    ///     Ok(val)
     /// }
     /// ```
     ///
-    pub const fn split_keep<'p, P>(
-        mut self,
-        delimiter: P,
-    ) -> Result<(&'a str, Self), ParseError<'a>>
+    pub const fn split_keep<'p, P>(&mut self, delimiter: P) -> Result<&'a str, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
@@ -507,28 +484,30 @@ impl<'a> Parser<'a> {
     /// Checks that the parsed string starts with `matched`,
     /// returning the remainder of the str.
     ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
+    ///
     /// For calling `strip_prefix` with multiple alternative `matched` string literals,
     /// you can use the [`parser_method`] macro,
-    /// [example](crate::parser_method#parsing-enum-example)
+    /// [example](self::parser_method#parsing-enum-example)
     ///
     /// # Examples
     ///
     /// ### Basic
     ///
     /// ```
-    /// use konst::{Parser, rebind_if_ok};
+    /// use konst::Parser;
     ///
     /// let mut parser = Parser::new("foo;bar;baz;");
     ///
     /// assert!(parser.strip_prefix("aaa").is_err());
     ///
-    /// rebind_if_ok!{parser = parser.strip_prefix("foo;")}
+    /// _ = parser.strip_prefix("foo;");
     /// assert_eq!(parser.remainder(), "bar;baz;");
     ///
-    /// rebind_if_ok!{parser = parser.strip_prefix("bar;")}
+    /// _ = parser.strip_prefix("bar;");
     /// assert_eq!(parser.remainder(), "baz;");
     ///
-    /// rebind_if_ok!{parser = parser.strip_prefix("baz;")}
+    /// _ = parser.strip_prefix("baz;");
     /// assert_eq!(parser.remainder(), "");
     ///
     ///
@@ -537,27 +516,27 @@ impl<'a> Parser<'a> {
     /// ### `char` argument
     ///
     /// ```rust
-    /// use konst::{Parser, rebind_if_ok};
+    /// use konst::Parser;
     ///
     /// let mut parser = Parser::new("abcde");
     ///
-    /// rebind_if_ok!{parser = parser.strip_prefix('a')}
+    /// _ = parser.strip_prefix('a');
     /// assert_eq!(parser.remainder(), "bcde");
     ///
-    /// rebind_if_ok!{parser = parser.strip_prefix('b')}
+    /// _ = parser.strip_prefix('b');
     /// assert_eq!(parser.remainder(), "cde");
     ///
-    /// rebind_if_ok!{parser = parser.strip_prefix('c')}
+    /// _ = parser.strip_prefix('c');
     /// assert_eq!(parser.remainder(), "de");
     ///
     /// ```
     ///
     #[inline]
-    pub const fn strip_prefix<'p, P>(mut self, matched: P) -> Result<Self, ParseError<'a>>
+    pub const fn strip_prefix<'p, P>(&mut self, matched: P) -> Result<&mut Self, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
-        try_parsing! {self, FromStart;
+        try_parsing_ret_parser! {self, FromStart;
             match string::strip_prefix(self.str, matched) {
                 Some(x) => self.str = x,
                 None => throw!(ErrorKind::Strip),
@@ -566,7 +545,9 @@ impl<'a> Parser<'a> {
     }
 
     /// Checks that the parsed string ends with `matched`,
-    /// returning the remainder of the string.
+    /// returning the remainder of the string.///
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// For calling `strip_suffix` with multiple alternative `matched` string literals,
     /// you can use the [`parser_method`] macro.
@@ -576,19 +557,19 @@ impl<'a> Parser<'a> {
     /// ### `&str` argument
     ///
     /// ```
-    /// use konst::{Parser, rebind_if_ok};
+    /// use konst::Parser;
     ///
     /// let mut parser = Parser::new("foo;bar;baz;");
     ///
     /// assert!(parser.strip_suffix("aaa").is_err());
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix("baz;")}
+    /// _ = parser.strip_suffix("baz;");
     /// assert_eq!(parser.remainder(), "foo;bar;");
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix("bar;")}
+    /// _ = parser.strip_suffix("bar;");
     /// assert_eq!(parser.remainder(), "foo;");
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix("foo;")}
+    /// _ = parser.strip_suffix("foo;");
     /// assert_eq!(parser.remainder(), "");
     ///
     /// ```
@@ -596,27 +577,27 @@ impl<'a> Parser<'a> {
     /// ### `char` argument
     ///
     /// ```rust
-    /// use konst::{Parser, rebind_if_ok};
+    /// use konst::Parser;
     ///
     /// let mut parser = Parser::new("edcba");
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix('a')}
+    /// _ = parser.strip_suffix('a');
     /// assert_eq!(parser.remainder(), "edcb");
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix('b')}
+    /// _ = parser.strip_suffix('b');
     /// assert_eq!(parser.remainder(), "edc");
     ///
-    /// rebind_if_ok!{parser = parser.strip_suffix('c')}
+    /// _ = parser.strip_suffix('c');
     /// assert_eq!(parser.remainder(), "ed");
     ///
     /// ```
     ///
     #[inline]
-    pub const fn strip_suffix<'p, P>(mut self, matched: P) -> Result<Self, ParseError<'a>>
+    pub const fn strip_suffix<'p, P>(&mut self, matched: P) -> Result<&mut Self, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
-        try_parsing! {self, FromEnd;
+        try_parsing_ret_parser! {self, FromEnd;
             match string::strip_suffix(self.str, matched) {
                 Some(x) => self.str = x,
                 None => throw!(ErrorKind::Strip),
@@ -626,69 +607,81 @@ impl<'a> Parser<'a> {
 
     /// Removes whitespace from the start and end of the parsed string.
     ///
+    /// This method mutates the parser in place.
+    ///
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("    foo\n\t bar    ");
     ///
-    /// parser = parser.trim();
+    /// parser.trim();
     /// assert_eq!(parser.remainder(), "foo\n\t bar");
     ///
     /// ```
-    pub const fn trim(mut self) -> Self {
+    pub const fn trim(&mut self) -> &mut Self {
         parsing! {self, FromBoth;
-            self.str = crate::string::trim(self.str);
+            self.str = self.str.trim_ascii();
         }
+        self
     }
 
     /// Removes whitespace from the start of the parsed string.
     ///
+    /// This method mutates the parser in place.
+    ///
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("    foo\n\t bar");
     ///
-    /// parser = parser.trim_start();
+    /// parser.trim_start();
     /// assert_eq!(parser.remainder(), "foo\n\t bar");
     ///
-    /// parser = unwrap_ctx!(parser.strip_prefix("foo")).trim_start();
+    /// result::unwrap!(parser.strip_prefix("foo")).trim_start();
     /// assert_eq!(parser.remainder(), "bar");
     ///
     /// ```
-    pub const fn trim_start(mut self) -> Self {
+    pub const fn trim_start(&mut self) -> &mut Self {
         parsing! {self, FromStart;
-            self.str = crate::string::trim_start(self.str);
+            self.str = self.str.trim_ascii_start();
         }
+        self
     }
 
     /// Removes whitespace from the end of the parsed string.
     ///
+    /// This method mutates the parser in place.
+    ///
     /// # Example
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("foo,\n    bar,\n    ");
     ///
-    /// parser = parser.trim_end();
+    /// parser.trim_end();
     /// assert_eq!(parser.remainder(), "foo,\n    bar,");
     ///
-    /// parser = unwrap_ctx!(parser.strip_suffix("bar,")).trim_end();
+    /// result::unwrap!(parser.strip_suffix("bar,")).trim_end();
     /// assert_eq!(parser.remainder(), "foo,");
     ///
     /// ```
-    pub const fn trim_end(mut self) -> Self {
+    pub const fn trim_end(&mut self) -> &mut Self {
         parsing! {self, FromEnd;
-            self.str = crate::string::trim_end(self.str);
+            self.str = self.str.trim_ascii_end();
         }
+        self
     }
 
     /// Repeatedly removes all instances of `needle` from
     /// both the start and end of the parsed string.
+    ///
+    /// This method mutates the parser in place.
+    ///
     ///
     /// # Example
     ///
@@ -699,7 +692,7 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("<><>hello<><>");
     ///
-    /// parser = parser.trim_matches("<>");
+    /// parser.trim_matches("<>");
     /// assert_eq!(parser.remainder(), "hello");
     /// ```
     ///
@@ -710,23 +703,27 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("    world   ");
     ///
-    /// parser = parser.trim_matches(' ');
+    /// parser.trim_matches(' ');
     /// assert_eq!(parser.remainder(), "world");
     /// ```
     ///
-    pub const fn trim_matches<'p, P>(mut self, needle: P) -> Self
+    pub const fn trim_matches<'p, P>(&mut self, needle: P) -> &mut Self
     where
         P: Pattern<'p>,
     {
         parsing! {self, FromBoth;
             self.str = crate::string::trim_matches(self.str, needle);
         }
+        self
     }
 
     /// Repeatedly removes all instances of `needle` from the start of the parsed string.
     ///
+    /// This method mutates the parser in place.
+    ///
+    ///
     /// For trimming with multiple `needle`s, you can use the [`parser_method`] macro,
-    /// [example](crate::parser_method#trimming-example)
+    /// [example](self::parser_method#trimming-example)
     ///
     /// # Example
     ///
@@ -737,17 +734,17 @@ impl<'a> Parser<'a> {
     ///
     /// {
     ///     let mut parser = Parser::new("HelloHelloHello world!");
-    ///     parser = parser.trim_start_matches("Hello");
+    ///     parser.trim_start_matches("Hello");
     ///     assert_eq!(parser.remainder(), " world!");
     /// }
     /// {
     ///     let mut parser = Parser::new("        Hi!");
-    ///     parser = parser.trim_start_matches("    ");
+    ///     parser.trim_start_matches("    ");
     ///     assert_eq!(parser.remainder(), "Hi!");
     /// }
     /// {
     ///     let mut parser = Parser::new("------Bye!");
-    ///     parser = parser.trim_start_matches("----");
+    ///     parser.trim_start_matches("----");
     ///     assert_eq!(parser.remainder(), "--Bye!");
     /// }
     ///
@@ -760,30 +757,34 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("    ----world");
     ///
-    /// parser = parser.trim_start_matches(' ');
+    /// parser.trim_start_matches(' ');
     /// assert_eq!(parser.remainder(), "----world");
     ///
-    /// parser = parser.trim_start_matches('-');
+    /// parser.trim_start_matches('-');
     /// assert_eq!(parser.remainder(), "world");
     ///
-    /// parser = parser.trim_start_matches('-');
+    /// parser.trim_start_matches('-');
     /// assert_eq!(parser.remainder(), "world");
     ///
     /// ```
     ///
-    pub const fn trim_start_matches<'p, P>(mut self, needle: P) -> Self
+    pub const fn trim_start_matches<'p, P>(&mut self, needle: P) -> &mut Self
     where
         P: Pattern<'p>,
     {
         parsing! {self, FromStart;
             self.str = crate::string::trim_start_matches(self.str, needle);
         }
+        self
     }
 
     /// Repeatedly removes all instances of `needle` from the start of the parsed string.
     ///
+    /// This method mutates the parser in place.
+    ///
+    ///
     /// For trimming with multiple `needle`s, you can use the [`parser_method`] macro,
-    /// [example](crate::parser_method#trimming-example)
+    /// [example](self::parser_method#trimming-example)
     ///
     /// # Example
     ///
@@ -794,17 +795,17 @@ impl<'a> Parser<'a> {
     ///
     /// {
     ///     let mut parser = Parser::new("Hello world!world!world!");
-    ///     parser = parser.trim_end_matches("world!");
+    ///     parser.trim_end_matches("world!");
     ///     assert_eq!(parser.remainder(), "Hello ");
     /// }
     /// {
     ///     let mut parser = Parser::new("Hi!        ");
-    ///     parser = parser.trim_end_matches("    ");
+    ///     parser.trim_end_matches("    ");
     ///     assert_eq!(parser.remainder(), "Hi!");
     /// }
     /// {
     ///     let mut parser = Parser::new("Bye!------");
-    ///     parser = parser.trim_end_matches("----");
+    ///     parser.trim_end_matches("----");
     ///     assert_eq!(parser.remainder(), "Bye!--");
     /// }
     ///
@@ -817,48 +818,51 @@ impl<'a> Parser<'a> {
     ///
     /// let mut parser = Parser::new("world----    ");
     ///
-    /// parser = parser.trim_end_matches(' ');
+    /// parser.trim_end_matches(' ');
     /// assert_eq!(parser.remainder(), "world----");
     ///
-    /// parser = parser.trim_end_matches('-');
+    /// parser.trim_end_matches('-');
     /// assert_eq!(parser.remainder(), "world");
     ///
-    /// parser = parser.trim_end_matches('-');
+    /// parser.trim_end_matches('-');
     /// assert_eq!(parser.remainder(), "world");
     ///
     /// ```
     ///
-    pub const fn trim_end_matches<'p, P>(mut self, needle: P) -> Self
+    pub const fn trim_end_matches<'p, P>(&mut self, needle: P) -> &mut Self
     where
         P: Pattern<'p>,
     {
         parsing! {self, FromEnd;
             self.str = crate::string::trim_end_matches(self.str, needle);
         }
+        self
     }
 
     /// Skips the parser after the first instance of `needle`.
     ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
+    ///
     /// For calling `find_skip` with multiple alternative `needle` string literals,
     /// you can use the [`parser_method`] macro,
-    /// [example](crate::parser_method#find-example)
+    /// [example](self::parser_method#find-example)
     ///
     /// # Example
     ///
     /// ### `&str` argument
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("foo--bar,baz--qux");
     ///
-    /// parser = unwrap_ctx!(parser.find_skip("--"));
+    /// result::unwrap!(parser.find_skip("--"));
     /// assert_eq!(parser.remainder(), "bar,baz--qux");
     ///
-    /// parser = unwrap_ctx!(parser.find_skip("bar,"));
+    /// result::unwrap!(parser.find_skip("bar,"));
     /// assert_eq!(parser.remainder(), "baz--qux");
     ///
-    /// parser = unwrap_ctx!(parser.find_skip("--"));
+    /// result::unwrap!(parser.find_skip("--"));
     /// assert_eq!(parser.remainder(), "qux");
     ///
     /// assert!(parser.find_skip("--").is_err());
@@ -868,23 +872,23 @@ impl<'a> Parser<'a> {
     /// ### `char` argument
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("foo-bar,baz");
     ///
-    /// parser = unwrap_ctx!(parser.find_skip('-'));
+    /// result::unwrap!(parser.find_skip('-'));
     /// assert_eq!(parser.remainder(), "bar,baz");
     ///
-    /// parser = unwrap_ctx!(parser.find_skip(','));
+    /// result::unwrap!(parser.find_skip(','));
     /// assert_eq!(parser.remainder(), "baz");
     ///
     /// ```
     ///
-    pub const fn find_skip<'p, P>(mut self, needle: P) -> Result<Self, ParseError<'a>>
+    pub const fn find_skip<'p, P>(&mut self, needle: P) -> Result<&mut Self, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
-        try_parsing! {self, FromStart;
+        try_parsing_ret_parser! {self, FromStart;
             self.str = match crate::string::find_skip(self.str, needle) {
                 Some(x) => x,
                 None => throw!(ErrorKind::Find),
@@ -894,26 +898,29 @@ impl<'a> Parser<'a> {
 
     /// Truncates the parsed string to before the last instance of `needle`.
     ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
+    ///
+    ///
     /// For calling `rfind_skip` with multiple alternative `needle` string literals,
     /// you can use the [`parser_method`] macro,
-    /// [example](crate::parser_method#find-example)
+    /// [example](self::parser_method#find-example)
     ///
     /// # Example
     ///
     /// ### `&str` argument
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("foo--bar,baz--qux");
     ///
-    /// parser = unwrap_ctx!(parser.rfind_skip("--"));
+    /// result::unwrap!(parser.rfind_skip("--"));
     /// assert_eq!(parser.remainder(), "foo--bar,baz");
     ///
-    /// parser = unwrap_ctx!(parser.rfind_skip(",baz"));
+    /// result::unwrap!(parser.rfind_skip(",baz"));
     /// assert_eq!(parser.remainder(), "foo--bar");
     ///
-    /// parser = unwrap_ctx!(parser.rfind_skip("--"));
+    /// result::unwrap!(parser.rfind_skip("--"));
     /// assert_eq!(parser.remainder(), "foo");
     ///
     /// assert!(parser.rfind_skip("--").is_err());
@@ -923,23 +930,23 @@ impl<'a> Parser<'a> {
     /// ### `char` argument
     ///
     /// ```rust
-    /// use konst::{Parser, unwrap_ctx};
+    /// use konst::{Parser, result};
     ///
     /// let mut parser = Parser::new("foo,bar-baz");
     ///
-    /// parser = unwrap_ctx!(parser.rfind_skip('-'));
+    /// result::unwrap!(parser.rfind_skip('-'));
     /// assert_eq!(parser.remainder(), "foo,bar");
     ///
-    /// parser = unwrap_ctx!(parser.rfind_skip(','));
+    /// result::unwrap!(parser.rfind_skip(','));
     /// assert_eq!(parser.remainder(), "foo");
     ///
     /// ```
     ///
-    pub const fn rfind_skip<'p, P>(mut self, needle: P) -> Result<Self, ParseError<'a>>
+    pub const fn rfind_skip<'p, P>(&mut self, needle: P) -> Result<&mut Self, ParseError<'a>>
     where
         P: Pattern<'p>,
     {
-        try_parsing! {self, FromEnd;
+        try_parsing_ret_parser! {self, FromEnd;
             self.str = match crate::string::rfind_skip(self.str, needle) {
                 Some(x) => x,
                 None => throw!(ErrorKind::Find),

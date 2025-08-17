@@ -2,21 +2,10 @@
 mod assert_cmp_macros;
 
 #[macro_use]
-mod const_eq_macros;
-
-#[macro_use]
-mod const_ord_macros;
-
-#[cfg(feature = "cmp")]
-#[macro_use]
-mod minmax_macros;
-
-#[macro_use]
 mod control_flow;
 
 #[macro_use]
 #[doc(hidden)]
-#[cfg(feature = "rust_1_83")]
 pub mod destructuring;
 
 #[macro_use]
@@ -29,22 +18,17 @@ mod bytes_fn_macros;
 mod declare_generic_const;
 
 #[macro_use]
+mod internal_macros;
+
+#[macro_use]
 mod polymorphism_macros;
 
-#[cfg(feature = "parsing_proc")]
 #[macro_use]
-mod parser_method;
+mod parse_closures;
 
 #[cfg(feature = "parsing")]
 #[macro_use]
 mod parsing_macros;
-
-#[cfg(feature = "parsing")]
-#[macro_use]
-mod parsing_polymorphism_macros;
-
-#[macro_use]
-mod impl_cmp;
 
 #[macro_use]
 pub(crate) mod unwrapping;

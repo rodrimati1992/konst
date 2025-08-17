@@ -4,9 +4,10 @@
 //!
 //! This crate provides:
 //!
-//! - Const fn equivalents of standard library functions and methods.
+//! - Const fn equivalents of standard library functions, methods, and operators.
 //!
-//! - [`destructure`] macro to allow destructuring types in const without getting "cannot drop in const" errors.
+//! - [`destructure`]/[`if_let_Some`]/[`while_let_Some`]
+//! macros to allow destructuring types in const without getting "cannot drop in const" errors.
 //!
 //! - Compile-time parsing through the [`Parser`] type, and [`parser_method`] macro.
 //!
@@ -18,11 +19,25 @@
 //! at compile-time.
 //!
 //! ```rust
-//! use konst::{
-//!     eq_str,
-//!     option,
-//!     result::unwrap_ctx,
-//! };
+//! use konst::{eq_str, option, result};
+//! use konst::const_panic::{self, PanicFmt};
+//!
+//! use std::fmt::{self, Display};
+//!
+//!
+//! const CHOICE: &str = option::unwrap_or!(option_env!("chosen-direction"), "forward");
+//!
+//! const DIRECTION: Direction = result::unwrap!(Direction::try_parse(CHOICE));
+//!
+//! fn main() {
+//!     match DIRECTION {
+//!         Direction::Forward => assert_eq!(CHOICE, "forward"),
+//!         Direction::Backward => assert_eq!(CHOICE, "backward"),
+//!         Direction::Left => assert_eq!(CHOICE, "left"),
+//!         Direction::Right => assert_eq!(CHOICE, "right"),
+//!     }
+//! }
+//!
 //!
 //! #[derive(Debug, PartialEq)]
 //! enum Direction {
@@ -34,7 +49,7 @@
 //!
 //! impl Direction {
 //!     const fn try_parse(input: &str) -> Result<Self, ParseDirectionError> {
-//!         // As of Rust 1.65.0, string patterns don't work in const contexts
+//!         // As of Rust 1.89.0, string patterns don't work in const contexts
 //!         match () {
 //!             _ if eq_str(input, "forward") => Ok(Direction::Forward),
 //!             _ if eq_str(input, "backward") => Ok(Direction::Backward),
@@ -45,90 +60,55 @@
 //!     }
 //! }
 //!
-//! const CHOICE: &str = option::unwrap_or!(option_env!("chosen-direction"), "forward");
-//!
-//! const DIRECTION: Direction = unwrap_ctx!(Direction::try_parse(CHOICE));
-//!
-//! fn main() {
-//!     match DIRECTION {
-//!         Direction::Forward => assert_eq!(CHOICE, "forward"),
-//!         Direction::Backward => assert_eq!(CHOICE, "backward"),
-//!         Direction::Left => assert_eq!(CHOICE, "left"),
-//!         Direction::Right => assert_eq!(CHOICE, "right"),
-//!     }
-//! }
-//!
-//! #[derive(Debug, PartialEq)]
+//! // `PanicFmt` derives the `PanicFmt` trait for debug-printing in `result::unwrap`.
+//! // To use the `PanicFmt` derive you need to enable the "const_panic_derive" feature.
+//! #[derive(Debug, PartialEq, PanicFmt)]
 //! pub struct ParseDirectionError;
-//!
-//! use std::fmt::{self, Display};
 //!
 //! impl Display for ParseDirectionError {
 //!     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 //!         f.write_str("Failed to parse a Direction")
 //!     }
 //! }
-//!
-//! impl ParseDirectionError {
-//!     const fn panic(&self) -> ! {
-//!         panic!("failed to parse a Direction")
-//!     }
-//! }
-//!
 //! ```
 //!
 //! ### Parsing CSV
 //!
 //! This example demonstrates how CSV can be parsed into integers.
 //!
-//! This example requires the `"parsing"` and `"iter"` features
-//! (both are enabled by default).
+//! This example requires the `"iter"` feature (enabled by default).
 //!
-#![cfg_attr(all(feature = "parsing", feature = "iter"), doc = "```rust")]
-#![cfg_attr(not(all(feature = "parsing", feature = "iter")), doc = "```ignore")]
-//! use konst::{
-//!     primitive::parse_u64,
-//!     result::unwrap_ctx,
-//!     iter, string,
-//! };
+#![cfg_attr(feature = "iter", doc = "```rust")]
+#![cfg_attr(not(feature = "iter"), doc = "```ignore")]
+//! use konst::{iter, result, string};
+//!
+//!
+//! assert_eq!(PARSED, [3, 8, 13, 21, 34]);
+//!
 //!
 //! const CSV: &str = "3, 8, 13, 21, 34";
 //!
 //! static PARSED: [u64; 5] = iter::collect_const!(u64 =>
 //!     string::split(CSV, ","),
-//!         map(string::trim),
-//!         map(|s| unwrap_ctx!(parse_u64(s))),
+//!         map(str::trim_ascii),
+//!         map(|s| result::unwrap!(u64::from_str_radix(s, 10))),
 //! );
-//!
-//! assert_eq!(PARSED, [3, 8, 13, 21, 34]);
-//!
 //! ```
 //!
 //! ### Parsing a struct
 //!
 //! This example demonstrates how a key-value pair format can be parsed into a struct.
 //!
-//! This requires the `"parsing_proc"` feature (enabled by default).
+//! This requires the `"iter"` and `"parsing_proc"` features (enabled by default).
 //!
-#![cfg_attr(feature = "parsing_proc", doc = "```rust")]
-#![cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
-//! use konst::{
-//!     parsing::{Parser, ParseValueResult},
-//!     eq_str,
-//!     for_range, parser_method, try_, unwrap_ctx,
-//! };
+#![cfg_attr(all(feature = "iter", feature = "parsing_proc"), doc = "```rust")]
+#![cfg_attr(
+    not(all(feature = "iter", feature = "parsing_proc")),
+    doc = "```ignore"
+)]
+//! use konst::{result, try_};
+//! use konst::parsing::{Parser, ParseError, parser_method};
 //!
-//! const PARSED: Struct = {
-//!     // You can also parse strings from environment variables, or from an `include_str!(....)`
-//!     let input = "\
-//!         colors = red, blue, green, blue
-//!         amount = 1000
-//!         repeating = circle
-//!         name = bob smith
-//!     ";
-//!     
-//!     unwrap_ctx!(parse_struct(Parser::new(input))).0
-//! };
 //!
 //! fn main(){
 //!     assert_eq!(
@@ -141,6 +121,19 @@
 //!         }
 //!     );
 //! }
+//!
+//!
+//! const PARSED: Struct = {
+//!     // You can also parse strings from environment variables, or from an `include_str!(....)`
+//!     let input = "\
+//!         colors = red, blue, green, blue
+//!         amount = 1000
+//!         repeating = circle
+//!         name = bob smith
+//!     ";
+//!     
+//!     result::unwrap!(parse_struct(&mut Parser::new(input)))
+//! };
 //!
 //! #[derive(Debug, Clone, PartialEq, Eq)]
 //! pub struct Struct<'a> {
@@ -164,91 +157,90 @@
 //!     Green,
 //! }
 //!
-//! pub const fn parse_struct(mut parser: Parser<'_>) -> ParseValueResult<'_, Struct<'_>> {
+//! pub const fn parse_struct<'p>(parser: &mut Parser<'p>) -> Result<Struct<'p>, ParseError<'p>> {
 //!     let mut name = "<none>";
 //!     let mut amount = 0;
 //!     let mut repeating = Shape::Circle;
 //!     let mut colors = [Color::Red; 4];
 //!     
-//!     parser = parser.trim_end();
+//!     parser.trim_end();
 //!     if !parser.is_empty() {
 //!         loop {
-//!             let mut prev_parser = parser.trim_start();
+//!             // keeps a copy of the parser at this position to parse the field name
+//!             let mut prev_parser = parser.trim_start().copy();
 //!
-//!             parser = try_!(parser.find_skip('='));
+//!             // skip past the `=` to parse the field value
+//!             try_!(parser.find_skip('=')).trim_start();
 //!
 //!             parser_method!{prev_parser, strip_prefix;
-//!                 "name" => (name, parser) = try_!(parser.trim_start().split_keep('\n')),
-//!                 "amount" => (amount, parser) = try_!(parser.trim_start().parse_usize()),
-//!                 "repeating" => (repeating, parser) = try_!(parse_shape(parser.trim_start())),
-//!                 "colors" => (colors, parser) = try_!(parse_colors(parser.trim_start())),
+//!                 "name" => name = try_!(parser.split_keep('\n')),
+//!                 "amount" => amount = try_!(parser.parse_usize()),
+//!                 "repeating" => repeating = try_!(parse_shape(parser)),
+//!                 "colors" => colors = try_!(parse_colors(parser)),
 //!                 _ => {
 //!                     let err = &"could not parse Struct field name";
-//!                     return Err(prev_parser.into_other_error(err));
+//!                     return Err(prev_parser.to_other_error(err));
 //!                 }
 //!             }
 //!
 //!             if parser.is_empty() {
 //!                 break
 //!             }
-//!             parser = try_!(parser.strip_prefix("\n"));
+//!             try_!(parser.strip_prefix("\n"));
 //!         }
 //!     }
 //!
-//!     Ok((Struct{name, amount, repeating, colors}, parser))
+//!     Ok(Struct{name, amount, repeating, colors})
 //! }
 //!
-//! pub const fn parse_shape(mut parser: Parser<'_>) -> ParseValueResult<'_, Shape> {
+//! pub const fn parse_shape<'p>(parser: &mut Parser<'p>) -> Result<Shape, ParseError<'p>> {
 //!     let shape = parser_method!{parser, strip_prefix;
 //!         "circle" => Shape::Circle,
 //!         "square" => Shape::Square,
 //!         "line" => Shape::Line,
-//!         _ => return Err(parser.into_other_error(&"could not parse Shape"))
+//!         _ => return Err(parser.to_other_error(&"could not parse Shape"))
 //!     };
-//!     Ok((shape, parser))
+//!     Ok(shape)
 //! }
 //!
-//! pub const fn parse_colors<const LEN: usize>(
-//!     mut parser: Parser<'_>,
-//! ) -> ParseValueResult<'_, [Color; LEN]> {
-//!     let mut colors = [Color::Red; LEN];
+//! pub const fn parse_colors<'p, const LEN: usize>(
+//!     parser: &mut Parser<'p>,
+//! ) -> Result<[Color; LEN], ParseError<'p>> {
+//!     let mut colors = konst::array::ArrayBuilder::of_copy();
 //!
-//!     for_range!{i in 0..LEN =>
-//!         (colors[i], parser) = try_!(parse_color(parser.trim_start()));
+//!     while !colors.is_full() {
+//!         colors.push(try_!(parse_color(parser.trim_start())));
 //!         
-//!         match parser.strip_prefix(",") {
-//!             Ok(next) => parser = next,
-//!             Err(_) if i == LEN - 1 => {}
-//!             Err(e) => return Err(e),
+//!         // returns an error if there aren't enough comma-separated colors
+//!         if let Err(e) = parser.strip_prefix(",") && !colors.is_full() {
+//!             return Err(e);
 //!         }
 //!     }
 //!
-//!     Ok((colors, parser))
+//!     Ok(colors.build())
 //! }
 //!
-//! pub const fn parse_color(mut parser: Parser<'_>) -> ParseValueResult<'_, Color> {
+//! pub const fn parse_color<'p>(parser: &mut Parser<'p>) -> Result<Color, ParseError<'p>> {
 //!     let color = parser_method!{parser, strip_prefix;
 //!         "red" => Color::Red,
 //!         "blue" => Color::Blue,
 //!         "green" => Color::Green,
-//!         _ => return Err(parser.into_other_error(&"could not parse Color"))
+//!         _ => return Err(parser.to_other_error(&"could not parse Color"))
 //!     };
-//!     Ok((color, parser))
+//!     Ok(color)
 //! }
-//!
-//!
 //!
 //! ```
 //!
 //! # Cargo features
 //!
-//! These are the features of these crates:
+//! These are the features of this crate:
 //!
 //! - `"iter"`(enabled by default):
-//! Enables all iteration items, including macros/functions that take/return iterators,
+//! Enables all iteration-related items that take/return iterators,
 //!
 //! - `"cmp"`(enabled by default):
-//! Enables all comparison functions and macros,
+//! Enables all comparison-related items,
 //! the string equality and ordering comparison functions don't require this feature.
 //!
 //! - `"parsing_proc"`(enabled by default):
@@ -258,11 +250,14 @@
 //! compile times aren't a problem.
 //!
 //! - `"parsing"`(enabled by default):
-//! Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
-//! the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
+//! Enables the [`parsing`] module for parsing from strings,
+//! and the `primitive::parse_*` functions.
 //!
-//! - `"alloc"`:
-//! Enables items that use types from the [`alloc`] crate, including `Vec` and `String`.
+//! - `"const_panic_derive"`(disabled by default):
+//! Enables the "derive" feature of the `const_panic` public dependency.
+//!
+//! - `"alloc"`(disabled by default):
+//! Enables items that use types from the [`alloc`] crate.
 //!
 //! ### Rust release related
 //!
@@ -271,17 +266,13 @@
 //! - `"rust_latest_stable"`: enables the latest `"rust_1_*"` feature.
 //! Only recommendable if you can update the Rust compiler every stable release.
 //!
-//! - `"rust_1_83"`: 
-//! Enables const functions that take mutable references,
-//! `array::{from_fn_, map_}` macros, and [`destructure`] macro.
-//!
 //! # No-std support
 //!
 //! `konst` is `#![no_std]`, it can be used anywhere Rust can be used.
 //!
 //! # Minimum Supported Rust Version
 //!
-//! `konst` requires Rust 1.65.0.
+//! `konst` requires Rust 1.89.0.
 //!
 //! Features that require newer versions of Rust, or the nightly compiler,
 //! need to be explicitly enabled with crate features.
@@ -289,16 +280,18 @@
 //!
 //!
 //! [`alloc`]: https://doc.rust-lang.org/alloc/
-//! [`const_eq`]: ./macro.const_eq.html
-//! [`const_eq_for`]: ./macro.const_eq_for.html
-//! [`const_cmp`]: ./macro.const_cmp.html
-//! [`const_cmp_for`]: ./macro.const_cmp_for.html
-//! [`parsing`]: ./parsing/index.html
-//! [`primitive`]: ./primitive/index.html
-//! [`parser_method`]: macro.parser_method.html
-//! [`Parser`]: ./parsing/struct.Parser.html
-//! [`Parser::parse_u128`]: ./parsing/struct.Parser.html#method.parse_u128
-//! [`destructure`]: ./macro.destructure.html
+//! [`const_eq`]: crate::cmp::const_eq
+//! [`const_eq_for`]: crate::cmp::const_eq_for
+//! [`const_cmp`]: crate::cmp::const_cmp
+//! [`const_cmp_for`]: crate::cmp::const_cmp_for
+//! [`parsing`]: crate::parsing
+//! [`primitive`]: crate::primitive
+//! [`parser_method`]: crate::parsing::parser_method
+//! [`Parser`]: crate::parsing::Parser
+//! [`Parser::parse_u128`]: crate::parsing::Parser#method.parse_u128
+//! [`destructure`]: crate::destructure
+//! [`if_let_Some`]: crate::if_let_Some
+//! [`while_let_Some`]: crate::while_let_Some
 //!
 #![deny(missing_docs)]
 #![deny(unused_results)]
@@ -306,6 +299,8 @@
 // clippy's opinionated BS
 #![allow(clippy::needless_doctest_main)]
 #![allow(clippy::init_numbered_fields)]
+#![allow(clippy::redundant_pattern_matching)]
+#![allow(clippy::unused_unit)]
 ////////////
 #![forbid(clippy::missing_const_for_fn)]
 #![cfg_attr(feature = "docsrs", feature(doc_cfg))]
@@ -314,16 +309,17 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
-include! {"./root_module_macros.rs"}
-
 #[macro_use]
 #[doc(hidden)]
 pub mod macros;
 
+mod docs;
+
 #[doc(hidden)]
 pub mod __for_cmp_impls;
 
-// pub mod other;
+#[doc(hidden)]
+pub mod __utils;
 
 #[cfg(feature = "alloc")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "alloc")))]
@@ -338,10 +334,12 @@ pub mod chr;
 pub mod cmp;
 
 #[cfg(feature = "iter")]
+#[macro_use]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
 pub mod iter;
 
-/// const equivalents of `core::ffi` functions
+pub mod drop_flavor;
+
 pub mod ffi;
 
 pub mod polymorphism;
@@ -370,11 +368,6 @@ pub mod ptr;
 
 mod utils;
 
-#[allow(unused_imports)]
-mod utils_1_56 {
-    pub(crate) use konst_kernel::__priv_transmute;
-}
-
 #[cfg(feature = "parsing")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "parsing")))]
 pub use crate::parsing::Parser;
@@ -391,9 +384,6 @@ pub use ::const_panic;
 
 pub use crate::string::{cmp_str, eq_str};
 
-#[doc(no_inline)]
-pub use crate::result::unwrap_ctx;
-
 #[cfg(feature = "cmp")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
 pub use crate::string::{cmp_option_str, eq_option_str};
@@ -405,17 +395,24 @@ pub struct ReadmeTest;
 #[doc(hidden)]
 pub mod __ {
     pub use core::{
+        assert,
         cmp::Ordering::{self, Equal, Greater, Less},
-        compile_error,
+        compile_error, concat,
         marker::PhantomData,
         matches,
-        mem::{self, ManuallyDrop},
+        mem::{self, ManuallyDrop, MaybeUninit, replace},
         ops::Range,
         option::Option::{self, None, Some},
-        primitive::usize,
+        panic,
+        primitive::{bool, str, u8, usize},
         ptr,
         result::Result::{self, Err, Ok},
+        stringify,
     };
+
+    pub const fn forget<T>(x: T) {
+        core::mem::forget(x)
+    }
 
     pub mod v {
         pub use core::{
@@ -426,13 +423,15 @@ pub mod __ {
 
     pub use crate::__for_cmp_impls::U8Ordering;
 
-    pub use konst_kernel::utils::{__parse_closure_1, __parse_closure_2};
-    pub use konst_kernel::__::unit_array;
-    pub use konst_kernel::{__priv_transmute, __split_array_type_and_closure, __unparenthesize_ty};
-
     #[cfg(feature = "cmp")]
-    #[cfg_attr(feature = "docsrs", doc(cfg(feature = "cmp")))]
     pub use crate::cmp::{CmpWrapper, ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
 
+    #[cfg(feature = "iter")]
+    pub use crate::iter::collect_const::CollectorCmd;
+
+    pub use crate::array::__array_macros_2::unit_array;
+
     pub use const_panic::concat_panic;
+
+    pub use typewit::MakeTypeWitness;
 }

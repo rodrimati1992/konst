@@ -3,7 +3,7 @@ use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenSt
 
 use proc_macro::token_stream::IntoIter as TSIterator;
 
-use crate::{utils::Error, Inputs, Pattern};
+use crate::{Inputs, Pattern, utils::Error};
 
 pub(crate) fn parse_inputs(ts: TokenStream) -> Result<Inputs, Error> {
     let iter = &mut ts.into_iter();
@@ -32,7 +32,7 @@ pub(crate) fn parse_inputs(ts: TokenStream) -> Result<Inputs, Error> {
                 return Err(Error::new(
                     x.span(),
                     &format!("Expected a `|`\nfound: `{}`", x),
-                ))
+                ));
             }
             None => {}
         }

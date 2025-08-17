@@ -4,9 +4,20 @@ Documentation on the iterator DSL that some `konst::iter` macros support.
 The macros from this crate don't directly invoke any of the method listed below,
 they expand to equivalent code, this allows the macros to work on stable.
 
-The [`collect_const`](crate::iter::collect_const) macro is
+The [`collect_const`] macro is
 used in examples here purely for simplicity.
 
+# Drop behavior
+
+The behavior regarding dropping iterators is
+[documented here](crate::iter::ConstIntoIter#dropping).
+
+# Closure Argument
+
+Many of the methods accept a closure argument, it must be one of:
+*/
+#![doc = crate::docs::closure_arg_annotated_params_options_docs!("")]
+/*!
 # Methods
 
 Every iterator method below behaves the same as in the [`Iterator`] trait,
@@ -42,8 +53,6 @@ assert_eq!(ARR, [(&3, 100), (&5, 101), (&8, 102), (&13, 103)]);
 ```
 
 ### `enumerate`
-
-`enumerate` always counts from `0`, regardless of whether the iterator is reversed.
 
 ```rust
 use konst::iter;
@@ -195,5 +204,5 @@ assert_eq!(ARR, [&21, &34, &55]);
 
 
 
-
+[`collect_const`]: macro@crate::iter::collect_const
 */

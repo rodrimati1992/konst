@@ -1,0 +1,111 @@
+error: iterator comparison methods require the  "cmp" feature
+ --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:1:31
+  |
+1 | const _: std::cmp::Ordering = konst::iter::eval!{0..10, cmp(0..10)};
+  |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: iterator comparison methods require the  "cmp" feature
+ --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:3:17
+  |
+3 | const _: bool = konst::iter::eval!{0..10, eq(0..10)};
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: iterator comparison methods require the  "cmp" feature
+ --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:5:17
+  |
+5 | const _: bool = konst::iter::eval!{0..10, ne(0..10)};
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: iterator comparison methods require the  "cmp" feature
+ --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:7:17
+  |
+7 | const _: bool = konst::iter::eval!{0..10, ge(0..10)};
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: iterator comparison methods require the  "cmp" feature
+ --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:9:17
+  |
+9 | const _: bool = konst::iter::eval!{0..10, gt(0..10)};
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: iterator comparison methods require the  "cmp" feature
+  --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:11:17
+   |
+11 | const _: bool = konst::iter::eval!{0..10, le(0..10)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: iterator comparison methods require the  "cmp" feature
+  --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:13:17
+   |
+13 | const _: bool = konst::iter::eval!{0..10, lt(0..10)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: is_sorted methods require the  "cmp" feature
+  --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:15:17
+   |
+15 | const _: bool = konst::iter::eval!{0..10, is_sorted()};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: is_sorted methods require the  "cmp" feature
+  --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:17:17
+   |
+17 | const _: bool = konst::iter::eval!{0..10, is_sorted_by(|l, r| true)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: is_sorted methods require the  "cmp" feature
+  --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:19:17
+   |
+19 | const _: bool = konst::iter::eval!{0..10, is_sorted_by_key(|x| x)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: min/max methods require the  "cmp" feature
+  --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:21:24
+   |
+21 | const _: Option<i32> = konst::iter::eval!{0..10, min_by(|l, r| std::cmp::Ordering::Equal)};
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: min/max methods require the  "cmp" feature
+  --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:23:24
+   |
+23 | const _: Option<i32> = konst::iter::eval!{0..10, min_by_key(|x| x)};
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: min/max methods require the  "cmp" feature
+  --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:25:24
+   |
+25 | const _: Option<i32> = konst::iter::eval!{0..10, max_by(|l, r| std::cmp::Ordering::Equal)};
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: min/max methods require the  "cmp" feature
+  --> tests/misc_tests/iter_eval_no_cmp_feature_ui_tests/cmp_methods_no_cmp_feature_err.rs:27:24
+   |
+27 | const _: Option<i32> = konst::iter::eval!{0..10, max_by_key(|x| x)};
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_require_cmp` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

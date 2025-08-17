@@ -5,3 +5,4 @@ members=[
     "konst_macro_rules",
     "konst_proc_macros",
 ]
+resolver="2"

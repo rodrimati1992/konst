@@ -21,24 +21,11 @@ jobs:
             stable,
             beta,
             nightly,
-            1.83.0,
             # the MSRV of konst
-            1.65.0,
-            # the MSRV of konst_kernel
-            1.57.0,
+            1.89.0,
         ]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: ci-MSRV-version-env_vars
-      if: ${{ matrix.rust == '1.65.0' }}
-      run: echo "rustv=" >> $GITHUB_ENV
-
-    - uses: actions/checkout@v2
-    - name: ci-1-83-version-env_vars
-      if: ${{ matrix.rust == '1.83.0' }}
-      run: echo "rustv=rust_1_83" >> $GITHUB_ENV
-
     - uses: actions/checkout@v2
     - name: ci-stable-or-later-env_vars
       if: ${{ matrix.rust == 'stable' || matrix.rust == 'beta' || matrix.rust == 'nightly' }}
@@ -51,32 +38,19 @@ jobs:
         rustup override set ${{ matrix.rust }}
         cargo update
 
-        cd "${{github.workspace}}/konst_kernel/"
-        cargo test --no-default-features 
-        cargo test --no-default-features --features "debug"
-
-    - uses: actions/checkout@v2
-    - name: ci-MSRV-versions
-      if: ${{ matrix.rust != '1.57.0' }}
-      run: |
-        set -ex
-        rustup override set ${{ matrix.rust }}
-        cargo update
-
-        cd "${{github.workspace}}/konst_kernel/"
-        cargo test --no-default-features --features "debug __for_konst"
-
         cd "${{github.workspace}}/konst_proc_macros/"
         cargo build
         
         cd "${{github.workspace}}/konst/"
         cargo test --no-default-features --features "debug ${{env.rustv}} "
+        cargo test --no-default-features --features "debug ${{env.rustv}} alloc"
         cargo test --no-default-features --features "debug ${{env.rustv}} cmp"
         cargo test --no-default-features --features "debug ${{env.rustv}} iter"
         cargo test --no-default-features --features "debug ${{env.rustv}} parsing_proc"
         cargo test --no-default-features --features "debug ${{env.rustv}} parsing"
-        cargo test --no-default-features --features "debug ${{env.rustv}} __cp_derive"
-        cargo test --no-default-features --features "debug ${{env.rustv}} __cp_derive alloc cmp iter parsing_proc"
+        cargo test --no-default-features --features "debug ${{env.rustv}} const_panic_derive"
+        cargo test --no-default-features --features \
+          "debug ${{env.rustv}} alloc cmp iter parsing_proc const_panic_derive"
 
     - uses: actions/checkout@v2
     - name: ci-nighly
@@ -93,7 +67,8 @@ jobs:
         cd "${{github.workspace}}/konst/"
         
         cargo test --no-default-features --features "debug rust_latest_stable"
-        cargo test --no-default-features --features "debug __cp_derive alloc cmp iter parsing_proc rust_latest_stable"
+        cargo test --no-default-features --features \
+          "debug rust_latest_stable alloc cmp iter parsing_proc const_panic_derive"
 
         MIRI_NIGHTLY=nightly-$(curl -s https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/miri)
         echo "Installing latest nightly with Miri"
@@ -108,4 +83,4 @@ jobs:
 
         env RUST_BACKTRACE=0 MIRIFLAGS="-Zmiri-disable-isolation " \
             cargo miri test --no-default-features \
-            --features "alloc debug cmp iter parsing_proc rust_latest_stable"
+            --features "debug rust_latest_stable alloc cmp iter parsing_proc const_panic_derive"

@@ -1,0 +1,323 @@
+error: unexpected end of macro invocation
+ --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:9:15
+  |
+9 | const _: () = result::unwrap_or!();
+  |               ^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+  |
+note: while trying to match meta-variable `$res:expr`
+ --> src/result.rs
+  |
+  |     ($res:expr, $v:expr $(,)?) => {
+  |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:10:41
+   |
+10 | const _: () = result::unwrap_or!(Ok(()),);
+   |                                         ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$v:expr`
+  --> src/result.rs
+   |
+   |     ($res:expr, $v:expr $(,)?) => {
+   |                 ^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:12:15
+   |
+12 | const _: () = result::unwrap_or_else!();
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$res:expr`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:13:47
+   |
+13 | const _: () = result::unwrap_or_else!(Err(()),);
+   |                                               ^ missing tokens in macro arguments
+   |
+note: while trying to match `|`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |                 ^
+
+error: expected the closure to take a pattern as an argument
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:14:15
+   |
+14 | const _: () = result::unwrap_or_else!(Err(()), || ());
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `result::unwrap_or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:15:48
+   |
+15 | const _: () = result::unwrap_or_else!(Err(()), {whatever1_return});
+   |                                                ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |                 ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:17:15
+   |
+17 | const _: () = result::unwrap_err_or_else!();
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$res:expr`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:18:50
+   |
+18 | const _: () = result::unwrap_err_or_else!(Ok(()),);
+   |                                                  ^ missing tokens in macro arguments
+   |
+note: while trying to match `|`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |                 ^
+
+error: expected the closure to take a pattern as an argument
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:19:15
+   |
+19 | const _: () = result::unwrap_err_or_else!(Ok(()), || ());
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `result::unwrap_err_or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:20:51
+   |
+20 | const _: () = result::unwrap_err_or_else!(Ok(()), {whatever1_return});
+   |                                                   ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |                 ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:22:23
+   |
+22 | const _: Option<()> = result::ok!();
+   |                       ^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$res:expr`
+  --> src/result.rs
+   |
+   |     ($res:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:24:23
+   |
+24 | const _: Option<()> = result::err!();
+   |                       ^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$res:expr`
+  --> src/result.rs
+   |
+   |     ($res:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:26:29
+   |
+26 | const _: Result<bool, ()> = result::map!();
+   |                             ^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$res:expr`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:27:49
+   |
+27 | const _: Result<bool, ()> = result::map!(Ok(()),);
+   |                                                 ^ missing tokens in macro arguments
+   |
+note: while trying to match `|`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |                 ^
+
+error: expected the closure to take a pattern as an argument
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:28:29
+   |
+28 | const _: Result<bool, ()> = result::map!(Ok(()), || false);
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `result::map` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:29:50
+   |
+29 | const _: Result<bool, ()> = result::map!(Ok(()), {whatever1_return});
+   |                                                  ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |                 ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:31:29
+   |
+31 | const _: Result<(), bool> = result::map_err!();
+   |                             ^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$res:expr`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:32:53
+   |
+32 | const _: Result<(), bool> = result::map_err!(Ok(()),);
+   |                                                     ^ missing tokens in macro arguments
+   |
+note: while trying to match `|`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |                 ^
+
+error: expected the closure to take a pattern as an argument
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:33:29
+   |
+33 | const _: Result<(), bool> = result::map_err!(Ok(()), || false);
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `result::map_err` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:34:54
+   |
+34 | const _: Result<(), bool> = result::map_err!(Ok(()), {whatever1_return});
+   |                                                      ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |                 ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:36:29
+   |
+36 | const _: Result<(), bool> = result::and_then!();
+   |                             ^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$res:expr`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:37:54
+   |
+37 | const _: Result<(), bool> = result::and_then!(Ok(()),);
+   |                                                      ^ missing tokens in macro arguments
+   |
+note: while trying to match `|`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |                 ^
+
+error: expected the closure to take a pattern as an argument
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:38:29
+   |
+38 | const _: Result<(), bool> = result::and_then!(Ok(()), || Err(false));
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `result::and_then` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:39:55
+   |
+39 | const _: Result<(), bool> = result::and_then!(Ok(()), {whatever1_return});
+   |                                                       ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |                 ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:41:29
+   |
+41 | const _: Result<(), bool> = result::or_else!();
+   |                             ^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$res:expr`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |      ^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:42:53
+   |
+42 | const _: Result<(), bool> = result::or_else!(Ok(()),);
+   |                                                     ^ missing tokens in macro arguments
+   |
+note: while trying to match `|`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |                 ^
+
+error: expected the closure to take a pattern as an argument
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:43:29
+   |
+43 | const _: Result<(), bool> = result::or_else!(Ok(()), || Ok(()));
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `result::or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:44:54
+   |
+44 | const _: Result<(), bool> = result::or_else!(Ok(()), {whatever1_return});
+   |                                                      ^ no rules expected this token in macro call
+   |
+note: while trying to match `|`
+  --> src/result.rs
+   |
+   |     ($res:expr, |$param:pat_param| $expr:expr $(,)?) => {
+   |                 ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_syntax_err.rs:46:15
+   |
+46 | const _: () = result::unwrap!();
+   |               ^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$res:expr`
+  --> $CARGO/const_panic-0.2.13/src/macros/unwrapping.rs
+   |
+   |     ($res:expr) => {
+   |      ^^^^^^^^^

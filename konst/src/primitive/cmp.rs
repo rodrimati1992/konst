@@ -1,11 +1,13 @@
 use core::cmp::Ordering;
 
+use crate::cmp::const_ord_macros::cmp_int;
+
 macro_rules! declare_int_cmp_fn {
     (
         ($type:ty, ($cmp_fn_name:ident))
         docs( $docs_eq:expr, $docs_cmp:expr, )
     ) => {
-        crate::__delegate_const_ord! {
+        __delegate_const_ord! {
             #[doc = $docs_cmp]
             pub const fn $cmp_fn_name(copy left: $type, right: $type) -> Ordering {
                 cmp_int!(left, right)

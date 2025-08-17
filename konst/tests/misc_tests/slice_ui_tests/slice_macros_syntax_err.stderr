@@ -1,0 +1,75 @@
+error: unexpected end of macro invocation
+  --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:10:5
+   |
+10 |     slice::fill_with!();
+   |     ^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$slice:expr`
+  --> src/slice/slice_filler.rs
+   |
+   |     ($slice:expr, || $v:expr $(,)?) => {
+   |      ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:11:26
+   |
+11 |     slice::fill_with!(arr);
+   |                          ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/slice/slice_filler.rs
+   |
+   |     ($slice:expr, || $v:expr $(,)?) => {
+   |                 ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:12:27
+   |
+12 |     slice::fill_with!(arr,);
+   |                           ^ missing tokens in macro arguments
+   |
+note: while trying to match `||`
+  --> src/slice/slice_filler.rs
+   |
+   |     ($slice:expr, || $v:expr $(,)?) => {
+   |                   ^^
+
+error: expected a closure that takes no arguments
+  --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:13:5
+   |
+13 |     slice::fill_with!(arr,| wdwqd);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `slice::fill_with` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:14:29
+   |
+14 |     slice::fill_with!(arr,||);
+   |                             ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$v:expr`
+  --> src/slice/slice_filler.rs
+   |
+   |     ($slice:expr, || $v:expr $(,)?) => {
+   |                      ^^^^^^^
+
+error: expected a closure that takes no arguments
+  --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:15:5
+   |
+15 |     slice::fill_with!(arr,|_|);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `slice::fill_with` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: no rules expected `{`
+  --> tests/misc_tests/slice_ui_tests/slice_macros_syntax_err.rs:16:27
+   |
+16 |     slice::fill_with!(arr,{whatever0_return});
+   |                           ^ no rules expected this token in macro call
+   |
+note: while trying to match `||`
+  --> src/slice/slice_filler.rs
+   |
+   |     ($slice:expr, || $v:expr $(,)?) => {
+   |                   ^^

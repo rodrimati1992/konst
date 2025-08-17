@@ -3,6 +3,12 @@ use konst::iter;
 mod collect_const_tests;
 mod iter_adaptor_tests;
 
+#[cfg(feature = "cmp")]
+mod iter_cmp_methods_tests;
+
+#[cfg(feature = "cmp")]
+mod iter_minmax_methods_tests;
+
 const fn is_rru8_even(n: &&u8) -> bool {
     is_u8_even(**n)
 }
@@ -94,8 +100,7 @@ fn iterator_rev_and_flat_map_test() {
         iter::eval! {
             slice,
                 rev(),
-                flat_map(|&[a, b, c]| -> &[u8; 3] {&[100 + a, b, c]}),
-                copied(),
+                flat_map(|&[a, b, c]| -> [u8; 3] {[100 + a, b, c]}),
                 enumerate(),
                 for_each(|(i, v)| arr[i] = v),
         }
@@ -107,9 +112,8 @@ fn iterator_rev_and_flat_map_test() {
 
         iter::eval! {
             slice,
-                flat_map(|&[a, b, c]| &[100 + a, b, c]),
+                flat_map(|&[a, b, c]| [100 + a, b, c]),
                 rev(),
-                copied(),
                 enumerate(),
                 for_each(|(i, v)| arr[i] = v),
         }
@@ -260,32 +264,6 @@ fn flat_map_nth_test() {
 }
 
 #[test]
-fn flat_map_rposition_test() {
-    const fn range_f(n: &usize) -> std::ops::Range<usize> {
-        let x10 = *n * 10;
-        x10..x10 + 2
-    }
-
-    for &(eq, v) in &[
-        (51, Some(0)),
-        (50, Some(1)),
-        (31, Some(2)),
-        (30, Some(3)),
-        (0, None),
-    ] {
-        assert_eq!(
-            iter::eval!(&[3, 5], flat_map(range_f), rposition(|e| e == eq)),
-            v
-        );
-
-        assert_eq!(
-            iter::eval!(&[3, 5], flat_map(range_f), rev(), position(|e| e == eq)),
-            v
-        );
-    }
-}
-
-#[test]
 fn find_tests() {
     const fn find_even(slice: &[u8]) -> Option<&u8> {
         iter::eval!(
@@ -395,11 +373,7 @@ fn find_map_test() {
     {
         const fn calls_const_fn(slice: &[u16]) -> Option<u16> {
             const fn func(n: &u16) -> Option<u16> {
-                if *n % 2 == 0 {
-                    Some(*n * 10)
-                } else {
-                    None
-                }
+                if *n % 2 == 0 { Some(*n * 10) } else { None }
             }
 
             iter::eval!(slice, find_map(func))
@@ -681,65 +655,12 @@ fn position_tests() {
 }
 
 #[test]
-fn rposition_tests() {
-    const fn rposition_even(slice: &[u8]) -> Option<usize> {
-        iter::eval!(
-            slice,
-            rposition(|&elem| match elem % 4 {
-                1 => false,
-                3 => return Some(usize::MAX),
-                _ => true,
-            })
-        )
-    }
-
-    assert_eq!(rposition_even(&[]), None);
-    assert_eq!(rposition_even(&[1]), None);
-    assert_eq!(rposition_even(&[5, 1]), None);
-    assert_eq!(rposition_even(&[1, 0]), Some(0));
-    assert_eq!(rposition_even(&[0, 1]), Some(1));
-    assert_eq!(rposition_even(&[10, 1, 5]), Some(2));
-    assert_eq!(rposition_even(&[3, 1]), Some(usize::MAX));
-    assert_eq!(rposition_even(&[2, 3, 1]), Some(usize::MAX));
-
-    {
-        const fn calls_const_fn(slice: &[u8]) -> Option<usize> {
-            iter::eval!(slice, rposition(is_ru8_even,))
-        }
-
-        assert_eq!(calls_const_fn(&[]), None);
-        assert_eq!(calls_const_fn(&[1]), None);
-        assert_eq!(calls_const_fn(&[2]), Some(0));
-        assert_eq!(calls_const_fn(&[2, 1]), Some(1));
-        assert_eq!(calls_const_fn(&[4, 3, 1]), Some(2));
-    }
-
-    // explicit return type
-    {
-        assert_eq!(
-            iter::eval!(&[3, 5], rposition(|_| -> bool { Def::DEF })),
-            None,
-        );
-        assert_eq!(
-            iter::eval!(&[3, 5], rposition(|_| -> bool { Def::DEF_OTHER })),
-            Some(0),
-        );
-    }
-}
-
-#[test]
 fn filter_retty_test() {
     let mut vect = Vec::new();
 
     iter::eval!(
         konst::slice::iter_copied(&[3u8, 5, 8, 13, 21]),
-        filter(|&x| -> bool {
-            if x % 2 == 0 {
-                Def::DEF
-            } else {
-                Def::DEF_OTHER
-            }
-        }),
+        filter(|&x| -> bool { if x % 2 == 0 { Def::DEF } else { Def::DEF_OTHER } }),
         for_each(|x| vect.push(x))
     );
 
@@ -752,13 +673,7 @@ fn map_retty_test() {
 
     iter::eval!(
         &[3u8, 5, 8, 13, 21],
-        map(|&x| -> usize {
-            if x % 2 == 0 {
-                Def::DEF
-            } else {
-                Def::DEF_OTHER
-            }
-        }),
+        map(|&x| -> usize { if x % 2 == 0 { Def::DEF } else { Def::DEF_OTHER } }),
         for_each(|x| vect.push(x))
     );
 
@@ -790,13 +705,7 @@ fn take_while_retty_test() {
 
     iter::eval!(
         konst::slice::iter_copied(&[0, 1, 2, 3, 4]),
-        take_while(|x| -> bool {
-            if *x < 3 {
-                Def::DEF_OTHER
-            } else {
-                Def::DEF
-            }
-        }),
+        take_while(|x| -> bool { if *x < 3 { Def::DEF_OTHER } else { Def::DEF } }),
         for_each(|x| vect.push(x))
     );
 
@@ -809,13 +718,7 @@ fn skip_while_retty_test() {
 
     iter::eval!(
         konst::slice::iter_copied(&[0, 1, 2, 3, 4, 5]),
-        skip_while(|x| -> bool {
-            if *x < 3 {
-                Def::DEF_OTHER
-            } else {
-                Def::DEF
-            }
-        }),
+        skip_while(|x| -> bool { if *x < 3 { Def::DEF_OTHER } else { Def::DEF } }),
         for_each(|x| vect.push(x))
     );
 
@@ -870,7 +773,9 @@ fn test_type_annotate_param() {
     );
 
     assert_eq!(
-        iter::collect_const!(u8 => &[3, 5, 8],flat_map(|x: &u8| &[*x]),copied()),
+        iter::collect_const!(u8 =>
+            &[3, 5, 8],flat_map(|x: &u8| std::array::from_ref(x)),copied()
+        ),
         [3, 5, 8],
     );
 
@@ -892,4 +797,18 @@ fn test_type_annotate_param() {
         ),
         [15],
     );
+}
+
+#[test]
+fn test_into_iter_on_mut_ref() {
+    let mut range = ::konst::iter::into_iter!(0..10);
+    let iter: &mut _ = ::konst::iter::into_iter!(&mut range);
+
+    assert_eq!(iter.next(), Some(0));
+    assert_eq!(iter.next(), Some(1));
+    assert_eq!(iter.next(), Some(2));
+
+    assert_eq!(range.next(), Some(3));
+    assert_eq!(range.next(), Some(4));
+    assert_eq!(range.next(), Some(5));
 }

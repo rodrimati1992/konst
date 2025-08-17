@@ -1,4 +1,4 @@
-use crate::string::{self, str_from, str_up_to, Pattern, PatternNorm};
+use crate::string::{self, Pattern, PatternNorm, str_from, str_up_to};
 
 /// A const-equivalent of the [`str::split_once`] method.
 ///

@@ -1,0 +1,107 @@
+error: unexpected end of macro invocation
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_syntax_err.rs:3:17
+  |
+3 | const _: bool = slice::is_sorted!();
+  |                 ^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+  |
+note: while trying to match meta-variable `$slice:expr`
+ --> src/slice/slice_is_sorted_methods.rs
+  |
+  |     ($slice:expr $(,)?) => {
+  |      ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_syntax_err.rs:5:17
+  |
+5 | const _: bool = slice::is_sorted_by!();
+  |                 ^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+  |
+note: while trying to match meta-variable `$slice:expr`
+ --> src/slice/slice_is_sorted_methods.rs
+  |
+  |     ($slice:expr, $($closure:tt)*) => {
+  |      ^^^^^^^^^^^
+
+error: `is_sorted_by` expects to be passed a 2-parameter closure
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_syntax_err.rs:6:17
+  |
+6 | const _: bool = slice::is_sorted_by!([0u8; 0], |);
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `slice::is_sorted_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by` expects valid closure syntax, passed closure without return value
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_syntax_err.rs:7:17
+  |
+7 | const _: bool = slice::is_sorted_by!([0u8; 0], ||);
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `slice::is_sorted_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by` expects to be passed a 2-parameter closure
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_syntax_err.rs:8:17
+  |
+8 | const _: bool = slice::is_sorted_by!([0u8; 0], || false);
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `slice::is_sorted_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by` expects to be passed a 2-parameter closure
+ --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_syntax_err.rs:9:17
+  |
+9 | const _: bool = slice::is_sorted_by!([0u8; 0], |x| false);
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `slice::is_sorted_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_syntax_err.rs:10:17
+   |
+10 | const _: bool = slice::is_sorted_by!([0u8; 0], |x, y|);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `slice::is_sorted_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_syntax_err.rs:12:17
+   |
+12 | const _: bool = slice::is_sorted_by_key!();
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$slice:expr`
+  --> src/slice/slice_is_sorted_methods.rs
+   |
+   |     ($slice:expr, $($closure:tt)*) => {
+   |      ^^^^^^^^^^^
+
+error: `is_sorted_by_key` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_syntax_err.rs:13:17
+   |
+13 | const _: bool = slice::is_sorted_by_key!([0u8; 0], |);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `slice::is_sorted_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by_key` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_syntax_err.rs:14:17
+   |
+14 | const _: bool = slice::is_sorted_by_key!([0u8; 0], ||);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `slice::is_sorted_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by_key` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_syntax_err.rs:15:17
+   |
+15 | const _: bool = slice::is_sorted_by_key!([0u8; 0], || false);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `slice::is_sorted_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by_key` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/slice_ui_cmp_tests/slice_issorted_syntax_err.rs:16:17
+   |
+16 | const _: bool = slice::is_sorted_by_key!([0u8; 0], |x|);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `slice::is_sorted_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)

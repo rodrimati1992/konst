@@ -1,0 +1,14 @@
+error[E0277]: the trait bound `String: Copy` is not satisfied
+ --> tests/misc_tests/misc_nonmacro_ui_tests/array_intoiter_constructor_btype_err.rs:5:64
+  |
+5 |     let _ = IntoIter::<String, 1, _>::of_drop([String::new()]).into_copy();
+  |                                                                ^^^^^^^^^ the trait `Copy` is not implemented for `String`
+  |
+note: required by a bound in `konst::array::IntoIter::<T, N, D>::into_copy`
+ --> src/array/array_into_iter.rs
+  |
+  |     pub const fn into_copy(self) -> IntoIter<T, N, NonDrop>
+  |                  --------- required by a bound in this associated function
+  |     where
+  |         T: Copy,
+  |            ^^^^ required by this bound in `IntoIter::<T, N, D>::into_copy`

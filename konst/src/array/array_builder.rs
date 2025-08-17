@@ -1,208 +1,296 @@
 use core::fmt::{self, Debug};
 use core::mem::{ManuallyDrop, MaybeUninit};
 
-use crate::array::ArrayConsumer;
+use crate::{
+    array::IntoIter,
+    drop_flavor::{DropFlavor, MayDrop, NonDrop, as_inner, as_inner_mut, wrap},
+};
 
+use typewit::Identity;
 
 /// For constructing an array element by element.
-/// 
+///
+/// This type can be constructed with these functions:
+/// - [`of_copy`](Self::of_copy): for building an array of `Copy` elements,
+///   needed for using `ArrayBuilder` in functions that have early returns.
+/// - [`of_drop`](Self::of_drop):
+///   for building an array of any type, useful in functions without early returns.
+///
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use konst::array::ArrayBuilder;
-/// 
+///
 /// assert_eq!(ARR, [1, 1, 2, 3, 5, 8, 13, 21, 34, 55]);
-/// 
+///
 /// const ARR: [u32; 10] = {
-///     let mut builder = ArrayBuilder::new();
+///     let mut builder = ArrayBuilder::of_copy();
 ///     builder.push(1);
 ///     builder.push(1);
-/// 
+///
 ///     while !builder.is_full() {
 ///         let [.., a, b] = *builder.as_slice() else { unreachable!() };
-/// 
+///
 ///         builder.push(a + b);
 ///     }
-/// 
+///
 ///     builder.build()
 /// };
 /// ```
+#[repr(transparent)]
+#[cfg_attr(feature = "docsrs", doc(cfg(feature = "iter")))]
+pub struct ArrayBuilder<T, const N: usize, D: DropFlavor> {
+    inner: D::Wrap<ArrayBuilderInner<T, N>>,
+}
+
 #[repr(C)]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
-pub struct ArrayBuilder<T, const N: usize> {
+pub struct ArrayBuilderInner<T, const N: usize> {
     array: [MaybeUninit<T>; N],
     inited: usize,
 }
 
-impl<T, const N: usize> ArrayBuilder<T, N> {
-    /// Constructs an empty ArrayBuilder
-    pub const fn new() -> Self {
-        ArrayBuilder {
+impl<T, const N: usize> ArrayBuilderInner<T, N> {
+    const fn into_builder<D: DropFlavor>(self) -> ArrayBuilder<T, N, D> {
+        ArrayBuilder { inner: wrap(self) }
+    }
+}
+
+impl<T, const N: usize> ArrayBuilder<T, N, MayDrop> {
+    /// Constructs an empty ArrayBuilder of an element type that may need dropping,
+    /// useful in functions without early returns.
+    ///
+    /// The `Identity` bound emulates a type equality constraint,
+    /// this allows specifying `N` through this constructor,
+    /// while infering the other arguments.
+    #[inline(always)]
+    pub const fn of_drop<const N2: usize>() -> Self
+    where
+        Self: Identity<Type = ArrayBuilder<T, N2, MayDrop>>,
+    {
+        Self::of_any()
+    }
+}
+
+impl<T, const N: usize> ArrayBuilder<T, N, NonDrop> {
+    /// Constructs an empty ArrayBuilder of Copy element types,
+    /// needed for using `ArrayBuilder` in functions with early returns.
+    ///
+    /// The `Identity` bound emulates a type equality constraint,
+    /// this allows specifying `N` through this constructor,
+    /// while infering the other arguments.
+    #[inline(always)]
+    pub const fn of_copy<const N2: usize>() -> Self
+    where
+        T: Copy,
+        Self: Identity<Type = ArrayBuilder<T, N2, NonDrop>>,
+    {
+        Self::of_any()
+    }
+}
+
+impl<T, const N: usize, D: DropFlavor> ArrayBuilder<T, N, D> {
+    // Constructs an empty ArrayBuilder of any flavor.
+    const fn of_any() -> Self {
+        ArrayBuilderInner {
             array: crate::maybe_uninit::uninit_array(),
             inited: 0,
         }
+        .into_builder()
     }
 
     /// The amount of initialized elements in the array
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```rust
     /// use konst::array::ArrayBuilder;
-    /// 
-    /// let mut builder = ArrayBuilder::<_, 3>::new();
-    /// 
+    ///
+    /// let mut builder = ArrayBuilder::of_copy::<3>();
+    ///
     /// assert_eq!(builder.len(), 0);
-    /// 
+    ///
     /// builder.push(3);
     /// assert_eq!(builder.len(), 1);
-    /// 
+    ///
     /// builder.push(5);
     /// assert_eq!(builder.len(), 2);
-    /// 
+    ///
     /// builder.push(8);
     /// assert_eq!(builder.len(), 3);
     /// ```
-    /// 
+    ///
     pub const fn len(&self) -> usize {
-        self.inited
+        as_inner::<D, _>(&self.inner).inited
+    }
+
+    /// Whether the array has at least one initialized element.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::array::ArrayBuilder;
+    ///
+    /// let mut builder = ArrayBuilder::of_copy::<3>();
+    ///
+    /// assert!( builder.is_empty());
+    ///
+    /// builder.push(3);
+    /// assert!(!builder.is_empty());
+    ///
+    /// builder.push(5);
+    /// assert!(!builder.is_empty());
+    ///
+    /// builder.push(8);
+    /// assert!(!builder.is_empty());
+    /// ```
+    ///
+    pub const fn is_empty(&self) -> bool {
+        as_inner::<D, _>(&self.inner).inited == 0
     }
 
     /// Whether the array has been fully initialized
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```rust
     /// use konst::array::ArrayBuilder;
-    /// 
-    /// let mut builder = ArrayBuilder::<_, 3>::new();
-    /// 
+    ///
+    /// let mut builder = ArrayBuilder::of_copy::<3>();
+    ///
     /// assert!(!builder.is_full());
-    /// 
+    ///
     /// builder.push(3);
     /// assert!(!builder.is_full());
-    /// 
+    ///
     /// builder.push(5);
     /// assert!(!builder.is_full());
-    /// 
+    ///
     /// builder.push(8);
     /// assert!(builder.is_full());
     /// ```
-    /// 
+    ///
     pub const fn is_full(&self) -> bool {
-        self.inited == N
+        as_inner::<D, _>(&self.inner).inited == N
     }
 
     /// Gets the initialized part of the array as a slice
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```rust
     /// use konst::array::ArrayBuilder;
-    /// 
-    /// let mut builder = ArrayBuilder::<_, 3>::new();
-    /// 
+    ///
+    /// let mut builder = ArrayBuilder::of_copy::<3>();
+    ///
     /// assert_eq!(builder.as_slice(), [].as_slice());
-    /// 
+    ///
     /// builder.push(3);
     /// assert_eq!(builder.as_slice(), [3].as_slice());
-    /// 
+    ///
     /// builder.push(5);
     /// assert_eq!(builder.as_slice(), [3, 5].as_slice());
-    /// 
+    ///
     /// builder.push(8);
     /// assert_eq!(builder.as_slice(), [3, 5, 8].as_slice());
     /// ```
-    /// 
+    ///
     pub const fn as_slice(&self) -> &[T] {
-        // SAFETY: self.array is guaranteed initialized up to self.inited - 1 inclusive
+        // SAFETY: self.array is guaranteed initialized up to this.inited - 1 inclusive
         unsafe {
-            core::slice::from_raw_parts(self.array.as_ptr().cast::<T>(), self.inited)
+            let this = as_inner::<D, _>(&self.inner);
+
+            core::slice::from_raw_parts(this.array.as_ptr().cast::<T>(), this.inited)
         }
     }
 
     /// Gets the initialized part of the array as a mutable slice
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```rust
     /// use konst::array::ArrayBuilder;
-    /// 
-    /// let mut builder = ArrayBuilder::<_, 3>::new();
-    /// 
+    ///
+    /// let mut builder = ArrayBuilder::of_copy::<3>();
+    ///
     /// assert_eq!(builder.as_mut_slice(), [].as_mut_slice());
-    /// 
+    ///
     /// builder.push(3);
     /// assert_eq!(builder.as_mut_slice(), [3].as_mut_slice());
-    /// 
+    ///
     /// builder.push(5);
     /// assert_eq!(builder.as_mut_slice(), [3, 5].as_mut_slice());
-    /// 
+    ///
     /// builder.push(8);
     /// assert_eq!(builder.as_mut_slice(), [3, 5, 8].as_mut_slice());
     /// ```
-    /// 
+    ///
     pub const fn as_mut_slice(&mut self) -> &mut [T] {
-        // SAFETY: self.array is guaranteed initialized up to self.inited - 1 inclusive
-        unsafe {
-            core::slice::from_raw_parts_mut(self.array.as_mut_ptr().cast::<T>(), self.inited)
-        }
+        let this = as_inner_mut::<D, _>(&mut self.inner);
+
+        // SAFETY: this.array is guaranteed initialized up to this.inited - 1 inclusive
+        unsafe { core::slice::from_raw_parts_mut(this.array.as_mut_ptr().cast::<T>(), this.inited) }
     }
 
     /// Appends `val` to the array.
-    /// 
+    ///
     /// # Panic
-    /// 
+    ///
     /// Panics if `self.len() == N`, i.e.: the array is fully initialized.
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```rust
     /// use konst::array::ArrayBuilder;
-    /// 
-    /// let mut builder = ArrayBuilder::<_, 3>::new();
-    /// 
+    ///
+    /// let mut builder = ArrayBuilder::of_copy::<3>();
+    ///
     /// builder.push(3);
     /// builder.push(5);
     /// builder.push(8);
-    /// 
+    ///
     /// assert_eq!(builder.build(), [3, 5, 8]);
     /// ```
-    /// 
+    ///
     pub const fn push(&mut self, val: T) {
-        assert!(self.inited < N, "trying to add an element to full array");
+        let this = as_inner_mut::<D, _>(&mut self.inner);
 
-        self.array[self.inited] = MaybeUninit::new(val);
+        assert!(this.inited < N, "trying to add an element to full array");
 
-        self.inited += 1;
+        this.array[this.inited] = MaybeUninit::new(val);
+
+        this.inited += 1;
     }
 
     /// Unwraps this ArrayBuilder into an array.
-    /// 
+    ///
     /// # Panic
-    /// 
+    ///
     /// Panics if `self.len() != N`, i.e.: the array is not fully initialized.
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     /// ```rust
     /// use konst::array::ArrayBuilder;
-    /// 
+    ///
     /// assert_eq!(ARR, [3, 5, 8]);
-    /// 
+    ///
     /// const ARR: [u8; 3] = {
-    ///     let mut builder = ArrayBuilder::new();
+    ///     let mut builder = ArrayBuilder::of_copy();
     ///     
     ///     builder.push(3);
     ///     builder.push(5);
     ///     builder.push(8);
-    /// 
+    ///
     ///     builder.build()
     /// };
     /// ```
-    /// 
+    ///
     pub const fn build(self) -> [T; N] {
-        assert!(self.is_full(), "trying to unwrap a non-fully-initialized array");
+        assert!(
+            self.is_full(),
+            "trying to unwrap a non-fully-initialized array"
+        );
 
         // SAFETY: self.array is guaranteed fully initialized by the fact that
         //         each element is inited in lockstep with incrementing self.inited by 1,
@@ -210,36 +298,77 @@ impl<T, const N: usize> ArrayBuilder<T, N> {
         unsafe {
             let mut this = ManuallyDrop::new(self);
 
-            // this cast is guaranteed correct becaue this struct is `#[repr(C))]`
-            // and the first field is a `[MaybeUninit<T>; N]`
+            // this cast is guaranteed correct because
+            // `[MaybeUninit<T>; N]` is at offset 0
             (&raw mut this).cast::<[T; N]>().read()
         }
     }
 
     /// Gets a bitwise copy of this Builder, requires `T: Copy`.
-    pub const fn copy(&self) -> Self 
+    pub const fn copy(&self) -> Self
     where
-        T: Copy
+        T: Copy,
     {
-        Self {..*self}
+        ArrayBuilderInner {
+            ..*as_inner::<D, _>(&self.inner)
+        }
+        .into_builder()
     }
 
-    /// Helper for inferring the length of the built array from an [`ArrayConsumer`].
-    pub const fn infer_length_from_consumer<U>(&self, _consumer: &ArrayConsumer<U, N>) {}
+    /// Converts this `ArrayBuilder` to have a `MayDrop` drop flavor.
+    pub const fn into_drop(self) -> ArrayBuilder<T, N, MayDrop> {
+        self.into_any_flavor()
+    }
+
+    /// Converts this `ArrayBuilder` to have a `NonDrop` drop flavor
+    /// by requiring that `T` is `Copy`.
+    pub const fn into_copy(self) -> ArrayBuilder<T, N, NonDrop>
+    where
+        T: Copy,
+    {
+        self.into_any_flavor()
+    }
+
+    /// Converts this `ArrayBuilder` to have any flavor.
+    const fn into_any_flavor<D2: DropFlavor>(self) -> ArrayBuilder<T, N, D2> {
+        // SAFETY: changing the D type parameter does not change the layout of the type
+        unsafe { crate::__priv_transmute!(ArrayBuilder<T, N, D>, ArrayBuilder<T, N, D2>, self) }
+    }
+
+    /// Helper for inferring the length of the built array from an [`IntoIter`].
+    pub const fn infer_length_from_consumer<U, D2>(&self, _consumer: &IntoIter<U, N, D2>)
+    where
+        D2: DropFlavor,
+    {
+    }
 }
 
-impl<T: Debug, const N: usize> Debug for ArrayBuilder<T, N> {
+impl<T, const N: usize> Default for ArrayBuilder<T, N, MayDrop> {
+    fn default() -> Self {
+        Self::of_drop()
+    }
+}
+
+impl<T: Copy, const N: usize> Default for ArrayBuilder<T, N, NonDrop> {
+    fn default() -> Self {
+        Self::of_copy()
+    }
+}
+
+impl<T: Debug, const N: usize, D: DropFlavor> Debug for ArrayBuilder<T, N, D> {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let this = as_inner::<D, _>(&self.inner);
+
         fmt.debug_struct("ArrayBuilder")
             .field("array", &self.as_slice())
-            .field("uninit_len", &(N - self.inited))
+            .field("uninit_len", &(N - this.inited))
             .finish()
     }
 }
 
-impl<T: Clone, const N: usize> Clone for ArrayBuilder<T, N> {
+impl<T: Clone, const N: usize, D: DropFlavor> Clone for ArrayBuilder<T, N, D> {
     fn clone(&self) -> Self {
-        let mut this = Self::new();
+        let mut this = Self::of_any();
         for elem in self.as_slice() {
             this.push(elem.clone());
         }
@@ -247,7 +376,7 @@ impl<T: Clone, const N: usize> Clone for ArrayBuilder<T, N> {
     }
 }
 
-impl<T, const N: usize> Drop for ArrayBuilder<T, N> {
+impl<T, const N: usize> Drop for ArrayBuilderInner<T, N> {
     fn drop(&mut self) {
         unsafe {
             let inited = self.inited;

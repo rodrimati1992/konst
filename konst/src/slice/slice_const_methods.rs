@@ -1,6 +1,34 @@
-use konst_kernel::{__slice_from_impl, __slice_up_to_impl};
-
 use crate::slice::{BytesPattern, PatternNorm};
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __slice_from_impl {
+    ($slice:ident, $start:ident, $split_at:ident, $on_overflow:expr) => {{
+        #[allow(unused_variables, clippy::ptr_offset_with_cast)]
+        let (_, overflowed) = $slice.len().overflowing_sub($start);
+
+        if overflowed {
+            return $on_overflow;
+        }
+
+        $slice.$split_at($start as _).1
+    }};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __slice_up_to_impl {
+    ($slice:ident, $len:ident, $split_at:ident, $on_overflow:expr) => {{
+        #[allow(unused_variables)]
+        let (_, overflowed) = $slice.len().overflowing_sub($len);
+
+        if overflowed {
+            return $on_overflow;
+        }
+
+        $slice.$split_at($len as _).0
+    }};
+}
 
 /// A const equivalent of `slice.get(index)`
 ///
@@ -47,8 +75,6 @@ pub const fn get<T>(slice: &[T], index: usize) -> Option<&T> {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn get_mut<T>(slice: &mut [T], index: usize) -> Option<&mut T> {
     if slice.len() > index {
         Some(&mut slice[index])
@@ -79,7 +105,10 @@ pub const fn get_mut<T>(slice: &mut [T], index: usize) -> Option<&mut T> {
 /// assert_eq!(NONE, &[]);
 ///
 /// ```
-pub use konst_kernel::slice::slice_from;
+#[inline]
+pub const fn slice_from<T>(slice: &[T], start: usize) -> &[T] {
+    crate::__slice_from_impl!(slice, start, split_at, &[])
+}
 
 /// A const equivalent of `&slice[..len]`.
 ///
@@ -103,7 +132,10 @@ pub use konst_kernel::slice::slice_from;
 /// assert_eq!(ALL, FIBB);
 ///
 /// ```
-pub use konst_kernel::slice::slice_up_to;
+#[inline]
+pub const fn slice_up_to<T>(slice: &[T], len: usize) -> &[T] {
+    crate::__slice_up_to_impl!(slice, len, split_at, slice)
+}
 
 /// A const equivalent of `&slice[start..end]`.
 ///
@@ -135,7 +167,10 @@ pub use konst_kernel::slice::slice_up_to;
 /// assert_eq!(ALL, FIBB);
 ///
 /// ```
-pub use konst_kernel::slice::slice_range;
+#[inline]
+pub const fn slice_range<T>(slice: &[T], start: usize, end: usize) -> &[T] {
+    slice_from(slice_up_to(slice, end), start)
+}
 
 /// A const equivalent of `slice.get(start..)`.
 ///
@@ -159,13 +194,7 @@ pub use konst_kernel::slice::slice_range;
 /// ```
 #[inline]
 pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
-    Some(__slice_from_impl!(
-        slice,
-        start,
-        as_ptr,
-        from_raw_parts,
-        None
-    ))
+    Some(__slice_from_impl!(slice, start, split_at, None))
 }
 
 /// A const equivalent of `&mut slice[start..]`.
@@ -190,10 +219,8 @@ pub const fn get_from<T>(slice: &[T], start: usize) -> Option<&[T]> {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
-    __slice_from_impl!(slice, start, as_mut_ptr, from_raw_parts_mut, &mut [])
+    __slice_from_impl!(slice, start, split_at_mut, &mut [])
 }
 
 /// A const equivalent of `slice.get_mut(start..)`.
@@ -216,16 +243,8 @@ pub const fn slice_from_mut<T>(slice: &mut [T], start: usize) -> &mut [T] {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> {
-    Some(__slice_from_impl!(
-        slice,
-        start,
-        as_mut_ptr,
-        from_raw_parts_mut,
-        None
-    ))
+    Some(__slice_from_impl!(slice, start, split_at_mut, None))
 }
 
 /// A const equivalent of `slice.get(..len)`.
@@ -250,13 +269,7 @@ pub const fn get_from_mut<T>(slice: &mut [T], start: usize) -> Option<&mut [T]> 
 /// ```
 #[inline]
 pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
-    Some(__slice_up_to_impl!(
-        slice,
-        len,
-        as_ptr,
-        from_raw_parts,
-        None
-    ))
+    Some(__slice_up_to_impl!(slice, len, split_at, None))
 }
 
 /// A const equivalent of `&mut slice[..len]`.
@@ -282,10 +295,8 @@ pub const fn get_up_to<T>(slice: &[T], len: usize) -> Option<&[T]> {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
-    __slice_up_to_impl!(slice, len, as_mut_ptr, from_raw_parts_mut, slice)
+    __slice_up_to_impl!(slice, len, split_at_mut, slice)
 }
 
 /// A const equivalent of `slice.get_mut(..len)`.
@@ -309,16 +320,8 @@ pub const fn slice_up_to_mut<T>(slice: &mut [T], len: usize) -> &mut [T] {
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
-    Some(__slice_up_to_impl!(
-        slice,
-        len,
-        as_mut_ptr,
-        from_raw_parts_mut,
-        None
-    ))
+    Some(__slice_up_to_impl!(slice, len, split_at_mut, None))
 }
 
 /// A const equivalent of `slice.get(start..end)`.
@@ -329,8 +332,8 @@ pub const fn get_up_to_mut<T>(slice: &mut [T], len: usize) -> Option<&mut [T]> {
 ///
 /// For a const equivalent of `slice.get(..end)` there's [`get_up_to`].
 ///
-/// [`get_from`]: ./fn.get_from.html
-/// [`get_up_to`]: ./fn.get_up_to.html
+/// [`get_from`]: crate::slice::get_from
+/// [`get_up_to`]: crate::slice::get_up_to
 ///
 /// # Example
 ///
@@ -370,8 +373,8 @@ pub const fn get_range<T>(slice: &[T], start: usize, end: usize) -> Option<&[T]>
 ///
 /// For a const equivalent of `&mut slice[..end]` there's [`slice_up_to_mut`].
 ///
-/// [`slice_from_mut`]: ./fn.slice_from_mut.html
-/// [`slice_up_to_mut`]: ./fn.slice_up_to_mut.html
+/// [`slice_from_mut`]: crate::slice::slice_from_mut
+/// [`slice_up_to_mut`]: crate::slice::slice_up_to_mut
 ///
 /// # Example
 ///
@@ -387,8 +390,6 @@ pub const fn get_range<T>(slice: &[T], start: usize, end: usize) -> Option<&[T]>
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &mut [T] {
     slice_from_mut(slice_up_to_mut(slice, end), start)
 }
@@ -402,8 +403,8 @@ pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &m
 ///
 /// For a const equivalent of `slice.get_mut(..end)` there's [`get_up_to_mut`].
 ///
-/// [`get_from_mut`]: ./fn.get_from_mut.html
-/// [`get_up_to_mut`]: ./fn.get_up_to_mut.html
+/// [`get_from_mut`]: crate::slice::get_from_mut
+/// [`get_up_to_mut`]: crate::slice::get_up_to_mut
 ///
 /// # Example
 ///
@@ -420,21 +421,15 @@ pub const fn slice_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> &m
 ///
 /// ```
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn get_range_mut<T>(slice: &mut [T], start: usize, end: usize) -> Option<&mut [T]> {
     let x = crate::try_opt!(get_up_to_mut(slice, end));
     get_from_mut(x, start)
 }
 
-/// A const equivalent of
+/// A non-panicking version of
 /// [`<[T]>::split_at`](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at)
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
-///
-/// # Const stabilization
-///
-/// The analogous std function was const-stabilized in Rust 1.71.0.
 ///
 /// # Example
 ///
@@ -461,15 +456,10 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
     (slice_up_to(slice, at), slice_from(slice, at))
 }
 
-/// A const equivalent of
-/// [`<[T]>::split_at_mut`
-/// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at_mut)
+/// A non-panicking version of
+/// [`<[T]>::split_at_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.split_at_mut)
 ///
 /// If `at > slice.len()`, this returns a `slice`, empty slice pair.
-///
-/// # Const stabilization
-///
-/// The analogous std function was const-stabilized in Rust 1.83.0.
 ///
 /// # Example
 ///
@@ -493,25 +483,12 @@ pub const fn split_at<T>(slice: &[T], at: usize) -> (&[T], &[T]) {
 /// ```
 ///
 #[inline]
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
 pub const fn split_at_mut<T>(slice: &mut [T], at: usize) -> (&mut [T], &mut [T]) {
-    use core::slice::from_raw_parts_mut;
-
     if at > slice.len() {
         return (slice, &mut []);
     }
 
-    let suffix_len = slice.len() - at;
-
-    unsafe {
-        let ptr = slice.as_mut_ptr();
-
-        let prefix = from_raw_parts_mut(ptr.offset(0), at);
-        let suffix = from_raw_parts_mut(ptr.offset(at as isize), suffix_len);
-
-        (prefix, suffix)
-    }
+    slice.split_at_mut(at)
 }
 
 /// Whether `pattern` is the start of `left`.
@@ -806,11 +783,7 @@ pub(crate) const fn __bytes_rfind(left: &[u8], pattern: &[u8]) -> Option<usize> 
         }
     }
 
-    if matching.is_empty() {
-        Some(i)
-    } else {
-        None
-    }
+    if matching.is_empty() { Some(i) } else { None }
 }
 
 /// Returns whether `pattern` is contained inside `left`, searching in reverse.
@@ -838,88 +811,6 @@ where
 #[inline(always)]
 pub(crate) const fn __bytes_rcontain(left: &[u8], pattern: &[u8]) -> bool {
     matches!(bytes_rfind(left, pattern), Some(_))
-}
-
-macro_rules! matches_space {
-    ($b:ident) => {
-        matches!($b, b'\t' | b'\n' | b'\r' | b' ')
-    };
-}
-
-/// Removes ascii whitespace from the start and end of `this`.
-///
-/// # Const stabilization
-///
-/// The [equivalent std function](
-/// https://doc.rust-lang.org/std/primitive.slice.html#method.trim_ascii)
-/// was const-stabilized in Rust 1.80.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// const TRIMMED: &[u8] = slice::bytes_trim(b"\nhello world  ");
-///
-/// assert_eq!(TRIMMED, b"hello world");
-///
-/// ```
-pub const fn bytes_trim(this: &[u8]) -> &[u8] {
-    bytes_trim_start(bytes_trim_end(this))
-}
-
-/// Removes ascii whitespace from the start of `this`.
-///
-/// # Const stabilization
-///
-/// The [equivalent std function](
-/// https://doc.rust-lang.org/std/primitive.slice.html#method.trim_ascii_start)
-/// was const-stabilized in Rust 1.80.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// const TRIMMED: &[u8] = slice::bytes_trim_start(b"\tfoo bar  ");
-///
-/// assert_eq!(TRIMMED, b"foo bar  ");
-///
-/// ```
-pub const fn bytes_trim_start(mut this: &[u8]) -> &[u8] {
-    loop {
-        match this {
-            [b, rem @ ..] if matches_space!(b) => this = rem,
-            _ => return this,
-        }
-    }
-}
-
-/// Removes ascii whitespace from the end of `this`.
-///
-/// # Const stabilization
-///
-/// The [equivalent std function](
-/// https://doc.rust-lang.org/std/primitive.slice.html#method.trim_ascii_end)
-/// was const-stabilized in Rust 1.80.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// const TRIMMED: &[u8] = slice::bytes_trim_end(b"\rfoo bar  ");
-///
-/// assert_eq!(TRIMMED, b"\rfoo bar");
-///
-/// ```
-pub const fn bytes_trim_end(mut this: &[u8]) -> &[u8] {
-    loop {
-        match this {
-            [rem @ .., b] if matches_space!(b) => this = rem,
-            _ => return this,
-        }
-    }
 }
 
 /// Removes all instances of `needle` from the start and end of `this`.
@@ -1261,125 +1152,4 @@ where
 }
 pub(crate) const fn __bytes_rfind_keep<'a>(mut this: &'a [u8], needle: &[u8]) -> Option<&'a [u8]> {
     byte_find_then! {rem_then_elem, this, needle, |next| {}}
-}
-
-/// A const equivalent of
-/// [`<[T]>::first_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.first_mut)
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// assert_eq!(slice::first_mut(&mut [8, 5, 3]), Some(&mut 8));
-///
-/// assert_eq!(slice::first_mut(&mut [5, 3]), Some(&mut 5));
-///
-/// assert_eq!(slice::first_mut(&mut [3]), Some(&mut 3));
-///
-/// assert_eq!(slice::first_mut::<u8>(&mut []), None);
-///
-/// ```
-///
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
-pub const fn first_mut<T>(slice: &mut [T]) -> Option<&mut T> {
-    if let [first, ..] = slice {
-        Some(first)
-    } else {
-        None
-    }
-}
-
-/// A const equivalent of
-/// [`<[T]>::last_mut`](https://doc.rust-lang.org/std/primitive.slice.html#method.last_mut)
-///
-/// # Const stabilization
-///
-/// The equivalent std function was const-stabilized in Rust 1.83.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// assert_eq!(slice::last_mut(&mut [3, 5, 8]), Some(&mut 8));
-///
-/// assert_eq!(slice::last_mut(&mut [3, 5]), Some(&mut 5));
-///
-/// assert_eq!(slice::last_mut(&mut [3]), Some(&mut 3));
-///
-/// assert_eq!(slice::last_mut::<u8>(&mut []), None);
-///
-/// ```
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
-pub const fn last_mut<T>(slice: &mut [T]) -> Option<&mut T> {
-    if let [.., last] = slice {
-        Some(last)
-    } else {
-        None
-    }
-}
-
-/// A const equivalent of
-/// [`<[T]>::split_first_mut`
-/// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_first_mut)
-///
-/// # Const stabilization
-///
-/// The equivalent std function was const-stabilized in Rust 1.83.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// assert_eq!(slice::split_first_mut(&mut [5, 8, 13, 21]), Some((&mut 5, &mut [8, 13, 21][..])));
-/// assert_eq!(slice::split_first_mut(&mut [8, 13, 21]), Some((&mut 8, &mut [13, 21][..])));
-/// assert_eq!(slice::split_first_mut(&mut [13, 21]), Some((&mut 13, &mut [21][..])));
-/// assert_eq!(slice::split_first_mut(&mut [21]), Some((&mut 21, &mut [][..])));
-/// assert_eq!(slice::split_first_mut::<()>(&mut []), None);
-///
-/// ```
-///
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
-pub const fn split_first_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
-    if let [first, rem @ ..] = slice {
-        Some((first, rem))
-    } else {
-        None
-    }
-}
-
-/// A const equivalent of
-/// [`<[T]>::split_last_mut`
-/// ](https://doc.rust-lang.org/std/primitive.slice.html#method.split_last_mut)
-///
-/// # Const stabilization
-///
-/// The equivalent std function was const-stabilized in Rust 1.83.0.
-///
-/// # Example
-///
-/// ```rust
-/// use konst::slice;
-///
-/// assert_eq!(slice::split_last_mut(&mut [8, 13, 21, 5]), Some((&mut 5, &mut [8, 13, 21][..])));
-/// assert_eq!(slice::split_last_mut(&mut [13, 21, 8]), Some((&mut 8, &mut [13, 21][..])));
-/// assert_eq!(slice::split_last_mut(&mut [21, 13]), Some((&mut 13, &mut [21][..])));
-/// assert_eq!(slice::split_last_mut(&mut [21]), Some((&mut 21, &mut [][..])));
-/// assert_eq!(slice::split_last_mut::<()>(&mut []), None);
-///
-/// ```
-///
-#[cfg(feature = "rust_1_83")]
-#[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_83")))]
-pub const fn split_last_mut<T>(slice: &mut [T]) -> Option<(&mut T, &mut [T])> {
-    if let [rem @ .., last] = slice {
-        Some((last, rem))
-    } else {
-        None
-    }
 }

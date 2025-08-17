@@ -1,7 +1,8 @@
-error[E0080]: evaluation of constant value failed
- --> tests/misc_tests/parser_ui_tests/custom_errors_err.rs:3:5
+error[E0080]: evaluation panicked:
+              invoked `unwrap_ok` macro with an `Err` value: ParseError { start_offset: 3, end_offset: 11, direction: FromStart, kind: Other, extra_message: "hello world!" }
+ --> tests/misc_tests/parser_ui_tests/custom_errors_err.rs:4:5
   |
-3 |     konst::unwrap_ctx!(Err(parser.into_other_error(&"hello world!")))
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the evaluated program panicked at 'error from the start at the 3 byte offset: hello world!', $DIR/tests/misc_tests/parser_ui_tests/custom_errors_err.rs:3:5
+4 |     konst::result::unwrap!(Err(parser.to_other_error(&"hello world!")))
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `_` failed here
   |
-  = note: this error originates in the macro `konst::unwrap_ctx` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the macro `konst::result::unwrap` (in Nightly builds, run with -Z macro-backtrace for more info)

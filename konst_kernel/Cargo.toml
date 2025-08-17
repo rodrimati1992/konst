@@ -2,10 +2,10 @@
 name = "konst_kernel"
 version = "0.3.15"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
-rust-version = "1.57.0"
+rust-version = "1.83.0"
 edition = "2021"
 license = "Zlib"
-description = "Foundational const functionality shared between konst and const_panic"
+description = "Foundational functionality for konst"
 documentation = "https://docs.rs/konst/"
 keywords = ["no-std", "const_fn"]
 categories = ["no-std"]
@@ -19,6 +19,7 @@ include = [
 
 [dependencies.typewit]
 version = "1.5"
+features = ["rust_1_61"]
 
 
 [dev-dependencies.arrayvec]
@@ -30,13 +31,8 @@ version = "0.7"
 debug = []
 alloc = []
 iter = []
-rust_1_64 = ["typewit/rust_1_61"]
-rust_1_83 = []
 docsrs = []
-nightly_mut_refs = ["mut_refs"]
-mut_refs = ["rust_1_83"]
-__for_konst = ["rust_1_64"]
 
 [package.metadata.docs.rs]
-features = ["debug", "rust_1_64"]
+features = ["debug"]
 

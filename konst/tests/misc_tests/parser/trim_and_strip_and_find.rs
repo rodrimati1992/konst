@@ -11,7 +11,8 @@ fn trim_start_end_matches_test() {
     #[track_caller]
     fn assertion(string: &str, needle: &str, returned: &str) {
         {
-            let parser = Parser::new(string).skip_back(0);
+            let mut parser = Parser::new(string);
+            parser.skip_back(0);
             assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
             let trimmed = parser.trim_start_matches(needle);
             assert_eq!(trimmed.remainder(), returned, "normal");
@@ -42,7 +43,8 @@ fn trim_start_end_matches_test() {
         }
         {
             let rev_string = &*reverse(string);
-            let parser = Parser::new(&rev_string).skip(0);
+            let mut parser = Parser::new(&rev_string);
+            parser.skip(0);
             assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
             let rev_needle = &*reverse(needle);
             let rev_returned = &*reverse(returned);
@@ -100,7 +102,8 @@ fn trim_start_end_matches_test() {
 
     // making sure that trim_end_matched doesn't set start_offset to 0
     {
-        let parser = Parser::new("foobarbaz").skip(3).trim_end_matches("baz");
+        let mut parser = Parser::new("foobarbaz");
+        parser.skip(3).trim_end_matches("baz");
 
         assert_eq!(parser.start_offset(), 3);
         assert_eq!(parser.remainder(), "bar");
@@ -112,7 +115,8 @@ fn trim_start_end_test() {
     #[track_caller]
     fn assertion(string: &str, returned: &str) {
         {
-            let parser = Parser::new(string).skip_back(0);
+            let mut parser = Parser::new(string);
+            parser.skip_back(0);
             assert_eq!(parser.parse_direction(), ParseDirection::FromEnd);
             let trimmed = parser.trim_start();
             assert_eq!(trimmed.remainder(), returned, "normal");
@@ -127,11 +131,12 @@ fn trim_start_end_test() {
                 "rev-sa"
             );
 
-            assert_eq!(string::trim_start(string), returned, "normal-c");
+            assert_eq!(string.trim_ascii_start(), returned, "normal-c");
         }
         {
             let rev_string = &*reverse(string);
-            let parser = Parser::new(&rev_string).skip(0);
+            let mut parser = Parser::new(&rev_string);
+            parser.skip(0);
             assert_eq!(parser.parse_direction(), ParseDirection::FromStart);
             let rev_returned = &*reverse(returned);
 
@@ -141,7 +146,7 @@ fn trim_start_end_test() {
             assert_eq!(trimmed.start_offset(), 0, "rev-sa");
             assert_eq!(trimmed.parse_direction(), ParseDirection::FromEnd, "rev-sa");
 
-            assert_eq!(string::trim_end(rev_string), rev_returned, "rev-c");
+            assert_eq!(rev_string.trim_ascii_end(), rev_returned, "rev-c");
         }
     }
 
@@ -161,7 +166,8 @@ fn trim_start_end_test() {
 
     // making sure that trim_end_matched doesn't set start_offset to 0
     {
-        let parser = Parser::new("fobar ").skip(2).trim_end();
+        let mut parser = Parser::new("fobar ");
+        parser.skip(2).trim_end();
 
         assert_eq!(parser.start_offset(), 2);
         assert_eq!(parser.remainder(), "bar");
@@ -172,7 +178,7 @@ fn trim_start_end_test() {
 
 #[test]
 fn strip_prefix_err_test() {
-    let parser = Parser::new("fobar");
+    let mut parser = Parser::new("fobar");
     let err = parser
         .strip_prefix("fo")
         .unwrap()
@@ -185,7 +191,7 @@ fn strip_prefix_err_test() {
 
 #[test]
 fn strip_suffix_err_test() {
-    let parser = Parser::new("foosuffix");
+    let mut parser = Parser::new("foosuffix");
     let err = parser
         .strip_suffix("suffix")
         .unwrap()
@@ -201,10 +207,10 @@ fn strip_prefix_suffix_test() {
     #[track_caller]
     fn assertion(string: &str, needle: &str, returned: Option<&str>) {
         {
-            let parser = Parser::new(string);
+            let mut parser = Parser::new(string);
             let stripped = parser.strip_prefix(needle).ok();
             {
-                let stripped = stripped.map(|x| x.remainder());
+                let stripped = stripped.as_deref().map(|x| x.remainder());
                 assert_eq!(stripped, returned, "normala");
             }
 
@@ -216,13 +222,13 @@ fn strip_prefix_suffix_test() {
         }
         {
             let rev_string = &*reverse(string);
-            let parser = Parser::new(&rev_string);
+            let mut parser = Parser::new(&rev_string);
             let rev_needle = &*reverse(needle);
             let rev_returned = returned.map(|x| reverse(x));
 
             let stripped = parser.strip_suffix(rev_needle).ok();
             {
-                let stripped = stripped.map(|x| x.remainder());
+                let stripped = stripped.as_deref().map(|x| x.remainder());
                 assert_eq!(stripped, rev_returned.as_deref(), "reva");
             }
 
@@ -250,10 +256,8 @@ fn strip_prefix_suffix_test() {
 
     // making sure that rfind_skip doesn't set start_offset to 0
     {
-        let parser = Parser::new("foobarbazhello")
-            .skip(3)
-            .strip_suffix("hello")
-            .unwrap();
+        let mut parser = Parser::new("foobarbazhello");
+        _ = parser.skip(3).strip_suffix("hello").unwrap();
 
         assert_eq!(parser.start_offset(), 3);
         assert_eq!(parser.remainder(), "barbaz");
@@ -264,7 +268,7 @@ fn strip_prefix_suffix_test() {
 
 #[test]
 fn find_skip_err_test() {
-    let parser = Parser::new("fobar");
+    let mut parser = Parser::new("fobar");
     let err = parser
         .strip_prefix("fo")
         .unwrap()
@@ -277,7 +281,7 @@ fn find_skip_err_test() {
 
 #[test]
 fn rfind_skip_err_test() {
-    let parser = Parser::new("foosuffix");
+    let mut parser = Parser::new("foosuffix");
     let err = parser
         .strip_suffix("suffix")
         .unwrap()
@@ -293,7 +297,7 @@ fn find_skip_test() {
     #[track_caller]
     fn assertion(string: &str, needle: &str, returned: Option<&str>, returned_keep: Option<&str>) {
         {
-            let parser = Parser::new(string);
+            let mut parser = Parser::new(string);
 
             assert_eq!(
                 parser.find_skip(needle).map(|x| x.remainder()).ok(),
@@ -311,7 +315,7 @@ fn find_skip_test() {
         }
         {
             let rev_string = &*reverse(string);
-            let parser = Parser::new(&rev_string);
+            let mut parser = Parser::new(&rev_string);
             let rev_needle = &*reverse(needle);
             let rev_returned = returned.map(|x| reverse(x));
 
@@ -386,10 +390,8 @@ fn find_skip_test() {
 
     // making sure that rfind_skip doesn't set start_offset to 0
     {
-        let parser = Parser::new("foobarbazhello")
-            .skip(3)
-            .rfind_skip("hello")
-            .unwrap();
+        let mut parser = Parser::new("foobarbazhello");
+        parser.skip(3).rfind_skip("hello").unwrap();
 
         assert_eq!(parser.start_offset(), 3);
         assert_eq!(parser.remainder(), "barbaz");

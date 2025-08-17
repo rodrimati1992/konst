@@ -1,0 +1,395 @@
+error: expected type argument, passed ``; valid type arguments:
+       - slice
+       - option
+       - range
+       - range_inclusive
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:6:17
+  |
+6 | const _: bool = cmp::const_eq_for!();
+  |                 ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `cmp::const_eq_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed ``; valid type arguments:
+       - slice
+       - option
+       - range
+       - range_inclusive
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:7:17
+  |
+7 | const _: bool = cmp::const_ne_for!();
+  |                 ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::cmp::const_eq_for` which comes from the expansion of the macro `cmp::const_ne_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed ``; valid type arguments:
+       - slice
+       - option
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:8:17
+  |
+8 | const _: Orde = cmp::const_cmp_for!();
+  |                 ^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `cmp::const_cmp_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed ``; valid type arguments:
+       - slice
+       - option
+ --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:9:17
+  |
+9 | const _: bool = cmp::const_lt_for!();
+  |                 ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::cmp::const_cmp_for` which comes from the expansion of the macro `cmp::const_lt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed ``; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:10:17
+   |
+10 | const _: bool = cmp::const_le_for!();
+   |                 ^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp_for` which comes from the expansion of the macro `cmp::const_le_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed ``; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:11:17
+   |
+11 | const _: bool = cmp::const_gt_for!();
+   |                 ^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp_for` which comes from the expansion of the macro `cmp::const_gt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed ``; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:12:17
+   |
+12 | const _: bool = cmp::const_ge_for!();
+   |                 ^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp_for` which comes from the expansion of the macro `cmp::const_ge_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `;`; valid type arguments:
+       - slice
+       - option
+       - range
+       - range_inclusive
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:14:17
+   |
+14 | const _: bool = cmp::const_eq_for!(;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `cmp::const_eq_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `;`; valid type arguments:
+       - slice
+       - option
+       - range
+       - range_inclusive
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:15:17
+   |
+15 | const _: bool = cmp::const_ne_for!(;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_eq_for` which comes from the expansion of the macro `cmp::const_ne_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `;`; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:16:17
+   |
+16 | const _: Orde = cmp::const_cmp_for!(;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `cmp::const_cmp_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `;`; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:17:17
+   |
+17 | const _: bool = cmp::const_lt_for!(;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp_for` which comes from the expansion of the macro `cmp::const_lt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `;`; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:18:17
+   |
+18 | const _: bool = cmp::const_le_for!(;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp_for` which comes from the expansion of the macro `cmp::const_le_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `;`; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:19:17
+   |
+19 | const _: bool = cmp::const_gt_for!(;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp_for` which comes from the expansion of the macro `cmp::const_gt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `;`; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:20:17
+   |
+20 | const _: bool = cmp::const_ge_for!(;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp_for` which comes from the expansion of the macro `cmp::const_ge_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `abcd`; valid type arguments:
+       - slice
+       - option
+       - range
+       - range_inclusive
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:22:17
+   |
+22 | const _: bool = cmp::const_eq_for!(abcd;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `cmp::const_eq_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `abcd`; valid type arguments:
+       - slice
+       - option
+       - range
+       - range_inclusive
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:23:17
+   |
+23 | const _: bool = cmp::const_ne_for!(abcd;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_eq_for` which comes from the expansion of the macro `cmp::const_ne_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `abcd`; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:24:17
+   |
+24 | const _: Orde = cmp::const_cmp_for!(abcd;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `cmp::const_cmp_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `abcd`; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:25:17
+   |
+25 | const _: bool = cmp::const_lt_for!(abcd;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp_for` which comes from the expansion of the macro `cmp::const_lt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `abcd`; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:26:17
+   |
+26 | const _: bool = cmp::const_le_for!(abcd;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp_for` which comes from the expansion of the macro `cmp::const_le_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `abcd`; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:27:17
+   |
+27 | const _: bool = cmp::const_gt_for!(abcd;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp_for` which comes from the expansion of the macro `cmp::const_gt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected type argument, passed `abcd`; valid type arguments:
+       - slice
+       - option
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:28:17
+   |
+28 | const _: bool = cmp::const_ge_for!(abcd;);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp_for` which comes from the expansion of the macro `cmp::const_ge_for` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:30:48
+   |
+30 | const _: bool = cmp::const_eq_for!(slice; [0u8]);
+   |                                                ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |         ;$left_slice:expr,
+   |                          ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:31:48
+   |
+31 | const _: bool = cmp::const_ne_for!(slice; [0u8]);
+   |                                                ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |         ;$left_slice:expr,
+   |                          ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:32:49
+   |
+32 | const _: Orde = cmp::const_cmp_for!(slice; [0u8]);
+   |                                                 ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |         ;$left_slice:expr,
+   |                          ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:33:48
+   |
+33 | const _: bool = cmp::const_lt_for!(slice; [0u8]);
+   |                                                ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |         ;$left_slice:expr,
+   |                          ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:34:48
+   |
+34 | const _: bool = cmp::const_le_for!(slice; [0u8]);
+   |                                                ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |         ;$left_slice:expr,
+   |                          ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:35:48
+   |
+35 | const _: bool = cmp::const_gt_for!(slice; [0u8]);
+   |                                                ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |         ;$left_slice:expr,
+   |                          ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:36:48
+   |
+36 | const _: bool = cmp::const_ge_for!(slice; [0u8]);
+   |                                                ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |         ;$left_slice:expr,
+   |                          ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:38:49
+   |
+38 | const _: bool = cmp::const_eq_for!(slice; [0u8],);
+   |                                                 ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right_slice:expr`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |         $right_slice:expr
+   |         ^^^^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:39:49
+   |
+39 | const _: bool = cmp::const_ne_for!(slice; [0u8],);
+   |                                                 ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right_slice:expr`
+  --> src/cmp/const_eq_macros.rs
+   |
+   |         $right_slice:expr
+   |         ^^^^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:40:50
+   |
+40 | const _: Orde = cmp::const_cmp_for!(slice; [0u8],);
+   |                                                  ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right_slice:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |         $right_slice:expr
+   |         ^^^^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:41:49
+   |
+41 | const _: bool = cmp::const_lt_for!(slice; [0u8],);
+   |                                                 ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right_slice:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |         $right_slice:expr
+   |         ^^^^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:42:49
+   |
+42 | const _: bool = cmp::const_le_for!(slice; [0u8],);
+   |                                                 ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right_slice:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |         $right_slice:expr
+   |         ^^^^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:43:49
+   |
+43 | const _: bool = cmp::const_gt_for!(slice; [0u8],);
+   |                                                 ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right_slice:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |         $right_slice:expr
+   |         ^^^^^^^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:44:49
+   |
+44 | const _: bool = cmp::const_ge_for!(slice; [0u8],);
+   |                                                 ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right_slice:expr`
+  --> src/cmp/const_ord_macros.rs
+   |
+   |         $right_slice:expr
+   |         ^^^^^^^^^^^^^^^^^
+
+error[E0601]: `main` function not found in crate `$CRATE`
+  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:44:51
+   |
+44 | const _: bool = cmp::const_ge_for!(slice; [0u8],);
+   |                                                   ^ consider adding a `main` function to `$DIR/tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs`

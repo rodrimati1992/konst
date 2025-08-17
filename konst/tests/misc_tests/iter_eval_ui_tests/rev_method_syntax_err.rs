@@ -1,11 +1,13 @@
 const R: core::ops::Range<usize> = 0..10;
 
 const _: () = {
-    konst::iter::eval!(R, rev(10));
+    konst::iter::eval!(R, rev(10), next());
 };
 
 const _: () = {
-    konst::iter::eval!(R, rev(),rev());
+    konst::iter::eval!(R, rev(),rev(),next());
+    konst::iter::eval!(R, enumerate(),rev(),next());
+    konst::iter::eval!(R, zip(0u8..3),rev(),next());
     konst::iter::eval!(R, rev(),rfind(|_| false));
     konst::iter::eval!(R, rev(),rposition(|_| false));
     konst::iter::eval!(R, rev(),rfold(0, |_, _| 10));

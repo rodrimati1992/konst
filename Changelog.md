@@ -1,5 +1,336 @@
 This is the changelog, summarising changes in each version(some minor changes may be ommited).
 
+# 0.4
+
+### 0.4.0
+
+Removed these items because there is an equivalent built-in replacement:
+- `konst::alloc_type::COW_STR_NEW`: replaced by `const { Cow::Borrowed("") }`
+- `konst::alloc_type::STRING_NEW`: replaced by `const { String::new() }`
+- `konst::alloc_type::VEC_NEW`: replaced by `const { Vec::new() }`
+- `konst::chr::from_u32_unchecked`
+- `konst::chr::from_u32`
+- `konst::ffi::cstr`: `CStr` constructors are const, unwrappable with `konst::result::unwrap`
+- `konst::konst` macro: replaced by `const {  }` blocks
+- `konst::maybe_uninit::as_mut_ptr`
+- `konst::maybe_uninit::as_ptr`
+- `konst::maybe_uninit::assume_init_ref`
+- `konst::maybe_uninit::assume_init`
+- `konst::maybe_uninit::UNINIT`: replaced by `const { MaybeUninit::uninit() }`
+- `konst::option::copied`
+- `konst::option::flatten`
+- `konst::option::NONE`: replaced by `const { None }`
+- `konst::option::unwrap`
+- `konst::primitive::parse_i*` functions: replaced by integer `from_str_radix` methods, unwrappable with `konst::result::unwrap`
+- `konst::primitive::parse_u*` functions: replaced by integer `from_str_radix` methods, unwrappable with `konst::result::unwrap`
+- `konst::ptr::as_mut`: replaced by `&mut *pointer`
+- `konst::ptr::as_ref`: replaced by `&*pointer`
+- `konst::ptr::nonnull::as_mut`
+- `konst::ptr::nonnull::as_ref`
+- `konst::slice::as_chunks`
+- `konst::slice::as_rchunks`
+- `konst::slice::bytes_trim_end`
+- `konst::slice::bytes_trim_start`
+- `konst::slice::bytes_trim`
+- `konst::slice::first_mut`
+- `konst::slice::last_mut`
+- `konst::slice::split_first_mut`
+- `konst::slice::split_last_mut`
+- `konst::string::from_utf8`
+- `konst::string::is_char_boundary`
+- `string::trim_end`: replaced by `str::trim_ascii_end`
+- `string::trim_start`: replaced by `str::trim_ascii_start`
+- `string::trim`: replaced by `str::trim_ascii`
+
+Removed these items because their unstable std equivalents were removed:
+- `konst::slice::array_chunks`
+- `konst::slice::array_chunks_mut`
+- `konst::slice::ArrayChunks`
+- `konst::slice::ArrayChunksRev`
+- `konst::slice::ArrayChunksMut`
+- `konst::slice::ArrayChunksMutRev`
+
+
+Removed these functions due to having an unsound impl:
+- `konst::ptr::is_null`
+- `konst::ptr::nonnull::new`
+
+Removed these items because they are not needed anymore:
+- `konst::rebind_if_ok` macro
+- `konst::try_rebind` macro
+- `konst::polymorphism::type_eq_projection_fn` macro: replaced by `typewit::TypeFn`+`TypeEq::project`
+- `konst::unwrap_ctx` macro: superceeded by `konst::result::unwrap`
+- `panic` methods: superceeded by `const_panic::PanicFmt` impls
+- `konst::parsing::ParserResult`: using the type it aliased instead of the alias
+- `konst::parsing::ParseValueResult`: using the type it aliased instead of the alias
+- `konst::cmp::ConstCmpUnref`: replaced by `ConstCmp::This` associated type
+
+Constrained macros that take closures from taking functions through `:expr` to `:path`.
+
+Added these macros at the root module:
+- `if_let_Some`
+- `while_let_Some`
+
+
+Added `konst::drop_flavor` module with these items:
+- `DropFlavor` trait
+- `DropFlavorWrapper` trait
+- `MayDrop` marker type
+- `NonDrop` marker type
+- `unwrap` function
+- `as_inner` function
+- `as_inner_mut` function
+- `wrap` function
+
+
+Replaced old `konst::array::{map, from_fn}` macros with `konst::array::{map_, from_fn_}` (renaming them in the process).
+
+
+Change: Made array items conditional on `"iter"` feature:
+- `konst::array::ArrayBuilder`
+- `konst::array::from_fn`
+- `konst::array::IntoIter`
+- `konst::array::IntoIterRev`
+- `konst::array::map`
+
+
+Changes to `konst::array::ArrayConsumer`:
+- renamed into `IntoIter`
+- impld `ConstIntoIter` for it
+- changed its `next*` methods to return `Option<T>` instead of `Option<ManuallyDrop<T>>` (to be consistent with `ConstIntoIter` API).
+- added `D: DropFlavor` parameter to `konst::array::IntoIter` to make it sometimes not need dropping
+- replaced `new` constructor with new `of_copy` and `of_drop` constructors.
+- added `into_copy` method
+- added `into_drop` method
+- added `rev` method 
+
+Changes to `konst::array::ArrayBuilder`
+- added `D: DropFlavor` type parameter to make it sometimes not need dropping.
+- replaced `new` constructor with new `of_copy` and `of_drop` constructors.
+- added `is_empty` method
+- added `into_copy` method
+- added `into_drop` method
+
+Added `ConstIntoIter` impl for arrays that uses `konst::array::IntoIter<T, L, MayDrop>` as the iterator.
+
+Added `konst::array::IntoIterRev` iterator.
+
+Added these items for `ConstCmp` overhaul;
+- `konst::cmp::ConstCmp::This` associated type
+- `konst::cmp::ConstCmpKind` trait
+- `konst::cmp::CoerceTo` type alias
+
+Removed `IsRefKind` reexport from `konst::cmp` and made it not a valid `ConstCmp::Kind`
+
+Merged all inherent `coerce` methods of `IsAConstCmp` into one generic method.
+
+Replaced `CmpWrapper::slice` constructor with `from_ref`
+
+Changed how `CmpWrapper` wraps arrays, now it doesn't coerce arrays to slices.
+
+Changed how `CmpWrapper` wraps unsized types, now instead of having impls for `CmpWrapper<&[T]>` and `CmpWrapper<&str>`, there's impls for `CmpWrapper<[T]>` and `CmpWrapper<str>`.
+
+Changed how CmpWrapper wraps `Sized` std types, now instead of copying the value,
+it uses its `from_ref` constructor to convert `&T` to `&CmpWrapper<T>`.
+
+Moved these macros to `konst::cmp` module: 
+- `coerce_to_cmp`
+- `const_cmp`
+- `const_cmp_for`
+- `const_eq`
+- `const_eq_for`
+- `impl_cmp`
+- `max`
+- `max_by`
+- `max_by_key`
+- `min`
+- `min_by`
+- `min_by_key`
+- `try_equal`
+
+Changed `konst::cmp::{const_cmp_for, const_eq_for}` to borrow their slice argument
+
+Added these comparison macros:
+- `konst::cmp::const_ge`
+- `konst::cmp::const_ge_for`
+- `konst::cmp::const_gt`
+- `konst::cmp::const_gt_for`
+- `konst::cmp::const_le`
+- `konst::cmp::const_le_for`
+- `konst::cmp::const_lt`
+- `konst::cmp::const_lt_for`
+- `konst::cmp::const_ne`
+- `konst::cmp::const_ne_for`
+
+Fixed how `const_cmp_for` macro and `const_cmp` methods compared slices for ordering, they used to consider all slices less than all longer slices.
+
+
+
+Turned iterators from taking `Self` and returning `Option<(Self::Item, Self)>` into taking `&mut Self` and returning `Option<Self::Item>`.
+
+Removed support for lifetime promotion in return value of iterator methods in iterator macros
+
+Added `konst::iter::ConstIntoIter::ITEMS_NEED_DROP` associated constant
+
+Added `konst::iter::ConstIntoIterKind` trait
+
+Added `konst::iter::CoerceTo` type alias
+
+Added `ConstIntoIter` impl for `&mut impl ConstIntoIter<Kind = IsIteratorKind>`, that is for mutable references to iterators.
+
+Added `ConstIntoIterKind` bound to `ConstIntoIter::Kind`.
+
+Turned `IntoIterWrapper::coerce` methods into free function at `konst::iter::coerce`
+
+Added `konst::iter::{repeat_n, RepeatN}` iterator constructor and iterator struct.
+
+Removed `rposition` method from iterator macros, since it returned the distance from the end, not the start (bugfix).
+
+Changed drop behavior for iterators in `iter::eval`, now all iterators are forgotten, and those with `ConstIntoIter::ITEMS_NEED_DROP == true` are fully consumed after evaluating the methods passed to the macro.
+
+Changed `IntoIterWrapper` to only be constructible by `konst::iter::coerce`, and made its fields private.
+
+Changed `rev` method of iterator macros so that it can't be used if `enumerate`/`take`/`take_while`/`skip`/`skip_while`/`zip` were used before it, because the iterator without this restriction would produce different results than `std`.
+
+Added these methods to `iter::eval` macro (conditional on "cmp" feature):
+- `cmp`
+- `eq`
+- `ge`
+- `gt`
+- `is_sorted_by_key`
+- `is_sorted_by`
+- `is_sorted`
+- `le`
+- `lt`
+- `max_by_key`
+- `max_by`
+- `max`
+- `min_by_key`
+- `min_by`
+- `min`
+- `ne`
+
+
+Changed all of the `konst::parsing::Parser` methods to use `&mut self` instead of taking and returning `Parser` by value, now every method mutates the `Parser` in place instead of returning a new `Parser` each time.
+The signatures of `konst::parsing::Parser` methods were changed in this way:
+- for `(self) -> Self` methods: changed into `(&mut self) -> &mut Self`
+- for `(self, ..) -> Result<(T, Self), E>` methods: changed into `(&mut self, ..) -> Result<T, E>`.
+- for `(self, ..) -> Result<Self, E>` methods: changed into `(&mut self, ..) -> Result<&mut Self, E>`.
+
+Removed `Copy` impl for `Parser`, added `copy` method for explicit copying.
+
+Renamed `Parser::into_error` to `to_error` and changed it from taking `self` to taking `&self`
+
+Renamed `Parser::into_other_error` into `to_other_error`, and from taking `self` to `&self`.
+
+Changed `ParseError::new` to take `Parser` by reference.
+
+Changed `ParseError::other_error` to take `Parser` by reference.
+
+Changed signature of `ParseError::extra_message` from returning &str to &'static str (the former ties the lifetime parameter of `&str` to the `ParseError` itself)
+
+Moved these macros to `konst::parsing`:
+- `parse_with`: and renamed to `parse_type`
+- `parser_method`
+
+Changed the `parse_type` macro to auto-borrow `konst::parsing::Parser`
+
+
+Added `const_panic::PanicFmt` impls (used by `konst::result::unwrap`) for:
+- `konst::parsing::ErrorKind`
+- `konst::parsing::ParseError`
+- `konst::parsing::ParseDirection`
+- `konst::primiive::ParseBoolError`
+- `konst::slice::TryIntoArrayError`
+
+
+Changed `Option` macros to require `Option` by value when the equivalent methods takes `Option` by value (the macros used to allow passing `Option` by reference)
+
+Added const equivalents of `Option`-related items:
+- `konst::option::get_or_insert_with` (macro)
+- `konst::option::get_or_insert` (macro)
+- `konst::option::insert` (macro)
+- `konst::option::into_iter` (function, iterator constructor)
+- `konst::option::IntoIter` (struct, iterator)
+- `konst::option::IntoIterRev` (struct, iterator)
+- `konst::option::is_none_or` (macro)
+- `konst::option::is_some_and` (macro)
+- `konst::option::iter_mut` (function, iterator constructor)
+- `konst::option::iter` (function, iterator constructor)
+- `konst::option::Iter` (struct, iterator)
+- `konst::option::IterMut` (struct, iterator)
+- `konst::option::IterMutRev` (struct, iterator)
+- `konst::option::IterRev` (struct, iterator)
+- `konst::option::unzip` (function)
+- `konst::option::zip` (macro)
+
+Added support for `Drop` types in some `Option` macros:
+- `konst::option::and_then`
+- `konst::option::map`
+- `konst::option::ok_or_else`
+- `konst::option::or_else`
+- `konst::option::unwrap_or_else`
+
+Added `ConstIntoIter` impls for `Option<T>`/`&Option<T>`/`&mut Option<T>`
+
+Added missing impls of `ConstCmp` for `Range` and `RangeInclusive` types over signed integers.
+
+Added `konst::range::OneSidedRange` trait (currently only used by `konst::slice::{split_off, split_off_mut}`)
+
+
+Added these items to `konst::slice`:
+- `konst::slice::chunks_exact_mut` (function, iterator constructor)
+- `konst::slice::chunks_mut` (function, iterator constructor)
+- `konst::slice::ChunksExactMut` (struct, iterator)
+- `konst::slice::ChunksExactMutRev` (struct, iterator)
+- `konst::slice::ChunksMut` (struct, iterator)
+- `konst::slice::ChunksMutRev` (struct, iterator)
+- `konst::slice::fill_with` (macro)
+- `konst::slice::fill` (function)
+- `konst::slice::is_sorted_by_key` (macro)
+- `konst::slice::is_sorted_by` (macro)
+- `konst::slice::is_sorted` (macro)
+- `konst::slice::iter_mut` (function, iterator constructor)
+- `konst::slice::IterMut` (struct, iterator)
+- `konst::slice::IterMutRev` (struct, iterator)
+- `konst::slice::rchunks_exact_mut` (function, iterator constructor)
+- `konst::slice::rchunks_mut` (function, iterator constructor)
+- `konst::slice::RChunksExactMut` (struct, iterator)
+- `konst::slice::RChunksExactMutRev` (struct, iterator)
+- `konst::slice::RChunksMut` (struct, iterator)
+- `konst::slice::RChunksMutRev` (struct, iterator)
+- `konst::slice::split_off_first_mut` (function)
+- `konst::slice::split_off_first` (function)
+- `konst::slice::split_off_last_mut` (function)
+- `konst::slice::split_off_last` (function)
+- `konst::slice::split_off_mut` (function)
+- `konst::slice::split_off` (function)
+
+
+Fixed `RSplitTerminator`: before it skip the empty string before the first instance of the delimiter, instead of the empty space after the last one.
+The latter is what the iterator does now, to be consistent with std.
+
+Removed `.rev()` method of `konst::string::{Split, RSplit}`, because it allowed reversing an iterator with a `&str` needle, when `std` does not allow it (because the reverse iterator can produce different strings than forward).
+
+
+Reexported `const_panic::unwrap_ok` as `konst::result::unwrap`
+
+Changed `Result` macros to require passing Result by value whenever the equivalent method does.
+
+
+Changed `konst`'s edition to 2024 and Minimum Supported Rust Version to 1.89.0.
+
+Added crate features:
+- `"const_panic_derive"`: to enable `const_panic`'s `"derive"` feature.
+
+Removed these crate features:
+- `"rust_1_*"`
+- `"*mut_refs"`
+
+Upgraded `const_panic` dependency to 0.2.13, enabled its `"rust_1_88"` feature
+
+Upgraded `typewit` dependency to 1.12, disabled its default feature, and enabled its `"rust_1_83"` feature.
+
 # 0.3
 
 ### 0.3.16

@@ -17,12 +17,12 @@ macro_rules! compare_with_std {
                 let mut iter = iter::into_iter!(start $($range_op)* end);
 
                 for _ in 0..=20 {
-                    let pair = if rng.gen() {
+                    let pair = if rng.r#gen() {
                         history.push("next");
-                        (iter.copy().next(), std_iter.next())
+                        (iter.next(), std_iter.next())
                     } else {
                         history.push("next_back");
-                        (iter.copy().next_back(), std_iter.next_back())
+                        (iter.next_back(), std_iter.next_back())
                     };
 
                     let extra_info = || format!(
@@ -33,12 +33,10 @@ macro_rules! compare_with_std {
                     );
 
                     match pair {
-                        (Some((elem, next_iter)), Some(elem_std)) => {
-                            iter = next_iter;
-
+                        (Some(elem), Some(elem_std)) => {
                             assert_eq!(elem, elem_std, "{}", extra_info());
                         }
-                        (Some((elem, _)), None) => {
+                        (Some(elem), None) => {
                             panic!(
                                 "konst iter had {:?} when std iter was exhausted {}",
                                 elem,
@@ -186,16 +184,11 @@ fn range_from_const_callable_test() {
 
 #[test]
 fn range_from_iter_test() {
-    let iter = iter::into_iter!(0..);
+    let mut iter = iter::into_iter!(0..);
 
-    let (next, iter) = iter.next().unwrap();
-    assert_eq!(next, 0usize);
-
-    let (next, iter) = iter.next().unwrap();
-    assert_eq!(next, 1);
-
-    let (next, _) = iter.next().unwrap();
-    assert_eq!(next, 2);
+    assert_eq!(iter.next().unwrap(), 0usize);
+    assert_eq!(iter.next().unwrap(), 1);
+    assert_eq!(iter.next().unwrap(), 2);
 }
 
 #[test]
@@ -225,11 +218,10 @@ fn test_non_usize_integer_iters() {
 
             {
                 let start = $max - 6;
-                let mut item;
                 let mut iter = konst::iter::into_iter!(start..);
 
                 for expected in start..$max {
-                    (item, iter) = iter.next().unwrap();
+                    let item = iter.next().unwrap();
                     assert_eq!(item, expected);
                 }
             }
@@ -258,11 +250,10 @@ fn test_non_usize_integer_iters() {
 macro_rules! test_char_range_inner {
     ($range:expr, $next_fn:ident) => {{
         let mut kiter = konst::iter::into_iter!($range);
-        let mut kelem;
         let mut iter = $range;
 
         while let Some(elem) = iter.$next_fn() {
-            (kelem, kiter) = kiter.$next_fn().unwrap();
+            let kelem = kiter.$next_fn().unwrap();
             assert_eq!(kelem, elem);
         }
         assert!(kiter.$next_fn().is_none());

@@ -1,0 +1,1043 @@
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:24:19
+   |
+24 | const _: NotCmp = cmp::min!(NotCmp, NotCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:24:19
+   |
+24 | const _: NotCmp = cmp::min!(NotCmp, NotCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:24:19
+   |
+24 | const _: NotCmp = cmp::min!(NotCmp, NotCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:24:19
+   |
+24 | const _: NotCmp = cmp::min!(NotCmp, NotCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:24:19
+   |
+24 | const _: NotCmp = cmp::min!(NotCmp, NotCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:25:19
+   |
+25 | const _: NotCmp = cmp::max!(NotCmp, NotCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:25:19
+   |
+25 | const _: NotCmp = cmp::max!(NotCmp, NotCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:25:19
+   |
+25 | const _: NotCmp = cmp::max!(NotCmp, NotCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:25:19
+   |
+25 | const _: NotCmp = cmp::max!(NotCmp, NotCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:25:19
+   |
+25 | const _: NotCmp = cmp::max!(NotCmp, NotCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:27:19
+   |
+27 | const _: BadCmp = cmp::min!(BadCmp, BadCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                   |
+   |                   expected `Ordering`, found `u8`
+   |                   expected due to this
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:28:19
+   |
+28 | const _: BadCmp = cmp::max!(BadCmp, BadCmp);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                   |
+   |                   expected `Ordering`, found `u8`
+   |                   expected due to this
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:30:15
+   |
+30 | const _: u8 = cmp::min!(0u8, 0u16);
+   |               ^^^^^^^^^^^^^^^^^^^^
+   |               |
+   |               expected `&u8`, found `&u16`
+   |               arguments to this method are incorrect
+   |
+   = note: expected reference `&u8`
+              found reference `&u16`
+note: method defined here
+  --> src/primitive/cmp.rs
+   |
+   | / __declare_fns_with_docs! {
+   | |     (u8, (cmp_u8))
+   | |     (u16, (cmp_u16))
+   | |     (u32, (cmp_u32))
+...  |
+   | |     macro = declare_int_cmp_fn!(),
+   | | }
+   | |_^
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `__declare_fns_with_docs` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:30:15
+   |
+30 | const _: u8 = cmp::min!(0u8, 0u16);
+   |               ^^^^^^^^^^^^^^^^^^^^ expected `u8`, found `u16`
+   |
+   = note: this error originates in the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:31:15
+   |
+31 | const _: u8 = cmp::max!(0u8, 0u16);
+   |               ^^^^^^^^^^^^^^^^^^^^
+   |               |
+   |               expected `&u8`, found `&u16`
+   |               arguments to this method are incorrect
+   |
+   = note: expected reference `&u8`
+              found reference `&u16`
+note: method defined here
+  --> src/primitive/cmp.rs
+   |
+   | / __declare_fns_with_docs! {
+   | |     (u8, (cmp_u8))
+   | |     (u16, (cmp_u16))
+   | |     (u32, (cmp_u32))
+...  |
+   | |     macro = declare_int_cmp_fn!(),
+   | | }
+   | |_^
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `__declare_fns_with_docs` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:31:15
+   |
+31 | const _: u8 = cmp::max!(0u8, 0u16);
+   |               ^^^^^^^^^^^^^^^^^^^^ expected `u8`, found `u16`
+   |
+   = note: this error originates in the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:33:15
+   |
+33 | const _: () = cmp::min!(0u8, 0u8);
+   |               ^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+   |
+   = note: this error originates in the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:33:15
+   |
+33 | const _: () = cmp::min!(0u8, 0u8);
+   |               ^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+   |
+   = note: this error originates in the macro `cmp::min` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:34:15
+   |
+34 | const _: () = cmp::max!(0u8, 0u8);
+   |               ^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+   |
+   = note: this error originates in the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:34:15
+   |
+34 | const _: () = cmp::max!(0u8, 0u8);
+   |               ^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+   |
+   = note: this error originates in the macro `cmp::max` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:36:39
+   |
+36 | const _: u8 = cmp::min_by!(0u8, 3u8, |0u16.., _| Ordering::Equal);
+   |               ------------------------^^^^-----------------------
+   |               |                       |
+   |               |                       expected `u8`, found `u16`
+   |               this expression has type `(&u8, &u8)`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:37:42
+   |
+37 | const _: u8 = cmp::min_by!(0u8, 3u8, |_, 0u16..| Ordering::Equal);
+   |               ---------------------------^^^^--------------------
+   |               |                          |
+   |               |                          expected `u8`, found `u16`
+   |               this expression has type `(&u8, &u8)`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:38:45
+   |
+38 | const _: u8 = cmp::min_by!(0u8, 3u8, |_, _| false);
+   |                                             ^^^^^ expected `Ordering`, found `bool`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:39:15
+   |
+39 | const _: () = cmp::min_by!(0u8, 3u8, |_, _| Ordering::Equal);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+   |
+   = note: this error originates in the macro `$crate::__min_by_inner` which comes from the expansion of the macro `cmp::min_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:39:15
+   |
+39 | const _: () = cmp::min_by!(0u8, 3u8, |_, _| Ordering::Equal);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+   |
+   = note: this error originates in the macro `$crate::__min_by_inner` which comes from the expansion of the macro `cmp::min_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:40:15
+   |
+40 | const _: u8 = cmp::min_by!(0u8, 3u8, units);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |               |
+   |               expected `()`, found `&u8`
+   |               expected `()`, found `&u8`
+   |
+note: function defined here
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:20:4
+   |
+20 | fn units((): (), (): ()) -> () { () }
+   |    ^^^^^ ------  ------
+   = note: this error originates in the macro `$crate::__parse_closure_2` which comes from the expansion of the macro `cmp::min_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:40:15
+   |
+40 | const _: u8 = cmp::min_by!(0u8, 3u8, units);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Ordering`, found `()`
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_2` which comes from the expansion of the macro `cmp::min_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:42:39
+   |
+42 | const _: u8 = cmp::max_by!(0u8, 3u8, |0u16.., _| Ordering::Equal);
+   |               ------------------------^^^^-----------------------
+   |               |                       |
+   |               |                       expected `u8`, found `u16`
+   |               this expression has type `(&u8, &u8)`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:43:42
+   |
+43 | const _: u8 = cmp::max_by!(0u8, 3u8, |_, 0u16..| Ordering::Equal);
+   |               ---------------------------^^^^--------------------
+   |               |                          |
+   |               |                          expected `u8`, found `u16`
+   |               this expression has type `(&u8, &u8)`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:44:45
+   |
+44 | const _: u8 = cmp::max_by!(0u8, 3u8, |_, _| false);
+   |                                             ^^^^^ expected `Ordering`, found `bool`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:45:15
+   |
+45 | const _: () = cmp::max_by!(0u8, 3u8, |_, _| Ordering::Equal);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+   |
+   = note: this error originates in the macro `$crate::__max_by_inner` which comes from the expansion of the macro `cmp::max_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:45:15
+   |
+45 | const _: () = cmp::max_by!(0u8, 3u8, |_, _| Ordering::Equal);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+   |
+   = note: this error originates in the macro `$crate::__max_by_inner` which comes from the expansion of the macro `cmp::max_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:46:15
+   |
+46 | const _: u8 = cmp::max_by!(0u8, 3u8, units);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |               |
+   |               expected `()`, found `&u8`
+   |               expected `()`, found `&u8`
+   |
+note: function defined here
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:20:4
+   |
+20 | fn units((): (), (): ()) -> () { () }
+   |    ^^^^^ ------  ------
+   = note: this error originates in the macro `$crate::__parse_closure_2` which comes from the expansion of the macro `cmp::max_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:46:15
+   |
+46 | const _: u8 = cmp::max_by!(0u8, 3u8, units);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Ordering`, found `()`
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_2` which comes from the expansion of the macro `cmp::max_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:48:43
+   |
+48 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |0u16..| 0u8);
+   |               ----------------------------^^^^--------
+   |               |                           |
+   |               |                           expected `u8`, found `u16`
+   |               this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:48:43
+   |
+48 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |0u16..| 0u8);
+   |               ----------------------------^^^^--------
+   |               |                           |
+   |               |                           expected `u8`, found `u16`
+   |               this expression has type `&u8`
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:49:15
+   |
+49 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| NotCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:49:15
+   |
+49 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| NotCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:49:15
+   |
+49 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| NotCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:49:15
+   |
+49 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| NotCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:49:15
+   |
+49 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| NotCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:50:15
+   |
+50 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| BadCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |               |
+   |               expected `Ordering`, found `u8`
+   |               expected due to this
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:51:15
+   |
+51 | const _: () = cmp::min_by_key!(0u8, 3u8, |x| *x);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+   |
+   = note: this error originates in the macro `$crate::__minmax_by_key` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:51:15
+   |
+51 | const _: () = cmp::min_by_key!(0u8, 3u8, |x| *x);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+   |
+   = note: this error originates in the macro `$crate::__minmax_by_key` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:52:55
+   |
+52 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| -> u32 { 0u8 });
+   |                                                       ^^^ expected `u32`, found `u8`
+   |
+help: change the type of the numeric literal from `u8` to `u32`
+   |
+52 - const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| -> u32 { 0u8 });
+52 + const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| -> u32 { 0u32 });
+   |
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:52:15
+   |
+52 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| -> u32 { 0u8 });
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:53:15
+   |
+53 | const _: u8 = cmp::min_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |               |
+   |               expected `()`, found `&u8`
+   |               arguments to this function are incorrect
+   |
+note: function defined here
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:21:4
+   |
+21 | fn unit((): ()) -> () { () }
+   |    ^^^^ ------
+   = note: this error originates in the macro `$crate::__parse_closure_1` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `(): ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:53:15
+   |
+53 | const _: u8 = cmp::min_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `(): ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:53:15
+   |
+53 | const _: u8 = cmp::min_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `(): ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:53:15
+   |
+53 | const _: u8 = cmp::min_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `(): ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:53:15
+   |
+53 | const _: u8 = cmp::min_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:53:15
+   |
+53 | const _: u8 = cmp::min_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:55:43
+   |
+55 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |0u16..| 0u8);
+   |               ----------------------------^^^^--------
+   |               |                           |
+   |               |                           expected `u8`, found `u16`
+   |               this expression has type `&u8`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:55:43
+   |
+55 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |0u16..| 0u8);
+   |               ----------------------------^^^^--------
+   |               |                           |
+   |               |                           expected `u8`, found `u16`
+   |               this expression has type `&u8`
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:56:15
+   |
+56 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| NotCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:56:15
+   |
+56 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| NotCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:56:15
+   |
+56 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| NotCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NotCmp: ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:56:15
+   |
+56 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| NotCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `NotCmp`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:56:15
+   |
+56 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| NotCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:57:15
+   |
+57 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| BadCmp);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |               |
+   |               expected `Ordering`, found `u8`
+   |               expected due to this
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:58:15
+   |
+58 | const _: () = cmp::max_by_key!(0u8, 3u8, |x| *x);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+   |
+   = note: this error originates in the macro `$crate::__minmax_by_key` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:58:15
+   |
+58 | const _: () = cmp::max_by_key!(0u8, 3u8, |x| *x);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u8`
+   |
+   = note: this error originates in the macro `$crate::__minmax_by_key` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:59:55
+   |
+59 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| -> u32 { 0u8 });
+   |                                                       ^^^ expected `u32`, found `u8`
+   |
+help: change the type of the numeric literal from `u8` to `u32`
+   |
+59 - const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| -> u32 { 0u8 });
+59 + const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| -> u32 { 0u32 });
+   |
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:59:15
+   |
+59 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| -> u32 { 0u8 });
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:60:15
+   |
+60 | const _: u8 = cmp::max_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |               |
+   |               expected `()`, found `&u8`
+   |               arguments to this function are incorrect
+   |
+note: function defined here
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:21:4
+   |
+21 | fn unit((): ()) -> () { () }
+   |    ^^^^ ------
+   = note: this error originates in the macro `$crate::__parse_closure_1` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `(): ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:60:15
+   |
+60 | const _: u8 = cmp::max_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `(): ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:60:15
+   |
+60 | const _: u8 = cmp::max_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `__AssertConstCmp`
+  --> src/cmp/const_cmp.rs
+   |
+   | pub struct __AssertConstCmp<'a, T: ConstCmp> {
+   |                                    ^^^^^^^^ required by this bound in `__AssertConstCmp`
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `(): ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:60:15
+   |
+60 | const _: u8 = cmp::max_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `(): ConstCmp` is not satisfied
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:60:15
+   |
+60 | const _: u8 = cmp::max_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ConstCmp` is not implemented for `()`
+   |
+   = help: the following other types implement trait `ConstCmp`:
+             &T
+             &mut T
+             BadCmp
+             CmpWrapper<P>
+             NonZero<i128>
+             NonZero<i16>
+             NonZero<i32>
+             NonZero<i64>
+           and $N others
+note: required by a bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+  --> src/cmp/const_cmp.rs
+   |
+   |     R: ?Sized + ConstCmp,
+   |                 ^^^^^^^^ required by this bound in `IsAConstCmp::<<R as ConstCmp>::Kind, <R as ConstCmp>::This, R>::NEW`
+...
+   |     pub const NEW: Self = Self(PhantomData);
+   |               --- required by a bound in this associated constant
+   = note: this error originates in the macro `$crate::__coerce_to_cmp2` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_type_err.rs:60:15
+   |
+60 | const _: u8 = cmp::max_by_key!(0u8, 3u8, unit);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type
+   |
+   = note: this error originates in the macro `$crate::cmp::const_cmp` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)

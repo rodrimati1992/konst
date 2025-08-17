@@ -1,0 +1,175 @@
+error: invalid argument(s) for `cmp` method: ``
+ --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:1:31
+  |
+1 | const _: std::cmp::Ordering = konst::iter::eval!{0..10, cmp()};
+  |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `eq` method: ``
+ --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:3:17
+  |
+3 | const _: bool = konst::iter::eval!{0..10, eq()};
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `ne` method: ``
+ --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:5:17
+  |
+5 | const _: bool = konst::iter::eval!{0..10, ne()};
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `ge` method: ``
+ --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:7:17
+  |
+7 | const _: bool = konst::iter::eval!{0..10, ge()};
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `gt` method: ``
+ --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:9:17
+  |
+9 | const _: bool = konst::iter::eval!{0..10, gt()};
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `le` method: ``
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:11:17
+   |
+11 | const _: bool = konst::iter::eval!{0..10, le()};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `lt` method: ``
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:13:17
+   |
+13 | const _: bool = konst::iter::eval!{0..10, lt()};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:15:17
+   |
+15 | const _: bool = konst::iter::eval!{0..10, is_sorted_by()};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:16:17
+   |
+16 | const _: bool = konst::iter::eval!{0..10, is_sorted_by([0u8; 0], |)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:17:17
+   |
+17 | const _: bool = konst::iter::eval!{0..10, is_sorted_by([0u8; 0], ||)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:18:17
+   |
+18 | const _: bool = konst::iter::eval!{0..10, is_sorted_by([0u8; 0], || false)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:19:17
+   |
+19 | const _: bool = konst::iter::eval!{0..10, is_sorted_by([0u8; 0], |x| false)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:20:17
+   |
+20 | const _: bool = konst::iter::eval!{0..10, is_sorted_by([0u8; 0], |x, y|)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by_key` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:22:17
+   |
+22 | const _: bool = konst::iter::eval!{0..10, is_sorted_by_key()};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by_key` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:23:17
+   |
+23 | const _: bool = konst::iter::eval!{0..10, is_sorted_by_key(|)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by_key` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:24:17
+   |
+24 | const _: bool = konst::iter::eval!{0..10, is_sorted_by_key(||)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by_key` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:25:17
+   |
+25 | const _: bool = konst::iter::eval!{0..10, is_sorted_by_key(|| false)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `is_sorted_by_key` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:26:17
+   |
+26 | const _: bool = konst::iter::eval!{0..10, is_sorted_by_key(|x|)};
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `min_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:28:24
+   |
+28 | const _: Option<i32> = konst::iter::eval!{0..10, min_by()};
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `min_by_key` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:30:24
+   |
+30 | const _: Option<i32> = konst::iter::eval!{0..10, min_by_key()};
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `max_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:32:24
+   |
+32 | const _: Option<i32> = konst::iter::eval!{0..10, max_by()};
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `max_by_key` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_cmp_feature_ui_tests/cmp_methods_syntax_err.rs:34:24
+   |
+34 | const _: Option<i32> = konst::iter::eval!{0..10, max_by_key()};
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

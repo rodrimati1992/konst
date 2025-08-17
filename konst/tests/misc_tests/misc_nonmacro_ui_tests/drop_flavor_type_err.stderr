@@ -1,0 +1,98 @@
+warning: unused import: `NonDrop`
+ --> tests/misc_tests/misc_nonmacro_ui_tests/drop_flavor_type_err.rs:1:32
+  |
+1 | use konst::drop_flavor::{self, NonDrop};
+  |                                ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+error[E0283]: type annotations needed
+ --> tests/misc_tests/misc_nonmacro_ui_tests/drop_flavor_type_err.rs:4:13
+  |
+4 |     let _ = drop_flavor::unwrap(0);
+  |             ^^^^^^^^^^^^^^^^^^^ cannot infer type of the type parameter `D` declared on the function `unwrap`
+  |
+  = note: cannot satisfy `_: DropFlavor`
+  = help: the following types implement trait `DropFlavor`:
+            MayDrop
+            NonDrop
+note: required by a bound in `konst::drop_flavor::unwrap`
+ --> src/drop_flavor.rs
+  |
+  | pub const fn unwrap<D, T>(wrapper: D::Wrap<T>) -> T
+  |              ------ required by a bound in this function
+  | where
+  |     D: DropFlavor,
+  |        ^^^^^^^^^^ required by this bound in `unwrap`
+help: consider specifying the generic arguments
+  |
+4 |     let _ = drop_flavor::unwrap::<D, T>(0);
+  |                                ++++++++
+
+error[E0283]: type annotations needed
+ --> tests/misc_tests/misc_nonmacro_ui_tests/drop_flavor_type_err.rs:9:13
+  |
+9 |     let _ = drop_flavor::as_inner(&());
+  |             ^^^^^^^^^^^^^^^^^^^^^ cannot infer type of the type parameter `D` declared on the function `as_inner`
+  |
+  = note: cannot satisfy `_: DropFlavor`
+  = help: the following types implement trait `DropFlavor`:
+            MayDrop
+            NonDrop
+note: required by a bound in `konst::drop_flavor::as_inner`
+ --> src/drop_flavor.rs
+  |
+  | pub const fn as_inner<D, T>(wrapper: &D::Wrap<T>) -> &T
+  |              -------- required by a bound in this function
+  | where
+  |     D: DropFlavor,
+  |        ^^^^^^^^^^ required by this bound in `as_inner`
+help: consider specifying the generic arguments
+  |
+9 |     let _ = drop_flavor::as_inner::<D, T>(&());
+  |                                  ++++++++
+
+error[E0283]: type annotations needed
+  --> tests/misc_tests/misc_nonmacro_ui_tests/drop_flavor_type_err.rs:14:13
+   |
+14 |     let _ = drop_flavor::as_inner_mut(&mut ());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type of the type parameter `D` declared on the function `as_inner_mut`
+   |
+   = note: cannot satisfy `_: DropFlavor`
+   = help: the following types implement trait `DropFlavor`:
+             MayDrop
+             NonDrop
+note: required by a bound in `konst::drop_flavor::as_inner_mut`
+  --> src/drop_flavor.rs
+   |
+   | pub const fn as_inner_mut<D, T>(wrapper: &mut D::Wrap<T>) -> &mut T
+   |              ------------ required by a bound in this function
+   | where
+   |     D: DropFlavor,
+   |        ^^^^^^^^^^ required by this bound in `as_inner_mut`
+help: consider specifying the generic arguments
+   |
+14 |     let _ = drop_flavor::as_inner_mut::<D, T>(&mut ());
+   |                                      ++++++++
+
+error[E0283]: type annotations needed
+  --> tests/misc_tests/misc_nonmacro_ui_tests/drop_flavor_type_err.rs:19:9
+   |
+19 |     let _ = drop_flavor::wrap(0);
+   |         ^   -------------------- type must be known at this point
+   |
+   = note: multiple `impl`s satisfying `_: DropFlavorWrapper<i32>` found in the `konst` crate:
+           - impl<T> DropFlavorWrapper<T> for ManuallyDrop<T>;
+           - impl<T> DropFlavorWrapper<T> for T;
+note: required by a bound in `konst::drop_flavor::wrap`
+  --> src/drop_flavor.rs
+   |
+   | pub const fn wrap<W, T>(wrapper: T) -> W
+   |              ---- required by a bound in this function
+   | where
+   |     W: DropFlavorWrapper<T>,
+   |        ^^^^^^^^^^^^^^^^^^^^ required by this bound in `wrap`
+help: consider giving this pattern a type
+   |
+19 |     let _: /* Type */ = drop_flavor::wrap(0);
+   |          ++++++++++++

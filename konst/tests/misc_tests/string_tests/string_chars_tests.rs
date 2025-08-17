@@ -23,13 +23,13 @@ fn chars_const_fn_test() {
     use konst::string::{Chars, RChars};
     const fn _is_const_callable<'a>(iter: Chars<'a>) {
         let _: Chars<'a> = iter.copy();
-        let _: Option<(char, Chars<'a>)> = iter.copy().next();
-        let _: Option<(char, Chars<'a>)> = iter.copy().next_back();
+        let _: Option<char> = iter.copy().next();
+        let _: Option<char> = iter.copy().next_back();
         let _: &'a str = iter.as_str();
 
-        let rev: RChars<'a> = iter.rev();
-        let _: Option<(char, RChars<'a>)> = rev.copy().next();
-        let _: Option<(char, RChars<'a>)> = rev.next_back();
+        let mut rev: RChars<'a> = iter.rev();
+        let _: Option<char> = rev.copy().next();
+        let _: Option<char> = rev.next_back();
     }
 }
 
@@ -42,12 +42,11 @@ fn chars_test() {
     {
         let mut kiter = string::chars(CHAR_LENS);
         let mut iter = CHAR_LENS.chars();
-        let mut kelem;
 
         assert_eq!(kiter.as_str(), iter.as_str());
 
         while let Some(elem) = iter.next() {
-            (kelem, kiter) = kiter.next().unwrap();
+            let kelem = kiter.next().unwrap();
             assert_eq!(elem, kelem);
             assert_eq!(kiter.as_str(), iter.as_str());
         }
@@ -55,17 +54,17 @@ fn chars_test() {
         assert!(kiter.next().is_none());
     }
     {
-        let iter: string::Chars<'_> = string::chars(CHAR_LENS);
-        let (f0, iter) = iter.next_back().unwrap();
-        let (f1, iter) = iter.next_back().unwrap();
-        let (f2, iter) = iter.next_back().unwrap();
-        let (f3, iter) = iter.next_back().unwrap();
-        let (f4, iter) = iter.next_back().unwrap();
-        let (b0, iter) = iter.next().unwrap();
-        let (b1, iter) = iter.next().unwrap();
-        let (b2, iter) = iter.next().unwrap();
-        let (b3, iter) = iter.next().unwrap();
-        let (b4, iter) = iter.next().unwrap();
+        let mut iter: string::Chars<'_> = string::chars(CHAR_LENS);
+        let f0 = iter.next_back().unwrap();
+        let f1 = iter.next_back().unwrap();
+        let f2 = iter.next_back().unwrap();
+        let f3 = iter.next_back().unwrap();
+        let f4 = iter.next_back().unwrap();
+        let b0 = iter.next().unwrap();
+        let b1 = iter.next().unwrap();
+        let b2 = iter.next().unwrap();
+        let b3 = iter.next().unwrap();
+        let b4 = iter.next().unwrap();
 
         assert_eq!(
             [f0, f1, f2, f3, f4],
@@ -83,17 +82,17 @@ fn chars_rev_test() {
         assert_eq!(rev, CHAR_LENS.chars().rev().collect::<Vec<_>>());
     }
     {
-        let iter: string::RChars<'_> = string::chars(CHAR_LENS).rev();
-        let (f0, iter) = iter.next().unwrap();
-        let (f1, iter) = iter.next().unwrap();
-        let (f2, iter) = iter.next().unwrap();
-        let (f3, iter) = iter.next().unwrap();
-        let (f4, iter) = iter.next().unwrap();
-        let (b0, iter) = iter.next_back().unwrap();
-        let (b1, iter) = iter.next_back().unwrap();
-        let (b2, iter) = iter.next_back().unwrap();
-        let (b3, iter) = iter.next_back().unwrap();
-        let (b4, iter) = iter.next_back().unwrap();
+        let mut iter: string::RChars<'_> = string::chars(CHAR_LENS).rev();
+        let f0 = iter.next().unwrap();
+        let f1 = iter.next().unwrap();
+        let f2 = iter.next().unwrap();
+        let f3 = iter.next().unwrap();
+        let f4 = iter.next().unwrap();
+        let b0 = iter.next_back().unwrap();
+        let b1 = iter.next_back().unwrap();
+        let b2 = iter.next_back().unwrap();
+        let b3 = iter.next_back().unwrap();
+        let b4 = iter.next_back().unwrap();
 
         assert_eq!(
             [f0, f1, f2, f3, f4],
@@ -109,13 +108,13 @@ fn char_indices_const_fn_test() {
     use konst::string::{CharIndices, RCharIndices};
     const fn _is_const_callable<'a>(iter: CharIndices<'a>) {
         let _: CharIndices<'a> = iter.copy();
-        let _: Option<((usize, char), CharIndices<'a>)> = iter.copy().next();
-        let _: Option<((usize, char), CharIndices<'a>)> = iter.copy().next_back();
+        let _: Option<(usize, char)> = iter.copy().next();
+        let _: Option<(usize, char)> = iter.copy().next_back();
         let _: &'a str = iter.as_str();
 
-        let rev: RCharIndices<'a> = iter.rev();
-        let _: Option<((usize, char), RCharIndices<'a>)> = rev.copy().next();
-        let _: Option<((usize, char), RCharIndices<'a>)> = rev.next_back();
+        let mut rev: RCharIndices<'a> = iter.rev();
+        let _: Option<(usize, char)> = rev.copy().next();
+        let _: Option<(usize, char)> = rev.next_back();
     }
 }
 
@@ -128,12 +127,11 @@ fn char_indices_test() {
     {
         let mut kiter = string::char_indices(CHAR_LENS);
         let mut iter = CHAR_LENS.char_indices();
-        let mut kelem;
 
         assert_eq!(kiter.as_str(), iter.as_str());
 
         while let Some(elem) = iter.next() {
-            (kelem, kiter) = kiter.next().unwrap();
+            let kelem = kiter.next().unwrap();
             assert_eq!(elem, kelem);
             assert_eq!(kiter.as_str(), iter.as_str());
         }
@@ -141,17 +139,17 @@ fn char_indices_test() {
         assert!(kiter.next().is_none());
     }
     {
-        let iter: string::CharIndices<'_> = string::char_indices(CHAR_LENS);
-        let (f0, iter) = iter.next_back().unwrap();
-        let (f1, iter) = iter.next_back().unwrap();
-        let (f2, iter) = iter.next_back().unwrap();
-        let (f3, iter) = iter.next_back().unwrap();
-        let (f4, iter) = iter.next_back().unwrap();
-        let (b0, iter) = iter.next().unwrap();
-        let (b1, iter) = iter.next().unwrap();
-        let (b2, iter) = iter.next().unwrap();
-        let (b3, iter) = iter.next().unwrap();
-        let (b4, iter) = iter.next().unwrap();
+        let mut iter: string::CharIndices<'_> = string::char_indices(CHAR_LENS);
+        let f0 = iter.next_back().unwrap();
+        let f1 = iter.next_back().unwrap();
+        let f2 = iter.next_back().unwrap();
+        let f3 = iter.next_back().unwrap();
+        let f4 = iter.next_back().unwrap();
+        let b0 = iter.next().unwrap();
+        let b1 = iter.next().unwrap();
+        let b2 = iter.next().unwrap();
+        let b3 = iter.next().unwrap();
+        let b4 = iter.next().unwrap();
 
         assert_eq!(
             [f0, f1, f2, f3, f4],
@@ -179,17 +177,17 @@ fn char_indices_rev_test() {
         assert_eq!(rev, CHAR_LENS.char_indices().rev().collect::<Vec<_>>());
     }
     {
-        let iter: string::RCharIndices<'_> = string::char_indices(CHAR_LENS).rev();
-        let (f0, iter) = iter.next().unwrap();
-        let (f1, iter) = iter.next().unwrap();
-        let (f2, iter) = iter.next().unwrap();
-        let (f3, iter) = iter.next().unwrap();
-        let (f4, iter) = iter.next().unwrap();
-        let (b0, iter) = iter.next_back().unwrap();
-        let (b1, iter) = iter.next_back().unwrap();
-        let (b2, iter) = iter.next_back().unwrap();
-        let (b3, iter) = iter.next_back().unwrap();
-        let (b4, iter) = iter.next_back().unwrap();
+        let mut iter: string::RCharIndices<'_> = string::char_indices(CHAR_LENS).rev();
+        let f0 = iter.next().unwrap();
+        let f1 = iter.next().unwrap();
+        let f2 = iter.next().unwrap();
+        let f3 = iter.next().unwrap();
+        let f4 = iter.next().unwrap();
+        let b0 = iter.next_back().unwrap();
+        let b1 = iter.next_back().unwrap();
+        let b2 = iter.next_back().unwrap();
+        let b3 = iter.next_back().unwrap();
+        let b4 = iter.next_back().unwrap();
 
         assert_eq!(
             [f0, f1, f2, f3, f4],

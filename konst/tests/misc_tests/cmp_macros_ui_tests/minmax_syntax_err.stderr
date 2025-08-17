@@ -1,0 +1,383 @@
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:20:15
+   |
+20 | const _: u8 = cmp::min!();
+   |               ^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr) => {
+   |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:21:28
+   |
+21 | const _: u8 = cmp::min!(0u8);
+   |                            ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr) => {
+   |                ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:22:29
+   |
+22 | const _: u8 = cmp::min!(0u8,);
+   |                             ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr) => {
+   |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:24:15
+   |
+24 | const _: u8 = cmp::max!();
+   |               ^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr) => {
+   |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:25:28
+   |
+25 | const _: u8 = cmp::max!(0u8);
+   |                            ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr) => {
+   |                ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:26:29
+   |
+26 | const _: u8 = cmp::max!(0u8, );
+   |                             ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr) => {
+   |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:28:15
+   |
+28 | const _: u8 = cmp::min_by!();
+   |               ^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:29:31
+   |
+29 | const _: u8 = cmp::min_by!(0u8);
+   |                               ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |                ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:30:32
+   |
+30 | const _: u8 = cmp::min_by!(0u8,);
+   |                                ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:31:36
+   |
+31 | const _: u8 = cmp::min_by!(0u8, 3u8);
+   |                                    ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |                             ^
+
+error: `min_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:32:15
+   |
+32 | const _: u8 = cmp::min_by!(0u8, 3u8,);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `cmp::min_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `min_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:33:15
+   |
+33 | const _: u8 = cmp::min_by!(0u8, 3u8, || Ordering::Equal);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `cmp::min_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `min_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:34:15
+   |
+34 | const _: u8 = cmp::min_by!(0u8, 3u8, |_| Ordering::Equal);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `cmp::min_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `min_by` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:35:15
+   |
+35 | const _: u8 = cmp::min_by!(0u8, 3u8, |_, _| );
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `cmp::min_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:37:15
+   |
+37 | const _: u8 = cmp::max_by!();
+   |               ^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:38:31
+   |
+38 | const _: u8 = cmp::max_by!(0u8);
+   |                               ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |                ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:39:32
+   |
+39 | const _: u8 = cmp::max_by!(0u8,);
+   |                                ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:40:36
+   |
+40 | const _: u8 = cmp::max_by!(0u8, 3u8);
+   |                                    ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |                             ^
+
+error: `max_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:41:15
+   |
+41 | const _: u8 = cmp::max_by!(0u8, 3u8,);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `cmp::max_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `max_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:42:15
+   |
+42 | const _: u8 = cmp::max_by!(0u8, 3u8, || Ordering::Equal);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `cmp::max_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `max_by` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:43:15
+   |
+43 | const _: u8 = cmp::max_by!(0u8, 3u8, |_| Ordering::Equal);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `cmp::max_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `max_by` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:44:15
+   |
+44 | const _: u8 = cmp::max_by!(0u8, 3u8, |_, _| );
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `cmp::max_by` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:46:15
+   |
+46 | const _: u8 = cmp::min_by_key!();
+   |               ^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:47:35
+   |
+47 | const _: u8 = cmp::min_by_key!(0u8);
+   |                                   ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |                ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:48:36
+   |
+48 | const _: u8 = cmp::min_by_key!(0u8,);
+   |                                    ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:49:40
+   |
+49 | const _: u8 = cmp::min_by_key!(0u8, 3u8);
+   |                                        ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |                             ^
+
+error: `min_by_key` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:50:15
+   |
+50 | const _: u8 = cmp::min_by_key!(0u8, 3u8,);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `min_by_key` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:51:15
+   |
+51 | const _: u8 = cmp::min_by_key!(0u8, 3u8, || );
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `min_by_key` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:52:15
+   |
+52 | const _: u8 = cmp::min_by_key!(0u8, 3u8, |_| );
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `cmp::min_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:54:15
+   |
+54 | const _: u8 = cmp::max_by_key!();
+   |               ^^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$left:expr`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |      ^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:55:35
+   |
+55 | const _: u8 = cmp::max_by_key!(0u8);
+   |                                   ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |                ^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:56:36
+   |
+56 | const _: u8 = cmp::max_by_key!(0u8,);
+   |                                    ^ missing tokens in macro arguments
+   |
+note: while trying to match meta-variable `$right:expr`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |                  ^^^^^^^^^^^
+
+error: unexpected end of macro invocation
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:57:40
+   |
+57 | const _: u8 = cmp::max_by_key!(0u8, 3u8);
+   |                                        ^ missing tokens in macro arguments
+   |
+note: while trying to match `,`
+  --> src/cmp/minmax_macros.rs
+   |
+   |     ($left:expr, $right:expr, $($comparator:tt)*) => {
+   |                             ^
+
+error: `max_by_key` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:58:15
+   |
+58 | const _: u8 = cmp::max_by_key!(0u8, 3u8,);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `max_by_key` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:59:15
+   |
+59 | const _: u8 = cmp::max_by_key!(0u8, 3u8, || );
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `max_by_key` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:60:15
+   |
+60 | const _: u8 = cmp::max_by_key!(0u8, 3u8, |_| );
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unused import: `std::cmp::Ordering`
+ --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:3:5
+  |
+3 | use std::cmp::Ordering;
+  |     ^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default

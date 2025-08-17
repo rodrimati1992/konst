@@ -1,0 +1,250 @@
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:3:34
+  |
+3 | const _: u8 = result::unwrap_or!((), ());
+  |                                  ^^ expected `Result<_, _>`, found `()`
+  |
+  = note:   expected enum `Result<_, _>`
+          found unit type `()`
+help: try wrapping the expression in a variant of `Result`
+  |
+3 | const _: u8 = result::unwrap_or!(Ok(()), ());
+  |                                  +++  +
+3 | const _: u8 = result::unwrap_or!(Err(()), ());
+  |                                  ++++  +
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:3:15
+  |
+3 | const _: u8 = result::unwrap_or!((), ());
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `u8`, found `()`
+  |
+  = note: this error originates in the macro `result::unwrap_or` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:5:39
+  |
+5 | const _: u8 = result::unwrap_or_else!((), |_| false);
+  |                                       ^^ expected `Result<_, _>`, found `()`
+  |
+  = note:   expected enum `Result<_, _>`
+          found unit type `()`
+help: try wrapping the expression in a variant of `Result`
+  |
+5 | const _: u8 = result::unwrap_or_else!(Ok(()), |_| false);
+  |                                       +++  +
+5 | const _: u8 = result::unwrap_or_else!(Err(()), |_| false);
+  |                                       ++++  +
+
+error[E0308]: `match` arms have incompatible types
+ --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:5:47
+  |
+5 | const _: u8 = result::unwrap_or_else!((), |_| false);
+  |               --------------------------------^^^^^-
+  |               |                               |
+  |               |                               expected `u8`, found `bool`
+  |               this is found to be of type `u8`
+  |               `match` arms have incompatible types
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:7:43
+  |
+7 | const _: u8 = result::unwrap_err_or_else!((), |_| false);
+  |                                           ^^ expected `Result<_, _>`, found `()`
+  |
+  = note:   expected enum `Result<_, _>`
+          found unit type `()`
+help: try wrapping the expression in a variant of `Result`
+  |
+7 | const _: u8 = result::unwrap_err_or_else!(Ok(()), |_| false);
+  |                                           +++  +
+7 | const _: u8 = result::unwrap_err_or_else!(Err(()), |_| false);
+  |                                           ++++  +
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:7:51
+  |
+7 | const _: u8 = result::unwrap_err_or_else!((), |_| false);
+  |                                                   ^^^^^ expected `u8`, found `bool`
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:9:27
+  |
+9 | const _: u8 = result::ok!(());
+  |                           ^^ expected `Result<_, _>`, found `()`
+  |
+  = note:   expected enum `Result<_, _>`
+          found unit type `()`
+help: try wrapping the expression in a variant of `Result`
+  |
+9 | const _: u8 = result::ok!(Ok(()));
+  |                           +++  +
+9 | const _: u8 = result::ok!(Err(()));
+  |                           ++++  +
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:9:15
+  |
+9 | const _: u8 = result::ok!(());
+  |               ^^^^^^^^^^^^^^^ expected `u8`, found `Option<_>`
+  |
+  = note: expected type `u8`
+             found enum `Option<_>`
+  = note: this error originates in the macro `result::ok` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:11:28
+   |
+11 | const _: u8 = result::err!(());
+   |                            ^^ expected `Result<_, _>`, found `()`
+   |
+   = note:   expected enum `Result<_, _>`
+           found unit type `()`
+help: try wrapping the expression in a variant of `Result`
+   |
+11 | const _: u8 = result::err!(Ok(()));
+   |                            +++  +
+11 | const _: u8 = result::err!(Err(()));
+   |                            ++++  +
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:11:15
+   |
+11 | const _: u8 = result::err!(());
+   |               ^^^^^^^^^^^^^^^^ expected `u8`, found `Option<_>`
+   |
+   = note: expected type `u8`
+              found enum `Option<_>`
+   = note: this error originates in the macro `result::err` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:13:28
+   |
+13 | const _: u8 = result::map!((), |_| false);
+   |                            ^^ expected `Result<_, _>`, found `()`
+   |
+   = note:   expected enum `Result<_, _>`
+           found unit type `()`
+help: try wrapping the expression in a variant of `Result`
+   |
+13 | const _: u8 = result::map!(Ok(()), |_| false);
+   |                            +++  +
+13 | const _: u8 = result::map!(Err(()), |_| false);
+   |                            ++++  +
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:13:15
+   |
+13 | const _: u8 = result::map!((), |_| false);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `u8`, found `Result<bool, _>`
+   |
+   = note: expected type `u8`
+              found enum `Result<bool, _>`
+   = note: this error originates in the macro `result::map` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:15:32
+   |
+15 | const _: u8 = result::map_err!((), |_| false);
+   |                                ^^ expected `Result<_, _>`, found `()`
+   |
+   = note:   expected enum `Result<_, _>`
+           found unit type `()`
+help: try wrapping the expression in a variant of `Result`
+   |
+15 | const _: u8 = result::map_err!(Ok(()), |_| false);
+   |                                +++  +
+15 | const _: u8 = result::map_err!(Err(()), |_| false);
+   |                                ++++  +
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:15:15
+   |
+15 | const _: u8 = result::map_err!((), |_| false);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `u8`, found `Result<_, _>`
+   |
+   = note: expected type `u8`
+              found enum `Result<_, _>`
+   = note: this error originates in the macro `result::map_err` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:17:33
+   |
+17 | const _: u8 = result::and_then!((), |_| false);
+   |                                 ^^ expected `Result<_, _>`, found `()`
+   |
+   = note:   expected enum `Result<_, _>`
+           found unit type `()`
+help: try wrapping the expression in a variant of `Result`
+   |
+17 | const _: u8 = result::and_then!(Ok(()), |_| false);
+   |                                 +++  +
+17 | const _: u8 = result::and_then!(Err(()), |_| false);
+   |                                 ++++  +
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:17:41
+   |
+17 | const _: u8 = result::and_then!((), |_| false);
+   |                                         ^^^^^ expected `u8`, found `bool`
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:19:32
+   |
+19 | const _: u8 = result::or_else!((), |_| false);
+   |                                ^^ expected `Result<_, _>`, found `()`
+   |
+   = note:   expected enum `Result<_, _>`
+           found unit type `()`
+help: try wrapping the expression in a variant of `Result`
+   |
+19 | const _: u8 = result::or_else!(Ok(()), |_| false);
+   |                                +++  +
+19 | const _: u8 = result::or_else!(Err(()), |_| false);
+   |                                ++++  +
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:19:15
+   |
+19 | const _: u8 = result::or_else!((), |_| false);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `u8`, found `Result<_, _>`
+   |
+   = note: expected type `u8`
+              found enum `Result<_, _>`
+   = note: this error originates in the macro `result::or_else` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:21:15
+   |
+21 | const _: u8 = result::unwrap!(());
+   |               ^^^^^^^^^^^^^^^^--^
+   |               |               |
+   |               |               this expression has type `()`
+   |               expected `()`, found `Result<_, _>`
+   |
+   = note: expected unit type `()`
+                   found enum `Result<_, _>`
+   = note: this error originates in the macro `result::unwrap` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:21:15
+   |
+21 | const _: u8 = result::unwrap!(());
+   |               ^^^^^^^^^^^^^^^^--^
+   |               |               |
+   |               |               this expression has type `()`
+   |               expected `()`, found `Result<_, _>`
+   |
+   = note: expected unit type `()`
+                   found enum `Result<_, _>`
+   = note: this error originates in the macro `result::unwrap` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0034]: multiple applicable items in scope
+  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:21:15
+   |
+21 | const _: u8 = result::unwrap!(());
+   |               ^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
+   |
+   = note: candidate #1 is defined in an impl for the type `IsPanicFmt<S, T, IsCustomType>`
+   = note: candidate #2 is defined in an impl for the type `IsPanicFmt<S, T, IsStdType>`
+   = note: this error originates in the macro `$crate::coerce_fmt` which comes from the expansion of the macro `result::unwrap` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -1,6 +1,6 @@
 use std::{
     any::Any,
-    panic::{catch_unwind, AssertUnwindSafe},
+    panic::{AssertUnwindSafe, catch_unwind},
 };
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
