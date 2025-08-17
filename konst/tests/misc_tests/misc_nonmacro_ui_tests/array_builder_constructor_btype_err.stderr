@@ -10,5 +10,5 @@ note: required by a bound in `ArrayBuilder::<T, N, D>::into_copy`
   |     pub const fn into_copy(self) -> ArrayBuilder<T, N, NonDrop>
   |                  --------- required by a bound in this associated function
   |     where
-  |         T: Copy
+  |         T: Copy,
   |            ^^^^ required by this bound in `ArrayBuilder::<T, N, D>::into_copy`

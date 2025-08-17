@@ -4,9 +4,10 @@
 //!
 //! This crate provides:
 //!
-//! - Const fn equivalents of standard library functions and methods.
+//! - Const fn equivalents of standard library functions, methods, and operators.
 //!
-//! - [`destructure`] macro to allow destructuring types in const without getting "cannot drop in const" errors.
+//! - [`destructure`]/[`if_let_Some`]/[`while_let_Some`]
+//! macros to allow destructuring types in const without getting "cannot drop in const" errors.
 //!
 //! - Compile-time parsing through the [`Parser`] type, and [`parser_method`] macro.
 //!
@@ -19,7 +20,7 @@
 //!
 //! ```rust
 //! use konst::{eq_str, option, result};
-//! use konst::const_panic::{self, PanicFmt, PanicVal, FmtArg};
+//! use konst::const_panic::{self, PanicFmt};
 //!
 //! use std::fmt::{self, Display};
 //!
@@ -60,7 +61,7 @@
 //! }
 //!
 //! // `PanicFmt` derives the `PanicFmt` trait for debug-printing in `result::unwrap`.
-//! // To use the `PanicFmt` derive you need to enable the "const_panic_derive" feature
+//! // To use the `PanicFmt` derive you need to enable the "const_panic_derive" feature.
 //! #[derive(Debug, PartialEq, PanicFmt)]
 //! pub struct ParseDirectionError;
 //!
@@ -165,17 +166,17 @@
 //!     parser.trim_end();
 //!     if !parser.is_empty() {
 //!         loop {
-//!             // keeps a copy of the parser at this position so that the
-//!             // error below points to the right location
+//!             // keeps a copy of the parser at this position to parse the field name
 //!             let mut prev_parser = parser.trim_start().copy();
 //!
-//!             try_!(parser.find_skip('='));
+//!             // skip past the `=` to parse the field value
+//!             try_!(parser.find_skip('=')).trim_start();
 //!
 //!             parser_method!{prev_parser, strip_prefix;
-//!                 "name" => name = try_!(parser.trim_start().split_keep('\n')),
-//!                 "amount" => amount = try_!(parser.trim_start().parse_usize()),
-//!                 "repeating" => repeating = try_!(parse_shape(parser.trim_start())),
-//!                 "colors" => colors = try_!(parse_colors(parser.trim_start())),
+//!                 "name" => name = try_!(parser.split_keep('\n')),
+//!                 "amount" => amount = try_!(parser.parse_usize()),
+//!                 "repeating" => repeating = try_!(parse_shape(parser)),
+//!                 "colors" => colors = try_!(parse_colors(parser)),
 //!                 _ => {
 //!                     let err = &"could not parse Struct field name";
 //!                     return Err(prev_parser.to_other_error(err));
@@ -233,13 +234,13 @@
 //!
 //! # Cargo features
 //!
-//! These are the features of these crates:
+//! These are the features of this crate:
 //!
 //! - `"iter"`(enabled by default):
-//! Enables all iteration items, including macros/functions that take/return iterators,
+//! Enables all iteration-related items that take/return iterators,
 //!
 //! - `"cmp"`(enabled by default):
-//! Enables all comparison functions and macros,
+//! Enables all comparison-related items,
 //! the string equality and ordering comparison functions don't require this feature.
 //!
 //! - `"parsing_proc"`(enabled by default):
@@ -249,14 +250,14 @@
 //! compile times aren't a problem.
 //!
 //! - `"parsing"`(enabled by default):
-//! Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
-//! the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
+//! Enables the [`parsing`] module for parsing from strings,
+//! and the `primitive::parse_*` functions.
 //!
-//! - `"const_panic_derive"`:
+//! - `"const_panic_derive"`(disabled by default):
 //! Enables the "derive" feature of the `const_panic` public dependency.
 //!
-//! - `"alloc"`:
-//! Enables items that use types from the [`alloc`] crate, including `Vec` and `String`.
+//! - `"alloc"`(disabled by default):
+//! Enables items that use types from the [`alloc`] crate.
 //!
 //! ### Rust release related
 //!
@@ -289,6 +290,8 @@
 //! [`Parser`]: crate::parsing::Parser
 //! [`Parser::parse_u128`]: crate::parsing::Parser#method.parse_u128
 //! [`destructure`]: crate::destructure
+//! [`if_let_Some`]: crate::if_let_Some
+//! [`while_let_Some`]: crate::while_let_Some
 //!
 #![deny(missing_docs)]
 #![deny(unused_results)]

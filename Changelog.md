@@ -61,7 +61,8 @@ Removed these items because they are not needed anymore:
 - `konst::polymorphism::type_eq_projection_fn` macro: replaced by `typewit::TypeFn`+`TypeEq::project`
 - `konst::unwrap_ctx` macro: superceeded by `konst::result::unwrap`
 - `panic` methods: superceeded by `const_panic::PanicFmt` impls
-- `konst::parsing::ParserResult`: using the type it aliases instead of the alias
+- `konst::parsing::ParserResult`: using the type it aliased instead of the alias
+- `konst::parsing::ParseValueResult`: using the type it aliased instead of the alias
 - `konst::cmp::ConstCmpUnref`: replaced by `ConstCmp::This` associated type
 
 Constrained macros that take closures from taking functions through `:expr` to `:path`.
@@ -210,7 +211,8 @@ Added these methods to `iter::eval` macro (conditional on "cmp" feature):
 - `ne`
 
 
-Changed all of the `konst::parsing::Parser` methods to use `&mut self` instead of taking and returning `Parser` by value, changing the signature in this way:
+Changed all of the `konst::parsing::Parser` methods to use `&mut self` instead of taking and returning `Parser` by value, now every method mutates the `Parser` in place instead of returning a new `Parser` each time.
+The signatures of `konst::parsing::Parser` methods were changed in this way:
 - for `(self) -> Self` methods: changed into `(&mut self) -> &mut Self`
 - for `(self, ..) -> Result<(T, Self), E>` methods: changed into `(&mut self, ..) -> Result<T, E>`.
 - for `(self, ..) -> Result<Self, E>` methods: changed into `(&mut self, ..) -> Result<&mut Self, E>`.

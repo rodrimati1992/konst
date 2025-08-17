@@ -1,4 +1,4 @@
-use crate::parsing::{ParseValueResult, Parser};
+use crate::parsing::{ParseError, Parser};
 
 use core::marker::PhantomData;
 
@@ -36,7 +36,7 @@ use core::marker::PhantomData;
 /// ```rust
 /// use konst::{result, try_};
 ///
-/// use konst::parsing::{HasParser, Parser, ParseValueResult, parse_type};
+/// use konst::parsing::{HasParser, Parser, ParseError, parse_type};
 ///
 /// const PAIR: Pair = {
 ///     let mut parser = Parser::new("100,200");
@@ -54,7 +54,7 @@ use core::marker::PhantomData;
 /// }
 ///
 /// impl Pair {
-///     const fn parse_with<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Self> {
+///     const fn parse_with<'p>(parser: &mut Parser<'p>) -> Result<Self, ParseError<'p>> {
 ///         let left = try_!(parse_type!(parser, u32));
 ///         try_!(parser.strip_prefix(','));
 ///         let right = try_!(parse_type!(parser, u64));
@@ -92,7 +92,7 @@ macro_rules! impl_std_parser_one {
 
         impl StdParser<$type> {
             #[doc = $parse_with_docs]
-            pub const fn parse_with<'a>(parser: &mut Parser<'a>) -> ParseValueResult<'a, $type> {
+            pub const fn parse_with<'a>(parser: &mut Parser<'a>) -> Result<$type, ParseError<'a>> {
                 parser.$method()
             }
         }

@@ -8,9 +8,10 @@ Const equivalents of std functions and const parsing.
 
 This crate provides:
 
-- Const fn equivalents of standard library functions and methods.
+- Const fn equivalents of standard library functions, methods, and operators.
 
-- [`destructure`] macro to allow destructuring types in const without getting "cannot drop in const" errors.
+- [`destructure`]/[`if_let_Some`]/[`while_let_Some`] 
+macros to allow destructuring types in const without getting "cannot drop in const" errors.
 
 - Compile-time parsing through the [`Parser`] type, and [`parser_method`] macro.
 
@@ -23,9 +24,24 @@ at compile-time.
 
 ```rust
 use konst::{eq_str, option, result};
-use konst::const_panic::{self, PanicFmt, PanicVal, FmtArg};
+use konst::const_panic::{self, PanicFmt};
 
 use std::fmt::{self, Display};
+
+
+const CHOICE: &str = option::unwrap_or!(option_env!("chosen-direction"), "forward");
+
+const DIRECTION: Direction = result::unwrap!(Direction::try_parse(CHOICE));
+
+fn main() {
+    match DIRECTION {
+        Direction::Forward => assert_eq!(CHOICE, "forward"),
+        Direction::Backward => assert_eq!(CHOICE, "backward"),
+        Direction::Left => assert_eq!(CHOICE, "left"),
+        Direction::Right => assert_eq!(CHOICE, "right"),
+    }
+}
+
 
 #[derive(Debug, PartialEq)]
 enum Direction {
@@ -48,53 +64,30 @@ impl Direction {
     }
 }
 
-const CHOICE: &str = option::unwrap_or!(option_env!("chosen-direction"), "forward");
-
-const DIRECTION: Direction = result::unwrap!(Direction::try_parse(CHOICE));
-
-fn main() {
-    match DIRECTION {
-        Direction::Forward => assert_eq!(CHOICE, "forward"),
-        Direction::Backward => assert_eq!(CHOICE, "backward"),
-        Direction::Left => assert_eq!(CHOICE, "left"),
-        Direction::Right => assert_eq!(CHOICE, "right"),
-    }
-}
-
+// `PanicFmt` derives the `PanicFmt` trait for debug-printing in `result::unwrap`.
+// To use the `PanicFmt` derive you need to enable the "const_panic_derive" feature.
 #[derive(Debug, PartialEq, PanicFmt)]
-#[pfmt(display_fmt = Self::display_fmt)]
 pub struct ParseDirectionError;
-
 
 impl Display for ParseDirectionError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("Failed to parse a Direction")
     }
 }
-
-impl ParseDirectionError {
-    const fn display_fmt(
-        &self, 
-        fmtarg: FmtArg,
-    ) -> [PanicVal<'_>; ParseDirectionError::PV_COUNT] {
-        const_panic::flatten_panicvals!{fmtarg, ParseDirectionError::PV_COUNT;
-            "Failed to parse a Direction"
-        }
-    }
-}
-
-
 ```
 
 ### Parsing CSV
 
 This example demonstrates how CSV can be parsed into integers.
 
-This example requires the `"parsing"` and `"iter"` features
-(both are enabled by default).
+This example requires the `"iter"` feature (enabled by default).
 
 ```rust
 use konst::{iter, result, string};
+
+
+assert_eq!(PARSED, [3, 8, 13, 21, 34]);
+
 
 const CSV: &str = "3, 8, 13, 21, 34";
 
@@ -103,36 +96,18 @@ static PARSED: [u64; 5] = iter::collect_const!(u64 =>
         map(str::trim_ascii),
         map(|s| result::unwrap!(u64::from_str_radix(s, 10))),
 );
-
-assert_eq!(PARSED, [3, 8, 13, 21, 34]);
-
 ```
 
 ### Parsing a struct
 
 This example demonstrates how a key-value pair format can be parsed into a struct.
 
-This requires the `"parsing"` feature (enabled by default).
+This requires the `"iter"` and `"parsing_proc"` features (enabled by default).
 
 ```rust
-use konst::{
-    parsing::{Parser, ParseValueResult, parser_method},
-    result,
-    eq_str,
-    for_range, try_,
-};
+use konst::{result, try_};
+use konst::parsing::{Parser, ParseError, parser_method};
 
-const PARSED: Struct = {
-    // You can also parse strings from environment variables, or from an `include_str!(....)`
-    let input = "\
-        colors = red, blue, green, blue
-        amount = 1000
-        repeating = circle
-        name = bob smith
-    ";
-    
-    result::unwrap!(parse_struct(&mut Parser::new(input)))
-};
 
 fn main(){
     assert_eq!(
@@ -145,6 +120,19 @@ fn main(){
         }
     );
 }
+
+
+const PARSED: Struct = {
+    // You can also parse strings from environment variables, or from an `include_str!(....)`
+    let input = "\
+        colors = red, blue, green, blue
+        amount = 1000
+        repeating = circle
+        name = bob smith
+    ";
+    
+    result::unwrap!(parse_struct(&mut Parser::new(input)))
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Struct<'a> {
@@ -168,7 +156,7 @@ pub enum Color {
     Green,
 }
 
-pub const fn parse_struct<'a>(parser: &mut Parser<'a>) -> ParseValueResult<'a, Struct<'a>> {
+pub const fn parse_struct<'p>(parser: &mut Parser<'p>) -> Result<Struct<'p>, ParseError<'p>> {
     let mut name = "<none>";
     let mut amount = 0;
     let mut repeating = Shape::Circle;
@@ -177,15 +165,17 @@ pub const fn parse_struct<'a>(parser: &mut Parser<'a>) -> ParseValueResult<'a, S
     parser.trim_end();
     if !parser.is_empty() {
         loop {
+            // keeps a copy of the parser at this position to parse the field name
             let mut prev_parser = parser.trim_start().copy();
 
-            try_!(parser.find_skip('='));
+            // skip past the `=` to parse the field value
+            try_!(parser.find_skip('=')).trim_start();
 
             parser_method!{prev_parser, strip_prefix;
-                "name" => name = try_!(parser.trim_start().split_keep('\n')),
-                "amount" => amount = try_!(parser.trim_start().parse_usize()),
-                "repeating" => repeating = try_!(parse_shape(parser.trim_start())),
-                "colors" => colors = try_!(parse_colors(parser.trim_start())),
+                "name" => name = try_!(parser.split_keep('\n')),
+                "amount" => amount = try_!(parser.parse_usize()),
+                "repeating" => repeating = try_!(parse_shape(parser)),
+                "colors" => colors = try_!(parse_colors(parser)),
                 _ => {
                     let err = &"could not parse Struct field name";
                     return Err(prev_parser.to_other_error(err));
@@ -202,7 +192,7 @@ pub const fn parse_struct<'a>(parser: &mut Parser<'a>) -> ParseValueResult<'a, S
     Ok(Struct{name, amount, repeating, colors})
 }
 
-pub const fn parse_shape<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Shape> {
+pub const fn parse_shape<'p>(parser: &mut Parser<'p>) -> Result<Shape, ParseError<'p>> {
     let shape = parser_method!{parser, strip_prefix;
         "circle" => Shape::Circle,
         "square" => Shape::Square,
@@ -214,23 +204,22 @@ pub const fn parse_shape<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Sh
 
 pub const fn parse_colors<'p, const LEN: usize>(
     parser: &mut Parser<'p>,
-) -> ParseValueResult<'p, [Color; LEN]> {
-    let mut colors = [Color::Red; LEN];
+) -> Result<[Color; LEN], ParseError<'p>> {
+    let mut colors = konst::array::ArrayBuilder::of_copy();
 
-    for_range!{i in 0..LEN =>
-        colors[i] = try_!(parse_color(parser.trim_start()));
+    while !colors.is_full() {
+        colors.push(try_!(parse_color(parser.trim_start())));
         
-        match parser.strip_prefix(",") {
-            Ok(_) => (),
-            Err(_) if i == LEN - 1 => {}
-            Err(e) => return Err(e),
+        // returns an error if there aren't enough comma-separated colors
+        if let Err(e) = parser.strip_prefix(",") && !colors.is_full() {
+            return Err(e);
         }
     }
 
-    Ok(colors)
+    Ok(colors.build())
 }
 
-pub const fn parse_color<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Color> {
+pub const fn parse_color<'p>(parser: &mut Parser<'p>) -> Result<Color, ParseError<'p>> {
     let color = parser_method!{parser, strip_prefix;
         "red" => Color::Red,
         "blue" => Color::Blue,
@@ -240,19 +229,17 @@ pub const fn parse_color<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Co
     Ok(color)
 }
 
-
-
 ```
 
 # Cargo features
 
-These are the features of these crates:
+These are the features of this crate:
 
 - `"iter"`(enabled by default):
-Enables all iteration items, including macros/functions that take/return iterators,
+Enables all iteration-related items that take/return iterators,
 
 - `"cmp"`(enabled by default):
-Enables all comparison functions and macros,
+Enables all comparison-related items,
 the string equality and ordering comparison functions don't require this feature.
 
 - `"parsing_proc"`(enabled by default):
@@ -262,14 +249,14 @@ You can use this feature instead of `"parsing"` if the slightly longer
 compile times aren't a problem.
 
 - `"parsing"`(enabled by default):
-Enables the [`parsing`] module (for parsing from `&str` and `&[u8]`),
-the `primitive::parse_*` functions, `try_rebind`, and `rebind_if_ok` macros.
+Enables the [`parsing`] module for parsing from strings,
+and the `primitive::parse_*` functions.
 
-- `"const_panic_derive"`:
+- `"const_panic_derive"`(disabled by default):
 Enables the "derive" feature of the `const_panic` public dependency.
 
-- `"alloc"`:
-Enables items that use types from the [`alloc`] crate, including `Vec` and `String`.
+- `"alloc"`(disabled by default):
+Enables items that use types from the [`alloc`] crate.
 
 ### Rust release related
 
@@ -295,10 +282,12 @@ need to be explicitly enabled with crate features.
 [`const_eq_for`]: https://docs.rs/konst/*/konst/macro.const_eq_for.html
 [`const_cmp`]: https://docs.rs/konst/*/konst/macro.const_cmp.html
 [`const_cmp_for`]: https://docs.rs/konst/*/konst/macro.const_cmp_for.html
-[`polymorphism`]: https://docs.rs/konst/*/konst/polymorphism/index.html
 [`parsing`]: https://docs.rs/konst/*/konst/parsing/index.html
 [`primitive`]: https://docs.rs/konst/*/konst/primitive/index.html
 [`parser_method`]: https://docs.rs/konst/*/konst/parsing/macro.parser_method.html
 [`Parser`]: https://docs.rs/konst/*/konst/parsing/struct.Parser.html
 [`Parser::parse_u128`]: https://docs.rs/konst/*/konst/parsing/struct.Parser.html#method.parse_u128
 [`destructure`]: https://docs.rs/konst/*/konst/macro.destructure.html
+[`if_let_Some`]: https://docs.rs/konst/*/konst/macro.if_let_Some.html
+[`while_let_Some`]: https://docs.rs/konst/*/konst/macro.while_let_Some.html
+

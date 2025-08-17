@@ -53,15 +53,16 @@ default = ["cmp", "iter", "parsing_proc"]
 
 # Enables extra checks for debug
 debug = []
+
+alloc = []
 cmp = []
-iter = []
-parsing_proc = ["parsing", "konst_proc_macros"]
-parsing = []
 const_panic_derive = ["const_panic/derive"]
+iter = []
+parsing = []
+parsing_proc = ["parsing", "konst_proc_macros"]
 
 rust_latest_stable = []
 
-alloc = []
 
 # Enables ui tests, which are intended for the latest stable release.
 # This is not enabled in CI, because it's way too sensitive to 

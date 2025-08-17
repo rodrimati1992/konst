@@ -1,6 +1,6 @@
 //! Parsing using `const fn` methods.
 //!
-//! You can use the [`Parser`] type to parse from string,
+//! You can use the [`Parser`] type to parse from strings,
 //! more information in its documentation.
 //!
 //! If you're looking for functions to parse some type from an entire string
@@ -28,7 +28,7 @@ mod parser_method_macro;
 
 pub use self::{
     get_parser::{HasParser, StdParser},
-    parse_errors::{ErrorKind, ParseDirection, ParseError, ParseValueResult},
+    parse_errors::{ErrorKind, ParseDirection, ParseError},
 };
 
 #[cfg(feature = "parsing_proc")]
@@ -58,7 +58,7 @@ use crate::string::{self, Pattern};
 #[cfg_attr(feature = "parsing_proc", doc = "```rust")]
 #[cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
 /// use konst::{
-///     parsing::{Parser, ParseValueResult, parser_method},
+///     parsing::{Parser, ParseError, parser_method},
 ///     result,
 ///     for_range, try_,
 /// };
@@ -103,7 +103,7 @@ use crate::string::{self, Pattern};
 ///
 ///     const fn parse_array<'p, const LEN: usize>(
 ///         parser: &mut Parser<'p>
-///     ) -> ParseValueResult<'p, [Angle; LEN]> {
+///     ) -> Result<[Angle; LEN], ParseError<'p>> {
 ///         let mut ret = [Angle::UP; LEN];
 ///         
 ///         for_range!{i in 0..LEN =>
@@ -117,7 +117,7 @@ use crate::string::{self, Pattern};
 ///         Ok(ret)
 ///     }
 ///
-///     pub const fn parse<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Angle> {
+///     pub const fn parse<'p>(parser: &mut Parser<'p>) -> Result<Angle, ParseError<'p>> {
 ///         if let Ok(angle) = parser.parse_u64() {
 ///             return Ok(Self::new(angle))
 ///         }
@@ -149,6 +149,8 @@ pub struct Parser<'a> {
 
 impl<'a> Parser<'a> {
     /// Gets the string up to (but not including) `delimiter`.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// This is like [`Parser::split`],
     /// except that it always requires that the delimiter can be found.
@@ -208,6 +210,8 @@ impl<'a> Parser<'a> {
     }
 
     /// Gets the string after `delimiter`.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// This is like [`Parser::rsplit`],
     /// except that it always requires that the delimiter can be found.
@@ -329,6 +333,8 @@ impl<'a> Parser<'a> {
 
     /// Gets the string after `delimiter`.
     ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
+    ///
     /// # Return value
     ///
     /// If the last delimiter-separated string has already been returned,
@@ -387,6 +393,8 @@ impl<'a> Parser<'a> {
 
     /// Gets the string up to (but not including) `delimiter`.
     ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
+    ///
     /// # Return value
     ///
     /// This behaves the same as [`Parser::split`],
@@ -401,7 +409,7 @@ impl<'a> Parser<'a> {
     #[cfg_attr(not(feature = "parsing_proc"), doc = "```ignore")]
     ///
     /// use konst::{
-    ///     parsing::{Parser, ParseValueResult, parser_method},
+    ///     parsing::{Parser, ParseError, parser_method},
     ///     result,
     ///     eq_str, for_range, try_,
     /// };
@@ -434,7 +442,7 @@ impl<'a> Parser<'a> {
     ///     U64(u64),
     /// }
     ///
-    /// pub const fn parse_value<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Value<'p>> {
+    /// pub const fn parse_value<'p>(parser: &mut Parser<'p>) -> Result<Value<'p>, ParseError<'p>> {
     ///     let val = parser_method!{parser, strip_prefix;
     ///         "s" => {
     ///             let string = try_!(parser.split_keep(','));
@@ -475,6 +483,8 @@ impl<'a> Parser<'a> {
 
     /// Checks that the parsed string starts with `matched`,
     /// returning the remainder of the str.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// For calling `strip_prefix` with multiple alternative `matched` string literals,
     /// you can use the [`parser_method`] macro,
@@ -535,7 +545,9 @@ impl<'a> Parser<'a> {
     }
 
     /// Checks that the parsed string ends with `matched`,
-    /// returning the remainder of the string.
+    /// returning the remainder of the string.///
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// For calling `strip_suffix` with multiple alternative `matched` string literals,
     /// you can use the [`parser_method`] macro.
@@ -595,6 +607,8 @@ impl<'a> Parser<'a> {
 
     /// Removes whitespace from the start and end of the parsed string.
     ///
+    /// This method mutates the parser in place.
+    ///
     /// # Example
     ///
     /// ```rust
@@ -614,6 +628,8 @@ impl<'a> Parser<'a> {
     }
 
     /// Removes whitespace from the start of the parsed string.
+    ///
+    /// This method mutates the parser in place.
     ///
     /// # Example
     ///
@@ -638,6 +654,8 @@ impl<'a> Parser<'a> {
 
     /// Removes whitespace from the end of the parsed string.
     ///
+    /// This method mutates the parser in place.
+    ///
     /// # Example
     ///
     /// ```rust
@@ -661,6 +679,9 @@ impl<'a> Parser<'a> {
 
     /// Repeatedly removes all instances of `needle` from
     /// both the start and end of the parsed string.
+    ///
+    /// This method mutates the parser in place.
+    ///
     ///
     /// # Example
     ///
@@ -697,6 +718,9 @@ impl<'a> Parser<'a> {
     }
 
     /// Repeatedly removes all instances of `needle` from the start of the parsed string.
+    ///
+    /// This method mutates the parser in place.
+    ///
     ///
     /// For trimming with multiple `needle`s, you can use the [`parser_method`] macro,
     /// [example](self::parser_method#trimming-example)
@@ -756,6 +780,9 @@ impl<'a> Parser<'a> {
 
     /// Repeatedly removes all instances of `needle` from the start of the parsed string.
     ///
+    /// This method mutates the parser in place.
+    ///
+    ///
     /// For trimming with multiple `needle`s, you can use the [`parser_method`] macro,
     /// [example](self::parser_method#trimming-example)
     ///
@@ -814,6 +841,8 @@ impl<'a> Parser<'a> {
 
     /// Skips the parser after the first instance of `needle`.
     ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
+    ///
     /// For calling `find_skip` with multiple alternative `needle` string literals,
     /// you can use the [`parser_method`] macro,
     /// [example](self::parser_method#find-example)
@@ -868,6 +897,9 @@ impl<'a> Parser<'a> {
     }
 
     /// Truncates the parsed string to before the last instance of `needle`.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
+    ///
     ///
     /// For calling `rfind_skip` with multiple alternative `needle` string literals,
     /// you can use the [`parser_method`] macro,

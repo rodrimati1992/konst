@@ -57,7 +57,7 @@
 ///
 /// ```rust
 /// use konst::{
-///     parsing::{Parser, ParseValueResult, parser_method},
+///     parsing::{Parser, ParseError, parser_method},
 ///     result,
 /// };
 ///
@@ -69,7 +69,7 @@
 /// }
 ///
 /// impl Color {
-///     pub const fn try_parse<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Color> {
+///     pub const fn try_parse<'p>(parser: &mut Parser<'p>) -> Result<Color, ParseError<'p>> {
 ///         parser_method!{parser, strip_prefix;
 ///             "Red"|"red" => Ok(Color::Red),
 ///             "Blue"|"blue" => Ok(Color::Blue),
@@ -98,7 +98,7 @@
 /// ### `find_skip`
 ///
 /// ```rust
-/// use konst::parsing::{Parser, ParseValueResult, parser_method};
+/// use konst::parsing::{Parser, parser_method};
 ///
 /// {
 ///     let mut parser = Parser::new("baz_foo_bar_foo");
@@ -167,7 +167,7 @@
 /// ### Trimming
 ///
 /// ```rust
-/// use konst::parsing::{Parser, ParseValueResult, parser_method};
+/// use konst::parsing::{Parser, parser_method};
 ///
 /// {
 ///     let mut parser = Parser::new("foobarhellofoobar");

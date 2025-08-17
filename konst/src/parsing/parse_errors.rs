@@ -287,8 +287,3 @@ pub enum ErrorKind {
     /// For user-defined types
     Other,
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-/// Result alias for functions that parse values.
-pub type ParseValueResult<'a, T, E = ParseError<'a>> = Result<T, E>;

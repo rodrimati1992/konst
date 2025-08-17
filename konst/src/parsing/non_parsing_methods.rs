@@ -59,6 +59,9 @@ impl<'a> Parser<'a> {
 
     /// Skips `byte_count` bytes from the parsed string,
     /// as well as however many bytes are required to be on a char boundary.
+    ///
+    /// This method mutates the parser in place.
+    ///
     pub const fn skip(&mut self, mut byte_count: usize) -> &mut Self {
         let bytes = self.str.as_bytes();
         if byte_count > bytes.len() {
@@ -77,6 +80,9 @@ impl<'a> Parser<'a> {
 
     /// Skips `byte_count` bytes from the back of the parsed string,
     /// as well as however many bytes are required to be on a char boundary.
+    ///
+    /// This method mutates the parser in place.
+    ///
     pub const fn skip_back(&mut self, byte_count: usize) -> &mut Self {
         use crate::string::__is_char_boundary_bytes;
 

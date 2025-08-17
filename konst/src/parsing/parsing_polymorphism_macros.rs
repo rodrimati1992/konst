@@ -8,14 +8,14 @@
 /// ```rust
 /// use konst::{result, try_};
 ///
-/// use konst::parsing::{HasParser, Parser, ParseValueResult, parse_type};
+/// use konst::parsing::{HasParser, Parser, ParseError, parse_type};
 ///
 /// const PAIR: (u32, Foo) = result::unwrap!(parse_pair(&mut Parser::new("100,Baz")));
 ///
 /// assert_eq!(PAIR.0, 100);
 /// assert_eq!(PAIR.1, Foo::Baz);
 ///
-/// const fn parse_pair<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, (u32, Foo)> {
+/// const fn parse_pair<'p>(parser: &mut Parser<'p>) -> Result<(u32, Foo), ParseError<'p>> {
 ///     let left = try_!(parse_type!(parser, u32));
 ///     _ = parser.strip_prefix(',');
 ///     let right = try_!(parse_type!(parser, Foo));
@@ -36,7 +36,7 @@
 /// }
 ///
 /// impl Foo {
-///     const fn parse_with<'p>(parser: &mut Parser<'p>) -> ParseValueResult<'p, Self> {
+///     const fn parse_with<'p>(parser: &mut Parser<'p>) -> Result<Self, ParseError<'p>> {
 ///         // You can use the `parser_method` macro instead of this chain of if elses
 ///         if parser.strip_prefix("Bar").is_ok() {
 ///             Ok(Foo::Bar)

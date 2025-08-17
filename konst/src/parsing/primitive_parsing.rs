@@ -1,9 +1,11 @@
 use crate::string;
 
-use super::{ErrorKind, ParseDirection, ParseValueResult, Parser};
+use super::{ErrorKind, ParseDirection, ParseError, Parser};
 
 impl<'a> Parser<'a> {
     /// Parses a `u128` until a non-digit is reached.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
     /// you can use [`u128::from_str_radix`]
@@ -15,7 +17,7 @@ impl<'a> Parser<'a> {
     ///
     /// ```rust
     /// use konst::{
-    ///     parsing::{Parser, ParseValueResult},
+    ///     parsing::{Parser, ParseError},
     ///     result, try_,
     /// };
     ///
@@ -27,7 +29,7 @@ impl<'a> Parser<'a> {
     /// }
     ///
     /// /// Parses a `[u128; 2]` from a parser starting with `"<number>;<number>", eg: `"100;400"`.
-    /// const fn parse_pair<'a>(parser: &mut Parser<'a>) -> ParseValueResult<'a, [u128; 2]> {
+    /// const fn parse_pair<'a>(parser: &mut Parser<'a>) -> Result<[u128; 2], ParseError<'a>> {
     ///     let mut ret = [0; 2];
     ///     
     ///     ret[0] = try_!(parser.parse_u128());
@@ -53,10 +55,12 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     ///
-    pub const fn parse_u128(&mut self) -> ParseValueResult<'a, u128> {
+    pub const fn parse_u128(&mut self) -> Result<u128, ParseError<'a>> {
         parse_integer! {unsigned, (u128, u128), self}
     }
     /// Parses a `i128` until a non-digit is reached.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
     /// you can use [`i128::from_str_radix`]
@@ -90,10 +94,12 @@ impl<'a> Parser<'a> {
     ///
     /// ```
     ///
-    pub const fn parse_i128(&mut self) -> ParseValueResult<'a, i128> {
+    pub const fn parse_i128(&mut self) -> Result<i128, ParseError<'a>> {
         parse_integer! {signed, (i128, u128), self}
     }
     /// Parses a `u64` until a non-digit is reached.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
     /// you can use [`u64::from_str_radix`]
@@ -106,10 +112,12 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_u128`](#method.parse_u128) method.
     ///
-    pub const fn parse_u64(&mut self) -> ParseValueResult<'a, u64> {
+    pub const fn parse_u64(&mut self) -> Result<u64, ParseError<'a>> {
         parse_integer! {unsigned, (u64, u64), self}
     }
     /// Parses a `i64` until a non-digit is reached.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
     /// you can use [`i64::from_str_radix`]
@@ -122,10 +130,12 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
-    pub const fn parse_i64(&mut self) -> ParseValueResult<'a, i64> {
+    pub const fn parse_i64(&mut self) -> Result<i64, ParseError<'a>> {
         parse_integer! {signed, (i64, u64), self}
     }
     /// Parses a `u32` until a non-digit is reached.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
     /// you can use [`u32::from_str_radix`]
@@ -138,10 +148,12 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_u128`](#method.parse_u128) method.
     ///
-    pub const fn parse_u32(&mut self) -> ParseValueResult<'a, u32> {
+    pub const fn parse_u32(&mut self) -> Result<u32, ParseError<'a>> {
         parse_integer! {unsigned, (u32, u32), self}
     }
     /// Parses a `i32` until a non-digit is reached.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
     /// you can use [`i32::from_str_radix`]
@@ -154,10 +166,12 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
-    pub const fn parse_i32(&mut self) -> ParseValueResult<'a, i32> {
+    pub const fn parse_i32(&mut self) -> Result<i32, ParseError<'a>> {
         parse_integer! {signed, (i32, u32), self}
     }
     /// Parses a `u16` until a non-digit is reached.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
     /// you can use [`u16::from_str_radix`]
@@ -170,10 +184,12 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_u128`](#method.parse_u128) method.
     ///
-    pub const fn parse_u16(&mut self) -> ParseValueResult<'a, u16> {
+    pub const fn parse_u16(&mut self) -> Result<u16, ParseError<'a>> {
         parse_integer! {unsigned, (u16, u16), self}
     }
     /// Parses a `i16` until a non-digit is reached.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
     /// you can use [`i16::from_str_radix`]
@@ -186,10 +202,12 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
-    pub const fn parse_i16(&mut self) -> ParseValueResult<'a, i16> {
+    pub const fn parse_i16(&mut self) -> Result<i16, ParseError<'a>> {
         parse_integer! {signed, (i16, u16), self}
     }
     /// Parses a `u8` until a non-digit is reached.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
     /// you can use [`u8::from_str_radix`]
@@ -202,10 +220,12 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_u128`](#method.parse_u128) method.
     ///
-    pub const fn parse_u8(&mut self) -> ParseValueResult<'a, u8> {
+    pub const fn parse_u8(&mut self) -> Result<u8, ParseError<'a>> {
         parse_integer! {unsigned, (u8, u8), self}
     }
     /// Parses a `i8` until a non-digit is reached.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
     /// you can use [`i8::from_str_radix`]
@@ -218,10 +238,12 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
-    pub const fn parse_i8(&mut self) -> ParseValueResult<'a, i8> {
+    pub const fn parse_i8(&mut self) -> Result<i8, ParseError<'a>> {
         parse_integer! {signed, (i8, u8), self}
     }
     /// Parses a `usize` until a non-digit is reached.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
     /// you can use [`usize::from_str_radix`]
@@ -229,10 +251,12 @@ impl<'a> Parser<'a> {
     /// You also can use the [`parse_type`](crate::parsing::parse_type)
     /// macro to parse a `usize`, and other [`HasParser`](crate::parsing::HasParser) types.
     ///
-    pub const fn parse_usize(&mut self) -> ParseValueResult<'a, usize> {
+    pub const fn parse_usize(&mut self) -> Result<usize, ParseError<'a>> {
         parse_integer! {unsigned, (usize, usize), self}
     }
     /// Parses a `isize` until a non-digit is reached.
+    ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
     ///
     /// To parse an integer from an entire string (erroring on non-digit bytes),
     /// you can use [`isize::from_str_radix`]
@@ -245,7 +269,7 @@ impl<'a> Parser<'a> {
     /// For an example for how to use this method,
     /// you can look at the docs for the [`Parser::parse_i128`](#method.parse_i128) method.
     ///
-    pub const fn parse_isize(&mut self) -> ParseValueResult<'a, isize> {
+    pub const fn parse_isize(&mut self) -> Result<isize, ParseError<'a>> {
         parse_integer! {signed, (isize, usize), self}
     }
 }
@@ -324,6 +348,8 @@ use parse_integer;
 impl<'a> Parser<'a> {
     /// Parses a `bool`.
     ///
+    /// This method mutates the parser in place on success, leaving it unmodified on error.
+    ///
     /// To parse a bool from an entire string
     /// (erroring if the string isn't exactly `"true"` or `"false"`),
     /// you can use [`primitive::parse_bool`]
@@ -352,7 +378,7 @@ impl<'a> Parser<'a> {
     /// ```
     ///
     /// [`primitive::parse_bool`]: crate::primitive::parse_bool
-    pub const fn parse_bool(&mut self) -> ParseValueResult<'a, bool> {
+    pub const fn parse_bool(&mut self) -> Result<bool, ParseError<'a>> {
         try_parsing! {self, FromStart, ret;
             match self.str.as_bytes() {
                 [b't', b'r', b'u', b'e', ..] => {
