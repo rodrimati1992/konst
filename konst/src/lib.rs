@@ -429,7 +429,7 @@ pub mod __ {
     #[cfg(feature = "iter")]
     pub use crate::iter::collect_const::CollectorCmd;
 
-    pub use crate::array::__array_macros_2::unit_array;
+    pub use crate::array::__array_macros_2::{infer_opt_type, infer_pd_type, none, unit_array};
 
     pub use const_panic::concat_panic;
 

@@ -127,6 +127,27 @@ impl<T, const N: usize> IntoIter<T, N, NonDrop> {
         }
         .into_ii()
     }
+    /// Constructs an `IntoIter` from an array that needs dropping,
+    /// needed for using this in functions that have early returns.
+    ///
+    /// note: if the elements *do* need dropping, the elements will be leaked
+    /// if the iterator is not fully consumed.
+    ///
+    /// The `Identity` bound emulates a type equality constraint,
+    /// this allows specifying `N` through this constructor,
+    /// while infering the other arguments.
+    ///
+    pub const fn of_assumed_nondrop<const N2: usize>(array: [T; N]) -> Self
+    where
+        Self: Identity<Type = IntoIter<T, N2, NonDrop>>,
+    {
+        IntoIterInner {
+            array: array_into_md(array),
+            taken_front: 0,
+            taken_back: 0,
+        }
+        .into_ii()
+    }
 
     /// Constructs an already-consumed IntoIter.
     ///

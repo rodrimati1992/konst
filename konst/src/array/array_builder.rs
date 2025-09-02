@@ -87,6 +87,23 @@ impl<T, const N: usize> ArrayBuilder<T, N, NonDrop> {
     {
         Self::of_any()
     }
+
+    /// Constructs an empty ArrayBuilder of element types that are assumed to not need dropping,
+    /// needed for using `ArrayBuilder` in functions with early returns.
+    ///
+    /// note: if the elements *do* need dropping, the builder will leak them
+    /// unless `.build()` returns susccessfully.
+    ///
+    /// The `Identity` bound emulates a type equality constraint,
+    /// this allows specifying `N` through this constructor,
+    /// while infering the other arguments.
+    #[inline(always)]
+    pub const fn of_assumed_nondrop<const N2: usize>() -> Self
+    where
+        Self: Identity<Type = ArrayBuilder<T, N2, NonDrop>>,
+    {
+        Self::of_any()
+    }
 }
 
 impl<T, const N: usize, D: DropFlavor> ArrayBuilder<T, N, D> {
