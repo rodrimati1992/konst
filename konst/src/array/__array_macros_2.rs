@@ -186,6 +186,9 @@ pub const fn unit_array<const N: usize>() -> [(); N] {
     [(); N]
 }
 
+// its own function because, if `None::<T>` is used directly in const,
+// then it doesn't have drop glue regardless of T.
+// However, if it's returned by a function, it does have drop glue if `T` does.
 #[inline(always)]
 pub const fn none<T>() -> Option<T> {
     None
