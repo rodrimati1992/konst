@@ -700,6 +700,34 @@ fn filter_map_retty_test() {
 }
 
 #[test]
+fn step_by_constntess() {
+    const fn _constness() -> Option<u8> {
+        iter::eval!(0..=100, step_by(1), next())
+    }
+}
+
+#[test]
+#[should_panic]
+fn step_by_zero_arg_test() {
+    let _ = iter::eval!(0..=100, step_by(0), next());
+}
+
+#[test]
+fn step_by_test() {
+    let mut vect = Vec::new();
+
+    for range_size in 0..=30 {
+        for step in 1..=4 {
+            vect.clear();
+
+            iter::eval!(0..=range_size, step_by(step), for_each(|x| vect.push(x)));
+
+            assert_eq!(vect, (0..=range_size).step_by(step).collect::<Vec<_>>());
+        }
+    }
+}
+
+#[test]
 fn take_while_retty_test() {
     let mut vect = Vec::new();
 

@@ -1,3 +1,5 @@
+pub(super) mod iter_eval_helpers;
+
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __iter_eval {
@@ -142,6 +144,7 @@ The iterator adaptor methods, listed alphabetically
 - [`rev`](crate::iter::iterator_dsl#rev)
 - [`skip_while`](crate::iter::iterator_dsl#skip_while)
 - [`skip`](crate::iter::iterator_dsl#skip)
+- [`step_by`](crate::iter::iterator_dsl#step_by)
 - [`take_while`](crate::iter::iterator_dsl#take_while)
 - [`take`](crate::iter::iterator_dsl#take)
 - [`zip`](crate::iter::iterator_dsl#zip)
@@ -842,7 +845,7 @@ declare_eval2_lowering! {
         $crate::iter::__eval2_lowering!{
             {
                 [$($prev_insts)* (
-                    truncating(skip)
+                    forbids_rev(skip)
                     |_| {
                         let _: $crate::__::usize = skipping;
                         if skipping != 0 {
@@ -867,7 +870,7 @@ declare_eval2_lowering! {
         $crate::iter::__eval2_lowering!{
             {
                 [$($prev_insts)* (
-                    truncating(skip_while)
+                    forbids_rev(skip_while)
                     |ref item| {
                         skipping = skipping && $crate::__parse_closure_1!{
                             ($crate::__eval_closure) (item,) (skip_while),
@@ -894,7 +897,7 @@ declare_eval2_lowering! {
         $crate::iter::__eval2_lowering!{
             {
                 [$($prev_insts)* (
-                    truncating(take)
+                    forbids_rev(take)
                     |_| {
                         let _: $crate::__::usize = taking;
                         if taking == 0 {
@@ -920,7 +923,7 @@ declare_eval2_lowering! {
         $crate::iter::__eval2_lowering!{
             {
                 [$($prev_insts)* (
-                    truncating(take_while)
+                    forbids_rev(take_while)
                     |ref item| {
                         taking = taking && $crate::__parse_closure_1!{
                             ($crate::__eval_closure) (item,) (take_while),
@@ -933,6 +936,32 @@ declare_eval2_lowering! {
                 )]
                 $prev_levels
                 [[is_returning] [$($vars)* mut taking = true,] $iters]
+            }
+
+            $($rem)*
+        }
+    };
+
+    (
+        { [$($prev_insts:tt)*] $prev_levels:tt [$is_returning:tt [$($vars:tt)*] $iters:tt] }
+        [step_by] ($by:expr $(,)?)
+        $($rem:tt)*
+    ) => {
+        $crate::iter::__eval2_lowering!{
+            {
+                [$($prev_insts)* (
+                    forbids_rev(step_by)
+                    |_| {
+                        vars.left_to_skip -= 1;
+                        if vars.left_to_skip == 0 {
+                            vars.left_to_skip = vars.step;
+                        } else {
+                            continue;
+                        }
+                    }
+                )]
+                $prev_levels
+                [$is_returning [$($vars)* mut vars = $crate::iter::__StepByVars::new($by),] $iters]
             }
 
             $($rem)*
@@ -1612,6 +1641,8 @@ macro_rules! declare_eval2_lowering {
 }
 use declare_eval2_lowering;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __iter2_finish_lowering {
@@ -1666,6 +1697,8 @@ macro_rules! __iter2_finish_lowering {
         }}
     };
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #[doc(hidden)]
 #[macro_export]
@@ -1770,7 +1803,7 @@ macro_rules! __iter2_interpreter {
     (
         [$item:ident $next:ident $($__rem_fixed:tt)*]
         $fixed:tt
-        (truncating ($method:ident) |$item_param:pat_param| $code:block)
+        (forbids_rev ($method:ident) |$item_param:pat_param| $code:block)
         $($rem:tt)*
     ) => {
         let $item_param = $item;
@@ -1982,7 +2015,7 @@ macro_rules! __iter2_rev_asserts {
 #[macro_export]
 macro_rules! __iter2_rev_assert_no_truncation {
     (
-        (truncating ($method_name:ident) $($__0:tt)*)
+        (forbids_rev ($method_name:ident) $($__0:tt)*)
         $($rem:tt)*
     ) => {
         $crate::__::compile_error!{$crate::__::concat!{

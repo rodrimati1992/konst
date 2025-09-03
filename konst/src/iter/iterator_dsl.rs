@@ -34,6 +34,7 @@ The methods listed alphabetically:
 - [`rev`](#rev)
 - [`skip_while`](#skip_while)
 - [`skip`](#skip)
+- [`step_by`](#step_by)
 - [`take_while`](#take_while)
 - [`take`](#take)
 - [`zip`](#zip)
@@ -155,6 +156,16 @@ use konst::iter;
 const ARR: [&u8; 3] = iter::collect_const!(&u8 => &[2, 3, 5],rev());
 
 assert_eq!(ARR, [&5, &3, &2]);
+```
+
+### `step_by`
+
+```rust
+use konst::iter;
+
+const ARR: [u8; 7] = iter::collect_const!(u8 => 0..20,step_by(3));
+
+assert_eq!(ARR, [0, 3, 6, 9, 12, 15, 18]);
 ```
 
 ### `take`

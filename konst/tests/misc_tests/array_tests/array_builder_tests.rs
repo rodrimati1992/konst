@@ -14,7 +14,7 @@ fn constructors_const_and_type_test() {
     const fn _callable1<T, const N: usize>() -> ArrayBuilder<T, N, NonDrop> {
         ArrayBuilder::of_assumed_nondrop()
     }
-    const fn _callable1<T: Copy, const N: usize>() -> ArrayBuilder<T, N, NonDrop> {
+    const fn _callable2<T: Copy, const N: usize>() -> ArrayBuilder<T, N, NonDrop> {
         ArrayBuilder::of_copy()
     }
 

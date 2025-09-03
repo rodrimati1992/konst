@@ -46,6 +46,7 @@ error: method `rposition` is unsupported, expected one of:
        - skip_while
        - take
        - take_while
+       - step_by
        - filter
        - filter_map
        - zip

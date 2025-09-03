@@ -41,7 +41,7 @@ pub use self::internal_iter_macros::{__assert_item_ty, __get_item_ty, __items_ne
 pub use iterator_adaptors::*;
 
 #[doc(hidden)]
-pub use self::iter_eval_macro::__eval2_lowering;
+pub use self::iter_eval_macro::{__eval2_lowering, iter_eval_helpers::__StepByVars};
 
 pub use self::step::Step;
 

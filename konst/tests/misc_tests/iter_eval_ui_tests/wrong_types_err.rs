@@ -63,6 +63,10 @@ const _: () = {
 };
 
 const _: () = {
+    konst::iter::eval!(R, step_by(10u8), next());
+};
+
+const _: () = {
     konst::iter::eval!(R, skip(10u8), next());
 };
 
