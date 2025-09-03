@@ -320,3 +320,134 @@ fn array_from_fn_nonlocal_return() {
         assert!(set.borrow().iter().copied().eq(0..LEN as u128), "{set:?}");
     }
 }
+
+////////////////////////////////////
+// map_nd
+
+#[test]
+fn array_map_nd_testt() {
+    const fn map<const N: usize>(array: [NonCopy<u8>; N]) -> [NonCopy<usize>; N] {
+        konst::array::map_nd!(array, |x| NonCopy((x.0 as usize).pow(2)))
+    }
+
+    assert_eq!(map([3, 1, 2].map(NonCopy)), [9, 1, 4].map(NonCopy));
+}
+
+#[test]
+fn array_map_nd_type_annots_testt() {
+    const fn _const() {
+        let _ = konst::array::map_nd!([], |x: u8| -> u16 { x as _ });
+    }
+
+    assert_eq!(
+        konst::array::map_nd!([Default::default()], |x: u8| -> u16 { (x + 1) as _ }),
+        [1],
+    );
+}
+
+#[test]
+fn array_map_nd_pat_testt() {
+    const fn _const() {
+        let _ = konst::array::map_nd!([], |x @ 0u8..| -> u16 { x as _ });
+    }
+
+    assert_eq!(
+        konst::array::map_nd!([Default::default()], |x @ 0u8..| -> u16 { (x + 1) as _ }),
+        [1],
+    );
+}
+
+#[test]
+fn array_map_nd_non_local_return() {
+    const fn make<const N: usize>(
+        arr: [NonCopy<usize>; N],
+        break_on: usize,
+    ) -> [NonCopy<usize>; N] {
+        konst::array::map_nd!(arr, |NonCopy(i)| {
+            if i == break_on {
+                return [const { NonCopy(5) }; N];
+            }
+
+            NonCopy(i)
+        })
+    }
+
+    assert_eq!(make::<2>([0, 1].map(NonCopy), 4), [0, 1].map(NonCopy));
+
+    assert_eq!(make::<4>([0, 1, 2, 3].map(NonCopy), 3), [5; 4].map(NonCopy));
+    assert_eq!(
+        make::<4>([0, 1, 2, 3].map(NonCopy), 4),
+        [0, 1, 2, 3].map(NonCopy)
+    );
+
+    assert_eq!(
+        make::<5>([0, 1, 2, 3, 4].map(NonCopy), 4),
+        [5; 5].map(NonCopy)
+    );
+    assert_eq!(
+        make::<5>([0, 1, 2, 3, 4].map(NonCopy), 5),
+        [0, 1, 2, 3, 4].map(NonCopy)
+    );
+}
+
+////////////////////////////////////
+// from_fn_nd
+
+#[test]
+fn array_from_fn_nd_testt() {
+    const fn make_noncopy1<const N: usize>() -> [NonCopy<usize>; N] {
+        konst::array::from_fn_nd!(|i| NonCopy(i))
+    }
+
+    assert_eq!(make_noncopy1(), [0usize, 1, 2].map(NonCopy));
+
+    assert_eq!(
+        konst::array::from_fn_nd!([NonCopy<usize>; 3] => NonCopy),
+        [0usize, 1, 2].map(NonCopy),
+    );
+}
+
+#[test]
+fn array_from_fn_nd_annotations() {
+    const fn _const() {
+        let _ = konst::array::from_fn_nd!([u8; 3] => |i: usize| -> u8 { i as _ });
+    }
+
+    assert_eq!(
+        konst::array::from_fn_nd!([u8; 3] => |i: usize| -> u8 { i as _ }),
+        [0u8, 1, 2]
+    );
+}
+
+#[test]
+fn array_from_fn_nd_pat() {
+    const fn _const() {
+        let _ = konst::array::from_fn_nd!([u8; 3] => |i @ 0usize..| -> u8 { i as _ });
+    }
+
+    assert_eq!(
+        konst::array::from_fn_nd!([u8; 3] => |i @ 0usize..| -> u8 { i as _ }),
+        [0u8, 1, 2]
+    );
+}
+
+#[test]
+fn array_from_fn_nd_non_local_return() {
+    const fn make<const N: usize>(break_on: usize) -> [NonCopy<usize>; N] {
+        konst::array::from_fn_nd!(|i| {
+            if i == break_on {
+                return [const { NonCopy(5) }; N];
+            }
+
+            NonCopy(i)
+        })
+    }
+
+    assert_eq!(make::<2>(4), [0, 1].map(NonCopy));
+
+    assert_eq!(make::<4>(3), [5; 4].map(NonCopy));
+    assert_eq!(make::<4>(4), [0, 1, 2, 3].map(NonCopy));
+
+    assert_eq!(make::<5>(4), [5; 5].map(NonCopy));
+    assert_eq!(make::<5>(5), [0, 1, 2, 3, 4].map(NonCopy));
+}

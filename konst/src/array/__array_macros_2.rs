@@ -143,10 +143,11 @@ macro_rules! __array_map2__with_parsed_closure_nd {
             builder.infer_length_from_consumer(&consumer);
 
             $crate::while_let_Some!{elem = consumer.next() =>
-                let $($pattern)* = elem;
                 if false {
                     $crate::__::infer_pd_type(&in_pd, &elem);
                 }
+
+                let $($pattern)* = elem;
 
                 let mapped $(: $ret)? = $mapper;
 

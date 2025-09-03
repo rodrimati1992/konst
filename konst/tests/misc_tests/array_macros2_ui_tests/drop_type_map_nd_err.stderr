@@ -1,0 +1,43 @@
+error[E0493]: destructor of `Option<String>` cannot be evaluated at compile-time
+ --> tests/misc_tests/array_macros2_ui_tests/drop_type_map_nd_err.rs:3:20
+  |
+3 | const _: [(); 3] = konst::array::map_nd!([const { String::new() }; 3], std::mem::forget);
+  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |                    |
+  |                    the destructor for this type cannot be evaluated in constants
+  |                    value is dropped here
+  |
+  = note: this error originates in the macro `$crate::__array_map2__with_parsed_closure_nd` which comes from the expansion of the macro `konst::array::map_nd` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0493]: destructor of `Option<String>` cannot be evaluated at compile-time
+ --> tests/misc_tests/array_macros2_ui_tests/drop_type_map_nd_err.rs:6:24
+  |
+6 | const _: [String; 3] = konst::array::map_nd!([(); 3], |_| String::new());
+  |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |                        |
+  |                        the destructor for this type cannot be evaluated in constants
+  |                        value is dropped here
+  |
+  = note: this error originates in the macro `$crate::__array_map2__with_parsed_closure_nd` which comes from the expansion of the macro `konst::array::map_nd` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0493]: destructor of `Option<Vec<u8>>` cannot be evaluated at compile-time
+ --> tests/misc_tests/array_macros2_ui_tests/drop_type_map_nd_err.rs:9:25
+  |
+9 | const _: [Vec<u8>; 3] = konst::array::map_nd!([const { String::new() }; 3], String::into_bytes);
+  |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |                         |
+  |                         the destructor for this type cannot be evaluated in constants
+  |                         value is dropped here
+  |
+  = note: this error originates in the macro `$crate::__array_map2__with_parsed_closure_nd` which comes from the expansion of the macro `konst::array::map_nd` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0493]: destructor of `Option<String>` cannot be evaluated at compile-time
+ --> tests/misc_tests/array_macros2_ui_tests/drop_type_map_nd_err.rs:9:25
+  |
+9 | const _: [Vec<u8>; 3] = konst::array::map_nd!([const { String::new() }; 3], String::into_bytes);
+  |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |                         |
+  |                         the destructor for this type cannot be evaluated in constants
+  |                         value is dropped here
+  |
+  = note: this error originates in the macro `$crate::__array_map2__with_parsed_closure_nd` which comes from the expansion of the macro `konst::array::map_nd` (in Nightly builds, run with -Z macro-backtrace for more info)
