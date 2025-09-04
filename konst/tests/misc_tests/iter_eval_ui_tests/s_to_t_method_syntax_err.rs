@@ -5,6 +5,10 @@ const fn whatever1_return<T>(a0: impl Sized) -> T {
     unimplemented!()
 }
 
+const _: () = {
+    konst::iter::eval!(R, step_by(), next());
+    konst::iter::eval!(R, step_by(10, 20), next());
+};
 
 const _: () = {
     konst::iter::eval!(R, skip_while(), next());

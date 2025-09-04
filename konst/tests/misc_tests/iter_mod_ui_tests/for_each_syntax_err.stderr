@@ -42,6 +42,7 @@ error: method `foobar` is unsupported, expected one of:
        - skip_while
        - take
        - take_while
+       - map_while
        - step_by
        - filter
        - filter_map

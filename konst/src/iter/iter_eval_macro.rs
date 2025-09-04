@@ -40,6 +40,24 @@ macro_rules! __iter_eval {
     );
 }
 
+macro_rules! iter_rev_limitations_docs {
+    () => {
+        concat! {
+            "\n\nIterator-reversing methods can't be called after any of these methods: \n",
+            "- `enumerate` \n",
+            "- `map_while` \n",
+            "- `rev` \n",
+            "- `skip_while` \n",
+            "- `skip` \n",
+            "- `step_by` \n",
+            "- `take_while` \n",
+            "- `take` \n",
+            "- `zip` \n",
+        }
+    };
+}
+pub(super) use iter_rev_limitations_docs;
+
 #[cfg(feature = "cmp")]
 macro_rules! iter_cmp_docs {
     () => {
@@ -141,6 +159,7 @@ The iterator adaptor methods, listed alphabetically
 - [`flat_map`](crate::iter::iterator_dsl#flat_map)
 - [`flatten`](crate::iter::iterator_dsl#flatten)
 - [`map`](crate::iter::iterator_dsl#map)
+- [`map_while`](crate::iter::iterator_dsl#take_while)
 - [`rev`](crate::iter::iterator_dsl#rev)
 - [`skip_while`](crate::iter::iterator_dsl#skip_while)
 - [`skip`](crate::iter::iterator_dsl#skip)
@@ -311,10 +330,9 @@ assert_eq!(find_parsable(&["10", "20"]), Some(10));
 
 Const equivalent of [`DoubleEndedIterator::rfind`]
 
-Limitations iterator-reversing methods can't:
-- be called more than once in the same macro invocation.
-- be called after calling `take`,`take_while`,`skip`, or `skip_while`.
-
+*/
+#[doc = iter_rev_limitations_docs!()]
+/**
 
 ```rust
 use konst::iter;
@@ -352,8 +370,9 @@ assert_eq!(sum_u64(&[3, 5, 8]), 16);
 
 Const equivalent of [`DoubleEndedIterator::rfold`]
 
-Limitation: iterator-reversing methods can't be called more than once in
-the same macro invocation.
+*/
+#[doc = iter_rev_limitations_docs!()]
+/**
 
 ```rust
 use konst::iter;
@@ -943,6 +962,22 @@ declare_eval2_lowering! {
     };
 
     (
+        { [$($prev_insts:tt)*] $prev_levels:tt [$is_returning:tt $vars:tt $iters:tt] }
+        [map_while] ($($closure:tt)*)
+        $($rem:tt)*
+    ) => {
+        $crate::iter::__eval2_lowering!{
+            {
+                [ $($prev_insts)* (map_while $($closure)*)]
+                $prev_levels
+                [[is_returning] $vars $iters]
+            }
+
+            $($rem)*
+        }
+    };
+
+    (
         { [$($prev_insts:tt)*] $prev_levels:tt [$is_returning:tt [$($vars:tt)*] $iters:tt] }
         [step_by] ($by:expr $(,)?)
         $($rem:tt)*
@@ -1305,7 +1340,7 @@ declare_eval2_lowering! {
             let ord = $crate::iter::__eval2_lowering!{
                 $fixed
                 [__finder __finder] (accum = $crate::__::Equal, |l_item| {
-                    if let Some(r_item) = other_iter.next() {
+                    $crate::if_let_Some!{r_item = other_iter.next() => {
                         $crate::__iter2_require_cmp!{
                             "iterator comparison methods require the  \"cmp\" feature";
                             accum = $crate::cmp::const_cmp!(l_item, r_item);
@@ -1317,7 +1352,7 @@ declare_eval2_lowering! {
                     } else {
                         accum = $crate::__::Greater;
                         __iter2_returner!{}
-                    }
+                    }}
                 })
             };
 
@@ -1339,7 +1374,7 @@ declare_eval2_lowering! {
             let is_eq = $crate::iter::__eval2_lowering!{
                 $fixed
                 [__finder __finder] (accum = true, |l_item| {
-                    if let Some(r_item) = other_iter.next() {
+                    $crate::if_let_Some!{r_item = other_iter.next() => {
                         $crate::__iter2_require_cmp!{
                             "iterator comparison methods require the  \"cmp\" feature";
                             if !$crate::cmp::const_eq!(l_item, r_item) {
@@ -1350,7 +1385,7 @@ declare_eval2_lowering! {
                     } else {
                         accum = false;
                         __iter2_returner!{}
-                    }
+                    }}
                 })
             };
 
@@ -1622,7 +1657,7 @@ macro_rules! declare_eval2_lowering {
                 $fixed:tt
             ) => {
                 $crate::__::compile_error!{$crate::__::concat!{
-                    "expected one of these consumer methods at the end:`",
+                    "expected one of these consumer methods at the end:",
                     $( "\n- ", $crate::__::stringify!($cons_method), )*
                 }}
             };
@@ -1799,7 +1834,7 @@ macro_rules! __iter2_interpreter {
         }
     };
 
-    // dedicated instruction for take*/skip* so that rev can detect their presence
+    // dedicated instruction so that rev can detect the presence of incompatible ops
     (
         [$item:ident $next:ident $($__rem_fixed:tt)*]
         $fixed:tt
@@ -1808,6 +1843,26 @@ macro_rules! __iter2_interpreter {
     ) => {
         let $item_param = $item;
         $code
+
+        $crate::__iter2_interpreter!{$fixed $fixed $($rem)*}
+    };
+
+    (
+        [$item:ident $next:ident $($__rem_fixed:tt)*]
+        $fixed:tt
+        (map_while $($closure:tt)*)
+        $($rem:tt)*
+    ) => {
+        let $item = $crate::if_let_Some!{item =
+            $crate::__parse_closure_1!{
+                ($crate::__eval_closure) ($item,) (map_while),
+                $($closure)*
+            } => {
+                item
+            } else {
+                __iter2_returner!{}
+            }
+        };
 
         $crate::__iter2_interpreter!{$fixed $fixed $($rem)*}
     };
@@ -1895,7 +1950,7 @@ macro_rules! __iter2_is_sorted_impl {
                     $crate::__utils::__infer_option_of(&$r_item, &prev)
                 }
 
-                if let $crate::__::Some($l_item) = prev {
+                $crate::if_let_Some!{$l_item = prev => {
                     $crate::__iter2_require_cmp!{
                         "is_sorted methods require the  \"cmp\" feature";
                         if !$comparator {
@@ -1903,7 +1958,7 @@ macro_rules! __iter2_is_sorted_impl {
                             __iter2_returner!{}
                         }
                     }
-                }
+                }}
                 prev = $crate::__::Some($r_item);
             })
         }
@@ -1930,7 +1985,7 @@ macro_rules! __iter2_minmax_impl {
                     $crate::__utils::__infer_option_of(&$r_item, &prev)
                 }
 
-                if let $crate::__::Some($l_item) = prev {
+                $crate::if_let_Some!{$l_item = prev => {
                     $crate::__iter2_require_cmp!{
                         "min/max methods require the  \"cmp\" feature";
                         if let $update_if = $minmaximizer {
@@ -1939,7 +1994,7 @@ macro_rules! __iter2_minmax_impl {
                     }
                 } else {
                     prev = $crate::__::Some($r_item);
-                }
+                }}
 
                 prev
             })
@@ -2028,6 +2083,10 @@ macro_rules! __iter2_rev_assert_no_truncation {
     };
     ((map $args:tt enumerate $($_01:tt)*) $($rem:tt)*) => {
         $crate::__::compile_error!{"Cannot call `rev()` after calling `enumerate`"}
+        $crate::__iter2_rev_assert_no_truncation!{ $($rem)* }
+    };
+    ((map_while $($_01:tt)*) $($rem:tt)*) => {
+        $crate::__::compile_error!{"Cannot call `rev()` after calling `map_while`"}
         $crate::__iter2_rev_assert_no_truncation!{ $($rem)* }
     };
     ((zip $($_01:tt)*) $($rem:tt)*) => {

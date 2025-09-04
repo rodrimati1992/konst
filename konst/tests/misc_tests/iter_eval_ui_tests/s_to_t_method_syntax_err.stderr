@@ -1,143 +1,159 @@
-error: `skip_while` expects to be passed a 1-parameter closure
+error: invalid argument(s) for `step_by` method: ``
+ --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:9:5
+  |
+9 |     konst::iter::eval!(R, step_by(), next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: invalid argument(s) for `step_by` method: `10, 20`
   --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:10:5
    |
-10 |     konst::iter::eval!(R, skip_while(), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error: `skip_while` expects to be passed a 1-parameter closure
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:11:5
-   |
-11 |     konst::iter::eval!(R, skip_while(||false), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error: `skip_while` expects valid closure syntax, passed closure without return value
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:12:5
-   |
-12 |     konst::iter::eval!(R, skip_while(|_|), next());
+10 |     konst::iter::eval!(R, step_by(10, 20), next());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error: `skip_while` expects no arguments after closure argument
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:13:5
-   |
-13 |     konst::iter::eval!(R, skip_while(|_| false, 100), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `skip_while` expects to be passed a 1-parameter closure
   --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:14:5
    |
-14 |     konst::iter::eval!(R, skip_while(|a, b|false), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 |     konst::iter::eval!(R, skip_while(), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `skip_while` expects to be passed a 1-parameter closure
   --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:15:5
    |
-15 |     konst::iter::eval!(R, skip_while({whatever1_return}), next());
+15 |     konst::iter::eval!(R, skip_while(||false), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `skip_while` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:16:5
+   |
+16 |     konst::iter::eval!(R, skip_while(|_|), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `skip_while` expects no arguments after closure argument
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:17:5
+   |
+17 |     konst::iter::eval!(R, skip_while(|_| false, 100), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `skip_while` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:18:5
+   |
+18 |     konst::iter::eval!(R, skip_while(|a, b|false), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `skip_while` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:19:5
+   |
+19 |     konst::iter::eval!(R, skip_while({whatever1_return}), next());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: invalid argument(s) for `skip` method: ``
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:19:5
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:23:5
    |
-19 |     konst::iter::eval!(R, skip(), next());
+23 |     konst::iter::eval!(R, skip(), next());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: invalid argument(s) for `skip` method: `10, 20`
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:20:5
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:24:5
    |
-20 |     konst::iter::eval!(R, skip(10, 20), next());
+24 |     konst::iter::eval!(R, skip(10, 20), next());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: invalid argument(s) for `take` method: ``
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:24:5
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:28:5
    |
-24 |     konst::iter::eval!(R, take(), next());
+28 |     konst::iter::eval!(R, take(), next());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: invalid argument(s) for `take` method: `10, 20`
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:25:5
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:29:5
    |
-25 |     konst::iter::eval!(R, take(10, 20), next());
+29 |     konst::iter::eval!(R, take(10, 20), next());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `take_while` expects to be passed a 1-parameter closure
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:29:5
-   |
-29 |     konst::iter::eval!(R, take_while(), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error: `take_while` expects to be passed a 1-parameter closure
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:30:5
-   |
-30 |     konst::iter::eval!(R, take_while(||false), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error: `take_while` expects valid closure syntax, passed closure without return value
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:31:5
-   |
-31 |     konst::iter::eval!(R, take_while(|_|), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error: `take_while` expects no arguments after closure argument
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:32:5
-   |
-32 |     konst::iter::eval!(R, take_while(|_| false, 100), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error: `take_while` expects to be passed a 1-parameter closure
   --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:33:5
    |
-33 |     konst::iter::eval!(R, take_while(|a, b|false), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+33 |     konst::iter::eval!(R, take_while(), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: `take_while` expects to be passed a 1-parameter closure
   --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:34:5
    |
-34 |     konst::iter::eval!(R, take_while({whatever1_return}), next());
+34 |     konst::iter::eval!(R, take_while(||false), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `take_while` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:35:5
+   |
+35 |     konst::iter::eval!(R, take_while(|_|), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `take_while` expects no arguments after closure argument
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:36:5
+   |
+36 |     konst::iter::eval!(R, take_while(|_| false, 100), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_trailing_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `take_while` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:37:5
+   |
+37 |     konst::iter::eval!(R, take_while(|a, b|false), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `take_while` expects to be passed a 1-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:38:5
+   |
+38 |     konst::iter::eval!(R, take_while({whatever1_return}), next());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: invalid argument(s) for `zip` method: ``
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:38:5
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:42:5
    |
-38 |     konst::iter::eval!(R, zip(), next());
+42 |     konst::iter::eval!(R, zip(), next());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: invalid argument(s) for `zip` method: `R, 20`
-  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:39:5
+  --> tests/misc_tests/iter_eval_ui_tests/s_to_t_method_syntax_err.rs:43:5
    |
-39 |     konst::iter::eval!(R, zip(R, 20), next());
+43 |     konst::iter::eval!(R, zip(R, 20), next());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

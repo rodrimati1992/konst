@@ -31,6 +31,7 @@ The methods listed alphabetically:
 - [`flat_map`](#flat_map)
 - [`flatten`](#flatten)
 - [`map`](#map)
+- [`map_while`](#map_while)
 - [`rev`](#rev)
 - [`skip_while`](#skip_while)
 - [`skip`](#skip)
@@ -147,8 +148,9 @@ assert_eq!(ARR, [2, 4, 6]);
 
 ### `rev`
 
-Limitation: iterator-reversing methods can't be called more than once in
-the same macro invocation.
+*/
+#![doc = crate::iter::iter_eval_macro::iter_rev_limitations_docs!()]
+/*!
 
 ```rust
 use konst::iter;
@@ -188,6 +190,18 @@ const ARR: [&u8; 4] = iter::collect_const!(&u8 =>
 );
 
 assert_eq!(ARR, [&3, &5, &8, &13]);
+```
+
+### `map_while`
+
+```rust
+use konst::iter;
+
+const ARR: [i8; 3] = iter::collect_const!(i8 =>
+    [3i8, 5, 8, 13, 21, 34, 55],map_while(|elem| elem.checked_pow(2) )
+);
+
+assert_eq!(ARR, [9, 25, 64]);
 ```
 
 ### `skip`

@@ -6,34 +6,82 @@ error: invalid argument(s) for `rev` method: `10`
   |
   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: iterators can't be reversed twice
+error: Cannot call `rev()` after calling `enumerate`
  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:8:5
   |
-8 |     konst::iter::eval!(R, rev(),rev(),next());
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the macro `$crate::__iter2_rev_asserts` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error: Cannot call `rev()` after calling `enumerate`
- --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:9:5
-  |
-9 |     konst::iter::eval!(R, enumerate(),rev(),next());
+8 |     konst::iter::eval!(R, enumerate(),rev(),next());
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the macro `$crate::__iter2_rev_assert_no_truncation` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: Cannot call `rev()` after calling `zip`
+error: Cannot call `rev()` after calling `map_while`
+ --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:9:5
+  |
+9 |     konst::iter::eval!(R, map_while(|_| None::<u8>),rev(),next());
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__iter2_rev_assert_no_truncation` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: iterators can't be reversed twice
   --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:10:5
    |
-10 |     konst::iter::eval!(R, zip(0u8..3),rev(),next());
+10 |     konst::iter::eval!(R, rev(),rev(),next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_rev_asserts` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: Cannot call `rev()` after calling `skip`
+  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:11:5
+   |
+11 |     konst::iter::eval!(R, skip(3),rev(),next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_rev_assert_no_truncation` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: Cannot call `rev()` after calling `skip_while`
+  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:12:5
+   |
+12 |     konst::iter::eval!(R, skip_while(|_| false),rev(),next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_rev_assert_no_truncation` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: Cannot call `rev()` after calling `step_by`
+  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:13:5
+   |
+13 |     konst::iter::eval!(R, step_by(3),rev(),next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_rev_assert_no_truncation` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: Cannot call `rev()` after calling `take`
+  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:14:5
+   |
+14 |     konst::iter::eval!(R, take(3),rev(),next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_rev_assert_no_truncation` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: Cannot call `rev()` after calling `take_while`
+  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:15:5
+   |
+15 |     konst::iter::eval!(R, take_while(|_| false),rev(),next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__iter2_rev_assert_no_truncation` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: Cannot call `rev()` after calling `zip`
+  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:16:5
+   |
+16 |     konst::iter::eval!(R, zip(0u8..3),rev(),next());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__iter2_rev_assert_no_truncation` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: iterators can't be reversed twice
-  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:11:5
+  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:17:5
    |
-11 |     konst::iter::eval!(R, rev(),rfind(|_| false));
+17 |     konst::iter::eval!(R, rev(),rfind(|_| false));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__iter2_rev_asserts` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
@@ -46,6 +94,7 @@ error: method `rposition` is unsupported, expected one of:
        - skip_while
        - take
        - take_while
+       - map_while
        - step_by
        - filter
        - filter_map
@@ -81,17 +130,17 @@ error: method `rposition` is unsupported, expected one of:
        - min_by
        - max_by_key
        - min_by_key
-  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:12:5
+  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:18:5
    |
-12 |     konst::iter::eval!(R, rev(),rposition(|_| false));
+18 |     konst::iter::eval!(R, rev(),rposition(|_| false));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: iterators can't be reversed twice
-  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:13:5
+  --> tests/misc_tests/iter_eval_ui_tests/rev_method_syntax_err.rs:19:5
    |
-13 |     konst::iter::eval!(R, rev(),rfold(0, |_, _| 10));
+19 |     konst::iter::eval!(R, rev(),rfold(0, |_, _| 10));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__iter2_rev_asserts` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

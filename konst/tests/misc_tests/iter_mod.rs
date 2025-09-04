@@ -728,6 +728,31 @@ fn step_by_test() {
 }
 
 #[test]
+fn map_while_test() {
+    const fn _const() {
+        let _ = iter::eval!(0u8.., map_while(|x| x.checked_pow(2)), next());
+    }
+
+    for (input, output) in [
+        (&[200u8, 3, 8, 5][..], &[0i8; 0][..]),
+        (&[3, 200, 8, 5], &[3]),
+        (&[3, 5, 200, 8], &[3, 5]),
+        (&[3, 5, 8, 200], &[3, 5, 8]),
+        (&[3, 5, 8, 13], &[3, 5, 8, 13]),
+    ] {
+        let mut vect = Vec::new();
+
+        iter::eval!(
+            konst::slice::iter_copied(input),
+            map_while(|x: u8| -> Option<i8> { i8::try_from(x).ok() }),
+            for_each(|x| vect.push(x))
+        );
+
+        assert_eq!(vect, *output);
+    }
+}
+
+#[test]
 fn take_while_retty_test() {
     let mut vect = Vec::new();
 
