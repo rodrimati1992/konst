@@ -9,6 +9,7 @@ error: expected one of these consumer methods at the end:
        - next
        - count
        - for_each
+       - reduce
        - fold
        - rfold
        - cmp
@@ -85,6 +86,7 @@ error: expected one of these consumer methods at the end:
        - next
        - count
        - for_each
+       - reduce
        - fold
        - rfold
        - cmp

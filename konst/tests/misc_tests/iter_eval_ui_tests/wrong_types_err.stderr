@@ -68,14 +68,83 @@ error[E0308]: mismatched types
    |                                 |
    |                                 expected due to this
 
-error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:41:5
+error[E0308]: arguments to this function are incorrect
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:42:17
    |
-41 |     konst::iter::eval!(R, fold(0u32, add));
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |     |
-   |     expected `u32`, found `usize`
-   |     arguments to this function are incorrect
+42 |     let _: () = konst::iter::eval!(R, reduce(add));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `u32`, found `usize`
+   |                 expected `u32`, found `usize`
+   |
+note: function defined here
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:36:10
+   |
+36 | const fn add(l: u32, r: u32) -> u32 {
+   |          ^^^ ------  ------
+   = note: this error originates in the macro `$crate::__parse_closure_2` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:42:17
+   |
+42 |     let _: () = konst::iter::eval!(R, reduce(add));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `usize`, found `u32`
+   |                 here the type of `ret` is inferred to be `u32`
+   |
+   = note: this error originates in the macro `$crate::__eval_closure` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:42:17
+   |
+42 |     let _: () = konst::iter::eval!(R, reduce(add));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Option<usize>`
+   |
+   = note: expected unit type `()`
+                   found enum `Option<usize>`
+   = note: this error originates in the macro `$crate::__iter2_finish_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: arguments to this function are incorrect
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:43:53
+   |
+43 |     let _: () = konst::iter::eval!(R, reduce(|x, y| add(x, y)));
+   |                                                     ^^^ -  - expected `u32`, found `usize`
+   |                                                         |
+   |                                                         expected `u32`, found `usize`
+   |
+note: function defined here
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:36:10
+   |
+36 | const fn add(l: u32, r: u32) -> u32 {
+   |          ^^^ ------  ------
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:43:17
+   |
+43 |     let _: () = konst::iter::eval!(R, reduce(|x, y| add(x, y)));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `usize`, found `u32`
+   |
+   = note: this error originates in the macro `$crate::__eval_closure` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:43:17
+   |
+43 |     let _: () = konst::iter::eval!(R, reduce(|x, y| add(x, y)));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `Option<usize>`
+   |
+   = note: expected unit type `()`
+                   found enum `Option<usize>`
+   = note: this error originates in the macro `$crate::__iter2_finish_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:47:17
+   |
+47 |     let _: () = konst::iter::eval!(R, fold(0u32, add));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `u32`, found `usize`
+   |                 arguments to this function are incorrect
    |
 note: function defined here
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:36:10
@@ -85,12 +154,20 @@ note: function defined here
    = note: this error originates in the macro `$crate::__parse_closure_2` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:45:64
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:47:17
    |
-45 |     konst::iter::eval!(R, rfold(0u32, |accum, elem| add(accum, elem)));
-   |                                                     ---        ^^^^ expected `u32`, found `usize`
-   |                                                     |
-   |                                                     arguments to this function are incorrect
+47 |     let _: () = konst::iter::eval!(R, fold(0u32, add));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u32`
+   |
+   = note: this error originates in the macro `$crate::__iter2_finish_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:48:64
+   |
+48 |     let _: () = konst::iter::eval!(R, fold(0u32, |x, y| add(x, y)));
+   |                                                         ---    ^ expected `u32`, found `usize`
+   |                                                         |
+   |                                                         arguments to this function are incorrect
    |
 note: function defined here
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:36:10
@@ -99,9 +176,63 @@ note: function defined here
    |          ^^^         ------
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:50:5
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:48:17
    |
-50 |     konst::iter::eval!(R, map(|_| true,),next())
+48 |     let _: () = konst::iter::eval!(R, fold(0u32, |x, y| add(x, y)));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u32`
+   |
+   = note: this error originates in the macro `$crate::__iter2_finish_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:52:17
+   |
+52 |     let _: () = konst::iter::eval!(R, rfold(0u32, add));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                 |
+   |                 expected `u32`, found `usize`
+   |                 arguments to this function are incorrect
+   |
+note: function defined here
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:36:10
+   |
+36 | const fn add(l: u32, r: u32) -> u32 {
+   |          ^^^         ------
+   = note: this error originates in the macro `$crate::__parse_closure_2` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:52:17
+   |
+52 |     let _: () = konst::iter::eval!(R, rfold(0u32, add));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u32`
+   |
+   = note: this error originates in the macro `$crate::__iter2_finish_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:53:76
+   |
+53 |     let _: () = konst::iter::eval!(R, rfold(0u32, |accum, elem| add(accum, elem)));
+   |                                                                 ---        ^^^^ expected `u32`, found `usize`
+   |                                                                 |
+   |                                                                 arguments to this function are incorrect
+   |
+note: function defined here
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:36:10
+   |
+36 | const fn add(l: u32, r: u32) -> u32 {
+   |          ^^^         ------
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:53:17
+   |
+53 |     let _: () = konst::iter::eval!(R, rfold(0u32, |accum, elem| add(accum, elem)));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `u32`
+   |
+   = note: this error originates in the macro `$crate::__iter2_finish_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:58:5
+   |
+58 |     konst::iter::eval!(R, map(|_| true,),next())
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Option<u32>`, found `Option<bool>`
    |
    = note: expected enum `Option<u32>`
@@ -109,9 +240,9 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `$crate::__iter2_finish_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:54:5
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:62:5
    |
-54 |     konst::iter::eval!(R, nth(false));
+62 |     konst::iter::eval!(R, nth(false));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |     |
    |     expected `usize`, found `bool`
@@ -120,9 +251,9 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:54:5
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:62:5
    |
-54 |     konst::iter::eval!(R, nth(false));
+62 |     konst::iter::eval!(R, nth(false));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |     |
    |     expected `usize`, found `bool`
@@ -133,9 +264,9 @@ note: method defined here
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `uint_impl` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:54:5
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:62:5
    |
-54 |     konst::iter::eval!(R, nth(false));
+62 |     konst::iter::eval!(R, nth(false));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |     |
    |     expected `bool`, found `usize`
@@ -144,25 +275,25 @@ error[E0308]: mismatched types
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:58:5
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:66:5
    |
-58 |     konst::iter::eval!(R, position(|_| 10u8));
+66 |     konst::iter::eval!(R, position(|_| 10u8));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `bool`, found `u8`
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:62:5
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:70:5
    |
-62 |     konst::iter::eval!(R, rfind(|_| 10u8));
+70 |     konst::iter::eval!(R, rfind(|_| 10u8));
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `bool`, found `u8`
    |
    = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:66:35
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:74:35
    |
-66 |     konst::iter::eval!(R, step_by(10u8), next());
+74 |     konst::iter::eval!(R, step_by(10u8), next());
    |     ------------------------------^^^^----------
    |     |                             |
    |     |                             expected `usize`, found `u8`
@@ -175,51 +306,36 @@ note: associated function defined here
    |                  ^^^
 help: change the type of the numeric literal from `u8` to `usize`
    |
-66 -     konst::iter::eval!(R, step_by(10u8), next());
-66 +     konst::iter::eval!(R, step_by(10usize), next());
+74 -     konst::iter::eval!(R, step_by(10u8), next());
+74 +     konst::iter::eval!(R, step_by(10usize), next());
    |
-
-error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:70:5
-   |
-70 |     konst::iter::eval!(R, skip(10u8), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |     |
-   |     expected `usize`, found `u8`
-   |     expected due to this
-   |
-   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:74:5
-   |
-74 |     konst::iter::eval!(R, take(10u8), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |     |
-   |     expected `usize`, found `u8`
-   |     expected due to this
-   |
-   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:78:5
    |
-78 |     konst::iter::eval!(R, skip_while(|_| None::<u32>,), next());
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `bool`, found `Option<u32>`
+78 |     konst::iter::eval!(R, skip(10u8), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |     |
+   |     expected `usize`, found `u8`
+   |     expected due to this
    |
-   = note: expected type `bool`
-              found enum `Option<u32>`
-   = note: this error originates in the macro `$crate::__eval_closure` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
-help: use `Option::is_some` to test if the `Option` has a value
-  --> src/macros/parse_closures.rs
-   |
-   |         ret.is_some()
-   |            ++++++++++
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0308]: mismatched types
   --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:82:5
    |
-82 |     konst::iter::eval!(R, take_while(|_| None::<u32>,), next());
+82 |     konst::iter::eval!(R, take(10u8), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |     |
+   |     expected `usize`, found `u8`
+   |     expected due to this
+   |
+   = note: this error originates in the macro `$crate::iter::__eval2_lowering` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:86:5
+   |
+86 |     konst::iter::eval!(R, skip_while(|_| None::<u32>,), next());
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `bool`, found `Option<u32>`
    |
    = note: expected type `bool`
@@ -232,9 +348,24 @@ help: use `Option::is_some` to test if the `Option` has a value
    |            ++++++++++
 
 error[E0308]: mismatched types
-  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:86:35
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:90:5
    |
-86 | const _: Option<(usize, usize)> = konst::iter::eval!(R, zip(S), next());
+90 |     konst::iter::eval!(R, take_while(|_| None::<u32>,), next());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `bool`, found `Option<u32>`
+   |
+   = note: expected type `bool`
+              found enum `Option<u32>`
+   = note: this error originates in the macro `$crate::__eval_closure` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: use `Option::is_some` to test if the `Option` has a value
+  --> src/macros/parse_closures.rs
+   |
+   |         ret.is_some()
+   |            ++++++++++
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/iter_eval_ui_tests/wrong_types_err.rs:94:35
+   |
+94 | const _: Option<(usize, usize)> = konst::iter::eval!(R, zip(S), next());
    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Option<(usize, usize)>`, found `Option<(usize, &u8)>`
    |
    = note: expected enum `Option<(usize, usize)>`

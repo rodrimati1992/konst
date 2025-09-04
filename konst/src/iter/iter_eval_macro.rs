@@ -116,6 +116,7 @@ The consuming methods listed alphabetically:
 - [`next`](#next)
 - [`nth`](#nth)
 - [`position`](#position)
+- [`reduce`](#reduce)
 - [`rfind`](#rfind)
 - [`rfold`](#rfold)
 
@@ -345,6 +346,26 @@ assert_eq!(sum_u64(&[]), None);
 assert_eq!(sum_u64(&[2]), Some(&2));
 assert_eq!(sum_u64(&[2, 5, 8]), Some(&8));
 
+```
+
+### `reduce`
+
+Const equivalent of [`Iterator::reduce`]
+
+```rust
+use konst::iter;
+
+const fn sum_u64(slice: &[u64]) -> u64 {
+    konst::option::unwrap_or!(
+        iter::eval!(slice,copied(),reduce(|accum, rhs| accum + rhs)),
+        0,
+    )
+}
+
+assert_eq!(sum_u64(&[]), 0);
+assert_eq!(sum_u64(&[3]), 3);
+assert_eq!(sum_u64(&[3, 5]), 8);
+assert_eq!(sum_u64(&[3, 5, 8]), 16);
 ```
 
 ### `fold`
@@ -1293,6 +1314,18 @@ declare_eval2_lowering! {
     };
 
     (
+        { [$($prev_insts:tt)*] $prev_levels:tt $tl_vars:tt }
+        [reduce] ($($closure:tt)*)
+    ) => {
+        $crate::__iter2_finish_lowering!{
+            [accum acc = $crate::__::None]
+            $prev_levels
+            $tl_vars
+            [ $($prev_insts)* (reduce (acc) $($closure)*) ]
+        }
+    };
+
+    (
         {
             [$($prev_insts:tt)*]
             $prev_levels:tt
@@ -1919,7 +1952,24 @@ macro_rules! __iter2_interpreter {
             $($closure)*
         };
     };
+    (
+        [$item:ident $($__rem_fixed:tt)*]
+        $fixed:tt
+        (reduce ($acc:ident) $($closure:tt)*)
+    ) => {
+        if false {
+            $crate::iter::__infer_option_ty(&$acc, &$item);
+        }
 
+        $acc = $crate::__::Some($crate::if_let_Some!{acc = $acc => {
+            $crate::__parse_closure_2!{
+                ($crate::__eval_closure) ((acc, $item,),) (reduce),
+                $($closure)*
+            }
+        } else {
+            $item
+        }})
+    };
     (
         [$item:ident $($__rem_fixed:tt)*]
         $fixed:tt

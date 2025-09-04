@@ -30,4 +30,12 @@ const _: () = {
     konst::iter::eval!(R, rfold(0, {whatever2_return::<u8>})); 
 };
 
+const _: () = {
+    konst::iter::eval!(R, reduce());
+    konst::iter::eval!(R, reduce(|| 10));
+    konst::iter::eval!(R, reduce(|_| 10));
+    konst::iter::eval!(R, reduce(|_, _| ));
+    konst::iter::eval!(R, reduce({whatever2_return::<u8>})); 
+};
+
 fn main(){}

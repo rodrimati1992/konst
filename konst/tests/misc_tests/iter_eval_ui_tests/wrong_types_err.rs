@@ -37,12 +37,20 @@ const fn add(l: u32, r: u32) -> u32 {
     l + r
 }
 
+
 const _: () = {
-    konst::iter::eval!(R, fold(0u32, add));
+    let _: () = konst::iter::eval!(R, reduce(add));
+    let _: () = konst::iter::eval!(R, reduce(|x, y| add(x, y)));
 };
 
 const _: () = {
-    konst::iter::eval!(R, rfold(0u32, |accum, elem| add(accum, elem)));
+    let _: () = konst::iter::eval!(R, fold(0u32, add));
+    let _: () = konst::iter::eval!(R, fold(0u32, |x, y| add(x, y)));
+};
+
+const _: () = {
+    let _: () = konst::iter::eval!(R, rfold(0u32, add));
+    let _: () = konst::iter::eval!(R, rfold(0u32, |accum, elem| add(accum, elem)));
 };
 
 

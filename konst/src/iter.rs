@@ -36,7 +36,9 @@ pub use collect_const::collect_const;
 pub use self::iter_eval_macro::eval;
 
 #[doc(hidden)]
-pub use self::internal_iter_macros::{__assert_item_ty, __get_item_ty, __items_needs_drop};
+pub use self::internal_iter_macros::{
+    __assert_item_ty, __get_item_ty, __infer_option_ty, __items_needs_drop,
+};
 
 pub use iterator_adaptors::*;
 

@@ -32,6 +32,7 @@ error: method `asdasdasd` is unsupported, expected one of:
        - next
        - count
        - for_each
+       - reduce
        - fold
        - rfold
        - cmp

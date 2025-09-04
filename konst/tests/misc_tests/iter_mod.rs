@@ -396,6 +396,62 @@ fn find_map_test() {
 }
 
 #[test]
+fn reduce_test() {
+    const fn shifter(range: &[u8]) -> Option<u128> {
+        iter::eval!(
+            range,
+            map(|x| *x as u128),
+            reduce(|accum, elem| (accum << 8) | elem)
+        )
+    }
+
+    const fn sum_range(range: std::ops::Range<usize>) -> Option<usize> {
+        iter::eval!(range, reduce(add_usize))
+    }
+
+    const fn ret_on_0(slice: &[u8]) -> Option<u8> {
+        iter::eval!(
+            slice,
+            copied(),
+            reduce(|accum, elem: u8| if elem == 0 {
+                return None;
+            } else {
+                accum + elem
+            })
+        )
+    }
+
+    assert_eq!(shifter(&[]), None);
+    assert_eq!(shifter(&[1]), Some(0x01));
+    assert_eq!(shifter(&[1, 2]), Some(0x0102));
+    assert_eq!(shifter(&[1, 2, 3]), Some(0x010203));
+
+    assert_eq!(sum_range(5..0), None);
+    assert_eq!(sum_range(0..0), None);
+    assert_eq!(sum_range(0..1), Some(0));
+    assert_eq!(sum_range(0..2), Some(1));
+    assert_eq!(sum_range(0..3), Some(3));
+    assert_eq!(sum_range(0..4), Some(6));
+    assert_eq!(sum_range(0..5), Some(10));
+
+    assert_eq!(ret_on_0(&[]), None);
+    assert_eq!(ret_on_0(&[0]), Some(0)); // single-item iterators always return the item
+    assert_eq!(ret_on_0(&[2]), Some(2));
+    assert_eq!(ret_on_0(&[2, 0]), None);
+    assert_eq!(ret_on_0(&[2, 0, 2]), None);
+    assert_eq!(ret_on_0(&[1, 1]), Some(2));
+    assert_eq!(ret_on_0(&[1, 2]), Some(3));
+
+    assert_eq!(
+        iter::eval!(
+            konst::slice::iter_copied(&[Def::DEF, Def::DEF_OTHER]),
+            reduce(|_, e| -> Option<usize> { e })
+        ),
+        Some(Some(1)),
+    );
+}
+
+#[test]
 fn fold_test() {
     const fn shifter(range: &[u8]) -> u128 {
         iter::eval!(range, fold(0, |accum, &elem| (accum << 8) | (elem as u128)))
