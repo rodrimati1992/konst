@@ -1,6 +1,18 @@
 use konst::{iter::collect_const, slice};
 
 #[test]
+fn test_drop_compatible_methods() {
+    const A: [String; 1] = [String::new()];
+
+    const _: &[(usize, String)] = &collect_const!((usize, String) => A, enumerate());
+    const _: &[String] = &collect_const!(String => A, rev());
+    const _: &[String] = &collect_const!(String => A, map(|x| x));
+    const _: &[String] = &collect_const!(String => A, flat_map(|x| [x]));
+    const _: &[String] = &collect_const!(String => A, filter_map(|x| Some(x)));
+    const _: &[String] = &collect_const!(String => A, map(|x| [x]),flatten());
+}
+
+#[test]
 fn collect_const_droppable() {
     #[derive(Debug, PartialEq)]
     struct Foo(u32);

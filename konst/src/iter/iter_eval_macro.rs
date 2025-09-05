@@ -1733,7 +1733,7 @@ macro_rules! __iter2_finish_lowering {
 
         // instruction in the current iteration level
         [$($instrs_il:tt)*]
-    ) => { match ($($ret_val,)?) {($(mut $ret_var,)?) => {
+    ) => { match ($($ret_val)?) {($(mut $ret_var)?) => {
         $( let mut $is_returning = false; )?
 
         $(
@@ -1789,12 +1789,17 @@ macro_rules! __iter2_interpreter {
     ) => {
         match (
             $($var_val,)*
-            $($iter0_val)? $($item $(@$__use_item)?)?,
-            $($iter_val,)*
+            $crate::__::ManuallyDrop::new($($iter0_val)? $($item $(@$__use_item)?)?),
+            $($crate::__::ManuallyDrop::new($iter_val),)*
         ) {
             ($($var_name,)* iter0, $($iter_name,)*) => {
-                let mut iter0 = $crate::iter::into_iter!(iter0);
-                $(let mut $iter_name = $crate::iter::into_iter!($iter_name);)*
+                let mut iter0 = $crate::iter::into_iter!(
+                    $crate::__::ManuallyDrop::into_inner(iter0)
+                );
+                $(
+                    let mut $iter_name =
+                        $crate::iter::into_iter!($crate::__::ManuallyDrop::into_inner($iter_name));
+                )*
 
                 let elem_phantom_ty = $crate::iter::__get_item_ty(&iter0);
                 $crate::while_let_Some! { $item = iter0.$next() =>

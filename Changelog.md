@@ -9,6 +9,8 @@ Added these methods to iterator macros:
 - `reduce`
 - `step_by`
 
+Fixed support of iterators of drop type in iterator macros. Previously drop items could only be produced by iterator methods, the input iterator could not be drop itself, now it can be.
+
 Changed implementations of `"cmp"`-feature-requiring methods in `konst::iter::eval` to support drop types.
 
 Added these macros in `konst::array` (these require the `"iter"` feature):
