@@ -110,7 +110,7 @@ pub use crate::__array_from_fn2 as from_fn;
 /// # Note
 ///
 /// This macro requires the input and output elements to not need dropping.
-/// In exchange, there can be `return`s inside the closure passed to this macro,
+/// In exchange, there can be early returns inside the closure passed to this macro,
 /// which will return from the function that this macro is invoked inside of.
 ///
 #[doc = crate::docs::closure_arg_annotated_params_limitations_docs!("")]
@@ -128,6 +128,7 @@ pub use crate::__array_from_fn2 as from_fn;
 /// const ERR: ParseIntError = result::unwrap_err!(parse_u8s(["3", "AAA", "5"]));
 ///
 /// const fn parse_u8s<const N: usize>(strs: [&str; N]) -> Result<[u8; N], ParseIntError> {
+///     // `try_` returns from `parse_u8s` on `Err`, not from closure scope!
 ///     Ok(array::map_nd!(strs, |s| konst::try_!(u8::from_str_radix(s, 10))))
 /// }
 /// ```
@@ -146,7 +147,7 @@ pub use crate::__array_map_by_val_nd as map_nd;
 /// # Note
 ///
 /// This macro requires the output elements to not need dropping.
-/// In exchange, there can be `return`s inside the closure passed to this macro,
+/// In exchange, there can be early returns inside the closure passed to this macro,
 /// which will return from the function that this macro is invoked inside of.
 ///
 #[doc = crate::docs::closure_arg_annotated_params_limitations_docs!("")]
@@ -171,6 +172,7 @@ pub use crate::__array_map_by_val_nd as map_nd;
 /// const fn split_comma<const N: usize>(string: &str) -> Option<[&str; N]> {
 ///     let mut iter = string::split(string, ",");
 ///
+///     // `try_opt` returns from `split_comma` on `None`, not from closure scope!
 ///     Some(array::from_fn_nd!(|_| konst::try_opt!(iter.next()).trim_ascii()))
 /// }
 /// ```
