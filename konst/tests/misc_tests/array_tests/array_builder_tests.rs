@@ -11,7 +11,10 @@ fn constructors_const_and_type_test() {
     const fn _callable0<T, const N: usize>() -> ArrayBuilder<T, N, MayDrop> {
         ArrayBuilder::of_drop()
     }
-    const fn _callable1<T: Copy, const N: usize>() -> ArrayBuilder<T, N, NonDrop> {
+    const fn _callable1<T, const N: usize>() -> ArrayBuilder<T, N, NonDrop> {
+        ArrayBuilder::of_assumed_nondrop()
+    }
+    const fn _callable2<T: Copy, const N: usize>() -> ArrayBuilder<T, N, NonDrop> {
         ArrayBuilder::of_copy()
     }
 
@@ -51,6 +54,7 @@ fn len_and_is_full_test() {
     }
 
     case! {of_drop}
+    case! {of_assumed_nondrop}
     case! {of_copy}
 }
 
@@ -91,6 +95,7 @@ fn as_slice_test() {
     }
 
     case! {of_drop}
+    case! {of_assumed_nondrop}
     case! {of_copy}
 }
 
@@ -109,6 +114,7 @@ fn push_build_test() {
     }
 
     case! {of_drop}
+    case! {of_assumed_nondrop}
     case! {of_copy}
 }
 
@@ -127,6 +133,17 @@ fn push_panics_of_drop_test() {
 #[should_panic]
 fn push_panics_copy_test() {
     let mut this = ArrayBuilder::of_copy::<3>();
+
+    this.push(3);
+    this.push(5);
+    this.push(8);
+    this.push(13);
+}
+
+#[test]
+#[should_panic]
+fn push_panics_nondrop_test() {
+    let mut this = ArrayBuilder::of_assumed_nondrop::<3>();
 
     this.push(3);
     this.push(5);
@@ -182,6 +199,7 @@ fn copy_test() {
     }
 
     case! {of_drop}
+    case! {of_assumed_nondrop}
     case! {of_copy}
 }
 

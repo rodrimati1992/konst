@@ -12,11 +12,16 @@ fn constructors_test() {
     const fn _callable1<T, const LEN: usize>(arr: [T; LEN]) -> IntoIter<T, LEN, MayDrop> {
         IntoIter::of_drop(arr)
     }
-    const fn _callable2<T: Copy, const LEN: usize>(arr: [T; LEN]) -> IntoIter<T, LEN, NonDrop> {
+    const fn _callable2<T, const LEN: usize>(arr: [T; LEN]) -> IntoIter<T, LEN, NonDrop> {
+        IntoIter::of_assumed_nondrop(arr)
+    }
+    const fn _callable3<T: Copy, const LEN: usize>(arr: [T; LEN]) -> IntoIter<T, LEN, NonDrop> {
         IntoIter::of_copy(arr)
     }
 
     assert_type::<_, IntoIter<u8, 1, MayDrop>>(&IntoIter::of_drop([0u8]));
+
+    assert_type::<_, IntoIter<u8, 2, NonDrop>>(&IntoIter::of_assumed_nondrop([0u8; 2]));
 
     assert_type::<_, IntoIter<u8, 2, NonDrop>>(&IntoIter::of_copy([0u8; 2]));
 }
@@ -84,6 +89,7 @@ fn assert_is_empty_test() {
     }
 
     case! {of_copy}
+    case! {of_assumed_nondrop}
     case! {of_drop}
 }
 
@@ -107,6 +113,7 @@ fn assert_is_empty_rev_test() {
     }
 
     case! {of_copy}
+    case! {of_assumed_nondrop}
     case! {of_drop}
 }
 
@@ -160,6 +167,7 @@ fn as_slice_test() {
     }
 
     case! {of_copy}
+    case! {of_assumed_nondrop}
     case! {of_drop}
 }
 
@@ -213,6 +221,7 @@ fn as_slice_rev_test() {
     }
 
     case! {NonDrop, of_copy}
+    case! {NonDrop, of_assumed_nondrop}
     case! {MayDrop, of_drop}
 }
 
@@ -251,6 +260,7 @@ fn next_test() {
     }
 
     case! {of_copy}
+    case! {of_assumed_nondrop}
     case! {of_drop}
 }
 
@@ -307,6 +317,7 @@ fn copy_test() {
 
     case! {MayDrop, into_iter!([3, 5, 8, 13, 21, 34])}
     case! {NonDrop, IntoIter::of_copy([3, 5, 8, 13, 21, 34])}
+    case! {NonDrop, IntoIter::of_assumed_nondrop([3, 5, 8, 13, 21, 34])}
 }
 
 #[test]
@@ -332,6 +343,7 @@ fn copy_rev_test() {
 
     case! {MayDrop, into_iter!([3, 5, 8, 13, 21, 34])}
     case! {NonDrop, IntoIter::of_copy([3, 5, 8, 13, 21, 34])}
+    case! {NonDrop, IntoIter::of_assumed_nondrop([3, 5, 8, 13, 21, 34])}
 }
 
 #[test]

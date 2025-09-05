@@ -447,7 +447,7 @@ macro_rules! __res_or_else {
 }
 
 #[doc(no_inline)]
-pub use const_panic::unwrap_ok as unwrap;
+pub use const_panic::{unwrap_err, unwrap_ok as unwrap};
 
 ////////////////////////////////////////////////////////////
 

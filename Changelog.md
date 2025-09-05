@@ -2,6 +2,28 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.4
 
+### 0.4.2
+
+Added these methods to iterator macros:
+- `map_while`
+- `reduce`
+- `step_by`
+
+Fixed support of iterators of drop type in iterator macros. Previously drop items could only be produced by iterator methods, the input iterator could not be drop itself, now it can be.
+
+Changed implementations of `"cmp"`-feature-requiring methods in `konst::iter::eval` to support drop types.
+
+Added these macros in `konst::array` (these require the `"iter"` feature):
+- `konst::array::from_fn_nd`
+- `konst::array::map_nd`
+
+Added `of_assumed_nondrop` constructors to:
+- `konst::array::ArrayBuilder`
+- `konst::array::IntoIter`
+
+Added reexport of `const_panic::unwrap_err` in `konst::result`
+
+
 ### 0.4.0
 
 Removed these items because there is an equivalent built-in replacement:

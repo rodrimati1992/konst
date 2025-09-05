@@ -93,3 +93,43 @@ error: `fold` expects to be passed a 2-parameter closure
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `reduce` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:34:5
+   |
+34 |     konst::iter::eval!(R, reduce());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `reduce` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:35:5
+   |
+35 |     konst::iter::eval!(R, reduce(|| 10));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `reduce` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:36:5
+   |
+36 |     konst::iter::eval!(R, reduce(|_| 10));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `reduce` expects valid closure syntax, passed closure without return value
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:37:5
+   |
+37 |     konst::iter::eval!(R, reduce(|_, _| ));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `reduce` expects to be passed a 2-parameter closure
+  --> tests/misc_tests/iter_eval_ui_tests/r_method_syntax_err.rs:38:5
+   |
+38 |     konst::iter::eval!(R, reduce({whatever2_return::<u8>}));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__parse_closure_emit_error` which comes from the expansion of the macro `konst::iter::eval` (in Nightly builds, run with -Z macro-backtrace for more info)

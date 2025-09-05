@@ -140,3 +140,6 @@ where
 {
     Iter::ITEMS_NEED_DROP
 }
+
+#[doc(hidden)]
+pub const fn __infer_option_ty<T>(_: &Option<T>, _: &T) {}

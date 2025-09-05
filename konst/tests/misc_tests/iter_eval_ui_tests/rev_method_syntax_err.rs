@@ -5,8 +5,14 @@ const _: () = {
 };
 
 const _: () = {
-    konst::iter::eval!(R, rev(),rev(),next());
     konst::iter::eval!(R, enumerate(),rev(),next());
+    konst::iter::eval!(R, map_while(|_| None::<u8>),rev(),next());
+    konst::iter::eval!(R, rev(),rev(),next());
+    konst::iter::eval!(R, skip(3),rev(),next());
+    konst::iter::eval!(R, skip_while(|_| false),rev(),next());
+    konst::iter::eval!(R, step_by(3),rev(),next());
+    konst::iter::eval!(R, take(3),rev(),next());
+    konst::iter::eval!(R, take_while(|_| false),rev(),next());
     konst::iter::eval!(R, zip(0u8..3),rev(),next());
     konst::iter::eval!(R, rev(),rfind(|_| false));
     konst::iter::eval!(R, rev(),rposition(|_| false));

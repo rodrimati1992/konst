@@ -1,0 +1,10 @@
+error[E0493]: destructor of `Option<String>` cannot be evaluated at compile-time
+ --> tests/misc_tests/array_macros2_ui_tests/drop_type_from_fn_nd_err.rs:2:24
+  |
+2 | const _: [String; 3] = konst::array::from_fn_nd!(|_| String::new());
+  |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |                        |
+  |                        the destructor for this type cannot be evaluated in constants
+  |                        value is dropped here
+  |
+  = note: this error originates in the macro `$crate::__array_map2__with_parsed_closure_nd` which comes from the expansion of the macro `konst::array::from_fn_nd` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -1,11 +1,11 @@
 [package]
 name = "konst"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 rust-version = "1.89.0"
 edition = "2024"
 license = "Zlib"
-description = "Const equivalents of std functions, compile-time comparison, and parsing"
+description = "Const equivalents of std functions, compile-time comparison, iteration, and parsing"
 documentation = "https://docs.rs/konst/"
 readme="../README.md"
 keywords = ["no-std", "const_fn", "parsing"]

@@ -13,6 +13,9 @@ use typewit::Identity;
 /// This type can be constructed with these functions:
 /// - [`of_copy`](Self::of_copy): for building an array of `Copy` elements,
 ///   needed for using `ArrayBuilder` in functions that have early returns.
+/// - [`of_assumed_nondrop`](Self::of_assumed_nondrop):
+///   for building an array of non-drop elements,
+///   needed for using `ArrayBuilder` in functions that have early returns.
 /// - [`of_drop`](Self::of_drop):
 ///   for building an array of any type, useful in functions without early returns.
 ///
@@ -83,6 +86,54 @@ impl<T, const N: usize> ArrayBuilder<T, N, NonDrop> {
     pub const fn of_copy<const N2: usize>() -> Self
     where
         T: Copy,
+        Self: Identity<Type = ArrayBuilder<T, N2, NonDrop>>,
+    {
+        Self::of_any()
+    }
+
+    /// Constructs an empty ArrayBuilder of element types that are assumed to not need dropping,
+    /// needed for using `ArrayBuilder` in functions with early returns.
+    ///
+    /// If the elements *do* need dropping, the builder will leak them
+    /// unless `.build()` returns susccessfully.
+    ///
+    /// The `Identity` bound emulates a type equality constraint,
+    /// this allows specifying `N` through this constructor,
+    /// while infering the other arguments.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use std::ops::Range;
+    /// use konst::{array, try_opt};
+    ///
+    ///
+    /// const ARR5: [Range<i8>; 5] = make_ranges().unwrap();
+    /// assert_eq!(ARR5, [0..0, 1..1, 2..8, 3..27, 4..64]);
+    ///
+    /// const ARR6: [Range<i8>; 6] = make_ranges().unwrap();
+    /// assert_eq!(ARR6, [0..0, 1..1, 2..8, 3..27, 4..64, 5..125]);
+    ///
+    /// const ARR7: Option<[Range<i8>; 7]> = make_ranges();
+    /// assert_eq!(ARR7, None);
+    ///
+    ///
+    /// const fn make_ranges<const N: usize>() -> Option<[Range<i8>; N]> {
+    ///     let mut builder = array::ArrayBuilder::of_assumed_nondrop();
+    ///     
+    ///     while !builder.is_full() {
+    ///         let l = builder.len() as i8;
+    ///         builder.push(l..try_opt!(l.checked_pow(3)));
+    ///     }
+    ///     
+    ///     Some(builder.build())
+    /// }
+    ///
+    /// ```
+    ///
+    #[inline(always)]
+    pub const fn of_assumed_nondrop<const N2: usize>() -> Self
+    where
         Self: Identity<Type = ArrayBuilder<T, N2, NonDrop>>,
     {
         Self::of_any()

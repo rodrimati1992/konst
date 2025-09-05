@@ -14,6 +14,9 @@ use typewit::Identity;
 /// - `into_iter!(array_value)`: equivalent to calling [`of_drop`](Self::of_drop)
 /// - [`of_copy`](Self::of_copy): for consuming an array of `Copy` elements,
 ///   needed for using this in functions that have early returns.
+/// - [`of_assumed_nondrop`](Self::of_assumed_nondrop):
+///   for consuming an array of non-drop elements,
+///   needed for using this in functions that have early returns.
 /// - [`of_drop`](Self::of_drop):
 ///   for consuming an array of any type, useful in functions without early returns.
 ///
@@ -118,6 +121,55 @@ impl<T, const N: usize> IntoIter<T, N, NonDrop> {
     pub const fn of_copy<const N2: usize>(array: [T; N]) -> Self
     where
         T: Copy,
+        Self: Identity<Type = IntoIter<T, N2, NonDrop>>,
+    {
+        IntoIterInner {
+            array: array_into_md(array),
+            taken_front: 0,
+            taken_back: 0,
+        }
+        .into_ii()
+    }
+    /// Constructs an `IntoIter` from an array that's assumed doesn't need dropping,
+    /// needed for using this in functions that have early returns.
+    ///
+    /// If the elements *do* need dropping, the elements will be leaked
+    /// if the iterator is not fully consumed.
+    ///
+    /// The `Identity` bound emulates a type equality constraint,
+    /// this allows specifying `N` through this constructor,
+    /// while infering the other arguments.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::{array, try_opt};
+    ///
+    ///
+    /// const SUM_A: Option<u8> = adder([NonCopy(1), NonCopy(2), NonCopy(3), NonCopy(4)]);
+    /// assert_eq!(SUM_A, Some(10));
+    ///
+    /// const SUM_B: Option<u8> = adder([NonCopy(200), NonCopy(56)]);
+    /// assert_eq!(SUM_B, None);
+    ///
+    ///
+    /// const fn adder<const N: usize>(arr: [NonCopy<u8>; N]) -> Option<u8> {
+    ///     let mut added = 0u8;
+    ///
+    ///     let mut iter = array::IntoIter::of_assumed_nondrop(arr);
+    ///
+    ///     while let Some(NonCopy(x)) = iter.next() {
+    ///         added = try_opt!(added.checked_add(x));
+    ///     }
+    ///
+    ///     Some(added)
+    /// }
+    ///
+    /// struct NonCopy<T>(T);
+    /// ```
+    ///
+    pub const fn of_assumed_nondrop<const N2: usize>(array: [T; N]) -> Self
+    where
         Self: Identity<Type = IntoIter<T, N2, NonDrop>>,
     {
         IntoIterInner {

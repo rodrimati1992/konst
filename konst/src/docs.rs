@@ -1,3 +1,16 @@
+macro_rules! closure_non_local_return_docs {
+    () => {
+        concat!(
+            "\n\n",
+            "If the closure syntax is used: ",
+            "early returns (e.g.: `return`) don't return from closure scope,",
+            " they return from the function that this macro is called inside of.",
+            "\n\n",
+        )
+    };
+}
+pub(crate) use closure_non_local_return_docs;
+
 macro_rules! closure_arg_pattern_limitations_docs {($($parameter_plurality:literal)?) => {concat!(
     "# Closure Argument\n",
     "\n",
@@ -6,6 +19,7 @@ macro_rules! closure_arg_pattern_limitations_docs {($($parameter_plurality:liter
     "(on", $(" either the parameter", $parameter_plurality, " or",)? " the return type) \n",
     "- a function variable\n",
     "- a function path\n",
+    crate::docs::closure_non_local_return_docs!(),
 )}}
 pub(crate) use closure_arg_pattern_limitations_docs;
 
@@ -28,6 +42,7 @@ macro_rules! closure_arg_annotated_params_limitations_docs {
             "\n",
             "The closure argument must be one of:\n",
             crate::docs::closure_arg_annotated_params_options_docs!($parameter_plurality),
+            crate::docs::closure_non_local_return_docs!(),
         )
     };
 }

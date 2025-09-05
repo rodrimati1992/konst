@@ -10,6 +10,8 @@ This crate provides:
 
 - Const fn equivalents of standard library functions, methods, and operators.
 
+- [Const iterators].
+
 - [`destructure`]/[`if_let_Some`]/[`while_let_Some`] 
 macros to allow destructuring types in const without getting "cannot drop in const" errors.
 
@@ -278,6 +280,7 @@ need to be explicitly enabled with crate features.
 
 
 [`alloc`]: https://doc.rust-lang.org/alloc/
+[Const iterators]: https://docs.rs/konst/*/konst/iter/index.html
 [`const_eq`]: https://docs.rs/konst/*/konst/macro.const_eq.html
 [`const_eq_for`]: https://docs.rs/konst/*/konst/macro.const_eq_for.html
 [`const_cmp`]: https://docs.rs/konst/*/konst/macro.const_cmp.html
