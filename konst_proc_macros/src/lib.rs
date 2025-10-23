@@ -13,9 +13,29 @@ use used_proc_macro::{
     Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree,
 };
 
+mod destructuring;
+
 mod parsing;
 
 mod utils;
+
+fn parse_crate_token(tt: Option<TokenTree>) -> TokenStream {
+    match tt {
+        Some(TokenTree::Group(group)) if group.delimiter() == Delimiter::None => group.stream(),
+        Some(tt @ TokenTree::Ident(_)) => std::iter::once(tt).collect(),
+        Some(tt) => panic!("expected $crate, found: `{tt:?}`"),
+        None => panic!("expected $crate, found nothing"),
+    }
+}
+
+#[doc(hidden)]
+#[expect(non_snake_case)]
+#[proc_macro]
+pub fn __destructure__unwrap_pats(
+    input_tokens: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    crate::destructuring::macro_impl(input_tokens.into()).into()
+}
 
 #[doc(hidden)]
 #[proc_macro]

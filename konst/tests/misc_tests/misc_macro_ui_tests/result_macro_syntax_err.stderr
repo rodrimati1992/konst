@@ -317,7 +317,7 @@ error: unexpected end of macro invocation
    |               ^^^^^^^^^^^^^^^^^ missing tokens in macro arguments
    |
 note: while trying to match meta-variable `$res:expr`
-  --> $CARGO/const_panic-0.2.13/src/macros/unwrapping.rs
+  --> $CARGO/const_panic-0.2.14/src/macros/unwrapping.rs
    |
    |     ($res:expr) => {
    |      ^^^^^^^^^

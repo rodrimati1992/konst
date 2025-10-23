@@ -11,6 +11,6 @@ note: required by a bound in `fill`
   |                      ^^^^ required by this bound in `fill`
 help: consider annotating `NonCopy` with `#[derive(Copy)]`
   |
-3  + #[derive(Copy)]
-4  | struct NonCopy;
+ 3 + #[derive(Copy)]
+ 4 | struct NonCopy;
    |

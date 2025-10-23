@@ -59,6 +59,7 @@ cmp = []
 const_panic_derive = ["const_panic/derive"]
 iter = []
 parsing = []
+konst_proc_macros = ["dep:konst_proc_macros"]
 parsing_proc = ["parsing", "konst_proc_macros"]
 
 rust_latest_stable = []

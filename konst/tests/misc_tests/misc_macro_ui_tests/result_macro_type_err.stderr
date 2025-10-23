@@ -238,13 +238,3 @@ error[E0308]: mismatched types
    = note: expected unit type `()`
                    found enum `Result<_, _>`
    = note: this error originates in the macro `result::unwrap` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0034]: multiple applicable items in scope
-  --> tests/misc_tests/misc_macro_ui_tests/result_macro_type_err.rs:21:15
-   |
-21 | const _: u8 = result::unwrap!(());
-   |               ^^^^^^^^^^^^^^^^^^^ multiple `coerce` found
-   |
-   = note: candidate #1 is defined in an impl for the type `IsPanicFmt<S, T, IsCustomType>`
-   = note: candidate #2 is defined in an impl for the type `IsPanicFmt<S, T, IsStdType>`
-   = note: this error originates in the macro `$crate::coerce_fmt` which comes from the expansion of the macro `result::unwrap` (in Nightly builds, run with -Z macro-backtrace for more info)

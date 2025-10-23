@@ -22,5 +22,5 @@ error: pattern requires `..` due to inaccessible fields
 help: ignore the inaccessible and unused fields
  --> src/macros/destructuring.rs
   |
-  |         let val @ $($struct_path)* {$($field: _, ..),*} $(: $struct_ty)? = $val;
-  |                                                ++++
+  |             let $var @ $($struct_path)* {$($field: _, ..),*} $(: $struct_ty)? = $val;
+  |                                                     ++++

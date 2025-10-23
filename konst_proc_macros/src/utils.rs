@@ -56,6 +56,17 @@ where
     TokenTree::from(tt)
 }
 
+pub(crate) fn brace<F>(span: Span, f: F) -> TokenTree
+where
+    F: FnOnce(&mut TokenStream),
+{
+    let mut ts = TokenStream::new();
+    f(&mut ts);
+    let mut tt = Group::new(Delimiter::Brace, ts);
+    tt.set_span(span);
+    TokenTree::from(tt)
+}
+
 ///////////////////////////////////////////////////////
 
 pub(crate) struct Error {

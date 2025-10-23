@@ -426,6 +426,12 @@ pub mod __ {
 
     pub use crate::__for_cmp_impls::U8Ordering;
 
+    #[cfg(feature = "konst_proc_macros")]
+    pub use konst_proc_macros::__destructure__unwrap_pats;
+
+    #[cfg(not(feature = "konst_proc_macros"))]
+    pub use crate::__destructure__unwrap_pats;
+
     #[cfg(feature = "cmp")]
     pub use crate::cmp::{CmpWrapper, ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
 
