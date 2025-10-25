@@ -9,6 +9,11 @@ mod control_flow;
 pub mod destructuring;
 
 #[macro_use]
+#[cfg(feature = "konst_proc_macros")]
+#[doc(hidden)]
+pub mod destructuring_rec;
+
+#[macro_use]
 mod declare_cmp_fn_macros;
 
 #[macro_use]

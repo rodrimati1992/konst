@@ -82,10 +82,16 @@ impl Error {
         }
     }
 
-    pub(crate) fn to_compile_error(&self) -> TokenStream {
+    pub(crate) fn to_compile_error(&self, krate: Option<TokenStream>) -> TokenStream {
         let Error { ref message, span } = *self;
 
         let mut out = TokenStream::new();
+
+        if let Some(k) = krate {
+            out.extend(k);
+
+            out.extend(crate::utils::punct_joint_token2(':', ':', span));
+        }
 
         out.extend(crate::utils::ident_token("compile_error", span));
 

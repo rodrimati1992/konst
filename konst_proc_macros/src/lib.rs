@@ -17,9 +17,13 @@ mod destructuring;
 
 mod parsing;
 
+mod parsing_bstr;
+
+mod patterns;
+
 mod utils;
 
-fn parse_crate_token(tt: Option<TokenTree>) -> TokenStream {
+pub(crate) fn unwrap_crate_token(tt: Option<TokenTree>) -> TokenStream {
     match tt {
         Some(TokenTree::Group(group)) if group.delimiter() == Delimiter::None => group.stream(),
         Some(tt @ TokenTree::Ident(_)) => std::iter::once(tt).collect(),
@@ -34,7 +38,10 @@ fn parse_crate_token(tt: Option<TokenTree>) -> TokenStream {
 pub fn __destructure__unwrap_pats(
     input_tokens: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
-    crate::destructuring::macro_impl(input_tokens.into()).into()
+    match crate::destructuring::macro_impl(input_tokens.into()).into() {
+        Ok(x) => x,
+        Err((e, krate)) => e.to_compile_error(Some(krate)),
+    }
 }
 
 #[doc(hidden)]
@@ -52,7 +59,7 @@ pub fn __priv_bstr_end(input_tokens: proc_macro::TokenStream) -> proc_macro::Tok
 fn bstr_pattern(input_tokens: TokenStream, str_at: StrAt) -> TokenStream {
     use crate::utils::punct_token;
 
-    let parsed = parsing::parse_inputs(input_tokens);
+    let parsed = parsing_bstr::parse_inputs(input_tokens);
 
     match parsed {
         Ok(Inputs { rem_ident, strings }) => {
@@ -81,7 +88,7 @@ fn bstr_pattern(input_tokens: TokenStream, str_at: StrAt) -> TokenStream {
 
             out
         }
-        Err(e) => e.to_compile_error(),
+        Err(e) => e.to_compile_error(None),
     }
 }
 
