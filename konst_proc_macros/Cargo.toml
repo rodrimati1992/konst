@@ -16,7 +16,8 @@ include = [
     "LICENSE-ZLIB.md", 
 ]
 
-[dependencies]
+[dev-dependencies.proc-macro2]
+version = "1.0.100"
 
 [lib]
 proc-macro = true

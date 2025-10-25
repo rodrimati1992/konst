@@ -69,16 +69,17 @@ where
 
 ///////////////////////////////////////////////////////
 
+#[cfg_attr(test, derive(Debug))]
 pub(crate) struct Error {
     span: Span,
     message: String,
 }
 
 impl Error {
-    pub(crate) fn new(span: Span, message: &str) -> Self {
+    pub(crate) fn new(span: Span, message: impl Into<String>) -> Self {
         Self {
             span,
-            message: message.to_string(),
+            message: message.into(),
         }
     }
 
@@ -88,8 +89,13 @@ impl Error {
         let mut out = TokenStream::new();
 
         if let Some(k) = krate {
-            out.extend(k);
+            out.extend(k.into_iter().map(|mut tt| {
+                tt.set_span(tt.span().located_at(span));
+                tt
+            }));
 
+            out.extend(crate::utils::punct_joint_token2(':', ':', span));
+            out.extend(crate::utils::ident_token("__", span));
             out.extend(crate::utils::punct_joint_token2(':', ':', span));
         }
 

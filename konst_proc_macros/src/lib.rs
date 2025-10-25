@@ -4,7 +4,14 @@
 
 extern crate proc_macro;
 
+#[cfg(test)]
+extern crate proc_macro2;
+
+#[cfg(not(test))]
 use proc_macro as used_proc_macro;
+
+#[cfg(test)]
+use proc_macro2 as used_proc_macro;
 
 use std::iter;
 
@@ -42,6 +49,7 @@ pub fn __destructure__unwrap_pats(
         Ok(x) => x,
         Err((e, krate)) => e.to_compile_error(Some(krate)),
     }
+    .into()
 }
 
 #[doc(hidden)]

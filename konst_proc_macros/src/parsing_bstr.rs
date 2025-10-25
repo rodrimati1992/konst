@@ -1,7 +1,8 @@
 #[allow(unused_imports)]
-use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
-
-use proc_macro::token_stream::IntoIter as TSIterator;
+use crate::used_proc_macro::{
+    Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree,
+    token_stream::IntoIter as TSIterator,
+};
 
 use crate::{Inputs, Pattern, utils::Error};
 

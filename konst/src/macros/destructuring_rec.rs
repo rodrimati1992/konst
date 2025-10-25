@@ -2,9 +2,14 @@
 
 #[doc(hidden)]
 #[inline(always)]
-/// Gets a pointer to the first elem in a ManuallyDrop array
 pub const fn split_array_ptr_len<T, const N: usize>(ptr: *mut [T; N]) -> (*mut T, usize) {
     (ptr.cast(), N)
+}
+
+#[doc(hidden)]
+#[inline(always)]
+pub const fn fake_read_array_ref<T, const N: usize>(ptr: &[T; N]) -> [T; N] {
+    loop {}
 }
 
 //////
@@ -49,6 +54,19 @@ macro_rules! __destructure_rec__inner {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __destructure_rec__recursive {
+    (
+        $fixed:tt [] {$ptr:expr}
+        ( $pattern:tt ident )
+    ) => {
+        let $pattern = unsafe { <*mut _>::read_unaligned($ptr) };
+    };
+
+    (
+        $fixed:tt [] {$ptr:expr}
+        ( $pattern:tt underscore )
+    ) => {
+        let _ = unsafe { <*mut _>::read_unaligned($ptr) };
+    };
 
     (
         $fixed:tt [] $ptr:tt
@@ -67,7 +85,7 @@ macro_rules! __destructure_rec__recursive {
         {$ptr:expr}
 
         (
-            ($pattern:pat)
+            $pattern:tt
             struct
             ($path:path)
             {$($field_name:tt $field_pat:tt,)*}
@@ -89,8 +107,7 @@ macro_rules! __destructure_rec__recursive {
                 <*mut _>::read_unaligned(ptr)
             };
 
-            $crate::macros::destructuring::assert_same_type(expected, read_out)
-
+            $crate::macros::destructuring::assert_same_type(expected, read_out);
 
             _ = ||{
                 use $crate::macros::destructuring::__GetImplsHelper as _;
@@ -139,7 +156,7 @@ macro_rules! __destructure_rec__recursive {
         {$ptr:expr}
 
         (
-            ($pattern:pat)
+            $pattern:tt
             tuple
             ($($field:tt $field_pat:tt,)*)
             $(
@@ -181,18 +198,18 @@ macro_rules! __destructure_rec__recursive {
         {$ptr:expr}
 
         (
-            ($pattern:pat)
-            tuple
+            $pattern:tt
+            array
             ($($pre_index:tt $pre_pat:tt,)*)
             $(
-                ($rem_index:tt $rem_pat:pat)
+                ($rem_index:tt $rem_pat:tt)
                 ($($post_index:tt $post_pat:tt,)*)
             )?
         )
     ) => {
         let ptr = $ptr;
 
-        $(  let $crate::__first_pat!(rem_ty_phantom, $pat_rem) = $crate::__::PhantomData; )?
+        $(  let $crate::__first_pat!(rem_ty_phantom, $rem_pat) = $crate::__::PhantomData; )?
 
         // asserts the length of the array,
         // and computes the length of the array produced by `@ ..` patterns
@@ -203,24 +220,24 @@ macro_rules! __destructure_rec__recursive {
             let [
                 $($crate::__first_pat!(_, $pre_pat),)*
                 $(
-                    $crate::__first_pat!(rem @ .., $pat_rem),
+                    rem @ ..,
                     $($crate::__first_pat!(_, $post_pat),)*
                 )?
             ] = unsafe {
 
                 // assert that `*ptr` is an array, not a reference to an array
-                _ = $crate::macros::destructuring::array_into_phantom({
+                let _ = $crate::macros::destructuring::array_into_phantom({
                     let array = <*mut _>::read_unaligned(ptr);
                     array
                 });
 
                 // SAFETY: unreachable code
-                $crate::macros::destructuring::fake_read_array_ref(&*ptr)
+                $crate::macros::destructuring_rec::fake_read_array_ref(&*ptr)
             };
 
             $(
                 rem_ty_phantom = $crate::macros::destructuring::array_into_phantom(
-                    $crate::__first_expr!(rem, $pat_rem)
+                    $crate::__first_expr!(rem, $rem_pat)
                 );
             )?
 
@@ -235,7 +252,6 @@ macro_rules! __destructure_rec__recursive {
                 $pre_pat
             }
         )*
-        $crate::__destructure_array__read_elems!{unsafe, ptr_elem, i, [$($pat_prefix),*]}
 
         $(
 
@@ -253,10 +269,10 @@ macro_rules! __destructure_rec__recursive {
             $(
                 $crate::__destructure_rec__recursive! {
                     $fixed $fixed
-                    {unsafe { <*mut _>::add(ptr_elem, len.wrapping_add_signed($post_index)) }}
+                    {unsafe { <*mut _>::add(ptr_elem, len.wrapping_sub($post_index)) }}
                     $post_pat
                 }
             )*
         )?
-    }
+    };
 }

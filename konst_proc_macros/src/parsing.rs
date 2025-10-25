@@ -5,6 +5,9 @@ use crate::used_proc_macro::{
 
 use crate::utils::Error;
 
+#[cfg(test)]
+mod parsing_tests;
+
 pub(crate) type Parser = std::iter::Peekable<used_proc_macro::token_stream::IntoIter>;
 
 pub(crate) struct Attribute {
@@ -53,10 +56,12 @@ pub(crate) fn peek_parse_path(parser: &mut Parser) -> Result<Option<TokenStream>
 
     let mut out = TokenStream::new();
     let mut last_span = start_span;
-    let mut prev_token_spacing = Spacing::Alone;
+    let mut prev_token_spacing = Spacing::Joint;
 
     loop {
         let tt = parser.peek();
+
+        let mut curr_token_spacing = Spacing::Joint;
 
         match tt {
             Some(TokenTree::Punct(punct)) if punct.as_char() == '<' => {
@@ -71,13 +76,12 @@ pub(crate) fn peek_parse_path(parser: &mut Parser) -> Result<Option<TokenStream>
                 break;
             }
             Some(TokenTree::Punct(punct)) if level == 0 => {
-                prev_token_spacing = punct.spacing();
-            }
-            Some(_) => {
-                prev_token_spacing = Spacing::Alone;
+                curr_token_spacing = punct.spacing();
             }
             _ => {}
         }
+
+        prev_token_spacing = curr_token_spacing;
 
         if let Some(tt) = parser.next() {
             last_span = tt.span();
@@ -96,10 +100,9 @@ pub(crate) fn peek_parse_path(parser: &mut Parser) -> Result<Option<TokenStream>
 
 fn is_path_terminator(tt: &TokenTree, prev_token_spacing: Spacing) -> bool {
     match tt {
-        TokenTree::Punct(p) => !matches!(
-            (prev_token_spacing, p.spacing(), p.as_char()),
-            |(Spacing::Joint, Spacing::Joint, ':')
-        ),
+        TokenTree::Punct(p) => {
+            !(p.as_char() == ':' && [prev_token_spacing, p.spacing()].contains(&Spacing::Joint))
+        }
         TokenTree::Group(_) => true,
         TokenTree::Ident(_) => false,
         TokenTree::Literal(_) => true,

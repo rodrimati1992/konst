@@ -413,6 +413,8 @@ pub mod __ {
         stringify,
     };
 
+    pub type Type<T> = T;
+
     pub const fn forget<T>(x: T) {
         core::mem::forget(x)
     }

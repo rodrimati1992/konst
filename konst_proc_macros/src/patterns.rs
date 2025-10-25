@@ -49,12 +49,6 @@ fn usize_lit(n: usize, span: Span) -> TokenTree {
     TokenTree::Literal(lit)
 }
 
-fn isize_lit(n: isize, span: Span) -> TokenTree {
-    let mut lit = Literal::isize_unsuffixed(n);
-    lit.set_span(span);
-    TokenTree::Literal(lit)
-}
-
 fn group(delim: Delimiter, span: Span, stream: TS) -> TokenTree {
     let mut group = Group::new(delim, stream);
     group.set_span(span);
@@ -146,8 +140,8 @@ pub(crate) fn expand_arraylike(pat: Arraylike, out_t: &mut TS) {
         out_t.extend(once(utils::paren(group_span, |out_p| {
             let suffix = patterns;
 
-            for (i, pat) in (-(suffix.len() as isize)..0).zip(suffix) {
-                out_p.extend(once(isize_lit(i, group_span)));
+            for (i, pat) in (1..=suffix.len()).rev().zip(suffix) {
+                out_p.extend(once(usize_lit(i, group_span)));
                 expand_pattern(pat, out_p);
                 out_p.extend(utils::punct_token(',', group_span));
             }
@@ -197,12 +191,6 @@ pub(crate) fn parse_pattern(parser: &mut Parser) -> Result<Pattern, Error> {
 
     if let Some(path) = peek_parse_path(parser)? {
         match parser.peek() {
-            x if x.is_none_or(is_pattern_terminator) => {
-                return Ok(Pattern {
-                    pattern_tokens: path.clone(),
-                    var: PatternVariant::Ident,
-                });
-            }
             Some(TokenTree::Group(group)) => {
                 let struct_pat = parse_struct_pattern(path.clone(), &group)?;
 
@@ -220,19 +208,39 @@ pub(crate) fn parse_pattern(parser: &mut Parser) -> Result<Pattern, Error> {
 
                 return parse_dotdot(out, Some(path), parser);
             }
-            _ => {}
+            Some(x) if is_pattern_terminator(x) => {
+                return Ok(Pattern {
+                    pattern_tokens: path,
+                    var: PatternVariant::Ident,
+                });
+            }
+            None => {
+                return Ok(Pattern {
+                    pattern_tokens: path,
+                    var: PatternVariant::Ident,
+                });
+            }
+            Some(tt) => return Err(Error::new(tt.span(), "unexpected end of pattern")),
         }
     }
 
     match parser.peek() {
         Some(TokenTree::Punct(p)) if p.as_char() == '.' => return parse_dotdot(out, None, parser),
         Some(TokenTree::Ident(ident)) if ident.to_string() == "_" => {
-            let span = ident.span();
+            let under_span = ident.span();
+            let mut pattern_tokens = TS::from_iter(parser.next());
 
-            return Ok(Pattern {
-                pattern_tokens: TS::from_iter(parser.next()),
-                var: PatternVariant::Underscore(span),
-            });
+            return if let Some(TokenTree::Punct(p)) = parser.peek()
+                && p.as_char() == '@'
+            {
+                pattern_tokens.extend(parser.next());
+                parse_dotdot(pattern_tokens, None, parser)
+            } else {
+                Ok(Pattern {
+                    pattern_tokens,
+                    var: PatternVariant::Underscore(under_span),
+                })
+            };
         }
         Some(TokenTree::Group(group))
             if matches!(
@@ -255,7 +263,12 @@ pub(crate) fn parse_pattern(parser: &mut Parser) -> Result<Pattern, Error> {
                 },
             });
         }
-        Some(tt) => return Err(Error::new(tt.span(), "expected pattern")),
+        Some(tt) => {
+            return Err(Error::new(
+                tt.span(),
+                format!("expected pattern, found `{tt}`"),
+            ));
+        }
         None => return Err(Error::new(Span::call_site(), "expected pattern")),
     }
 }
@@ -290,7 +303,7 @@ fn parse_arraylike(group_span: Span, parser: &mut Parser) -> Result<Arraylike, E
 
 fn parse_struct_pattern(path: TS, group: &Group) -> Result<Struct, Error> {
     let is_braced = match group.delimiter() {
-        Delimiter::Bracket => false,
+        Delimiter::Parenthesis => false,
         Delimiter::Brace => true,
         _ => return Err(Error::new(group.span(), "expected struct")),
     };
@@ -418,5 +431,5 @@ fn parse_dotdot(mut out: TS, binding: Option<TS>, parser: &mut Parser) -> Result
 }
 
 fn is_pattern_terminator(tt: &TokenTree) -> bool {
-    matches!(tt, TokenTree::Punct(p) if matches!(p.as_char(), ':' | ';' | '='))
+    matches!(tt, TokenTree::Punct(p) if matches!(p.as_char(), ':' | ';' | '=' | ','))
 }
