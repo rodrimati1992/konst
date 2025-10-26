@@ -8,7 +8,7 @@ pub const fn split_array_ptr_len<T, const N: usize>(ptr: *mut [T; N]) -> (*mut T
 
 #[doc(hidden)]
 #[inline(always)]
-pub const fn fake_read_array_ref<T, const N: usize>(ptr: &[T; N]) -> [T; N] {
+pub const fn fake_read_array_ref<T, const N: usize>(_ptr: &[T; N]) -> [T; N] {
     loop {}
 }
 
@@ -56,16 +56,9 @@ macro_rules! __destructure_rec__inner {
 macro_rules! __destructure_rec__recursive {
     (
         $fixed:tt [] {$ptr:expr}
-        ( $pattern:tt ident )
+        ( $pattern:tt binding )
     ) => {
         let $pattern = unsafe { <*mut _>::read_unaligned($ptr) };
-    };
-
-    (
-        $fixed:tt [] {$ptr:expr}
-        ( $pattern:tt underscore )
-    ) => {
-        let _ = unsafe { <*mut _>::read_unaligned($ptr) };
     };
 
     (
@@ -202,14 +195,14 @@ macro_rules! __destructure_rec__recursive {
             array
             ($($pre_index:tt $pre_pat:tt,)*)
             $(
-                ($rem_index:tt $rem_pat:tt)
+                ($rem_index:tt $($rem_pat:tt)*)
                 ($($post_index:tt $post_pat:tt,)*)
             )?
         )
     ) => {
         let ptr = $ptr;
 
-        $(  let $crate::__first_pat!(rem_ty_phantom, $rem_pat) = $crate::__::PhantomData; )?
+        $(  let $crate::__first_pat!(rem_ty_phantom, $($rem_pat)*) = $crate::__::PhantomData; )?
 
         // asserts the length of the array,
         // and computes the length of the array produced by `@ ..` patterns
@@ -237,7 +230,7 @@ macro_rules! __destructure_rec__recursive {
 
             $(
                 rem_ty_phantom = $crate::macros::destructuring::array_into_phantom(
-                    $crate::__first_expr!(rem, $rem_pat)
+                    $crate::__first_expr!(rem, $($rem_pat)*)
                 );
             )?
 
@@ -257,7 +250,7 @@ macro_rules! __destructure_rec__recursive {
 
             // SAFETY: the array being wrapped in a ManuallyDrop,
             //         and the assertions above, ensure that these reads are safe.
-            let $rem_pat = unsafe {
+            let $($rem_pat)* = unsafe {
                 let rem_ptr = $crate::macros::destructuring::cast_ptr_with_phantom(
                     <*mut _>::add(ptr_elem, $rem_index),
                     rem_ty_phantom,

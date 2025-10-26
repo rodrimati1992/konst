@@ -435,19 +435,80 @@ fn test_array_destructuring_rem_pat() {
         assert_eq! {c, "21"}
     }
 
-    {
-        const fn rem_at_end<T>(val: [T; 5]) -> (T, T, impl AsRef<[T]>) {
-            destructure_rec! {[a, b, rem @ ..] = val}
+    {}
+}
 
-            (a, b, rem)
-        }
+#[test]
+fn test_array_destructuring_rem_many_bindings() {
+    const fn rem_at_end<T: Copy>(
+        val: [T; 5],
+    ) -> (T, T, impl AsRef<[T]>, impl AsRef<[T]>, impl AsRef<[T]>) {
+        destructure_rec! {[a, b, c @ d @ rem @ ..] = val}
 
-        let (a, b, rem) = rem_at_end(val());
-
-        assert_eq! {a, "3"}
-        assert_eq! {b, "5"}
-        assert_eq! {rem.as_ref(), [8, 13, 21].map(s).as_slice()}
+        (a, b, c, d, rem)
     }
+
+    let (a, b, c, d, rem) = rem_at_end([3, 5, 8, 13, 21]);
+
+    assert_eq!(a, 3);
+    assert_eq!(b, 5);
+    for x in [c.as_ref(), d.as_ref(), rem.as_ref()] {
+        assert_eq!(x, [8, 13, 21].as_slice());
+    }
+}
+
+#[test]
+fn test_many_bindings_array() {
+    const fn at_middle<T: Copy>(val: [T; 3]) -> (T, T, T, T, T) {
+        destructure_rec! {[a, b @ c @ d, e] = val}
+
+        (a, b, c, d, e)
+    }
+
+    let (a, b, c, d, e) = at_middle([3, 5, 8]);
+
+    assert_eq!(a, 3);
+    assert_eq!(b, 5);
+    assert_eq!(c, 5);
+    assert_eq!(d, 5);
+    assert_eq!(e, 8);
+}
+
+#[test]
+fn test_many_bindings_tuple() {
+    const fn at_middle<T: Copy>(val: (T, T, T)) -> (T, T, T, T, T) {
+        destructure_rec! {(a, b @ c @ d, e) = val}
+
+        (a, b, c, d, e)
+    }
+
+    let (a, b, c, d, e) = at_middle((3, 5, 8));
+
+    assert_eq!(a, 3);
+    assert_eq!(b, 5);
+    assert_eq!(c, 5);
+    assert_eq!(d, 5);
+    assert_eq!(e, 8);
+}
+
+#[test]
+fn test_many_bindings_struct() {
+    const fn repeated<T: Copy>(val: BracedStruct<T>) -> (String, T, T, T) {
+        destructure_rec! {BracedStruct { foo, bar, baz: a @ b} = val}
+
+        (foo, bar, a, b)
+    }
+
+    let (foo, bar, a, b) = repeated(BracedStruct {
+        foo: "foo".into(),
+        bar: 3,
+        baz: 5,
+    });
+
+    assert_eq!(foo, "foo");
+    assert_eq!(bar, 3);
+    assert_eq!(a, 5);
+    assert_eq!(b, 5);
 }
 
 #[test]

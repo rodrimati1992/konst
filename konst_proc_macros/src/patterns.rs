@@ -4,7 +4,7 @@ use crate::used_proc_macro::{
 };
 
 use crate::{
-    parsing::{Parser, peek_parse_path},
+    parsing::{Parser, peek_parse_path_or_under},
     utils::{self, Error},
 };
 
@@ -17,9 +17,8 @@ pub(crate) struct Pattern {
 }
 
 pub(crate) enum PatternVariant {
-    Underscore(Span),
+    Binding(Span),
     Rem { binding: Option<TS>, dotdot: Span },
-    Ident,
     Array(Arraylike),
     Tuple(Arraylike),
     Struct(Struct),
@@ -65,17 +64,11 @@ pub(crate) fn expand_pattern(pat: Pattern, out: &mut TS) {
     )));
 
     match pat.var {
-        PatternVariant::Underscore(span) => {
-            out_t.extend(once(TokenTree::from(Ident::new("underscore", span))));
+        PatternVariant::Binding(span) => {
+            out_t.extend(once(TokenTree::from(Ident::new("binding", span))));
         }
         PatternVariant::Rem { .. } => {
             unreachable!()
-        }
-        PatternVariant::Ident => {
-            out_t.extend(once(TokenTree::from(Ident::new(
-                "ident",
-                Span::call_site(),
-            ))));
         }
         PatternVariant::Array(al) => {
             out_t.extend(once(TokenTree::from(Ident::new("array", al.group_span))));
@@ -189,7 +182,9 @@ pub(crate) fn parse_pattern(parser: &mut Parser) -> Result<Pattern, Error> {
         return parse_pattern(inner_tokens);
     }
 
-    if let Some(path) = peek_parse_path(parser)? {
+    if let Some(path) = peek_parse_path_or_under(parser)? {
+        let (path, path_span) = path.into_tokens();
+
         match parser.peek() {
             Some(TokenTree::Group(group)) => {
                 let struct_pat = parse_struct_pattern(path.clone(), &group)?;
@@ -203,21 +198,20 @@ pub(crate) fn parse_pattern(parser: &mut Parser) -> Result<Pattern, Error> {
                 });
             }
             Some(TokenTree::Punct(p)) if p.as_char() == '@' => {
-                out.extend(path.clone());
-                out.extend(parser.next());
+                out.extend(path);
 
-                return parse_dotdot(out, Some(path), parser);
+                return parse_at(out, parser.next().unwrap(), parser);
             }
             Some(x) if is_pattern_terminator(x) => {
                 return Ok(Pattern {
                     pattern_tokens: path,
-                    var: PatternVariant::Ident,
+                    var: PatternVariant::Binding(path_span),
                 });
             }
             None => {
                 return Ok(Pattern {
                     pattern_tokens: path,
-                    var: PatternVariant::Ident,
+                    var: PatternVariant::Binding(path_span),
                 });
             }
             Some(tt) => return Err(Error::new(tt.span(), "unexpected end of pattern")),
@@ -225,23 +219,7 @@ pub(crate) fn parse_pattern(parser: &mut Parser) -> Result<Pattern, Error> {
     }
 
     match parser.peek() {
-        Some(TokenTree::Punct(p)) if p.as_char() == '.' => return parse_dotdot(out, None, parser),
-        Some(TokenTree::Ident(ident)) if ident.to_string() == "_" => {
-            let under_span = ident.span();
-            let mut pattern_tokens = TS::from_iter(parser.next());
-
-            return if let Some(TokenTree::Punct(p)) = parser.peek()
-                && p.as_char() == '@'
-            {
-                pattern_tokens.extend(parser.next());
-                parse_dotdot(pattern_tokens, None, parser)
-            } else {
-                Ok(Pattern {
-                    pattern_tokens,
-                    var: PatternVariant::Underscore(under_span),
-                })
-            };
-        }
+        Some(TokenTree::Punct(p)) if p.as_char() == '.' => return parse_dotdot(out, parser),
         Some(TokenTree::Group(group))
             if matches!(
                 group.delimiter(),
@@ -329,7 +307,7 @@ fn parse_struct_pattern(path: TS, group: &Group) -> Result<Struct, Error> {
             && let Pattern {
                 var: PatternVariant::Rem { dotdot, binding },
                 ..
-            } = parse_dotdot(TS::new(), None, parser)?
+            } = parse_dotdot(TS::new(), parser)?
         {
             if binding.is_some() {
                 return Err(Error::new(
@@ -351,7 +329,7 @@ fn parse_struct_pattern(path: TS, group: &Group) -> Result<Struct, Error> {
             let pattern = match field_pat_kind {
                 FieldPatKind::OnlyName => Pattern {
                     pattern_tokens: TS::from(name.clone()),
-                    var: PatternVariant::Ident,
+                    var: PatternVariant::Binding(name.span()),
                 },
                 FieldPatKind::WithPat => parse_pattern(parser)?,
             };
@@ -405,7 +383,58 @@ fn parse_field_name(parser: &mut Parser) -> Result<(TokenTree, FieldPatKind), Er
     }
 }
 
-fn parse_dotdot(mut out: TS, binding: Option<TS>, parser: &mut Parser) -> Result<Pattern, Error> {
+fn parse_at(mut out: TS, at: TokenTree, parser: &mut Parser) -> Result<Pattern, Error> {
+    let pat = parse_pattern(parser)?;
+    let span = at.span();
+
+    match pat.var {
+        PatternVariant::Rem {
+            binding: None,
+            dotdot,
+        } => {
+            let binding = out.clone();
+
+            out.extend(once(at));
+            out.extend(pat.pattern_tokens);
+
+            Ok(Pattern {
+                pattern_tokens: out.clone(),
+                var: PatternVariant::Rem {
+                    binding: Some(binding),
+                    dotdot,
+                },
+            })
+        }
+        PatternVariant::Rem {
+            binding: Some(binding),
+            dotdot,
+        } => {
+            out.extend(once(at));
+            let binding = out.clone().into_iter().chain(binding).collect::<TS>();
+
+            out.extend(pat.pattern_tokens);
+
+            Ok(Pattern {
+                pattern_tokens: out.clone(),
+                var: PatternVariant::Rem {
+                    binding: Some(binding),
+                    dotdot,
+                },
+            })
+        }
+        _ => {
+            out.extend(once(at));
+            out.extend(pat.pattern_tokens);
+
+            Ok(Pattern {
+                pattern_tokens: out,
+                var: PatternVariant::Binding(span),
+            })
+        }
+    }
+}
+
+fn parse_dotdot(mut out: TS, parser: &mut Parser) -> Result<Pattern, Error> {
     match (parser.next(), parser.next()) {
         (Some(TokenTree::Punct(p0)), Some(TokenTree::Punct(p1)))
             if p0.as_char() == '.' && p1.as_char() == '.' =>
@@ -417,7 +446,7 @@ fn parse_dotdot(mut out: TS, binding: Option<TS>, parser: &mut Parser) -> Result
             Ok(Pattern {
                 pattern_tokens: out,
                 var: PatternVariant::Rem {
-                    binding,
+                    binding: None,
                     dotdot: span,
                 },
             })

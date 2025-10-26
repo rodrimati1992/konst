@@ -15,6 +15,24 @@ pub(crate) struct Attribute {
     pub(crate) bracket: TokenTree,
 }
 
+#[derive(Clone)]
+pub(crate) enum PathOrUnder {
+    Path(TokenStream, Span),
+    Underscore(TokenTree),
+}
+
+impl PathOrUnder {
+    pub(crate) fn into_tokens(self) -> (TokenStream, Span) {
+        match self {
+            Self::Path(x, span) => (x, span),
+            Self::Underscore(x) => {
+                let span = x.span();
+                (TokenStream::from(x), span)
+            }
+        }
+    }
+}
+
 pub(crate) fn parse_attrs(parser: &mut Parser) -> Result<Vec<Attribute>, Error> {
     let mut out = Vec::new();
 
@@ -37,7 +55,7 @@ pub(crate) fn parse_attrs(parser: &mut Parser) -> Result<Vec<Attribute>, Error> 
     Ok(out)
 }
 
-pub(crate) fn peek_parse_path(parser: &mut Parser) -> Result<Option<TokenStream>, Error> {
+pub(crate) fn peek_parse_path_or_under(parser: &mut Parser) -> Result<Option<PathOrUnder>, Error> {
     let start_span = match parser.peek() {
         Some(TokenTree::Punct(p))
             if matches!(
@@ -47,7 +65,9 @@ pub(crate) fn peek_parse_path(parser: &mut Parser) -> Result<Option<TokenStream>
         {
             p.span()
         }
-        Some(TokenTree::Ident(ident)) if ident.to_string() == "_" => return Ok(None),
+        Some(TokenTree::Ident(ident)) if ident.to_string() == "_" => {
+            return Ok(Some(PathOrUnder::Underscore(parser.next().unwrap())));
+        }
         Some(TokenTree::Ident(ident)) => ident.span(),
         _ => return Ok(None),
     };
@@ -72,7 +92,7 @@ pub(crate) fn peek_parse_path(parser: &mut Parser) -> Result<Option<TokenStream>
                     .checked_sub(1)
                     .ok_or_else(|| Error::new(punct.span(), "unexpected '>'"))?;
             }
-            Some(tt) if level == 0 && is_path_terminator(tt, prev_token_spacing) => {
+            Some(tt) if level == 0 && is_path_terminator(tt, prev_token_spacing)? => {
                 break;
             }
             Some(TokenTree::Punct(punct)) if level == 0 => {
@@ -92,19 +112,22 @@ pub(crate) fn peek_parse_path(parser: &mut Parser) -> Result<Option<TokenStream>
     }
 
     if level == 0 {
-        Ok(Some(out))
+        Ok(Some(PathOrUnder::Path(out, start_span)))
     } else {
         Err(Error::new(last_span, "incomplete path"))
     }
 }
 
-fn is_path_terminator(tt: &TokenTree, prev_token_spacing: Spacing) -> bool {
+fn is_path_terminator(tt: &TokenTree, prev_token_spacing: Spacing) -> Result<bool, Error> {
     match tt {
-        TokenTree::Punct(p) => {
+        TokenTree::Punct(p) => Ok(
             !(p.as_char() == ':' && [prev_token_spacing, p.spacing()].contains(&Spacing::Joint))
+        ),
+        TokenTree::Group(_) => Ok(true),
+        TokenTree::Ident(ident) if matches!(ident.to_string().as_str(), "_" | "ref" | "mut") => {
+            Err(Error::new(ident.span(), "expected path"))
         }
-        TokenTree::Group(_) => true,
-        TokenTree::Ident(_) => false,
-        TokenTree::Literal(_) => true,
+        TokenTree::Ident(_) => Ok(false),
+        TokenTree::Literal(_) => Ok(true),
     }
 }
