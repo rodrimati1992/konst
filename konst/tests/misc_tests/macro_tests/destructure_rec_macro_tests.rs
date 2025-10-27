@@ -18,6 +18,10 @@ mod std {
 //                  Braced Structs
 ////////////////////////////////////////////////////////////////////////
 
+type Tuple2<T> = (T, T);
+
+type Tuple3<T> = (T, T, T);
+
 struct BracedStruct<T> {
     foo: String,
     bar: T,
@@ -595,4 +599,225 @@ fn test_array_ignore_rem_pat() {
 
     dry! {}
     dry! {_ @}
+}
+
+////////////////////////////////////////////////////////
+
+#[test]
+fn test_metavar_whole_pattern() {
+    const fn func<T>(val: [[T; 3]; 2]) -> (impl AsRef<[T]>, T, impl AsRef<[T]>) {
+        macro_rules! foo {
+            ($pat:pat) => {
+                destructure_rec! {$pat = val}
+            };
+        }
+
+        foo! {[a, [b, c @ ..]]}
+
+        (a, b, c)
+    }
+
+    let (a, b, c) = func([[3, 5, 8], [13, 21, 34]]);
+
+    assert_eq!(a.as_ref(), [3, 5, 8].as_slice());
+    assert_eq!(b, 13);
+    assert_eq!(c.as_ref(), [21, 34].as_slice());
+}
+
+#[test]
+fn test_metavar_subpattern() {
+    const fn func<T>(val: [[T; 3]; 2]) -> (impl AsRef<[T]>, T, impl AsRef<[T]>) {
+        macro_rules! foo {
+            (($a:ident, $a_pat:pat), $b:ident, ($c:ident, $c_pat:pat)) => {
+                destructure_rec! {[$a, [$b, $c @ $c_pat]] = val}
+
+                ($a, $b, $c)
+            };
+        }
+
+        foo! {(a, a), b, (c, ..)}
+    }
+
+    let (a, b, c) = func([[3, 5, 8], [13, 21, 34]]);
+
+    assert_eq!(a.as_ref(), [3, 5, 8].as_slice());
+    assert_eq!(b, 13);
+    assert_eq!(c.as_ref(), [21, 34].as_slice());
+}
+
+////////////////////////////////////////////////////////
+
+#[test]
+fn test_parenthesized_pattern() {
+    const fn func<T>(val: [T; 3]) -> (T, T, T) {
+        destructure_rec! {[(a), ((b)), (((c)))] = val}
+
+        (a, b, c)
+    }
+
+    let (a, b, c) = func([3, 5, 8]);
+
+    assert_eq!(a, 3);
+    assert_eq!(b, 5);
+    assert_eq!(c, 8);
+}
+
+#[test]
+fn test_tuple1_pattern() {
+    const fn func<T>(val: [(T,); 3]) -> (T, T, T) {
+        destructure_rec! {[(a,), ((b,)), (((c,)))] = val}
+
+        (a, b, c)
+    }
+
+    let (a, b, c) = func([(3,), (5,), (8,)]);
+
+    assert_eq!(a, 3);
+    assert_eq!(b, 5);
+    assert_eq!(c, 8);
+}
+
+////////////////////////////////////////////////////////
+
+#[test]
+fn test_nested_array_tuple() {
+    const fn func<T>(val: [Tuple3<T>; 2]) -> (T, T, T, T, T, T) {
+        destructure_rec! {[(a, b, c), (d, e, f)] = val}
+
+        (a, b, c, d, e, f)
+    }
+
+    let (a, b, c, d, e, f) = func([(3, 5, 8), (13, 21, 34)]);
+
+    assert_eq!(a, 3);
+    assert_eq!(b, 5);
+    assert_eq!(c, 8);
+    assert_eq!(d, 13);
+    assert_eq!(e, 21);
+    assert_eq!(f, 34);
+}
+
+#[test]
+fn test_nested_tuple_array() {
+    const fn func<T>(val: Tuple2<[T; 3]>) -> (impl AsRef<[T]>, T, T, impl AsRef<[T]>, T) {
+        destructure_rec! {([a @ .., b], [c, d @ .., e]) = val}
+
+        (a, b, c, d, e)
+    }
+
+    let (a, b, c, d, e) = func(([3, 5, 8], [13, 21, 34]));
+
+    assert_eq!(a.as_ref(), [3, 5].as_slice());
+    assert_eq!(b, 8);
+    assert_eq!(c, 13);
+    assert_eq!(d.as_ref(), [21].as_slice());
+    assert_eq!(e, 34);
+}
+
+#[test]
+fn test_nested_tuple_tuple() {
+    const fn func<T>(val: Tuple2<Tuple2<T>>) -> (T, T, T, T) {
+        destructure_rec! {((a, b), (c, d)) = val}
+
+        (a, b, c, d)
+    }
+
+    let (a, b, c, d) = func(((3, 5), (8, 13)));
+
+    assert_eq!(a, 3);
+    assert_eq!(b, 5);
+    assert_eq!(c, 8);
+    assert_eq!(d, 13);
+}
+
+#[test]
+fn test_nested_tuple_tuplestruct() {
+    const fn func<T>(val: Tuple2<TupleStruct<T>>) -> (String, T, T, String, T, T) {
+        destructure_rec! {(TupleStruct(a, b, c), TupleStruct(d, e, f)) = val}
+
+        (a, b, c, d, e, f)
+    }
+
+    let (a, b, c, d, e, f) = func((
+        TupleStruct("foo".into(), 3, 5),
+        TupleStruct("bar".into(), 8, 13),
+    ));
+
+    assert_eq!(a, "foo".to_string());
+    assert_eq!(b, 3);
+    assert_eq!(c, 5);
+    assert_eq!(d, "bar".to_string());
+    assert_eq!(e, 8);
+    assert_eq!(f, 13);
+}
+
+#[test]
+fn test_nested_tuplestruct_tuple() {
+    const fn func<T>(val: TupleStruct<Tuple2<T>>) -> (String, T, T, T, T) {
+        destructure_rec! {TupleStruct(a, (b, c), (d, e)) = val}
+
+        (a, b, c, d, e)
+    }
+
+    let (a, b, c, d, e) = func(TupleStruct("foo".into(), (3, 5), (8, 13)));
+
+    assert_eq!(a, "foo".to_string());
+    assert_eq!(b, 3);
+    assert_eq!(c, 5);
+    assert_eq!(d, 8);
+    assert_eq!(e, 13);
+}
+
+#[test]
+fn test_nested_tuple_bracedstruct() {
+    const fn func<T>(val: Tuple2<BracedStruct<T>>) -> (String, T, T, String, T, T) {
+        destructure_rec! {
+            (BracedStruct{foo, bar, baz}, BracedStruct { foo: d, bar: e, baz: f }) = val
+        }
+
+        (foo, bar, baz, d, e, f)
+    }
+
+    let (a, b, c, d, e, f) = func((
+        BracedStruct {
+            foo: "foo".into(),
+            bar: 3,
+            baz: 5,
+        },
+        BracedStruct {
+            foo: "bar".into(),
+            bar: 8,
+            baz: 13,
+        },
+    ));
+
+    assert_eq!(a, "foo".to_string());
+    assert_eq!(b, 3);
+    assert_eq!(c, 5);
+    assert_eq!(d, "bar".to_string());
+    assert_eq!(e, 8);
+    assert_eq!(f, 13);
+}
+
+#[test]
+fn test_nested_bracedstruct_tuple() {
+    const fn func<T>(val: BracedStruct<Tuple2<T>>) -> (String, T, T, T, T) {
+        destructure_rec! {
+            BracedStruct { foo, bar: (b, c), baz: (d, e) } = val
+        }
+
+        (foo, b, c, d, e)
+    }
+
+    let (a, b, c, d, e) = func(BracedStruct {
+        foo: "foo".into(),
+        bar: (3, 5),
+        baz: (8, 13),
+    });
+
+    assert_eq!(a, "foo".to_string());
+    assert_eq!(b, 3);
+    assert_eq!(c, 5);
+    assert_eq!(d, 8);
+    assert_eq!(e, 13);
 }

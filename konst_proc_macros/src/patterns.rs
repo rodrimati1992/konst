@@ -28,6 +28,7 @@ pub(crate) struct Arraylike {
     pub(crate) group_span: Span,
     pub(crate) patterns: VecDeque<Pattern>,
     pub(crate) remainder_pos: Option<usize>,
+    pub(crate) comma_term: bool,
 }
 
 pub(crate) struct Struct {
@@ -99,6 +100,7 @@ pub(crate) fn expand_arraylike(pat: Arraylike, out_t: &mut TS) {
         group_span,
         mut patterns,
         remainder_pos,
+        comma_term: _,
     } = pat;
 
     out_t.extend(once(utils::paren(group_span, |out_p| {
@@ -230,6 +232,14 @@ pub(crate) fn parse_pattern(parser: &mut Parser) -> Result<Pattern, Error> {
             let delim = group.delimiter();
             let arraylike = parse_arraylike(group.span(), inner_parser)?;
 
+            if arraylike.patterns.len() == 1
+                && !arraylike.comma_term
+                && delim == Delimiter::Parenthesis
+            {
+                parser.next();
+                return Ok({ arraylike.patterns }.pop_front().unwrap());
+            }
+
             out.extend(parser.next());
 
             return Ok(Pattern {
@@ -256,6 +266,8 @@ fn parse_arraylike(group_span: Span, parser: &mut Parser) -> Result<Arraylike, E
 
     let mut remainder_pos = None;
 
+    let mut comma_term = false;
+
     while parser.peek().is_some() {
         let pattern = parse_pattern(parser)?;
 
@@ -269,13 +281,14 @@ fn parse_arraylike(group_span: Span, parser: &mut Parser) -> Result<Arraylike, E
 
         patterns.push_back(pattern);
 
-        parse_comma_term(parser)?;
+        comma_term = parse_comma_term(parser)?.is_some();
     }
 
     Ok(Arraylike {
         group_span,
         patterns,
         remainder_pos,
+        comma_term,
     })
 }
 
