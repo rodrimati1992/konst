@@ -15,5 +15,10 @@ const fn to_bar_2(foo: Braced) -> String {
     bar
 }
 
+const fn to_bar_trailing_fields(foo: Braced) -> String {
+    konst::destructure_rec!{Braced{bar, .., baz}: Braced = foo}
+    bar
+}
+
 
 fn main(){}

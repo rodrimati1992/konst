@@ -69,7 +69,7 @@ pub(crate) fn expand_pattern(pat: Pattern, out: &mut TS) {
             out_t.extend(once(TokenTree::from(Ident::new("binding", span))));
         }
         PatternVariant::Rem { .. } => {
-            unreachable!()
+            unreachable!("{}", std::panic::Location::caller())
         }
         PatternVariant::Array(al) => {
             out_t.extend(once(TokenTree::from(Ident::new("array", al.group_span))));
@@ -120,7 +120,7 @@ pub(crate) fn expand_arraylike(pat: Arraylike, out_t: &mut TS) {
             ..
         }) = patterns.pop_front()
         else {
-            unreachable!()
+            unreachable!("{}", std::panic::Location::caller())
         };
 
         out_t.extend(once(utils::paren(dotdot, |out_p| {
@@ -247,7 +247,7 @@ pub(crate) fn parse_pattern(parser: &mut Parser) -> Result<Pattern, Error> {
                 var: match delim {
                     Delimiter::Bracket => PatternVariant::Array(arraylike),
                     Delimiter::Parenthesis => PatternVariant::Tuple(arraylike),
-                    _ => unreachable!(),
+                    _ => unreachable!("{}", std::panic::Location::caller()),
                 },
             });
         }
@@ -346,6 +346,10 @@ fn parse_struct_pattern(path: TS, group: &Group) -> Result<Struct, Error> {
                 },
                 FieldPatKind::WithPat => parse_pattern(parser)?,
             };
+
+            if let PatternVariant::Rem { dotdot, .. } = pattern.var {
+                return Err(Error::new(dotdot, "`..` patterns not allowed here"));
+            }
 
             fields.push(Field { name, pattern });
         }

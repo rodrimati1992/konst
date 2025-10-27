@@ -648,6 +648,47 @@ fn test_metavar_subpattern() {
 ////////////////////////////////////////////////////////
 
 #[test]
+fn test_braced_forget_fields() {
+    struct BracedPair<T, U> {
+        val: T,
+        #[expect(dead_code)]
+        other: U,
+    }
+
+    const fn inner<T>(val: BracedPair<[T; 2], u8>) -> impl AsRef<[T]> {
+        destructure_rec! {
+            #[forget_ignored_fields]
+            BracedPair { val, .. } = val
+        }
+        val
+    }
+
+    assert_eq!(
+        inner(BracedPair {
+            val: [8, 13],
+            other: 5
+        })
+        .as_ref(),
+        &[8, 13][..]
+    );
+}
+
+#[test]
+fn test_tuple_forget_fields() {
+    const fn inner<T>(val: ([T; 2], u8)) -> impl AsRef<[T]> {
+        destructure_rec! {
+            #[forget_ignored_fields]
+            (val, ..) = val
+        }
+        val
+    }
+
+    assert_eq!(inner(([8, 13], 5)).as_ref(), &[8, 13][..]);
+}
+
+////////////////////////////////////////////////////////
+
+#[test]
 fn test_parenthesized_pattern() {
     const fn func<T>(val: [T; 3]) -> (T, T, T) {
         destructure_rec! {[(a), ((b)), (((c)))] = val}

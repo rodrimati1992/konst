@@ -58,7 +58,7 @@ macro_rules! __destructure_rec__inner {
 #[macro_export]
 macro_rules! __destructure_rec__recursive {
     (
-        $fixed:tt [] {$ptr:expr}
+        $fixed:tt $fixed2:tt {$ptr:expr}
         ( $pattern:tt binding )
     ) => {
         let $pattern = unsafe { <*mut _>::read_unaligned($ptr) };
@@ -137,12 +137,21 @@ macro_rules! __destructure_rec__recursive {
 
     (
         $fixed:tt [] $ptr:tt
-        ( $pattern:tt tuple $fields:tt $dotdot:tt $suffix_fields:tt)
+        ( $pattern:tt tuple $fields:tt $dotdot:tt ())
     ) => {
         $crate::__::compile_error!{
             "`..` patterns are not supported in tuple patterns by default,\
              because they can forget fields\
             "
+        }
+    };
+
+    (
+        $fixed:tt [] $ptr:tt
+        ( $pattern:tt tuple $fields:tt $dotdot:tt $suffix_fields:tt)
+    ) => {
+        $crate::__::compile_error!{
+            "tuple patterns do not support `..` with trailing fields"
         }
     };
 
@@ -168,7 +177,10 @@ macro_rules! __destructure_rec__recursive {
         if false {
             loop {}
 
-            let expected @ ($($crate::__first_pat!(_, $field),)*);
+            let expected @ (
+                $($crate::__first_pat!(_, $field),)*
+                $($crate::__first_pat!(_, $($dotdot)*),)?
+            );
 
             // SAFETY: dead code
             let read_out = unsafe {

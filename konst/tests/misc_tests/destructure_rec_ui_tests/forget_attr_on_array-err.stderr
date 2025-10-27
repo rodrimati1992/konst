@@ -1,0 +1,13 @@
+error[E0493]: destructor of `[String; 3]` cannot be evaluated at compile-time
+ --> tests/misc_tests/destructure_rec_ui_tests/forget_attr_on_array-err.rs:4:5
+  |
+4 | /     konst::destructure_rec!{
+5 | |         #[forget_ignored_fields]
+6 | |         [bar, ..] = foo
+7 | |     }
+  | |     ^
+  | |     |
+  | |_____the destructor for this type cannot be evaluated in constant functions
+  |       value is dropped here
+  |
+  = note: this error originates in the macro `$crate::__destructure_rec__recursive` which comes from the expansion of the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -15,4 +15,9 @@ const fn to_bar_3(foo: Tuple) -> String {
     bar
 }
 
+const fn to_bar_trailing_field(foo: Tuple) -> String {
+    konst::destructure_rec!{(bar, .., baz) = foo}
+    bar
+}
+
 fn main(){}
