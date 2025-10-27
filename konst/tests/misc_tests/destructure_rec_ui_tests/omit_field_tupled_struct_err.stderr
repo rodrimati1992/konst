@@ -1,0 +1,26 @@
+error: `..` patterns are not supported in struct patterns by default,because they can forget fields
+ --> tests/misc_tests/destructure_rec_ui_tests/omit_field_tupled_struct_err.rs:9:5
+  |
+9 |     konst::destructure_rec!{Tupled(bar, ..) = foo}
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__destructure_rec__recursive` which comes from the expansion of the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0425]: cannot find value `bar` in this scope
+  --> tests/misc_tests/destructure_rec_ui_tests/omit_field_tupled_struct_err.rs:10:5
+   |
+10 |     bar
+   |     ^^^ not found in this scope
+
+error: pattern requires `..` due to inaccessible fields
+ --> tests/misc_tests/destructure_rec_ui_tests/omit_field_tupled_struct_err.rs:4:5
+  |
+4 |     konst::destructure_rec!{Tupled(bar) = foo}
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `$crate::__destructure_rec__recursive` which comes from the expansion of the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: ignore the inaccessible and unused fields
+ --> src/macros/destructuring_rec.rs
+  |
+  |             let expected @ $path {$($field_name: _, ..,)* $($($dotdot)*)?};
+  |                                                   ++++

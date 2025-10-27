@@ -2,7 +2,10 @@
 
 #[doc(hidden)]
 #[inline(always)]
-pub const fn split_array_ptr_len<T, const N: usize>(ptr: *mut [T; N]) -> (*mut T, usize) {
+pub const fn split_array_ptr_len<T, U, const N: usize>(
+    ptr: *mut U,
+    _phantom: core::marker::PhantomData<fn([T; N]) -> [T; N]>,
+) -> (*mut T, usize) {
     (ptr.cast(), N)
 }
 
@@ -202,6 +205,7 @@ macro_rules! __destructure_rec__recursive {
     ) => {
         let ptr = $ptr;
 
+        let arr_type_len_phantom = $crate::__::PhantomData;
         $(  let $crate::__first_pat!(rem_ty_phantom, $($rem_pat)*) = $crate::__::PhantomData; )?
 
         // asserts the length of the array,
@@ -219,7 +223,7 @@ macro_rules! __destructure_rec__recursive {
             ] = unsafe {
 
                 // assert that `*ptr` is an array, not a reference to an array
-                let _ = $crate::macros::destructuring::array_into_phantom({
+                arr_type_len_phantom = $crate::macros::destructuring::array_into_phantom({
                     let array = <*mut _>::read_unaligned(ptr);
                     array
                 });
@@ -236,7 +240,10 @@ macro_rules! __destructure_rec__recursive {
 
         }
 
-        let (ptr_elem, len) = $crate::macros::destructuring_rec::split_array_ptr_len(ptr);
+        let (ptr_elem, len) = $crate::macros::destructuring_rec::split_array_ptr_len(
+            ptr,
+            arr_type_len_phantom,
+        );
 
         $(
             $crate::__destructure_rec__recursive! {

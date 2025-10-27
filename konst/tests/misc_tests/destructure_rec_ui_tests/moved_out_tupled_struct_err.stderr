@@ -1,0 +1,19 @@
+error[E0382]: use of moved value: `foo`
+ --> tests/misc_tests/destructure_rec_ui_tests/moved_out_tupled_struct_err.rs:6:22
+  |
+3 | const fn to_bar(foo: Tuple) -> (String, String, String) {
+  |                 --- move occurs because `foo` has type `Tuple`, which does not implement the `Copy` trait
+4 |     konst::destructure_rec!{Tuple(bar, baz, qux) = foo}
+  |                                                    --- value moved here
+5 |
+6 |     std::mem::forget(foo);
+  |                      ^^^ value used here after move
+  |
+note: if `Tuple` implemented `Clone`, you could clone the value
+ --> tests/misc_tests/destructure_rec_ui_tests/moved_out_tupled_struct_err.rs:1:1
+  |
+1 | struct Tuple(String, String, String);
+  | ^^^^^^^^^^^^ consider implementing `Clone` for this type
+...
+4 |     konst::destructure_rec!{Tuple(bar, baz, qux) = foo}
+  |                                                    --- you could clone this value
