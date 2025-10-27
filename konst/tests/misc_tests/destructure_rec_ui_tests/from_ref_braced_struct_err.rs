@@ -23,4 +23,15 @@ const fn to_bar_type_as_pat(foo: &Braced) -> impl Sized {
     (foo, bar, baz)
 }
 
+
+type Nested<'a> = [&'a Braced; 2];
+
+const fn to_bar_nested(foo: Nested<'_>) -> impl Sized {
+    konst::destructure_rec!{[Braced {bar, baz, qux}, _] = foo}
+
+    (foo, bar, baz)
+}
+
+
+
 fn main(){}

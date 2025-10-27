@@ -15,5 +15,13 @@ const fn to_bar(foo: Braced) -> (String, String, String) {
     (bar, baz, qux)
 }
 
+const fn to_bar_nested(foo: [Braced; 2]) -> (String, String, String) {
+    konst::destructure_rec!{[Braced{bar, baz, qux}, forg] = foo}
+
+    core::mem::forget(forg);
+
+    (bar, baz, qux)
+}
+
 
 fn main(){}

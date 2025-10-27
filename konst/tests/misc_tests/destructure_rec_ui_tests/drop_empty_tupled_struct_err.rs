@@ -8,4 +8,10 @@ const fn to_bar(foo: Tuple)  {
     konst::destructure_rec!{Tuple() = foo}
 }
 
+const fn to_bar_nested(foo: [Tuple; 2])  {
+    konst::destructure_rec!{[Tuple(), forg] = foo}
+
+    core::mem::forget(forg);
+}
+
 fn main(){}

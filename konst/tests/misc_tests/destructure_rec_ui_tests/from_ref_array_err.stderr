@@ -7,3 +7,13 @@ error[E0308]: mismatched types
   = note:  expected array `[_; _]`
           found reference `&[u8; 4]`
   = note: this error originates in the macro `$crate::__destructure_rec__recursive` which comes from the expansion of the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0308]: mismatched types
+  --> tests/misc_tests/destructure_rec_ui_tests/from_ref_array_err.rs:10:5
+   |
+10 |     konst::destructure_rec!{[[_bar, _baz, _qux @ ..], _] = foo}
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `[_; _]`, found `&[u8; 4]`
+   |
+   = note:  expected array `[_; _]`
+           found reference `&[u8; 4]`
+   = note: this error originates in the macro `$crate::__destructure_rec__recursive` which comes from the expansion of the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -11,4 +11,13 @@ const fn to_bar_2(foo: &Tuple) -> impl Sized {
 }
 
 
+type Nested<'a> = [&'a Tuple; 2];
+
+const fn to_bar_nested(foo: Nested<'_>) -> impl Sized {
+    konst::destructure_rec!{[(foo, bar, baz), _] = foo}
+    (foo, bar, baz)
+}
+
+
+
 fn main(){}
