@@ -1,0 +1,15 @@
+error[E0527]: pattern requires 2 elements but array has 1
+ --> tests/misc_tests/destructure_rec_ui_tests/overly_long_array_err.rs:4:5
+  |
+4 |     konst::destructure_rec!{ [bar, baz] = foo }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected 1 element
+  |
+  = note: this error originates in the macro `$crate::__destructure_rec__recursive` which comes from the expansion of the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0528]: pattern requires at least 2 elements but array has 1
+ --> tests/misc_tests/destructure_rec_ui_tests/overly_long_array_err.rs:9:5
+  |
+9 |     konst::destructure_rec!{ [bar, baz, qux @ ..] = foo }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ pattern cannot match array of 1 element
+  |
+  = note: this error originates in the macro `$crate::__destructure_rec__recursive` which comes from the expansion of the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)

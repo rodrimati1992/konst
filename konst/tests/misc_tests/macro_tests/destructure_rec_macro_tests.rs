@@ -720,6 +720,9 @@ fn test_tuple1_pattern() {
 
 ////////////////////////////////////////////////////////
 
+#[repr(packed)]
+struct PackTupStruct<T>(T, T);
+
 #[test]
 fn test_nested_array_tuple() {
     const fn func<T>(val: [Tuple3<T>; 2]) -> (T, T, T, T, T, T) {
@@ -747,6 +750,23 @@ fn test_nested_tuple_array() {
     }
 
     let (a, b, c, d, e) = func(([3, 5, 8], [13, 21, 34]));
+
+    assert_eq!(a.as_ref(), [3, 5].as_slice());
+    assert_eq!(b, 8);
+    assert_eq!(c, 13);
+    assert_eq!(d.as_ref(), [21].as_slice());
+    assert_eq!(e, 34);
+}
+
+#[test]
+fn test_nested_packed_tuplestruct_array() {
+    const fn func<T>(val: PackTupStruct<[T; 3]>) -> (impl AsRef<[T]>, T, T, impl AsRef<[T]>, T) {
+        destructure_rec! {PackTupStruct([a @ .., b], [c, d @ .., e]) = val}
+
+        (a, b, c, d, e)
+    }
+
+    let (a, b, c, d, e) = func(PackTupStruct([3, 5, 8], [13, 21, 34]));
 
     assert_eq!(a.as_ref(), [3, 5].as_slice());
     assert_eq!(b, 8);
@@ -810,6 +830,22 @@ fn test_nested_tuplestruct_tuple() {
 }
 
 #[test]
+fn test_nested_packed_tuplestruct_tuple() {
+    const fn func<T>(val: PackTupStruct<Tuple2<T>>) -> (T, T, T, T) {
+        destructure_rec! {PackTupStruct((b, c), (d, e)) = val}
+
+        (b, c, d, e)
+    }
+
+    let (b, c, d, e) = func(PackTupStruct((3, 5), (8, 13)));
+
+    assert_eq!(b, 3);
+    assert_eq!(c, 5);
+    assert_eq!(d, 8);
+    assert_eq!(e, 13);
+}
+
+#[test]
 fn test_nested_tuple_bracedstruct() {
     const fn func<T>(val: Tuple2<BracedStruct<T>>) -> (String, T, T, String, T, T) {
         destructure_rec! {
@@ -820,6 +856,38 @@ fn test_nested_tuple_bracedstruct() {
     }
 
     let (a, b, c, d, e, f) = func((
+        BracedStruct {
+            foo: "foo".into(),
+            bar: 3,
+            baz: 5,
+        },
+        BracedStruct {
+            foo: "bar".into(),
+            bar: 8,
+            baz: 13,
+        },
+    ));
+
+    assert_eq!(a, "foo".to_string());
+    assert_eq!(b, 3);
+    assert_eq!(c, 5);
+    assert_eq!(d, "bar".to_string());
+    assert_eq!(e, 8);
+    assert_eq!(f, 13);
+}
+
+#[test]
+fn test_nested_packed_tuplestruct_bracedstruct() {
+    const fn func<T>(val: PackTupStruct<BracedStruct<T>>) -> (String, T, T, String, T, T) {
+        destructure_rec! {
+            PackTupStruct(BracedStruct{foo, bar, baz}, BracedStruct { foo: d, bar: e, baz: f }) =
+                val
+        }
+
+        (foo, bar, baz, d, e, f)
+    }
+
+    let (a, b, c, d, e, f) = func(PackTupStruct(
         BracedStruct {
             foo: "foo".into(),
             bar: 3,

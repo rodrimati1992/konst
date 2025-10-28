@@ -61,6 +61,12 @@ macro_rules! __destructure_rec__recursive {
         $fixed:tt $fixed2:tt {$ptr:expr}
         ( $pattern:tt binding )
     ) => {
+        // SAFETY:
+        // ptr is a valid pointer to the type that is read out,
+        // the pointee comes from a ManuallyDrop,
+        // and it's only read out once.
+        //
+        // uses `read_unaligned` because this might be a pointer into a packed struct
         let $pattern = unsafe { <*mut _>::read_unaligned($ptr) };
     };
 
@@ -100,6 +106,7 @@ macro_rules! __destructure_rec__recursive {
 
             // SAFETY: dead code
             let read_out = unsafe {
+                // uses `read_unaligned` because this might be a pointer into a packed struct
                 <*mut _>::read_unaligned(ptr)
             };
 
@@ -129,7 +136,10 @@ macro_rules! __destructure_rec__recursive {
             $crate::__destructure_rec__recursive! {
                 $fixed
                 $fixed
-                {unsafe { &raw mut (*ptr).$field_name }}
+                {
+                    // SAFETY: ptr is a pointer to a struct with the `$field_name` field
+                    unsafe { &raw mut (*ptr).$field_name }
+                }
                 $field_pat
             }
         )*
@@ -184,6 +194,7 @@ macro_rules! __destructure_rec__recursive {
 
             // SAFETY: dead code
             let read_out = unsafe {
+                // uses `read_unaligned` because this might be a pointer into a packed struct
                 <*mut _>::read_unaligned(ptr)
             };
 
@@ -194,7 +205,10 @@ macro_rules! __destructure_rec__recursive {
             $crate::__destructure_rec__recursive! {
                 $fixed
                 $fixed
-                {unsafe { &raw mut (*ptr).$field }}
+                {
+                    // SAFETY: ptr is a pointer to a tuple with the `$field` field
+                    unsafe { &raw mut (*ptr).$field }
+                }
                 $field_pat
             }
         )*
@@ -233,14 +247,15 @@ macro_rules! __destructure_rec__recursive {
                     $($crate::__first_pat!(_, $post_pat),)*
                 )?
             ] = unsafe {
+                // SAFETY: unreachable code
 
                 // assert that `*ptr` is an array, not a reference to an array
                 arr_type_len_phantom = $crate::macros::destructuring::array_into_phantom({
+                    // uses `read_unaligned` because this might be a pointer into a packed struct
                     let array = <*mut _>::read_unaligned(ptr);
                     array
                 });
 
-                // SAFETY: unreachable code
                 $crate::macros::destructuring_rec::fake_read_array_ref(&*ptr)
             };
 
@@ -260,28 +275,43 @@ macro_rules! __destructure_rec__recursive {
         $(
             $crate::__destructure_rec__recursive! {
                 $fixed $fixed
-                {unsafe { <*mut _>::add(ptr_elem, $pre_index) }}
+                {
+                    // SAFETY:
+                    // `ptr_elem` is a pointer into the start of an array of `len` elements.
+                    // `$pre_index` is in-bounds for the array
+                    unsafe { <*mut _>::add(ptr_elem, $pre_index) }
+                }
                 $pre_pat
             }
         )*
 
         $(
 
-            // SAFETY: the array being wrapped in a ManuallyDrop,
-            //         and the assertions above, ensure that these reads are safe.
+            // SAFETY:
+            // the array being wrapped in a ManuallyDrop,
+            // and the assertions above, ensure that this read is safe.
             let $($rem_pat)* = unsafe {
                 let rem_ptr = $crate::macros::destructuring::cast_ptr_with_phantom(
                     <*mut _>::add(ptr_elem, $rem_index),
                     rem_ty_phantom,
                 );
 
+                // uses `read_unaligned` because this might be a pointer into a packed struct
                 <*mut _>::read_unaligned(rem_ptr)
             };
 
             $(
                 $crate::__destructure_rec__recursive! {
                     $fixed $fixed
-                    {unsafe { <*mut _>::add(ptr_elem, len.wrapping_sub($post_index)) }}
+                    {
+                        // SAFETY:
+                        // `ptr_elem` is a pointer into the start of an array of `len` elements.
+                        //
+                        // `len.wrapping_sub($post_index)` doesn't overflow because
+                        // the `__destructure__unwrap_pats` macro passes in-bounds indices,
+                        // and the `if false` above asserts the length of the array.
+                        unsafe { <*mut _>::add(ptr_elem, len.wrapping_sub($post_index)) }
+                    }
                     $post_pat
                 }
             )*
