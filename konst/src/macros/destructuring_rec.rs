@@ -17,7 +17,109 @@ pub const fn fake_read_array_ref<T, const N: usize>(_ptr: &[T; N]) -> [T; N] {
 
 //////
 
-/// TODO
+/// Nested destructuring of structs/tuples/arrays (composite types).
+///
+/// Use this macro over [`destructure`] if you need to destructure composite types
+/// into *nested* fields that may need dropping.
+///
+/// [**for examples look here**](#examples)
+///
+/// # Motivation
+///
+/// This macro works around a limitation of Rust as of 1.91,
+/// where in a const context, a non-`Drop` type can't be destructured into its elements/fields
+/// if any of them is `Drop`.
+///
+/// Even simple cases like this don't compile:
+///
+/// ```rust,compile_fail
+/// const fn foo<T>(((a, b), c): ((T, T), T)) -> [T; 3] {
+///     [a, b, c]
+/// }
+/// ```
+///
+/// ```text
+/// error[E0493]: destructor of `((T, T), T)` cannot be evaluated at compile-time
+///  --> src/lib.rs:1:17
+///   |
+/// 1 | const fn foo<T>(((a, b), c): ((T, T), T)) -> [T; 3] {
+///   |                 ^^^^^^^^^^^ the destructor for this type cannot be evaluated in constant functions
+/// 2 |     [a, b, c]
+/// 3 | }
+///   | - value is dropped here
+/// ```
+///
+/// # Requirements/Limitations
+///
+/// This macro has these requirements and limitations:
+/// - it only supports `..` patterns in tuples or structs
+///   when the `#[forget_ignored_fields]` attribute is used,
+///   which forgets unmentioned fields.
+///   (arrays always support the `..` pattern, dropping unmentioned elements)
+/// - it requires that passed-in structs do not impl `Drop`
+///   (like built-in destructuring does).
+///
+/// # Syntax
+///
+/// This section uses a pseudo-macro_rules syntax, the allowed syntax is
+/// ```text
+/// $(#[forget_ignored_fields])?
+/// $pattern:dr_pat $( : $type:ty )? = $val:expr
+/// ```
+///
+/// `dr_pat` can be any of:
+/// - `_`
+/// - `$ident:ident`
+/// - `_ @ $nested_pat:dr_pat`
+/// - `$ident:ident @ $nested_pat:dr_pat`
+/// - `$typename:path`
+/// - `$typename:path { $($field_name:ident : $field_pat:dr_pat),* $(, ..)? $(,)? }`
+/// - `$typename:path ( $($field_pat:dr_pat),* $(, ..)? $(,)? )`
+/// - `[ $($pref_elem:dr_pat),* $(, $($ident:ident @)? ..)? $(, $suff_elem:dr_pat)* $(,)? ]`
+/// - `( $($pref_elem:dr_pat),* $(, ..)?  $(,)? )`
+///
+/// The `#[forget_ignored_fields]` attribute turns the macro from forbidding
+/// tuple and struct patterns that use a trailing `..` to allowing
+/// the pattern, and to cause unmentioned fields to *not* be dropped.
+///
+/// # Examples
+///
+/// These examples demonstrate destructuring non-Copy types in const,
+/// which can't be done with built-in destructuring as of Rust 1.91.
+///
+/// ### Braced Struct
+///
+/// ```rust
+/// use std::ops::Range;
+///
+/// assert_eq!(TUP, (3, 5, 8, 13));
+///
+/// const TUP: (u32, u32, u32, u32) = ranges_to_tuple([3..5, 8..13]);
+///
+/// const fn ranges_to_tuple<T>(ranges: [Range<T>; 2]) -> (T, T, T, T) {
+///     konst::destructure_rec!{
+///         [Range { start: a, end: b }, Range { start: c, end: d }] = ranges
+///     }
+///
+///     (a, b, c, d)
+/// }
+/// ```
+///
+/// ### Flatten
+///
+/// ```rust
+/// assert_eq!(FLAT, [3, 5, 8, 13]);
+///
+/// const FLAT: [u32; 4] = flatten([[3, 5], [8, 13]]);
+///
+/// const fn flatten<T>(array: [[T; 2]; 2]) -> [T; 4] {
+///     konst::destructure_rec!{[[a, b], [c, d]] = array}
+///     
+///     [a, b, c, d]
+/// }
+/// ```
+///
+/// [`destructure`]: crate::destructure
 #[macro_export]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "konst_proc_macros")))]
 macro_rules! destructure_rec {
@@ -33,7 +135,7 @@ macro_rules! __destructure_rec__inner {
         $(#[forget_ignored_fields $(@$forget_ignored_fields:tt)?])?
         {$patterns:tt}
         $(: $type:ty )?
-        = $expr:expr
+        = $expr:expr $(;)?
     ) => (
         let mut val $(: $crate::__::ManuallyDrop<$type>)? = $crate::__::ManuallyDrop::new($expr);
 

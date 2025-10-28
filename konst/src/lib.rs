@@ -245,8 +245,11 @@
 //! Enables all comparison-related items,
 //! the string equality and ordering comparison functions don't require this feature.
 //!
+//! - `"`konst_proc_macros`"`(enabled by default):
+//! Enables the `konst_proc_macros` dependency, and the [`destructure_rec`] macro.
+//!
 //! - `"parsing_proc"`(enabled by default):
-//! Enables the `"parsing"` feature, compiles the `konst_proc_macros` dependency,
+//! Enables the `"parsing"` feature, compiles the `konst_proc_macros` feature,
 //! and enables the [`parser_method`] macro.
 //! You can use this feature instead of `"parsing"` if the slightly longer
 //! compile times aren't a problem.
@@ -293,6 +296,7 @@
 //! [`Parser`]: crate::parsing::Parser
 //! [`Parser::parse_u128`]: crate::parsing::Parser#method.parse_u128
 //! [`destructure`]: crate::destructure
+//! [`destructure_rec`]: crate::destructure_rec
 //! [`if_let_Some`]: crate::if_let_Some
 //! [`while_let_Some`]: crate::while_let_Some
 //!
