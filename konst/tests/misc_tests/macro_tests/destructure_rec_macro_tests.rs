@@ -766,7 +766,7 @@ fn test_nested_packed_tuplestruct_array() {
         (a, b, c, d, e)
     }
 
-    let (a, b, c, d, e) = func(PackTupStruct([3, 5, 8], [13, 21, 34]));
+    let (a, b, c, d, e) = func(PackTupStruct([3u128, 5, 8], [13, 21, 34]));
 
     assert_eq!(a.as_ref(), [3, 5].as_slice());
     assert_eq!(b, 8);
@@ -837,7 +837,7 @@ fn test_nested_packed_tuplestruct_tuple() {
         (b, c, d, e)
     }
 
-    let (b, c, d, e) = func(PackTupStruct((3, 5), (8, 13)));
+    let (b, c, d, e) = func(PackTupStruct((3u128, 5), (8, 13)));
 
     assert_eq!(b, 3);
     assert_eq!(c, 5);
@@ -890,7 +890,7 @@ fn test_nested_packed_tuplestruct_bracedstruct() {
     let (a, b, c, d, e, f) = func(PackTupStruct(
         BracedStruct {
             foo: "foo".into(),
-            bar: 3,
+            bar: 3u128,
             baz: 5,
         },
         BracedStruct {

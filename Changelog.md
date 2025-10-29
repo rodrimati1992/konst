@@ -2,6 +2,16 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.4
 
+### 0.4.3
+
+Added `"konst_proc_macros"` feature
+
+Changed `"parsing_proc"` feature to also enable the `"konst_proc_macros"` feature.
+
+Added `ArrayBuilder::{extend_from_array, extend_from_slice}` methods
+
+Added `destructure_rec` macro (requires `"konst_proc_macros"` feature)
+
 ### 0.4.2
 
 Added these methods to iterator macros:

@@ -1,4 +1,4 @@
-//! Const equivalents of std functions and const parsing.
+//! Const equivalents of std features: comparison, destructuring, iteration, and parsing
 //!
 //! # Features
 //!
@@ -8,7 +8,7 @@
 //!
 //! - [Const iterators].
 //!
-//! - [`destructure`]/[`if_let_Some`]/[`while_let_Some`]
+//! - [`destructure`]/[`destructure_rec`]/[`if_let_Some`]/[`while_let_Some`]
 //! macros to allow destructuring types in const without getting "cannot drop in const" errors.
 //!
 //! - Compile-time parsing through the [`Parser`] type, and [`parser_method`] macro.
@@ -245,11 +245,12 @@
 //! Enables all comparison-related items,
 //! the string equality and ordering comparison functions don't require this feature.
 //!
-//! - `"`konst_proc_macros`"`(enabled by default):
-//! Enables the `konst_proc_macros` dependency, and the [`destructure_rec`] macro.
+//! - `"konst_proc_macros"`(enabled by default):
+//! Enables items that use proc macros and don't require other crate features:
+//! the [`destructure_rec`] macro.
 //!
 //! - `"parsing_proc"`(enabled by default):
-//! Enables the `"parsing"` feature, compiles the `konst_proc_macros` feature,
+//! Enables the `"parsing"` and `konst_proc_macros` features,
 //! and enables the [`parser_method`] macro.
 //! You can use this feature instead of `"parsing"` if the slightly longer
 //! compile times aren't a problem.
@@ -434,9 +435,6 @@ pub mod __ {
 
     #[cfg(feature = "konst_proc_macros")]
     pub use konst_proc_macros::__destructure__unwrap_pats;
-
-    #[cfg(not(feature = "konst_proc_macros"))]
-    pub use crate::__destructure__unwrap_pats;
 
     #[cfg(feature = "cmp")]
     pub use crate::cmp::{CmpWrapper, ConstCmp, IsAConstCmp, IsNotStdKind, IsStdKind};
