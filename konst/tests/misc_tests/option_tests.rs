@@ -40,6 +40,7 @@ fn filter_test() {
         *x % 2 == 1
     }
 
+    #[expect(unreachable_code)]
     const ARR: &[Option<u32>] = &[
         option::filter!(Some(0), |&x| x == 0),
         option::filter!(Some(1), |x| *x == 0),

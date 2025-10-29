@@ -15,6 +15,7 @@
 fn ui() {
     let t = trybuild::TestCases::new();
     for dir in [
+        "array_helpers_ui_tests",
         "array_macros2_ui_tests",
         "destructure_ui_tests",
         #[cfg(feature = "konst_proc_macros")]

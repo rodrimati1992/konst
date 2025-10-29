@@ -1,0 +1,23 @@
+error[E0080]: evaluation panicked: trying to add an element to full array
+ --> tests/misc_tests/array_helpers_ui_tests/array_builder_const_panics-err.rs:8:5
+  |
+8 |     this.push(8u8);
+  |     ^^^^^^^^^^^^^^ evaluation of `_` failed here
+
+error[E0080]: evaluation panicked: trying to add too many elements to array
+  --> tests/misc_tests/array_helpers_ui_tests/array_builder_const_panics-err.rs:11:15
+   |
+11 | const _: () = ArrayBuilder::of_copy::<2>().extend_from_array([3u8, 5, 8]);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `_` failed here
+
+error[E0080]: evaluation panicked: trying to add too many elements to array
+  --> tests/misc_tests/array_helpers_ui_tests/array_builder_const_panics-err.rs:13:15
+   |
+13 | const _: () = ArrayBuilder::of_copy::<2>().extend_from_slice(&[3u8, 5, 8]);
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `_` failed here
+
+error[E0080]: evaluation panicked: trying to unwrap a non-fully-initialized array
+  --> tests/misc_tests/array_helpers_ui_tests/array_builder_const_panics-err.rs:18:5
+   |
+18 |     this.build()
+   |     ^^^^^^^^^^^^ evaluation of `_` failed here
