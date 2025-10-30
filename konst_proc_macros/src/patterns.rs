@@ -204,6 +204,12 @@ pub(crate) fn parse_pattern(loc: ParseLocation, parser: &mut Parser) -> Result<P
                     var: PatternVariant::Struct(struct_pat),
                 });
             }
+            Some(TokenTree::Punct(p)) if p.as_char() == '!' => {
+                return Err(Error::new(
+                    p.span(),
+                    "macros in pattern position aren't allowed",
+                ));
+            }
             Some(TokenTree::Punct(p)) if p.as_char() == '@' => {
                 out.extend(path);
 
@@ -264,6 +270,9 @@ pub(crate) fn parse_pattern(loc: ParseLocation, parser: &mut Parser) -> Result<P
                     _ => unreachable!("{}", std::panic::Location::caller()),
                 },
             });
+        }
+        Some(TokenTree::Literal(tt)) => {
+            return Err(Error::new(tt.span(), "literal patterns aren't allowed"));
         }
         Some(tt) => {
             return Err(Error::new(

@@ -40,6 +40,7 @@ jobs:
 
         cd "${{github.workspace}}/konst_proc_macros/"
         cargo build
+        cargo test
         
         cd "${{github.workspace}}/konst/"
         cargo test --no-default-features --features "debug ${{env.rustv}} "

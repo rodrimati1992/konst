@@ -1,0 +1,11 @@
+error[E0609]: no field `0` on type `Result<{integer}, Infallible>`
+ --> tests/misc_tests/destructure_rec_ui_tests/destructuring_enum_err.rs:5:44
+  |
+5 | const _: () = { konst::destructure_rec!{Ok(x) = Ok::<_, Never>(10)}; };
+  |                                            ^ unknown field
+
+error[E0609]: no field `0` on type `Option<{integer}>`
+ --> tests/misc_tests/destructure_rec_ui_tests/destructuring_enum_err.rs:7:46
+  |
+7 | const _: () = { konst::destructure_rec!{Some(x) = Some(10)}; };
+  |                                              ^ unknown field

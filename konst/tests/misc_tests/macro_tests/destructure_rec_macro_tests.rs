@@ -14,13 +14,58 @@ mod std {
     }
 }
 
-////////////////////////////////////////////////////////////////////////
-//                  Braced Structs
-////////////////////////////////////////////////////////////////////////
-
 type Tuple2<T> = (T, T);
 
 type Tuple3<T> = (T, T, T);
+
+////////////////////////////////////////////////////////////////////////
+
+#[test]
+fn test_identity() {
+    const fn inner() {
+        konst::destructure_rec! {_foo = 3}
+        konst::destructure_rec! {_foo: u32 = 3}
+    }
+
+    inner()
+}
+
+#[test]
+fn test_underscore() {
+    const fn inner() {
+        konst::destructure_rec! {_ = 3}
+        konst::destructure_rec! {_: u32 = 3}
+    }
+
+    inner()
+}
+
+////////////////////////////////////////////////////////////////////////
+//                  Unit Structs
+////////////////////////////////////////////////////////////////////////
+
+struct UnitStruct;
+
+#[test]
+fn test_unit_struct() {
+    const fn inner() {
+        konst::destructure_rec! {UnitStruct = UnitStruct}
+        konst::destructure_rec! {UnitStruct::<> = UnitStruct}
+        konst::destructure_rec! {UnitStruct::< >= UnitStruct}
+        konst::destructure_rec! {UnitStruct: UnitStruct = UnitStruct}
+        konst::destructure_rec! {UnitStruct::<>: UnitStruct = UnitStruct}
+        konst::destructure_rec! {self::UnitStruct::<>: UnitStruct = UnitStruct}
+        konst::destructure_rec! {self::UnitStruct: UnitStruct = UnitStruct}
+
+        konst::destructure_rec! {[self::UnitStruct, UnitStruct] = [UnitStruct, UnitStruct]}
+    }
+
+    inner()
+}
+
+////////////////////////////////////////////////////////////////////////
+//                  Braced Structs
+////////////////////////////////////////////////////////////////////////
 
 struct BracedStruct<T> {
     foo: String,

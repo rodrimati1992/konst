@@ -87,7 +87,7 @@ pub(crate) fn peek_parse_path_or_under(parser: &mut Parser) -> Result<Option<Pat
     loop {
         let tt = parser.peek();
 
-        let mut curr_token_spacing = Spacing::Joint;
+        let mut curr_token_spacing = Spacing::Alone;
         let curr_is_ident = IsIdent {
             is_ident: matches!(tt, Some(TokenTree::Ident(_))),
         };

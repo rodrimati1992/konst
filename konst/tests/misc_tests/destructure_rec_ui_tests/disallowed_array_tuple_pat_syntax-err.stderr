@@ -69,3 +69,19 @@ error: expected comma
    |                                              ^^
    |
    = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unexpected end of pattern
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_array_tuple_pat_syntax-err.rs:26:47
+   |
+26 | const _: () = { konst::destructure_rec!{ [FOO .. BAR] = [1, 2, 3, 4] }; };
+   |                                               ^
+   |
+   = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unexpected end of pattern
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_array_tuple_pat_syntax-err.rs:28:47
+   |
+28 | const _: () = { konst::destructure_rec!{ [FOO ..] = [1, 2, 3, 4] }; };
+   |                                               ^
+   |
+   = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
