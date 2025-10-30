@@ -3,7 +3,10 @@ use crate::used_proc_macro::{
     Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree,
 };
 
-use crate::utils::Error;
+use crate::{
+    patterns::{self, ParseLocation},
+    utils::Error,
+};
 
 pub(crate) fn macro_impl(input_tokens: TokenStream) -> Result<TokenStream, (Error, TokenStream)> {
     let mut iter = input_tokens.into_iter().peekable();
@@ -20,7 +23,8 @@ pub(crate) fn macro_impl(input_tokens: TokenStream) -> Result<TokenStream, (Erro
 
     let attrs = crate::parsing::parse_attrs(&mut iter).map_err(|e| (e, krate.clone()))?;
 
-    let pattern = crate::patterns::parse_pattern(&mut iter).map_err(|e| (e, krate.clone()))?;
+    let pattern = patterns::parse_pattern(ParseLocation::TopLevel, &mut iter)
+        .map_err(|e| (e, krate.clone()))?;
 
     let mut out = TokenStream::new();
 

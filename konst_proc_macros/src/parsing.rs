@@ -8,6 +8,11 @@ use crate::utils::Error;
 #[cfg(test)]
 mod parsing_tests;
 
+#[derive(Copy, Clone)]
+struct IsIdent {
+    is_ident: bool,
+}
+
 pub(crate) type Parser = std::iter::Peekable<used_proc_macro::token_stream::IntoIter>;
 
 pub(crate) struct Attribute {
@@ -77,11 +82,15 @@ pub(crate) fn peek_parse_path_or_under(parser: &mut Parser) -> Result<Option<Pat
     let mut out = TokenStream::new();
     let mut last_span = start_span;
     let mut prev_token_spacing = Spacing::Joint;
+    let mut prev_is_ident = IsIdent { is_ident: false };
 
     loop {
         let tt = parser.peek();
 
         let mut curr_token_spacing = Spacing::Joint;
+        let curr_is_ident = IsIdent {
+            is_ident: matches!(tt, Some(TokenTree::Ident(_))),
+        };
 
         match tt {
             Some(TokenTree::Punct(punct)) if punct.as_char() == '<' => {
@@ -92,7 +101,9 @@ pub(crate) fn peek_parse_path_or_under(parser: &mut Parser) -> Result<Option<Pat
                     .checked_sub(1)
                     .ok_or_else(|| Error::new(punct.span(), "unexpected '>'"))?;
             }
-            Some(tt) if level == 0 && is_path_terminator(tt, prev_token_spacing)? => {
+            Some(tt)
+                if level == 0 && is_path_terminator(tt, prev_token_spacing, prev_is_ident)? =>
+            {
                 break;
             }
             Some(TokenTree::Punct(punct)) if level == 0 => {
@@ -102,6 +113,7 @@ pub(crate) fn peek_parse_path_or_under(parser: &mut Parser) -> Result<Option<Pat
         }
 
         prev_token_spacing = curr_token_spacing;
+        prev_is_ident = curr_is_ident;
 
         if let Some(tt) = parser.next() {
             last_span = tt.span();
@@ -118,15 +130,25 @@ pub(crate) fn peek_parse_path_or_under(parser: &mut Parser) -> Result<Option<Pat
     }
 }
 
-fn is_path_terminator(tt: &TokenTree, prev_token_spacing: Spacing) -> Result<bool, Error> {
+fn is_path_terminator(
+    tt: &TokenTree,
+    prev_token_spacing: Spacing,
+    IsIdent {
+        is_ident: prev_is_ident,
+    }: IsIdent,
+) -> Result<bool, Error> {
     match tt {
         TokenTree::Punct(p) => Ok(
             !(p.as_char() == ':' && [prev_token_spacing, p.spacing()].contains(&Spacing::Joint))
         ),
         TokenTree::Group(_) => Ok(true),
         TokenTree::Ident(ident) if matches!(ident.to_string().as_str(), "_" | "ref" | "mut") => {
-            Err(Error::new(ident.span(), "expected path"))
+            Err(Error::new(ident.span(), "expected path/identifier"))
         }
+        TokenTree::Ident(ident) if prev_is_ident => Err(Error::new(
+            ident.span(),
+            "expected non-identifier after path/identifier",
+        )),
         TokenTree::Ident(_) => Ok(false),
         TokenTree::Literal(_) => Ok(true),
     }

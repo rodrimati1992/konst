@@ -6,7 +6,7 @@ error: `..` patterns are not supported in struct patterns by default,because the
    |
    = note: this error originates in the macro `$crate::__destructure_rec__recursive` which comes from the expansion of the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: no fields are allowed after `..` patterns
+error: struct patterns do not allow fields after `..` patterns
   --> tests/misc_tests/destructure_rec_ui_tests/omit_field_braced_struct_err.rs:19:45
    |
 19 |     konst::destructure_rec!{Braced{bar, .., baz}: Braced = foo}

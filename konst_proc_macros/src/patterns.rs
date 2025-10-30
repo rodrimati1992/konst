@@ -10,6 +10,11 @@ use crate::{
 
 use std::{collections::VecDeque, iter::once};
 
+pub(crate) enum ParseLocation {
+    TopLevel,
+    Subpat,
+}
+
 pub(crate) struct Pattern {
     pub(crate) pattern_tokens: TS,
 
@@ -171,7 +176,7 @@ pub(crate) fn expand_struct(pat: Struct, out_t: &mut TS) {
     }
 }
 
-pub(crate) fn parse_pattern(parser: &mut Parser) -> Result<Pattern, Error> {
+pub(crate) fn parse_pattern(loc: ParseLocation, parser: &mut Parser) -> Result<Pattern, Error> {
     let mut out = TS::new();
 
     if let Some(TokenTree::Group(group)) = parser.peek()
@@ -181,7 +186,7 @@ pub(crate) fn parse_pattern(parser: &mut Parser) -> Result<Pattern, Error> {
 
         parser.next();
 
-        return parse_pattern(inner_tokens);
+        return parse_pattern(loc, inner_tokens);
     }
 
     if let Some(path) = peek_parse_path_or_under(parser)? {
@@ -221,7 +226,16 @@ pub(crate) fn parse_pattern(parser: &mut Parser) -> Result<Pattern, Error> {
     }
 
     match parser.peek() {
-        Some(TokenTree::Punct(p)) if p.as_char() == '.' => return parse_dotdot(out, parser),
+        Some(TokenTree::Punct(p)) if p.as_char() == '.' => {
+            if let ParseLocation::TopLevel = loc {
+                return Err(Error::new(
+                    p.span(),
+                    "`..` not allowed as non-nested pattern",
+                ));
+            }
+
+            return parse_dotdot(out, parser);
+        }
         Some(TokenTree::Group(group))
             if matches!(
                 group.delimiter(),
@@ -269,7 +283,7 @@ fn parse_arraylike(group_span: Span, parser: &mut Parser) -> Result<Arraylike, E
     let mut comma_term = false;
 
     while parser.peek().is_some() {
-        let pattern = parse_pattern(parser)?;
+        let pattern = parse_pattern(ParseLocation::Subpat, parser)?;
 
         if let PatternVariant::Rem { dotdot, .. } = pattern.var {
             if remainder_pos.is_some() {
@@ -296,7 +310,7 @@ fn parse_struct_pattern(path: TS, group: &Group) -> Result<Struct, Error> {
     let is_braced = match group.delimiter() {
         Delimiter::Parenthesis => false,
         Delimiter::Brace => true,
-        _ => return Err(Error::new(group.span(), "expected struct")),
+        _ => return Err(Error::new(group.span(), "expected struct pattern")),
     };
 
     let parser = &mut group.stream().into_iter().peekable();
@@ -311,7 +325,7 @@ fn parse_struct_pattern(path: TS, group: &Group) -> Result<Struct, Error> {
         if remainder.is_some() {
             return Err(Error::new(
                 first_span,
-                "no fields are allowed after `..` patterns",
+                "struct patterns do not allow fields after `..` patterns",
             ));
         }
 
@@ -344,7 +358,7 @@ fn parse_struct_pattern(path: TS, group: &Group) -> Result<Struct, Error> {
                     pattern_tokens: TS::from(name.clone()),
                     var: PatternVariant::Binding(name.span()),
                 },
-                FieldPatKind::WithPat => parse_pattern(parser)?,
+                FieldPatKind::WithPat => parse_pattern(ParseLocation::Subpat, parser)?,
             };
 
             if let PatternVariant::Rem { dotdot, .. } = pattern.var {
@@ -401,7 +415,7 @@ fn parse_field_name(parser: &mut Parser) -> Result<(TokenTree, FieldPatKind), Er
 }
 
 fn parse_at(mut out: TS, at: TokenTree, parser: &mut Parser) -> Result<Pattern, Error> {
-    let pat = parse_pattern(parser)?;
+    let pat = parse_pattern(ParseLocation::Subpat, parser)?;
     let span = at.span();
 
     match pat.var {
