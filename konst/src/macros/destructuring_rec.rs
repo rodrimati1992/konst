@@ -63,7 +63,9 @@ pub const fn fake_read_array_ref<T, const N: usize>(_ptr: &[T; N]) -> [T; N] {
 ///
 /// # Syntax
 ///
-/// This section uses a pseudo-macro_rules syntax, the allowed syntax is
+/// This section describes the syntax allowed by `destructure_rec` using
+/// `macro_rules!` syntax with pseudo-metavariable types,
+/// the allowed syntax is
 /// ```text
 /// $(#[forget_ignored_fields])?
 /// $pattern:dr_pat $( : $type:ty )? = $val:expr
@@ -85,7 +87,7 @@ pub const fn fake_read_array_ref<T, const N: usize>(_ptr: &[T; N]) -> [T; N] {
 ///
 /// # Examples
 ///
-/// These examples demonstrate destructuring non-Copy types in const,
+/// The functions in these examples demonstrate destructuring non-Copy types in const,
 /// which can't be done with built-in destructuring as of Rust 1.91.
 ///
 /// ### Braced Struct

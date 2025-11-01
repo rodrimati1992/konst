@@ -87,18 +87,6 @@ pub const fn get_phantom_len<T, const N: usize>(
 
 #[doc(hidden)]
 #[inline(always)]
-pub const fn make_it<T>() -> T {
-    loop {}
-}
-
-#[doc(hidden)]
-#[inline(always)]
-pub const fn fake_read<T>(_: *mut T) -> T {
-    loop {}
-}
-
-#[doc(hidden)]
-#[inline(always)]
 pub const fn make_phantom<T>(_: *mut T) -> PhantomData<fn(T) -> T> {
     PhantomData
 }
@@ -230,8 +218,8 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 ///
 /// # Examples
 ///
-/// These examples demonstrate destructuring non-Copy types in const,
-/// which can't be done with built-in destructuring as of Rust 1.89.
+/// The functions in these examples demonstrate destructuring non-Copy types in const,
+/// which can't be done with built-in destructuring as of Rust 1.91.
 ///
 /// ### Braced Struct
 ///

@@ -1,5 +1,7 @@
 use konst::destructure_rec;
 
+use ::std::cell::Cell;
+
 // for testing that structural macro uses the leading `::` in paths
 mod std {
     pub mod ops {
@@ -844,6 +846,60 @@ fn test_array_ignore_rem_pat() {
 
     dry! {}
     dry! {_ @}
+}
+
+#[test]
+fn test_array_ignore_rem_pat_no_leak() {
+    #[derive(Debug, PartialEq)]
+    struct Adder<'a>(u128, &'a Cell<u128>);
+
+    impl Drop for Adder<'_> {
+        fn drop(&mut self) {
+            self.1.update(|x| x + self.0);
+        }
+    }
+
+    {
+        let cell = &Cell::new(0);
+        let val = [Adder(1, cell), Adder(4, cell), Adder(16, cell)];
+
+        destructure_rec! {[.., qux] = val}
+        assert_eq!(cell.get(), 5);
+
+        drop(qux);
+        assert_eq!(cell.get(), 21);
+    }
+
+    {
+        let cell = &Cell::new(0);
+        let val = [Adder(1, cell), Adder(4, cell), Adder(16, cell)];
+
+        destructure_rec! {[bar, ..] = val}
+        assert_eq!(cell.get(), 20);
+
+        drop(bar);
+        assert_eq!(cell.get(), 21);
+    }
+    {
+        let cell = &Cell::new(0);
+        let val = [Adder(1, cell), Adder(4, cell), Adder(16, cell)];
+
+        destructure_rec! {[bar, .., baz] = val}
+        assert_eq!(cell.get(), 4);
+
+        drop(bar);
+        assert_eq!(cell.get(), 5);
+
+        drop(baz);
+        assert_eq!(cell.get(), 21);
+    }
+    {
+        let cell = &Cell::new(0);
+        let val = [Adder(1, cell), Adder(4, cell), Adder(16, cell)];
+
+        destructure_rec! {[..] = val}
+        assert_eq!(cell.get(), 21);
+    }
 }
 
 ////////////////////////////////////////////////////////
