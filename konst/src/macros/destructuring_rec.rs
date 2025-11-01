@@ -58,6 +58,8 @@ pub const fn fake_read_array_ref<T, const N: usize>(_ptr: &[T; N]) -> [T; N] {
 ///   (arrays always support the `..` pattern, dropping unmentioned elements)
 /// - it requires that passed-in structs do not impl `Drop`
 ///   (like built-in destructuring does).
+/// - it always moves the expression on the right-hand-side,
+///   even if the pattern doesn't require it.
 ///
 /// # Syntax
 ///
@@ -68,10 +70,9 @@ pub const fn fake_read_array_ref<T, const N: usize>(_ptr: &[T; N]) -> [T; N] {
 /// ```
 ///
 /// `dr_pat` can be any of:
-/// - `_`
-/// - `$ident:ident`
-/// - `_ @ $nested_pat:dr_pat`
-/// - `$ident:ident @ $nested_pat:dr_pat`
+/// - `_ $( @ $nested_pat:dr_pat )?`
+/// - `$(ref)? $(mut)? $ident:ident $( @ $nested_pat:dr_pat )?`
+/// - `& $(mut)? $pat:pat`
 /// - `$typename:path`
 /// - `$typename:path { $($field_name:ident : $field_pat:dr_pat),* $(, ..)? $(,)? }`
 /// - `$typename:path ( $($field_pat:dr_pat),* $(, ..)? $(,)? )`

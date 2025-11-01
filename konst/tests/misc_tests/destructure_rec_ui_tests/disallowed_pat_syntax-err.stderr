@@ -14,78 +14,50 @@ error: expected non-identifier after path/identifier
   |
   = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: expected path/identifier
- --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:7:42
+error: `mut` on a binding may not be repeated
+ --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:7:46
   |
-7 | const _: () = { konst::destructure_rec!{ ref foo = 10 }; };
-  |                                          ^^^
+7 | const _: () = { konst::destructure_rec!{ mut mut bar = 10 }; };
+  |                                              ^^^
   |
-  = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error: expected path/identifier
- --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:9:42
+help: remove the additional `mut`s
   |
-9 | const _: () = { konst::destructure_rec!{ ref mut foo = [] }; };
-  |                                          ^^^
+7 - const _: () = { konst::destructure_rec!{ mut mut bar = 10 }; };
+7 + const _: () = { konst::destructure_rec!{ mut bar = 10 }; };
   |
-  = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error: expected path/identifier
-  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:11:42
-   |
-11 | const _: () = { konst::destructure_rec!{ mut foo = [] }; };
-   |                                          ^^^
-   |
-   = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: no rules expected `@`
-  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:13:51
-   |
-13 | const _: () = { konst::destructure_rec!{ foo @ [] @ _ = [] }; };
-   |                                                   ^ no rules expected this token in macro call
-   |
+ --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:9:51
+  |
+9 | const _: () = { konst::destructure_rec!{ foo @ [] @ _ = [] }; };
+  |                                                   ^ no rules expected this token in macro call
+  |
 note: while trying to match `=`
-  --> src/macros/destructuring_rec.rs
-   |
-   |         = $expr:expr $(;)?
-   |         ^
+ --> src/macros/destructuring_rec.rs
+  |
+  |         = $expr:expr $(;)?
+  |         ^
 
 error: literal patterns aren't allowed
-  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:19:42
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:14:42
    |
-19 | const _: () = { konst::destructure_rec!{ 10..20 = 10 }; };
+14 | const _: () = { konst::destructure_rec!{ 10..20 = 10 }; };
    |                                          ^^
    |
    = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: unexpected end of pattern
-  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:21:43
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:16:43
    |
-21 | const _: () = { konst::destructure_rec!{ A..B = 10 }; };
+16 | const _: () = { konst::destructure_rec!{ A..B = 10 }; };
    |                                           ^
    |
    = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error: expected pattern, found `&`
-  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:23:42
-   |
-23 | const _: () = { konst::destructure_rec!{ &foo = &10 }; };
-   |                                          ^
-   |
-   = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error: expected pattern, found `&`
-  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:25:42
-   |
-25 | const _: () = { konst::destructure_rec!{ &mut foo = &mut 10 }; };
-   |                                          ^
-   |
-   = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
-
 error: macros in pattern position aren't allowed
-  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:31:45
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_pat_syntax-err.rs:22:45
    |
-31 | const _: () = { konst::destructure_rec!{ foo!() = &mut 10 }; };
+22 | const _: () = { konst::destructure_rec!{ foo!() = &mut 10 }; };
    |                                             ^
    |
    = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)

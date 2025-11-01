@@ -189,6 +189,35 @@ pub(crate) fn parse_pattern(loc: ParseLocation, parser: &mut Parser) -> Result<P
         return parse_pattern(loc, inner_tokens);
     }
 
+    if let Some(RefMutPrefix {
+        tokens: refmut,
+        last_span,
+    }) = peek_parse_refmut(parser)
+    {
+        let Some(path) = peek_parse_path_or_under(parser)? else {
+            return Err(Error::new(last_span, "expected identifier after this"));
+        };
+        let (path, path_span) = path.into_tokens();
+
+        out.extend(refmut);
+        out.extend(path);
+
+        match parser.peek() {
+            Some(TokenTree::Punct(p)) if p.as_char() == '@' => {
+                return parse_at(out, parser.next().unwrap(), parser);
+            }
+            opt_tt => {
+                return expect_end_of_pat(
+                    opt_tt,
+                    Pattern {
+                        pattern_tokens: out,
+                        var: PatternVariant::Binding(path_span),
+                    },
+                );
+            }
+        }
+    }
+
     if let Some(path) = peek_parse_path_or_under(parser)? {
         let (path, path_span) = path.into_tokens();
 
@@ -215,19 +244,15 @@ pub(crate) fn parse_pattern(loc: ParseLocation, parser: &mut Parser) -> Result<P
 
                 return parse_at(out, parser.next().unwrap(), parser);
             }
-            Some(x) if is_pattern_terminator(x) => {
-                return Ok(Pattern {
-                    pattern_tokens: path,
-                    var: PatternVariant::Binding(path_span),
-                });
+            opt_tt => {
+                return expect_end_of_pat(
+                    opt_tt,
+                    Pattern {
+                        pattern_tokens: path,
+                        var: PatternVariant::Binding(path_span),
+                    },
+                );
             }
-            None => {
-                return Ok(Pattern {
-                    pattern_tokens: path,
-                    var: PatternVariant::Binding(path_span),
-                });
-            }
-            Some(tt) => return Err(Error::new(tt.span(), "unexpected end of pattern")),
         }
     }
 
@@ -241,6 +266,20 @@ pub(crate) fn parse_pattern(loc: ParseLocation, parser: &mut Parser) -> Result<P
             }
 
             return parse_dotdot(out, parser);
+        }
+        Some(TokenTree::Punct(p)) if p.as_char() == '&' => {
+            let span = p.span();
+
+            while let Some(tt) = parser.peek()
+                && !is_pattern_terminator(tt)
+            {
+                out.extend(parser.next());
+            }
+
+            return Ok(Pattern {
+                pattern_tokens: out,
+                var: PatternVariant::Binding(span),
+            });
         }
         Some(TokenTree::Group(group))
             if matches!(
@@ -354,20 +393,35 @@ fn parse_struct_pattern(path: TS, group: &Group) -> Result<Struct, Error> {
 
             remainder = Some(dotdot);
         } else {
+            let refmut;
             let (name, field_pat_kind) = if is_braced {
+                refmut = peek_parse_refmut(parser);
                 parse_field_name(parser)?
             } else {
                 let lit = usize_lit(i, first_span);
+                refmut = None;
                 i += 1;
                 (lit, FieldPatKind::WithPat)
             };
 
             let pattern = match field_pat_kind {
-                FieldPatKind::OnlyName => Pattern {
-                    pattern_tokens: TS::from(name.clone()),
-                    var: PatternVariant::Binding(name.span()),
-                },
-                FieldPatKind::WithPat => parse_pattern(ParseLocation::Subpat, parser)?,
+                FieldPatKind::OnlyName => {
+                    let mut pattern_tokens = refmut.map_or_else(TS::new, |x| x.tokens);
+                    pattern_tokens.extend(once(name.clone()));
+
+                    Pattern {
+                        pattern_tokens,
+                        var: PatternVariant::Binding(name.span()),
+                    }
+                }
+                FieldPatKind::WithPat => {
+                    if let Some(RefMutPrefix { last_span, .. }) = refmut {
+                        let msg = "cannot have both ref/mut before field name and have a pattern";
+                        return Err(Error::new(last_span, msg));
+                    }
+
+                    parse_pattern(ParseLocation::Subpat, parser)?
+                }
             };
 
             if let PatternVariant::Rem { dotdot, .. } = pattern.var {
@@ -497,6 +551,36 @@ fn parse_dotdot(mut out: TS, parser: &mut Parser) -> Result<Pattern, Error> {
             "expected `..`, found nothing",
         )),
     }
+}
+
+fn expect_end_of_pat(tt: Option<&TokenTree>, pat: Pattern) -> Result<Pattern, Error> {
+    match tt {
+        Some(x) if is_pattern_terminator(x) => Ok(pat),
+        None => Ok(pat),
+        Some(tt) => Err(Error::new(tt.span(), "unexpected end of pattern")),
+    }
+}
+
+struct RefMutPrefix {
+    tokens: TS,
+    last_span: Span,
+}
+
+fn peek_parse_refmut(parser: &mut Parser) -> Option<RefMutPrefix> {
+    let mut out = TS::new();
+    let mut last_span = Span::call_site();
+
+    while let Some(TokenTree::Ident(ident)) = parser.peek()
+        && let "ref" | "mut" = &*ident.to_string()
+    {
+        last_span = ident.span();
+        out.extend(parser.next());
+    }
+
+    (!out.is_empty()).then_some(RefMutPrefix {
+        tokens: out,
+        last_span,
+    })
 }
 
 fn is_pattern_terminator(tt: &TokenTree) -> bool {

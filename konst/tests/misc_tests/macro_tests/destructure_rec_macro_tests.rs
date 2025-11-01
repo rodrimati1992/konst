@@ -31,6 +31,48 @@ fn test_identity() {
 }
 
 #[test]
+fn test_mut_pat() {
+    const fn inner() -> (u32, u32) {
+        konst::destructure_rec! {mut foo = 3}
+        konst::destructure_rec! {mut bar: u32 = 13}
+
+        foo += 5;
+        bar += 5;
+
+        (foo, bar)
+    }
+
+    assert_eq!(inner(), (8, 18));
+}
+
+#[test]
+fn test_many_bindings_pat() {
+    const fn inner() -> [u32; 3] {
+        konst::destructure_rec! {
+            (ref foo @ foob, ref mut bar @ mut barb @ mut barc) = (3, 13)
+        }
+
+        let _: &u32 = foo;
+        let _: u32 = foob;
+        let _: &mut u32 = bar;
+        let _: u32 = barb;
+
+        *bar = 100;
+        *bar = 100;
+        barb = 200;
+
+        barc += *foo;
+        barc += foob;
+        barc += *bar;
+        barc += barb;
+
+        [foob, barb, barc]
+    }
+
+    assert_eq!(inner(), [3, 200, 319]);
+}
+
+#[test]
 fn test_underscore() {
     const fn inner() {
         konst::destructure_rec! {_ = 3}
@@ -38,6 +80,94 @@ fn test_underscore() {
     }
 
     inner()
+}
+
+#[test]
+fn test_ref_pat() {
+    const fn inner<T: Copy>(val: (T, T)) {
+        konst::destructure_rec! { (ref a, ref b) = val }
+        let _: &T = a;
+        let _: &T = b;
+    }
+    inner((3, 5));
+
+    //
+
+    konst::destructure_rec! { (ref a, ref b) = (vec![3, 5], vec![8, 13]) }
+
+    let _: &Vec<u32> = a;
+    let _: &Vec<u32> = b;
+
+    assert_eq!(a.as_slice(), &[3, 5][..]);
+    assert_eq!(b.as_slice(), &[8, 13][..]);
+}
+
+#[test]
+fn test_ref_mut_pat() {
+    const fn inner<T: Copy>(val: (T, T)) {
+        konst::destructure_rec! { (ref mut a, ref mut b) = val }
+        let _: &mut T = a;
+        let _: &mut T = b;
+    }
+    inner((3, 5));
+
+    //
+
+    konst::destructure_rec! { (ref mut a, ref mut b) = (vec![3, 5], vec![8, 13]) }
+
+    let _: &mut Vec<u32> = a;
+    let _: &mut Vec<u32> = b;
+
+    assert_eq!(a.as_mut_slice(), &mut [3, 5][..]);
+    assert_eq!(b.as_mut_slice(), &mut [8, 13][..]);
+}
+
+#[test]
+fn test_deref_pat() {
+    const fn inner<T: Copy>(val: [&(T, T); 2]) -> (T, T, &(T, T)) {
+        konst::destructure_rec! { [&(a, b), c] = val }
+
+        (a, b, c)
+    }
+
+    _ = inner([&(3, 5), &(8, 13)]);
+}
+
+#[test]
+fn test_deref_mut_pat() {
+    const fn inner<T: Copy>(val: [&mut (T, T); 2]) -> (T, T, &mut (T, T)) {
+        konst::destructure_rec! { [&mut (a, b), c] = val }
+
+        (a, b, c)
+    }
+
+    _ = inner([&mut (3, 5), &mut (8, 13)]);
+}
+
+#[test]
+fn test_deref_ref_pat() {
+    const fn inner<T: Copy>(val: [&(T, T); 2]) {
+        konst::destructure_rec! { [&(ref a, ref b), c] = val }
+
+        let _: &T = a;
+        let _: &T = b;
+        let _: &(T, T) = c;
+    }
+
+    _ = inner([&(3, 5), &(8, 13)]);
+}
+
+#[test]
+fn test_deref_ref_mut_pat() {
+    const fn inner<T: Copy>(val: [&mut (T, T); 2]) {
+        konst::destructure_rec! { [&mut (ref mut a, ref mut b), c] = val }
+
+        let _: &mut T = a;
+        let _: &mut T = b;
+        let _: &mut (T, T) = c;
+    }
+
+    _ = inner([&mut (3, 5), &mut (8, 13)]);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -127,6 +257,42 @@ fn test_braced_struct_destructuring() {
 
         assert_eq!(func(val), ("hello".to_string(), 3, 5));
     }
+}
+
+#[test]
+fn test_braced_struct_destructuring_ref_mut_patterns() {
+    #[expect(unused_mut)]
+    const fn inner<T: Copy>(val: BracedStruct<T>) -> String {
+        destructure_rec! { BracedStruct { mut foo, ref bar, ref mut baz } = val }
+
+        let _: String = foo;
+        let _: &T = bar;
+        let _: &mut T = baz;
+
+        foo
+    }
+
+    let make = || BracedStruct {
+        foo: "hello".to_string(),
+        bar: 3,
+        baz: 5,
+    };
+
+    assert_eq!(inner(make()), "hello");
+
+    //
+
+    destructure_rec! { BracedStruct {mut foo, ref bar, ref mut baz} = make() }
+
+    let _: String = foo;
+    let _: &i32 = bar;
+    let _: &mut i32 = baz;
+
+    assert_eq!(foo, "hello");
+    foo.push_str(" world");
+    assert_eq!(foo, "hello world");
+    assert_eq!(bar, &3);
+    assert_eq!(baz, &mut 5);
 }
 
 #[test]
@@ -270,6 +436,40 @@ fn test_packed_tuple_struct_destructuring() {
 
         assert_eq!(func(val), ("hello".to_string(), 3, 5));
     }
+}
+
+#[test]
+fn test_packed_tuple_struct_ref_mut_pat() {
+    #[expect(unused_mut)]
+    const fn inner<T: Copy>(val: TupleStruct<T>) -> String {
+        // `ref` and `ref mut` patterns don't borrow the `#[repr(packed)]` struct,
+        // it borrows the temporary that is moved out of the field.
+        destructure_rec! { TupleStruct(mut foo, ref bar, ref mut baz) = val }
+
+        let _: String = foo;
+        let _: &T = bar;
+        let _: &mut T = baz;
+
+        foo
+    }
+
+    let make = || TupleStruct("hello".to_string(), 3, 5);
+
+    assert_eq!(inner(make()), "hello");
+
+    //
+
+    destructure_rec! { TupleStruct(mut foo, ref bar, ref mut baz) = make() }
+
+    let _: String = foo;
+    let _: &i32 = bar;
+    let _: &mut i32 = baz;
+
+    assert_eq!(foo, "hello");
+    foo.push_str(" world");
+    assert_eq!(foo, "hello world");
+    assert_eq!(bar, &3);
+    assert_eq!(baz, &mut 5);
 }
 
 #[test]

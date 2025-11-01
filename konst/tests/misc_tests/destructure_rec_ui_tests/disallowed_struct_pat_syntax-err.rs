@@ -6,6 +6,19 @@ const _: () = { konst::destructure_rec!{ std::ops::Range{start, .., end} = 10..2
 
 const _: () = { konst::destructure_rec!{ std::ops::Range{start,, end} = 10..20 }; };
 
+const _: () = { konst::destructure_rec!{ std::ops::Range{&start, end} = 10..20 }; };
+
+const _: () = { konst::destructure_rec!{ std::ops::Range{&mut start, end} = 10..20 }; };
+
+#[allow(unused_mut, unused_variables)]
+const _: () = { konst::destructure_rec!{ std::ops::Range{mut mut start, end} = 10..20 }; };
+
+const _: () = { konst::destructure_rec!{ std::ops::Range{mut start: start, end} = 10..20 }; };
+
+const _: () = { konst::destructure_rec!{ std::ops::Range{ref start: start, end} = 10..20 }; };
+
+const _: () = { konst::destructure_rec!{ std::ops::Range{ref mut start: start, end} = 10..20 }; };
+
 const _: () = { konst::destructure_rec!{ Tuple(a, .., b) = Tuple(1, 2, 3) }; };
 
 const _: () = { konst::destructure_rec!{ Tuple(a ,, b) = Tuple(1, 2, 3) }; };
