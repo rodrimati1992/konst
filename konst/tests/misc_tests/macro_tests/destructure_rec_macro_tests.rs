@@ -20,6 +20,15 @@ type Tuple2<T> = (T, T);
 
 type Tuple3<T> = (T, T, T);
 
+#[derive(Debug, PartialEq)]
+struct Adder<'a>(u128, &'a Cell<u128>);
+
+impl Drop for Adder<'_> {
+    fn drop(&mut self) {
+        self.1.update(|x| x + self.0);
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////
 
 #[test]
@@ -82,6 +91,16 @@ fn test_underscore() {
     }
 
     inner()
+}
+
+#[test]
+fn test_underscore_drop() {
+    let cell = &Cell::new(0);
+    let val = Adder(1, cell);
+
+    assert_eq!(cell.get(), 0);
+    konst::destructure_rec! {_ = val}
+    assert_eq!(cell.get(), 1);
 }
 
 #[test]
@@ -850,15 +869,6 @@ fn test_array_ignore_rem_pat() {
 
 #[test]
 fn test_array_ignore_rem_pat_no_leak() {
-    #[derive(Debug, PartialEq)]
-    struct Adder<'a>(u128, &'a Cell<u128>);
-
-    impl Drop for Adder<'_> {
-        fn drop(&mut self) {
-            self.1.update(|x| x + self.0);
-        }
-    }
-
     {
         let cell = &Cell::new(0);
         let val = [Adder(1, cell), Adder(4, cell), Adder(16, cell)];

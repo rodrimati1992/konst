@@ -366,7 +366,7 @@ macro_rules! __destructure_rec__recursive {
 
             $(
                 rem_ty_phantom = $crate::macros::destructuring::array_into_phantom(
-                    $crate::__first_expr!(rem, $($rem_pat)*)
+                    $crate::__first_expr!(rem, $rem_index)
                 );
             )?
 
