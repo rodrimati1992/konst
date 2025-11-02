@@ -87,18 +87,6 @@ pub const fn get_phantom_len<T, const N: usize>(
 
 #[doc(hidden)]
 #[inline(always)]
-pub const fn make_it<T>() -> T {
-    loop {}
-}
-
-#[doc(hidden)]
-#[inline(always)]
-pub const fn fake_read<T>(_: *mut T) -> T {
-    loop {}
-}
-
-#[doc(hidden)]
-#[inline(always)]
 pub const fn make_phantom<T>(_: *mut T) -> PhantomData<fn(T) -> T> {
     PhantomData
 }
@@ -127,6 +115,12 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 //////
 
 /// Destructures a struct/tuple/array into all of its elements/fields.
+///
+/// Use this macro over [`destructure_rec`] if you only
+/// need to destructure composite types
+/// into *shallow* fields of types that may need dropping.
+/// ([`destructure_rec`] requires the `konst_proc_macros` feature,
+/// which is enabled by default)
 ///
 /// [**for examples look here**](#examples)
 ///
@@ -212,19 +206,20 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 ///
 /// ```text
 /// [$( $pat:elem_pat $(@ ..)? ),* $(,)?] $(:$array_ty:ty)? = $val:expr
+/// ```
 ///
 /// Where `:elem_pat` can be any of:
 /// - `_`
 /// - `..`
 /// - `$ident:ident`
 /// - `($pattern:pat)`: any pattern inside of parentheses
-/// ```
+///
 /// [example below](#array)
 ///
 /// # Examples
 ///
-/// These examples demonstrate destructuring non-Copy types in const,
-/// which can't be done with built-in destructuring as of Rust 1.89.
+/// The functions in these examples demonstrate destructuring non-Copy types in const,
+/// which can't be done with built-in destructuring as of Rust 1.91.
 ///
 /// ### Braced Struct
 ///
@@ -292,25 +287,7 @@ pub type __ArrayManuallyDrop<T, const LEN: usize> = ManuallyDrop<[T; LEN]>;
 /// }
 /// ```
 ///
-/// ### Nested Destructuring
-///
-/// ```rust
-///
-/// assert_eq!(TRIPLE, [3, 5, 8]);
-///
-/// const TRIPLE: [u8; 3] = flatten((3, (5, 8)));
-///
-/// const fn flatten<T>(tup: (T, (T, T))) -> [T; 3] {
-///     // `tail` can't be destructured inline into `(b, c)`,
-///     // it must be destructured separately
-///     konst::destructure!{(a, tail) = tup}
-///     
-///     konst::destructure!{(b, c) = tail}
-///
-///     [a, b, c]
-/// }
-///
-///
+/// [`destructure_rec`]: crate::destructure_rec
 #[macro_export]
 macro_rules! destructure {
     // braced struct struct

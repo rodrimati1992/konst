@@ -7,7 +7,7 @@ error[E0271]: type mismatch resolving `<WrongItem as ConstIntoIter>::Item == u64
 note: expected this to be `u64`
   --> tests/misc_tests/iter_mod_ui_tests/iterator_wrong_assoc_type_err.rs:8:17
    |
-8  |     type Item = u8;
+ 8 |     type Item = u8;
    |                 ^^
    = note: this error originates in the macro `$crate::__iter2_interpreter` which comes from the expansion of the macro `konst::iter::for_each` (in Nightly builds, run with -Z macro-backtrace for more info)
 

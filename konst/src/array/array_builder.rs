@@ -303,6 +303,7 @@ impl<T, const N: usize, D: DropFlavor> ArrayBuilder<T, N, D> {
     /// assert_eq!(builder.build(), [3, 5, 8]);
     /// ```
     ///
+    #[track_caller]
     pub const fn push(&mut self, val: T) {
         let this = as_inner_mut::<D, _>(&mut self.inner);
 
@@ -311,6 +312,85 @@ impl<T, const N: usize, D: DropFlavor> ArrayBuilder<T, N, D> {
         this.array[this.inited] = MaybeUninit::new(val);
 
         this.inited += 1;
+    }
+
+    /// Appends `another_array` to the array.
+    ///
+    /// # Panic
+    ///
+    /// Panics if `self.len() + N2 > N`
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::array::ArrayBuilder;
+    ///
+    /// let mut builder = ArrayBuilder::of_copy::<3>();
+    ///
+    /// builder.extend_from_array([3, 5, 8]);
+    ///
+    /// assert_eq!(builder.build(), [3, 5, 8]);
+    /// ```
+    ///
+    #[track_caller]
+    pub const fn extend_from_array<const N2: usize>(&mut self, another_array: [T; N2]) {
+        let this = as_inner_mut::<D, _>(&mut self.inner);
+
+        let next_len = match this.inited.checked_add(N2) {
+            Some(x) if x <= N => x,
+            _ => panic!("trying to add too many elements to array"),
+        };
+
+        unsafe {
+            this.array
+                .as_mut_ptr()
+                .add(this.inited)
+                .cast::<[T; N2]>()
+                .write(another_array);
+        }
+
+        this.inited = next_len;
+    }
+
+    /// Appends copies of all the elements in `slice` to the array.
+    ///
+    /// # Panic
+    ///
+    /// Panics if `self.len() + N2 > N`
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use konst::array::ArrayBuilder;
+    ///
+    /// let mut builder = ArrayBuilder::of_copy::<3>();
+    ///
+    /// builder.extend_from_slice(&[3, 5, 8]);
+    ///
+    /// assert_eq!(builder.build(), [3, 5, 8]);
+    /// ```
+    ///
+    #[track_caller]
+    pub const fn extend_from_slice(&mut self, slice: &[T])
+    where
+        T: Copy,
+    {
+        let this = as_inner_mut::<D, _>(&mut self.inner);
+
+        let next_len = match this.inited.checked_add(slice.len()) {
+            Some(x) if x <= N => x,
+            _ => panic!("trying to add too many elements to array"),
+        };
+
+        unsafe {
+            this.array
+                .as_mut_ptr()
+                .cast::<T>()
+                .add(this.inited)
+                .copy_from_nonoverlapping(slice.as_ptr(), slice.len())
+        }
+
+        this.inited = next_len;
     }
 
     /// Unwraps this ArrayBuilder into an array.
@@ -337,6 +417,7 @@ impl<T, const N: usize, D: DropFlavor> ArrayBuilder<T, N, D> {
     /// };
     /// ```
     ///
+    #[track_caller]
     pub const fn build(self) -> [T; N] {
         assert!(
             self.is_full(),

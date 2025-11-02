@@ -1,8 +1,8 @@
 error[E0493]: destructor of `Braced` cannot be evaluated at compile-time
   --> tests/misc_tests/destructure_ui_tests/drop_empty_braced_struct_err.rs:8:17
    |
-8  | const fn to_bar(foo: Braced) {
+ 8 | const fn to_bar(foo: Braced) {
    |                 ^^^ the destructor for this type cannot be evaluated in constant functions
-9  |     konst::destructure!{Braced{} = foo}
+ 9 |     konst::destructure!{Braced{} = foo}
 10 | }
    | - value is dropped here

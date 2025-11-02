@@ -387,9 +387,3 @@ note: while trying to match meta-variable `$right_slice:expr`
    |
    |         $right_slice:expr
    |         ^^^^^^^^^^^^^^^^^
-
-error[E0601]: `main` function not found in crate `$CRATE`
-  --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs:44:51
-   |
-44 | const _: bool = cmp::const_ge_for!(slice; [0u8],);
-   |                                                   ^ consider adding a `main` function to `$DIR/tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_nocomparator_syntax_err.rs`

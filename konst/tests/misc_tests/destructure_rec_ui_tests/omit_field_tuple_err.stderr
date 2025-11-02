@@ -1,0 +1,57 @@
+error: `..` patterns are not supported in tuple patterns by default,because they can forget fields
+  --> tests/misc_tests/destructure_rec_ui_tests/omit_field_tuple_err.rs:14:5
+   |
+14 |     konst::destructure_rec!{(bar, ..) = foo}
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__destructure_rec__recursive` which comes from the expansion of the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: tuple patterns do not support `..` with trailing fields
+  --> tests/misc_tests/destructure_rec_ui_tests/omit_field_tuple_err.rs:19:5
+   |
+19 |     konst::destructure_rec!{(bar, .., baz) = foo}
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the macro `$crate::__destructure_rec__recursive` which comes from the expansion of the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0425]: cannot find value `bar` in this scope
+  --> tests/misc_tests/destructure_rec_ui_tests/omit_field_tuple_err.rs:15:5
+   |
+15 |     bar
+   |     ^^^ not found in this scope
+
+error[E0425]: cannot find value `bar` in this scope
+  --> tests/misc_tests/destructure_rec_ui_tests/omit_field_tuple_err.rs:20:5
+   |
+20 |     bar
+   |     ^^^ not found in this scope
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/destructure_rec_ui_tests/omit_field_tuple_err.rs:5:5
+  |
+3 | const fn to_bar(foo: Tuple) -> String {
+  |                                ------ expected `String` because of return type
+4 |     konst::destructure_rec!{(bar) = foo}
+5 |     bar
+  |     ^^^ expected `String`, found `(String, String, String)`
+  |
+  = note: expected struct `String`
+              found tuple `(String, String, String)`
+
+error[E0308]: mismatched types
+ --> tests/misc_tests/destructure_rec_ui_tests/omit_field_tuple_err.rs:9:5
+  |
+9 |     konst::destructure_rec!{(bar,) = foo}
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |     |
+  |     expected a tuple with 1 element, found one with 3 elements
+  |     arguments to this function are incorrect
+  |
+  = note: expected tuple `(_,)`
+             found tuple `(String, String, String)`
+note: function defined here
+ --> src/macros/destructuring.rs
+  |
+  | pub const fn assert_same_type<T>(this: T, that: T) {
+  |              ^^^^^^^^^^^^^^^^
+  = note: this error originates in the macro `$crate::__destructure_rec__recursive` which comes from the expansion of the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)

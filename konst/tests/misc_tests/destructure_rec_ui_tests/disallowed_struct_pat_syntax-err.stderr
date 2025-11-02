@@ -1,0 +1,103 @@
+error: expected struct pattern
+ --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:3:46
+  |
+3 | const _: () = { konst::destructure_rec!{ foo [] = 10..20 }; };
+  |                                              ^^
+  |
+  = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: struct patterns do not allow fields after `..` patterns
+ --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:5:69
+  |
+5 | const _: () = { konst::destructure_rec!{ std::ops::Range{start, .., end} = 10..20 }; };
+  |                                                                     ^^^
+  |
+  = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected struct field name
+ --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:7:64
+  |
+7 | const _: () = { konst::destructure_rec!{ std::ops::Range{start,, end} = 10..20 }; };
+  |                                                                ^
+  |
+  = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected struct field name
+ --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:9:58
+  |
+9 | const _: () = { konst::destructure_rec!{ std::ops::Range{&start, end} = 10..20 }; };
+  |                                                          ^
+  |
+  = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected struct field name
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:11:58
+   |
+11 | const _: () = { konst::destructure_rec!{ std::ops::Range{&mut start, end} = 10..20 }; };
+   |                                                          ^
+   |
+   = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: `mut` on a binding may not be repeated
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:14:62
+   |
+14 | const _: () = { konst::destructure_rec!{ std::ops::Range{mut mut start, end} = 10..20 }; };
+   |                                                              ^^^
+   |
+help: remove the additional `mut`s
+   |
+14 - const _: () = { konst::destructure_rec!{ std::ops::Range{mut mut start, end} = 10..20 }; };
+14 + const _: () = { konst::destructure_rec!{ std::ops::Range{mut start, end} = 10..20 }; };
+   |
+
+error: cannot have both ref/mut before field name and have a pattern
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:16:58
+   |
+16 | const _: () = { konst::destructure_rec!{ std::ops::Range{mut start: start, end} = 10..20 }; };
+   |                                                          ^^^
+   |
+   = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: cannot have both ref/mut before field name and have a pattern
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:18:58
+   |
+18 | const _: () = { konst::destructure_rec!{ std::ops::Range{ref start: start, end} = 10..20 }; };
+   |                                                          ^^^
+   |
+   = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: cannot have both ref/mut before field name and have a pattern
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:20:62
+   |
+20 | const _: () = { konst::destructure_rec!{ std::ops::Range{ref mut start: start, end} = 10..20 }; };
+   |                                                              ^^^
+   |
+   = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: struct patterns do not allow fields after `..` patterns
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:22:55
+   |
+22 | const _: () = { konst::destructure_rec!{ Tuple(a, .., b) = Tuple(1, 2, 3) }; };
+   |                                                       ^
+   |
+   = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected pattern, found `,`
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:24:51
+   |
+24 | const _: () = { konst::destructure_rec!{ Tuple(a ,, b) = Tuple(1, 2, 3) }; };
+   |                                                   ^
+   |
+   = note: this error originates in the macro `konst::destructure_rec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: expected identifier, found reserved identifier `_`
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:26:42
+   |
+26 | const _: () = { konst::destructure_rec!{ _ {start, end} = 10..20 }; };
+   |                                          ^ expected identifier, found reserved identifier
+
+error[E0422]: cannot find struct, variant or union type `_` in this scope
+  --> tests/misc_tests/destructure_rec_ui_tests/disallowed_struct_pat_syntax-err.rs:26:42
+   |
+26 | const _: () = { konst::destructure_rec!{ _ {start, end} = 10..20 }; };
+   |                                          ^ not found in this scope

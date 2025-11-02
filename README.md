@@ -2,7 +2,7 @@
 [![crates-io](https://img.shields.io/crates/v/konst.svg)](https://crates.io/crates/konst)
 [![api-docs](https://docs.rs/konst/badge.svg)](https://docs.rs/konst/*)
 
-Const equivalents of std functions and const parsing.
+Const equivalents of std features: comparison, destructuring, iteration, and parsing
 
 # Features
 
@@ -12,7 +12,7 @@ This crate provides:
 
 - [Const iterators].
 
-- [`destructure`]/[`if_let_Some`]/[`while_let_Some`] 
+- [`destructure`]/[`destructure_rec`]/[`if_let_Some`]/[`while_let_Some`]
 macros to allow destructuring types in const without getting "cannot drop in const" errors.
 
 - Compile-time parsing through the [`Parser`] type, and [`parser_method`] macro.
@@ -244,8 +244,12 @@ Enables all iteration-related items that take/return iterators,
 Enables all comparison-related items,
 the string equality and ordering comparison functions don't require this feature.
 
+- `"konst_proc_macros"`(enabled by default):
+Enables items that use proc macros and don't require other crate features: 
+the [`destructure_rec`] macro.
+
 - `"parsing_proc"`(enabled by default):
-Enables the `"parsing"` feature, compiles the `konst_proc_macros` dependency,
+Enables the `"parsing"` and `konst_proc_macros` features,
 and enables the [`parser_method`] macro.
 You can use this feature instead of `"parsing"` if the slightly longer
 compile times aren't a problem.
@@ -291,6 +295,7 @@ need to be explicitly enabled with crate features.
 [`Parser`]: https://docs.rs/konst/*/konst/parsing/struct.Parser.html
 [`Parser::parse_u128`]: https://docs.rs/konst/*/konst/parsing/struct.Parser.html#method.parse_u128
 [`destructure`]: https://docs.rs/konst/*/konst/macro.destructure.html
+[`destructure_rec`]: https://docs.rs/konst/*/konst/macro.destructure_rec.html
 [`if_let_Some`]: https://docs.rs/konst/*/konst/macro.if_let_Some.html
 [`while_let_Some`]: https://docs.rs/konst/*/konst/macro.while_let_Some.html
 

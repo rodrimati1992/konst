@@ -152,6 +152,60 @@ fn push_panics_nondrop_test() {
 }
 
 #[test]
+fn extend_from_array_test() {
+    macro_rules! case {
+        ($ctor:ident) => {{
+            let mut this = ArrayBuilder::$ctor::<8>();
+
+            this.extend_from_array([3]);
+            this.extend_from_array([5, 8]);
+            this.extend_from_array([13, 21, 34, 55, 89]);
+
+            assert_eq!(this.build(), [3, 5, 8, 13, 21, 34, 55, 89]);
+        }};
+    }
+
+    case! {of_drop}
+    case! {of_assumed_nondrop}
+    case! {of_copy}
+}
+
+#[test]
+#[should_panic]
+fn extend_from_array_panics_test() {
+    let mut this: ArrayBuilder<u32, 2, MayDrop> = ArrayBuilder::of_drop();
+
+    this.extend_from_array([3, 5, 8]);
+}
+
+#[test]
+fn extend_from_slice_test() {
+    macro_rules! case {
+        ($ctor:ident) => {{
+            let mut this = ArrayBuilder::$ctor::<8>();
+
+            this.extend_from_slice(&[3]);
+            this.extend_from_slice(&[5, 8]);
+            this.extend_from_slice(&[13, 21, 34, 55, 89]);
+
+            assert_eq!(this.build(), [3, 5, 8, 13, 21, 34, 55, 89]);
+        }};
+    }
+
+    case! {of_drop}
+    case! {of_assumed_nondrop}
+    case! {of_copy}
+}
+
+#[test]
+#[should_panic]
+fn extend_from_slice_panics_test() {
+    let mut this: ArrayBuilder<u32, 2, MayDrop> = ArrayBuilder::of_drop();
+
+    this.extend_from_slice(&[3, 5, 8]);
+}
+
+#[test]
 #[should_panic]
 fn build_panics_test() {
     let this: ArrayBuilder<u32, 5, MayDrop> = ArrayBuilder::of_drop();

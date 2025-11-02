@@ -1,0 +1,7 @@
+error[E0515]: cannot return value referencing temporary value
+ --> tests/misc_tests/destructure_rec_ui_tests/ref_pat_short_lifetime-err.rs:4:5
+  |
+3 |     konst::destructure_rec!{(ref bar, ref mut baz) = foo}
+  |     ----------------------------------------------------- temporary value created here
+4 |     (bar, baz)
+  |     ^^^^^^^^^^ returns a value referencing data owned by the current function

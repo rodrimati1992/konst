@@ -56,25 +56,48 @@ where
     TokenTree::from(tt)
 }
 
+pub(crate) fn brace<F>(span: Span, f: F) -> TokenTree
+where
+    F: FnOnce(&mut TokenStream),
+{
+    let mut ts = TokenStream::new();
+    f(&mut ts);
+    let mut tt = Group::new(Delimiter::Brace, ts);
+    tt.set_span(span);
+    TokenTree::from(tt)
+}
+
 ///////////////////////////////////////////////////////
 
+#[cfg_attr(test, derive(Debug))]
 pub(crate) struct Error {
     span: Span,
     message: String,
 }
 
 impl Error {
-    pub(crate) fn new(span: Span, message: &str) -> Self {
+    pub(crate) fn new(span: Span, message: impl Into<String>) -> Self {
         Self {
             span,
-            message: message.to_string(),
+            message: message.into(),
         }
     }
 
-    pub(crate) fn to_compile_error(&self) -> TokenStream {
+    pub(crate) fn to_compile_error(&self, krate: Option<TokenStream>) -> TokenStream {
         let Error { ref message, span } = *self;
 
         let mut out = TokenStream::new();
+
+        if let Some(k) = krate {
+            out.extend(k.into_iter().map(|mut tt| {
+                tt.set_span(tt.span().located_at(span));
+                tt
+            }));
+
+            out.extend(crate::utils::punct_joint_token2(':', ':', span));
+            out.extend(crate::utils::ident_token("__", span));
+            out.extend(crate::utils::punct_joint_token2(':', ':', span));
+        }
 
         out.extend(crate::utils::ident_token("compile_error", span));
 

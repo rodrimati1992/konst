@@ -1,258 +1,155 @@
 #[allow(unused_imports)]
-use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
+use crate::used_proc_macro::{
+    self, Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree,
+};
 
-use proc_macro::token_stream::IntoIter as TSIterator;
+use crate::utils::Error;
 
-use crate::{Inputs, Pattern, utils::Error};
+#[cfg(test)]
+mod parsing_tests;
 
-pub(crate) fn parse_inputs(ts: TokenStream) -> Result<Inputs, Error> {
-    let iter = &mut ts.into_iter();
-
-    let rem_ident = match iter.next() {
-        Some(TokenTree::Ident(ident)) => ident,
-        Some(x) => {
-            return Err(Error::new(
-                x.span(),
-                &format!("Expected identifier.\nFound: {}", x),
-            ));
-        }
-        None => return Err(Error::new(Span::call_site(), "Expected an identifier")),
-    };
-
-    assert_punct(iter.next(), ',')?;
-
-    let mut strings = Vec::<Pattern>::with_capacity(1);
-
-    while let Some(x) = parse_lstr(iter)? {
-        strings.push(x);
-
-        match iter.next() {
-            Some(TokenTree::Punct(p)) if p.as_char() == '|' => {}
-            Some(x) => {
-                return Err(Error::new(
-                    x.span(),
-                    &format!("Expected a `|`\nfound: `{}`", x),
-                ));
-            }
-            None => {}
-        }
-    }
-
-    Ok(Inputs { rem_ident, strings })
+#[derive(Copy, Clone)]
+struct IsIdent {
+    is_ident: bool,
 }
 
-const IN_MSG: &str = "Expected one of: string literal, concat!(...) , stringify!(...)";
+pub(crate) type Parser = std::iter::Peekable<used_proc_macro::token_stream::IntoIter>;
 
-fn parse_lstr(iter: &mut TSIterator) -> Result<Option<Pattern>, Error> {
-    match iter.next() {
-        Some(TokenTree::Ident(ident)) => {
-            let string = ident.to_string();
-            if string == "concat" {
-                let (span, ts) = parse_post_macro_name(iter)?;
+pub(crate) struct Attribute {
+    pub(crate) hash: TokenTree,
+    pub(crate) bracket: TokenTree,
+}
 
-                let mut string = String::new();
-                let iter = &mut ts.into_iter();
+#[derive(Clone)]
+pub(crate) enum PathOrUnder {
+    Path(TokenStream, Span),
+    Underscore(TokenTree),
+}
 
-                while let Some(patt) = parse_lstr(iter)? {
-                    if let Pattern::String { string: s, .. } = patt {
-                        string.push_str(&s);
-                    }
-
-                    if let sep @ Some(_) = iter.next() {
-                        assert_punct(sep, ',')?;
-                    }
-                }
-
-                Ok(Some(Pattern::String { string, span }))
-            } else if string == "stringify" {
-                let (span, ts) = parse_post_macro_name(iter)?;
-
-                let string = ts.to_string();
-
-                Ok(Some(Pattern::String { string, span }))
-            } else {
-                Err(Error::new(
-                    ident.span(),
-                    &format!("{}\nFound: {}", IN_MSG, ident),
-                ))
+impl PathOrUnder {
+    pub(crate) fn into_tokens(self) -> (TokenStream, Span) {
+        match self {
+            Self::Path(x, span) => (x, span),
+            Self::Underscore(x) => {
+                let span = x.span();
+                (TokenStream::from(x), span)
             }
         }
-        Some(TokenTree::Group(group)) if group.delimiter() == Delimiter::None => {
-            parse_lstr(&mut group.stream().into_iter())
-        }
-        Some(TokenTree::Literal(lit)) => parse_literal(lit).map(Some),
-        Some(x) => Err(Error::new(x.span(), &format!("{}\nFound: {}", IN_MSG, x))),
-        None => Ok(None),
     }
 }
 
-fn parse_post_macro_name(iter: &mut TSIterator) -> Result<(Span, TokenStream), Error> {
-    let bang_span = assert_punct(iter.next(), '!')?;
-    match iter.next() {
-        Some(TokenTree::Group(g)) if g.delimiter() == Delimiter::Parenthesis => {
-            Ok((g.span(), g.stream()))
-        }
-        _ => Err(Error::new(bang_span, "Expected `( ..... )` after `!`")),
-    }
-}
+pub(crate) fn parse_attrs(parser: &mut Parser) -> Result<Vec<Attribute>, Error> {
+    let mut out = Vec::new();
 
-fn parse_literal(lit: Literal) -> Result<Pattern, Error> {
-    let span = lit.span();
-    let string = lit.to_string();
+    while let Some(TokenTree::Punct(p)) = parser.peek()
+        && p.as_char() == '#'
+    {
+        let hash = TokenTree::Punct(p.clone());
+        parser.next();
 
-    let string = if string.starts_with('"') {
-        parse_string(&string, span)?
-    } else if string.starts_with('r') {
-        parse_raw_string(&string, span)?
-    } else {
-        return Err(Error::new(span, &format!("{}\nFound: {}", IN_MSG, lit)));
-    };
-
-    Ok(Pattern::String { string, span })
-}
-
-fn parse_string(input: &str, span: Span) -> Result<String, Error> {
-    if !input.ends_with('"') {
-        return Err(Error::new(
-            span,
-            "Somehow there's no terminating quote character?",
-        ));
-    }
-
-    let make_err = |rem: &str, error: &str| -> Error {
-        let pos = rem.as_ptr() as usize - input.as_ptr() as usize;
-
-        let upto = input[..pos]
-            .chars()
-            .rev()
-            .take(10)
-            .collect::<String>()
-            .chars()
-            .rev()
-            .collect::<String>();
-
-        Error::new(span, &format!("Error: {}    After: {}", error, upto,))
-    };
-
-    let mut rem = &input[1..input.len() - 1];
-    let mut out = String::new();
-
-    loop {
-        let end_copied = rem.find('\\').unwrap_or(rem.len());
-        out.push_str(&rem[..end_copied]);
-
-        rem = &rem[end_copied..];
-
-        if rem.is_empty() {
-            break;
+        match parser.peek() {
+            Some(TokenTree::Group(group)) if group.delimiter() == Delimiter::Bracket => {}
+            _ => break,
         }
 
-        // The byte after the '\\' character
-        let b = get_byte(rem, 1);
+        let bracket = parser.next().unwrap();
 
-        // Now we're at the character right after the matched one.
-        rem = &rem[2..];
-
-        out.push(match b {
-            b'x' => {
-                if let Some(hex) = rem.get(..2) {
-                    let num = u8::from_str_radix(hex, 16)
-                        .ok()
-                        .filter(|&x| x < 128)
-                        .ok_or_else(|| {
-                            make_err(
-                                rem,
-                                &format!("expected values from \\x00 to \\x7F, found: {}", hex),
-                            )
-                        })?;
-                    out.push(num as char);
-                } else {
-                    return Err(make_err(rem, "invalid ascii escape"));
-                }
-                rem = &rem[2..];
-                continue;
-            }
-            b'u' => {
-                if let Some(end_brace) = rem.bytes().position(|b| b == b'}') {
-                    let c: char = u32::from_str_radix(&rem[1..end_brace], 16)
-                        .ok()
-                        .and_then(std::char::from_u32)
-                        .ok_or_else(|| {
-                            make_err(
-                                rem,
-                                &format!("Invalid unicode escape: {}", &rem[..end_brace]),
-                            )
-                        })?;
-                    out.push(c);
-
-                    rem = &rem[end_brace + 1..];
-                } else {
-                    return Err(make_err(rem, "Expected closing brace for unicode escape"));
-                }
-                continue;
-            }
-            b'n' => '\n',
-            b'r' => '\r',
-            b't' => '\t',
-            b'\\' => '\\',
-            b'0' => '\0',
-            b'\'' => '\'',
-            b'"' => '"',
-            b'\r' | b'\n' => {
-                rem = rem.trim_start();
-                continue;
-            }
-            _ => return Err(make_err(rem, "invalid escape")),
-        });
+        out.push(Attribute { hash, bracket });
     }
 
     Ok(out)
 }
 
-fn get_byte(s: &str, at: usize) -> u8 {
-    match s.as_bytes().get(at) {
-        Some(&x) => x,
-        None => 0,
+pub(crate) fn peek_parse_path_or_under(parser: &mut Parser) -> Result<Option<PathOrUnder>, Error> {
+    let start_span = match parser.peek() {
+        Some(TokenTree::Punct(p))
+            if matches!(
+                (p.spacing(), p.as_char()),
+                (_, '<' | '>') | (Spacing::Joint, ':')
+            ) =>
+        {
+            p.span()
+        }
+        Some(TokenTree::Ident(ident)) if ident.to_string() == "_" => {
+            return Ok(Some(PathOrUnder::Underscore(parser.next().unwrap())));
+        }
+        Some(TokenTree::Ident(ident)) => ident.span(),
+        _ => return Ok(None),
+    };
+
+    let mut level = 0usize;
+
+    let mut out = TokenStream::new();
+    let mut last_span = start_span;
+    let mut prev_token_spacing = Spacing::Joint;
+    let mut prev_is_ident = IsIdent { is_ident: false };
+
+    loop {
+        let tt = parser.peek();
+
+        let mut curr_token_spacing = Spacing::Alone;
+        let curr_is_ident = IsIdent {
+            is_ident: matches!(tt, Some(TokenTree::Ident(_))),
+        };
+
+        match tt {
+            Some(TokenTree::Punct(punct)) if punct.as_char() == '<' => {
+                level += 1;
+            }
+            Some(TokenTree::Punct(punct)) if punct.as_char() == '>' => {
+                level = level
+                    .checked_sub(1)
+                    .ok_or_else(|| Error::new(punct.span(), "unexpected '>'"))?;
+            }
+            Some(tt)
+                if level == 0 && is_path_terminator(tt, prev_token_spacing, prev_is_ident)? =>
+            {
+                break;
+            }
+            Some(TokenTree::Punct(punct)) if level == 0 => {
+                curr_token_spacing = punct.spacing();
+            }
+            _ => {}
+        }
+
+        prev_token_spacing = curr_token_spacing;
+        prev_is_ident = curr_is_ident;
+
+        if let Some(tt) = parser.next() {
+            last_span = tt.span();
+            out.extend(std::iter::once(tt));
+        } else {
+            break;
+        }
+    }
+
+    if level == 0 {
+        Ok(Some(PathOrUnder::Path(out, start_span)))
+    } else {
+        Err(Error::new(last_span, "incomplete path"))
     }
 }
 
-fn parse_raw_string(input: &str, span: Span) -> Result<String, Error> {
-    let input = &input[1..];
-
-    let hash_count = input
-        .bytes()
-        .position(|b| b != b'#')
-        .filter(|&p| input.as_bytes()[p] == b'"')
-        .ok_or_else(|| {
-            Error::new(
-                span,
-                "Couldn't find initial '\"' character in raw string literal.",
-            )
-        })?;
-
-    let end_quote = input
-        .bytes()
-        .rev()
-        .position(|b| b != b'#')
-        .map(|p| input.len() - 1 - p)
-        .filter(|&p| input.as_bytes()[p] == b'"')
-        .ok_or_else(|| {
-            Error::new(
-                span,
-                "Couldn't find final '\"' character in raw string literal.",
-            )
-        })?;
-
-    Ok(input[hash_count + 1..end_quote].to_string())
-}
-
-fn assert_punct(tt: Option<TokenTree>, c: char) -> Result<Span, Error> {
+fn is_path_terminator(
+    tt: &TokenTree,
+    prev_token_spacing: Spacing,
+    IsIdent {
+        is_ident: prev_is_ident,
+    }: IsIdent,
+) -> Result<bool, Error> {
     match tt {
-        Some(TokenTree::Punct(p)) if p.as_char() == c => Ok(p.span()),
-        Some(x) => Err(Error::new(
-            x.span(),
-            &format!("Expected `{}`, found `{}`", c, x),
+        TokenTree::Punct(p) => Ok(
+            !(p.as_char() == ':' && [prev_token_spacing, p.spacing()].contains(&Spacing::Joint))
+        ),
+        TokenTree::Group(_) => Ok(true),
+        TokenTree::Ident(ident) if matches!(ident.to_string().as_str(), "_" | "ref" | "mut") => {
+            Err(Error::new(ident.span(), "expected path/identifier"))
+        }
+        TokenTree::Ident(ident) if prev_is_ident => Err(Error::new(
+            ident.span(),
+            "expected non-identifier after path/identifier",
         )),
-        None => Err(Error::new(Span::call_site(), "Expected some token")),
+        TokenTree::Ident(_) => Ok(false),
+        TokenTree::Literal(_) => Ok(true),
     }
 }

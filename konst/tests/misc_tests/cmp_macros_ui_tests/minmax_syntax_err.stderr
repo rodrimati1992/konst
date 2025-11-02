@@ -373,11 +373,3 @@ error: `max_by_key` expects valid closure syntax, passed closure without return 
    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: this error originates in the macro `$crate::__parse_closure_no_expr_error` which comes from the expansion of the macro `cmp::max_by_key` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-warning: unused import: `std::cmp::Ordering`
- --> tests/misc_tests/cmp_macros_ui_tests/minmax_syntax_err.rs:3:5
-  |
-3 | use std::cmp::Ordering;
-  |     ^^^^^^^^^^^^^^^^^^
-  |
-  = note: `#[warn(unused_imports)]` on by default

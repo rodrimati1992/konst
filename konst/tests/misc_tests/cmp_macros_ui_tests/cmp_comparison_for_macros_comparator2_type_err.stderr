@@ -338,7 +338,7 @@ error[E0308]: arguments to this function are incorrect
 note: function defined here
   --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
    |
-5  | fn units((): (), (): ()) -> () { () }
+ 5 | fn units((): (), (): ()) -> () { () }
    |    ^^^^^ ------  ------
    = note: this error originates in the macro `$crate::__priv_const_eq_for` which comes from the expansion of the macro `cmp::const_eq_for` (in Nightly builds, run with -Z macro-backtrace for more info)
 
@@ -378,7 +378,7 @@ error[E0308]: arguments to this function are incorrect
 note: function defined here
   --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
    |
-5  | fn units((): (), (): ()) -> () { () }
+ 5 | fn units((): (), (): ()) -> () { () }
    |    ^^^^^ ------  ------
    = note: this error originates in the macro `$crate::__priv_const_eq_for` which comes from the expansion of the macro `cmp::const_ne_for` (in Nightly builds, run with -Z macro-backtrace for more info)
 
@@ -418,7 +418,7 @@ error[E0308]: arguments to this function are incorrect
 note: function defined here
   --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
    |
-5  | fn units((): (), (): ()) -> () { () }
+ 5 | fn units((): (), (): ()) -> () { () }
    |    ^^^^^ ------  ------
    = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_cmp_for` (in Nightly builds, run with -Z macro-backtrace for more info)
 
@@ -458,7 +458,7 @@ error[E0308]: arguments to this function are incorrect
 note: function defined here
   --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
    |
-5  | fn units((): (), (): ()) -> () { () }
+ 5 | fn units((): (), (): ()) -> () { () }
    |    ^^^^^ ------  ------
    = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_lt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
 
@@ -498,7 +498,7 @@ error[E0308]: arguments to this function are incorrect
 note: function defined here
   --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
    |
-5  | fn units((): (), (): ()) -> () { () }
+ 5 | fn units((): (), (): ()) -> () { () }
    |    ^^^^^ ------  ------
    = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_le_for` (in Nightly builds, run with -Z macro-backtrace for more info)
 
@@ -538,7 +538,7 @@ error[E0308]: arguments to this function are incorrect
 note: function defined here
   --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
    |
-5  | fn units((): (), (): ()) -> () { () }
+ 5 | fn units((): (), (): ()) -> () { () }
    |    ^^^^^ ------  ------
    = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_gt_for` (in Nightly builds, run with -Z macro-backtrace for more info)
 
@@ -578,7 +578,7 @@ error[E0308]: arguments to this function are incorrect
 note: function defined here
   --> tests/misc_tests/cmp_macros_ui_tests/cmp_comparison_for_macros_comparator2_type_err.rs:5:4
    |
-5  | fn units((): (), (): ()) -> () { () }
+ 5 | fn units((): (), (): ()) -> () { () }
    |    ^^^^^ ------  ------
    = note: this error originates in the macro `$crate::__priv_const_cmp_for` which comes from the expansion of the macro `cmp::const_ge_for` (in Nightly builds, run with -Z macro-backtrace for more info)
 

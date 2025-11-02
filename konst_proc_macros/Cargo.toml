@@ -1,6 +1,6 @@
 [package]
 name = "konst_proc_macros"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 rust-version = "1.89.0"
 edition = "2024"
@@ -16,7 +16,8 @@ include = [
     "LICENSE-ZLIB.md", 
 ]
 
-[dependencies]
+[dev-dependencies.proc-macro2]
+version = "1.0.100"
 
 [lib]
 proc-macro = true

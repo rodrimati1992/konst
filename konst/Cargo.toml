@@ -1,15 +1,15 @@
 [package]
 name = "konst"
-version = "0.4.2"
+version = "0.4.3"
 authors = ["rodrimati1992 <rodrimatt1985@gmail.com>"]
 rust-version = "1.89.0"
 edition = "2024"
 license = "Zlib"
-description = "Const equivalents of std functions, compile-time comparison, iteration, and parsing"
+description = "Const equivalents of std features: comparison, destructuring, iteration, and parsing"
 documentation = "https://docs.rs/konst/"
 readme="../README.md"
-keywords = ["no-std", "const_fn", "parsing"]
-categories = ["no-std", "parsing"]
+keywords = ["no-std", "const_fn", "destructuring", "iterators", "parsing"]
+categories = ["no-std", "parsing", "rust-patterns"]
 repository = "https://github.com/rodrimati1992/konst/"
 include = [
     "Cargo.toml", 
@@ -20,7 +20,7 @@ include = [
 
 
 [dependencies.konst_proc_macros]
-version = "=0.4.0"
+version = "=0.4.1"
 path = "../konst_proc_macros"
 optional = true
 
@@ -59,6 +59,7 @@ cmp = []
 const_panic_derive = ["const_panic/derive"]
 iter = []
 parsing = []
+konst_proc_macros = ["dep:konst_proc_macros"]
 parsing_proc = ["parsing", "konst_proc_macros"]
 
 rust_latest_stable = []
