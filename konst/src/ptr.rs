@@ -183,7 +183,11 @@ pub mod nonnull {
     #[cfg(feature = "rust_1_56")]
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
     pub const fn new<T: ?Sized>(ptr: *mut T) -> Option<NonNull<T>> {
-        unsafe { core::mem::transmute_copy::<*mut T, Option<NonNull<T>>>(&ptr) }
+        unsafe { 
+            crate::utils::__TransmuteCopy::<*mut T, Option<NonNull<T>>> {
+                from: ptr
+            }.to            
+        }
     }
 
     /// Const equivalent of [`NonNull::as_ref`](core::ptr::NonNull::as_ref).

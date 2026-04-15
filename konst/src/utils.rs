@@ -22,6 +22,14 @@ mod mut_refs {
     }
 }
 
+
+#[cfg(feature = "rust_1_56")]
+#[repr(C)]
+pub(crate) union __TransmuteCopy<T: Copy, U: Copy> {
+    pub(crate) from: T,
+    pub(crate) to: U,
+}
+
 #[doc(hidden)]
 #[cfg(feature = "mut_refs")]
 pub(crate) use mut_refs::{deref_raw_mut_ptr, slice_from_raw_parts_mut, BorrowMut};
