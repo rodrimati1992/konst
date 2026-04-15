@@ -2,6 +2,10 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.2
 
+### 0.2.20
+
+Fixed compilation ptr module failure on nightly 2026-04-09.
+
 ### 0.2.19
 
 Addeded `konst::iter` module, with const encodings of `Iterator` API:
