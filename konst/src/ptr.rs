@@ -151,15 +151,11 @@ pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
 ///
 ///
 /// ```
+#[deprecated(since = "0.2.20", note = "unsound for out of bounds pointers")]
 #[cfg(feature = "rust_1_56")]
 #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
 pub const fn is_null<'a, T: ?Sized>(ptr: *const T) -> bool {
-    unsafe {
-        matches!(
-            core::mem::transmute::<*const T, Option<NonNull<T>>>(ptr),
-            None
-        )
-    }
+    unsafe { matches!(nonnull::new(ptr as *mut T), None) }
 }
 
 /// Const equivalents of [`NonNull`](core::ptr::NonNull) methods.
@@ -183,10 +179,11 @@ pub mod nonnull {
     ///
     ///
     /// ```
+    #[deprecated(since = "0.2.20", note = "unsound for out of bounds pointers")]
     #[cfg(feature = "rust_1_56")]
     #[cfg_attr(feature = "docsrs", doc(cfg(feature = "rust_1_56")))]
     pub const fn new<T: ?Sized>(ptr: *mut T) -> Option<NonNull<T>> {
-        unsafe { core::mem::transmute(ptr) }
+        unsafe { core::mem::transmute_copy::<*mut T, Option<NonNull<T>>>(&ptr) }
     }
 
     /// Const equivalent of [`NonNull::as_ref`](core::ptr::NonNull::as_ref).
