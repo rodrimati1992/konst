@@ -4,6 +4,7 @@ on:
     push:
         branches:
         - main
+        - 0.3_fixes
 
     pull_request:
 
