@@ -10,8 +10,6 @@
 //! - `deref_mut`: Rust 1.83.0 allows dereferencing mutable pointers.
 //!
 
-use core::ptr::NonNull;
-
 /// Const equivalent of
 /// [`<*const>::as_ref`](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_ref)
 ///
@@ -93,18 +91,10 @@ pub const unsafe fn as_mut<'a, T: ?Sized>(ptr: *mut T) -> Option<&'a mut T> {
 ///
 ///
 /// ```
-#[deprecated(
-    since = "0.3.16", 
-    note = "unsound for out of bounds pointers"
-)]
+#[deprecated(since = "0.3.16", note = "unsound for out of bounds pointers")]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub const fn is_null<T: ?Sized>(ptr: *const T) -> bool {
-    unsafe {
-        matches!(
-            core::mem::transmute::<*const T, Option<NonNull<T>>>(ptr),
-            None
-        )
-    }
+    unsafe { matches!(nonnull::new(ptr as *mut T), None) }
 }
 
 /// Const equivalents of [`NonNull`](core::ptr::NonNull) methods.
@@ -128,13 +118,10 @@ pub mod nonnull {
     ///
     ///
     /// ```
-    #[deprecated(
-        since = "0.3.16", 
-        note = "unsound for out of bounds pointers"
-    )]
+    #[deprecated(since = "0.3.16", note = "unsound for out of bounds pointers")]
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     pub const fn new<T: ?Sized>(ptr: *mut T) -> Option<NonNull<T>> {
-        unsafe { core::mem::transmute(ptr) }
+        unsafe { crate::utils::__TransmuteCopy::<*mut T, Option<NonNull<T>>> { from: ptr }.to }
     }
 
     /// Const equivalent of [`NonNull::as_ref`](core::ptr::NonNull::as_ref).

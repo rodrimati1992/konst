@@ -2,6 +2,10 @@ This is the changelog, summarising changes in each version(some minor changes ma
 
 # 0.3
 
+### 0.3.17
+
+Fixed compilation failure of `konst::ptr` module on nightly 2026-04-09.
+
 ### 0.3.16
 
 Deprecated these functions:
